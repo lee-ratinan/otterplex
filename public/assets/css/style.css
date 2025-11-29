@@ -15,8 +15,6 @@
     --default-font-th: "Roboto", "Noto Serif Thai", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     --heading-font: "Ubuntu",  sans-serif;
     --heading-font-th: "Ubuntu", "Noto Sans Thai", sans-serif;
-    --nav-font: "Inter",  sans-serif;
-    --nav-font-th: "Ubuntu", "Noto Sans Thai", sans-serif;
 }
 
 :root {
