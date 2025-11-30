@@ -56,13 +56,13 @@ abstract class BaseController extends Controller
         $language = service('language');
         // Set locale, use locale in the GET parameter (highest priority), then the session, then the default (or from the header)
         $get_param_locale = $request->getGet('hl');
-        if (!empty($get_param_locale) && in_array($get_param_locale, $config->supported_languages)) {
-            $session->set('locale', $get_param_locale);
+        if (!empty($get_param_locale) && in_array($get_param_locale, $config->supportedLocales)) {
+            $session->set('lang', $get_param_locale);
             $request->setLocale($get_param_locale);
             $language->setLocale($get_param_locale);
-        } else if ($session->has('locale')) {
-            $request->setLocale($get_param_locale);
-            $language->setLocale($session->get('locale'));
+        } else if ($session->has('lang')) {
+            $request->setLocale($session->get('lang'));
+            $language->setLocale($session->get('lang'));
         }
     }
 }
