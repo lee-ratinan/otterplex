@@ -1,51 +1,53 @@
 <?php $this->extend('home/_layout'); ?>
 <?= $this->section('content') ?>
     <div class="pt-4 pb-2">
-        <h5 class="card-title text-center pb-0 fs-4">Create an Account</h5>
-        <p class="text-center small">Enter your personal details to create account</p>
+        <h5 class="card-title text-center pb-0 fs-4"><?= lang('System.pages.create-account') ?></h5>
+        <p class="text-center small"><?= lang('System.create-account.instruction') ?></p>
     </div>
-
     <form class="row g-3 needs-validation" novalidate="">
         <div class="col-12">
-            <label for="yourName" class="form-label">Your Name</label>
-            <input type="text" name="name" class="form-control" id="yourName" required="">
-            <div class="invalid-feedback">Please, enter your name!</div>
+            <label for="full-name" class="form-label"><?= lang('System.create-account.fields.full-name') ?></label>
+            <input type="text" name="name" class="form-control" id="full-name" required="">
+            <div class="invalid-feedback"><?= lang('System.create-account.fields.full-name-empty-error') ?></div>
         </div>
-
         <div class="col-12">
-            <label for="yourEmail" class="form-label">Your Email</label>
-            <input type="email" name="email" class="form-control" id="yourEmail" required="">
-            <div class="invalid-feedback">Please enter a valid Email adddress!</div>
-        </div>
-
-        <div class="col-12">
-            <label for="yourUsername" class="form-label">Username</label>
+            <label for="username" class="form-label"><?= lang('System.create-account.fields.username') ?></label>
             <div class="input-group has-validation">
-                <span class="input-group-text" id="inputGroupPrepend">@</span>
-                <input type="text" name="username" class="form-control" id="yourUsername" required="">
-                <div class="invalid-feedback">Please choose a username.</div>
+                <span class="input-group-text" id="inputGroupPrepend1"><i class="bi bi-envelope"></i></span>
+                <input type="email" name="username" class="form-control" id="username" required="">
+                <div class="invalid-feedback"><?= lang('System.create-account.fields.username-empty-error') ?></div>
             </div>
         </div>
-
         <div class="col-12">
-            <label for="yourPassword" class="form-label">Password</label>
-            <input type="password" name="password" class="form-control" id="yourPassword" required="">
-            <div class="invalid-feedback">Please enter your password!</div>
+            <label for="password" class="form-label"><?= lang('System.create-account.fields.password') ?></label>
+            <div class="input-group has-validation">
+                <span class="input-group-text" id="inputGroupPrepend2"><i class="bi bi-asterisk"></i></span>
+                <input type="password" name="password" class="form-control" id="password" required="">
+                <div class="invalid-feedback"><?= lang('System.create-account.fields.password-empty-error') ?></div>
+            </div>
         </div>
-
+        <div class="col-12">
+            <label for="plan" class="form-label"><?= lang('System.create-account.fields.plan') ?></label>
+            <select class="form-control" id="plan" name="plan">
+                <?php foreach (lang('System.create-account.fields.plan-options') as $key => $value) : ?>
+                    <option value="<?= $key ?>"><?= $value ?></option>
+                <?php endforeach; ?>
+            </select>
+            <div class="invalid-feedback"><?= lang('System.create-account.fields.plan-empty-error') ?></div>
+        </div>
         <div class="col-12">
             <div class="form-check">
                 <input class="form-check-input" name="terms" type="checkbox" value="" id="acceptTerms" required="">
-                <label class="form-check-label" for="acceptTerms">I agree and accept the <a href="#">terms and conditions</a></label>
-                <div class="invalid-feedback">You must agree before submitting.</div>
+                <label class="form-check-label" for="acceptTerms"><?= lang('System.create-account.fields.i-agree') ?> <a href="<?= getenv('main_site') ?>terms-and-conditions"><?= lang('System.create-account.fields.terms') ?></a></label>
+                <div class="invalid-feedback"><?= lang('System.create-account.fields.terms-error') ?></div>
             </div>
         </div>
         <div class="col-12">
-            <button class="btn btn-primary w-100" type="submit">Create Account</button>
+            <button class="btn btn-primary w-100" type="submit"><?= lang('System.pages.create-account') ?></button>
         </div>
         <div class="col-12">
-            <p class="small mb-0">Already have an account? <a href="pages-login.html">Log in</a></p>
+            <a class="btn btn-outline-primary btn-sm w-100 mb-3" href="<?= getenv('main_site') ?>"><i class="bi bi-chevron-left"></i> <?= lang('System.go-to-main-site') ?></a>
+            <p class="small"><?= lang('System.create-account.already-have-account') ?> <a href="<?= base_url() ?>"><?= lang('System.pages.login') ?></a></p>
         </div>
     </form>
-
 <?php $this->endSection() ?>
