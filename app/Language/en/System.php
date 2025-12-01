@@ -49,5 +49,15 @@ return [
         'submit'         => 'Reset Password',
         'submit-success' => 'Your reset password request has been received. Please check your email and click the link to reset your password within 5 minutes.',
         'submit-error'   => 'An error has occurred, please try again later.'
+    ],
+    'reset-password'  => [
+        'instruction' => 'Please enter your new password',
+        'fields'      => [
+            'password'                     => 'New Password',
+            'password-confirm'             => 'Confirm Password',
+            'password-empty-error'         => 'Please enter your password.',
+            'password-confirm-empty-error' => 'Please enter your confirm password.',
+        ],
+        'change-password' => 'Change Password',
     ]
 ];

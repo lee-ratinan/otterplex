@@ -105,9 +105,14 @@ class Home extends BaseController
      */
     public function reset_password(string $token): string
     {
+        $valid = false;
+        if ($token == 'token') {
+            $valid = true;
+        }
         $data = [
-            'slug' => 'login',
-            'lang' => $this->request->getLocale(),
+            'slug'           => 'login',
+            'lang'           => $this->request->getLocale(),
+            'token_validity' => $valid,
         ];
         return view('home/reset_password', $data);
     }
