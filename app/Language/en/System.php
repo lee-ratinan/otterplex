@@ -14,11 +14,10 @@ return [
         'instruction'       => 'Please login to your account.',
         'fields'            => [
             'username'             => 'Username (email address)',
-            'username-empty-error' => 'Please enter your username.',
+            'username-empty-error' => 'Please enter your username (email address).',
             'password'             => 'Password',
             'password-empty-error' => 'Please enter your password.',
         ],
-        'remember-me'       => 'Remember me',
         'dont-have-account' => 'Don’t have an account?',
     ],
     'create-account'  => [
@@ -59,5 +58,6 @@ return [
             'password-confirm-empty-error' => 'Please enter your confirm password.',
         ],
         'change-password' => 'Change Password',
+        'token-invalid'   => 'Your token is invalid or expired, please start over again.'
     ]
 ];
