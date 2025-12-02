@@ -14,13 +14,14 @@
 # ENVIRONMENT
 #--------------------------------------------------------------------
 
-# CI_ENVIRONMENT = production
+CI_ENVIRONMENT=production
 
 #--------------------------------------------------------------------
 # APP
 #--------------------------------------------------------------------
 
-# app.baseURL = ''
+app.baseURL='xxx'
+main_site='xxx'
 # If you have trouble with `.`, you could also use `_`.
 # app_baseURL = ''
 # app.forceGlobalSecureRequests = false
@@ -29,6 +30,13 @@
 #--------------------------------------------------------------------
 # DATABASE
 #--------------------------------------------------------------------
+
+database.default.hostname=mysql
+database.default.database=otter_db
+database.default.username=otter_user
+database.default.password=super_strong_password
+database.default.DBDriver=MySQLi
+database.default.port=3306
 
 # database.default.hostname = localhost
 # database.default.database = ci4
