@@ -19,7 +19,8 @@ class Home extends BaseController
      */
     public function login(): string|RedirectResponse
     {
-        if (is_login()) {
+        $login = is_login();
+        if ($login['login']) {
             return redirect()->to('admin/dashboard');
         }
         $data = [
@@ -94,6 +95,14 @@ class Home extends BaseController
      */
     public function logout(): RedirectResponse
     {
+        $session = session();
+        $session->set([
+            'session_id'     => null,
+            'session_expiry' => '2020-01-01 00:00:00',
+            'user'           => null,
+            'business_ids'   => [],
+            'business'       => null
+        ]);
         return redirect()->to('/');
     }
 
