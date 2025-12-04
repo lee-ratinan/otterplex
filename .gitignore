@@ -8,3 +8,4 @@ writable/logs/*
 writable/session/*
 writable/uploads/*
 vendor/*
+/composer.lock

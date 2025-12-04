@@ -9,6 +9,13 @@ return [
         'forgot-password' => 'Forgot Password',
         'reset-password'  => 'Reset Password',
     ],
+    'response-msg'    => [
+        'error' => [
+            'generic'           => 'Sorry, something went wrong. Please try again later.',
+            'wrong-credentials' => 'Sorry, your username or password is incorrect.',
+            'inactive-account'  => 'Sorry, your account is not active. Please contact your administrator or email the support team.',
+        ]
+    ],
     'login'           => [
         'title'             => 'Login',
         'instruction'       => 'Please login to your account.',
@@ -50,8 +57,8 @@ return [
         'submit-error'   => 'An error has occurred, please try again later.'
     ],
     'reset-password'  => [
-        'instruction' => 'Please enter your new password',
-        'fields'      => [
+        'instruction'     => 'Please enter your new password',
+        'fields'          => [
             'password'                     => 'New Password',
             'password-confirm'             => 'Confirm Password',
             'password-empty-error'         => 'Please enter your password.',

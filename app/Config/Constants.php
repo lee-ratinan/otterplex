@@ -77,3 +77,19 @@ defined('EXIT_USER_INPUT')     || define('EXIT_USER_INPUT', 7);     // invalid u
 defined('EXIT_DATABASE')       || define('EXIT_DATABASE', 8);       // database error
 defined('EXIT__AUTO_MIN')      || define('EXIT__AUTO_MIN', 9);      // lowest automatically-assigned error code
 defined('EXIT__AUTO_MAX')      || define('EXIT__AUTO_MAX', 125);    // highest automatically-assigned error code
+
+defined('STATUS_RESPONSE_ERR') || define('STATUS_RESPONSE_ERR', 'ERR');
+defined('STATUS_RESPONSE_OK')  || define('STATUS_RESPONSE_OK', 'OK');
+
+defined('DEFAULT_COUNTRY_CODE')       || define('DEFAULT_COUNTRY_CODE', 'TH');
+defined('URL_PRIME_NONCE')            || define('URL_PRIME_NONCE', 787);
+
+defined('BANNED_PASSWORD')            || define('BANNED_PASSWORD', '123|password|qwerty|111|letmein|1q2w3e|aaa|football|iloveyou|admin|princess|dragon|welcome|hello|world|master');
+
+defined('DATETIME_FORMAT_DB')         || define('DATETIME_FORMAT_DB', 'Y-m-d H:i:s');
+defined('DATE_FORMAT_DB')             || define('DATE_FORMAT_DB', 'Y-m-d');
+defined('DATETIME_FORMAT_UI')         || define('DATETIME_FORMAT_UI', 'd M Y h:i A');
+defined('DATE_FORMAT_UI')             || define('DATE_FORMAT_UI', 'd M Y');
+
+defined('VERSION_NUMBER')             || define('VERSION_NUMBER', '0.9.1');
+defined('VERSION_RELEASED_DATE')      || define('VERSION_RELEASED_DATE', '7 November 2025');

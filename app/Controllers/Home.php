@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Models\UserMasterModel;
 use CodeIgniter\HTTP\RedirectResponse;
 use CodeIgniter\HTTP\ResponseInterface;
 
@@ -34,8 +35,50 @@ class Home extends BaseController
      */
     public function login_post(): ResponseInterface
     {
-
-        return $this->response->setJSON([]);
+        try {
+            $user_name  = $this->request->getPost('username');
+            $password   = $this->request->getPost('password');
+            $user_model = new UserMasterModel();
+            $user_row   = $user_model->where('email_address', $user_name)->first();
+            if (empty($user_row) || !password_verify($password, $user_row['password_hash'])) {
+                return $this->response
+                    ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED)
+                    ->setJSON([
+                        'status'  => STATUS_RESPONSE_ERR,
+                        'message' => lang('System.response-msg.error.wrong-credentials')
+                    ]);
+            }
+            if ($user_model::ACCOUNT_STATUS_ACTIVE != $user_row['account_status']) {
+                return $this->response
+                    ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED)
+                    ->setJSON([
+                        'status'  => STATUS_RESPONSE_ERR,
+                        'message' => lang('System.response-msg.error.inactive-account')
+                    ]);
+            }
+            // Create session here
+            $session = session();
+            $session->set([
+                'session_id'     => session_id(),
+                'session_expiry' => date(DATETIME_FORMAT_DB, strtotime('+5 hour')),
+                'user_id'        => $user_row['id'],
+                'email'          => $user_row['email_address'],
+                'full_name'      => $user_row['user_name_first'] . ' ' . $user_row['user_name_last'],
+                'account_status' => $user_row['account_status'],
+                'user_type'      => $user_row['user_type'],
+                'user_gender'    => $user_row['user_gender'],
+            ]);
+            return $this->response->setJSON([
+                'status' => STATUS_RESPONSE_OK
+            ]);
+        } catch (\Exception $e) {
+            return $this->response
+                ->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR)
+                ->setJSON([
+                    'status'  => STATUS_RESPONSE_ERR,
+                    'message' => lang('System.response-msg.error.generic') . ' [' . $e->getMessage() . ']'
+                ]);
+        }
     }
 
     /**

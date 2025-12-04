@@ -58,15 +58,17 @@
                     "<?= base_url('login') ?>",
                     <?php gen_json_fields_to_fields($fields) ?>,
                     function(response, status) {
-                        if (status === "success") {
-                            console.log("Form submitted successfully!");
-                            console.log("Server response:", response);
+                        if (response.status === "<?= STATUS_RESPONSE_OK ?>") {
+                            // Future: add OTP feature when ready
+                            window.location.href = '<?= base_url('dashboard') ?>';
                         } else {
-                            console.error("Error submitting form:", status);
+                            toastr.error(response.message)
                         }
                     },
                     "json"
-                );
+                ).fail(function () {
+                    toastr.error('<?= lang('System.response-msg.error.generic') ?>')
+                });
             })
         });
     </script>
