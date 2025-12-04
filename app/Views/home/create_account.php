@@ -6,9 +6,13 @@
     </div>
     <form class="row g-3 needs-validation" novalidate="">
         <div class="col-12">
-            <label for="full-name" class="form-label"><?= lang('System.create-account.fields.full-name') ?></label>
-            <input type="text" name="name" class="form-control" id="full-name" required="">
-            <div class="invalid-feedback"><?= lang('System.create-account.fields.full-name-empty-error') ?></div>
+            <label for="first-name" class="form-label"><?= lang('System.create-account.fields.full-name') ?></label>
+            <label for="last-name" class="d-none"><?= lang('System.create-account.fields.last-name') ?></label>
+            <div class="input-group has-validation">
+                <input type="text" name="first-name" class="form-control" id="first-name" required="" placeholder="<?= lang('System.create-account.fields.first-name') ?>">
+                <input type="text" name="last-name" class="form-control" id="last-name" required="" placeholder="<?= lang('System.create-account.fields.last-name') ?>">
+                <div class="invalid-feedback"><?= lang('System.create-account.fields.full-name-empty-error') ?></div>
+            </div>
         </div>
         <div class="col-12">
             <label for="username" class="form-label"><?= lang('System.create-account.fields.username') ?></label>

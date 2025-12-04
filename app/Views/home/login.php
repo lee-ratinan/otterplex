@@ -60,7 +60,7 @@
                     function(response, status) {
                         if (response.status === "<?= STATUS_RESPONSE_OK ?>") {
                             // Future: add OTP feature when ready
-                            window.location.href = '<?= base_url('dashboard') ?>';
+                            window.location.href = '<?= base_url('admin/dashboard') ?>';
                         } else {
                             toastr.error(response.message)
                         }

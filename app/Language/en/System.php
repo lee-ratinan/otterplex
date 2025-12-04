@@ -32,6 +32,8 @@ return [
         'fields'               => [
             'full-name'             => 'Full name',
             'full-name-empty-error' => 'Please enter your full name.',
+            'first-name'            => 'First name',
+            'last-name'             => 'Last name',
             'username'              => 'Username (email address)',
             'username-empty-error'  => 'Please enter your username (email address).',
             'password'              => 'Password',

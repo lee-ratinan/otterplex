@@ -15,10 +15,13 @@ class Home extends BaseController
 
     /**
      * Login page
-     * @return string
+     * @return string|RedirectResponse
      */
-    public function login(): string
+    public function login(): string|RedirectResponse
     {
+        if (is_login()) {
+            return redirect()->to('admin/dashboard');
+        }
         $data = [
             'slug' => 'login',
             'lang' => $this->request->getLocale(),
@@ -61,12 +64,16 @@ class Home extends BaseController
             $session->set([
                 'session_id'     => session_id(),
                 'session_expiry' => date(DATETIME_FORMAT_DB, strtotime('+5 hour')),
-                'user_id'        => $user_row['id'],
-                'email'          => $user_row['email_address'],
-                'full_name'      => $user_row['user_name_first'] . ' ' . $user_row['user_name_last'],
-                'account_status' => $user_row['account_status'],
-                'user_type'      => $user_row['user_type'],
-                'user_gender'    => $user_row['user_gender'],
+                'user'           => [
+                    'user_id'        => $user_row['id'],
+                    'email'          => $user_row['email_address'],
+                    'full_name'      => $user_row['user_name_first'] . ' ' . $user_row['user_name_last'],
+                    'account_status' => $user_row['account_status'],
+                    'user_type'      => $user_row['user_type'],
+                    'user_gender'    => $user_row['user_gender'],
+                ],
+                'business_ids'   => [],
+                'business'       => null
             ]);
             return $this->response->setJSON([
                 'status' => STATUS_RESPONSE_OK

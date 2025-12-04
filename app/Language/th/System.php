@@ -25,6 +25,8 @@ return [
         'fields'               => [
             'full-name'             => 'ชื่อ-สกุล',
             'full-name-empty-error' => 'กรุณากรอกชื่อ-สกุล',
+            'first-name'            => 'ชื่อจริง',
+            'last-name'             => 'นามสกุล',
             'username'              => 'ชื่อผู้ใช้ (บัญชีอีเมล)',
             'username-empty-error'  => 'กรุณากรอกชื่อผู้ใช้ (บัญชีอีเมล)',
             'password'              => 'รหัสผ่าน',
