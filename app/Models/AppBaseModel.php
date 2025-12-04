@@ -38,6 +38,25 @@ class AppBaseModel extends Model
     }
 
     /**
+     * Retrieve data from cache first
+     * If the data must be retrieved from the database directly, use ->find($id) or ->first()
+     * @param int $id
+     * @return array|null
+     */
+    public function findRow(int $id): ?array
+    {
+        // Cache
+        $cache     = Services::cache();
+        $cache_key = $this->table . '-' . $id;
+        if ($cache->get($cache_key)) {
+            return $cache->get($cache_key);
+        }
+        $row       = parent::find($id);
+        $cache->save($cache_key, $row, self::HOURS_IN_SEC);
+        return $row;
+    }
+
+    /**
      * Insert data into the database and log
      * @param array|null $row
      * @param bool $returnID
