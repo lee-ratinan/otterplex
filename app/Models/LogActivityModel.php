@@ -41,21 +41,18 @@ class LogActivityModel extends Model
 
     /**
      * Insert log activity when user login
-     * @param string $result
+     * @param array $logData
      * @return bool|int|string
      * @throws ReflectionException
      */
-    public function insertLogin(string $result): bool|int|string
+    public function insertLogin(array $logData): bool|int|string
     {
         $session = session();
-        $result  = [
-            'result' => $result
-        ];
-        $data   = [
+        $data    = [
             'activity_key'     => self::ACTIVITY_KEY_LOGIN,
             'table_involved'   => 'session',
             'table_id_updated' => $session->user_id,
-            'activity_detail'  => json_encode($result),
+            'activity_detail'  => json_encode($logData),
             'created_by'       => $session->user_id
         ];
         return $this->insert($data);
