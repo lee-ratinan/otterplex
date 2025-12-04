@@ -13,6 +13,7 @@
         "php": "^8.3",
         "ext-intl": "*",
         "ext-mbstring": "*",
+        "giggsey/libphonenumber-for-php": "^9.0",
         "laminas/laminas-escaper": "^2.17",
         "psr/log": "^3.0"
     },
