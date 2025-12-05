@@ -123,10 +123,20 @@ class Home extends BaseController
             $session->set('user_id', $user['id']);
             $logModel->insertLogin($logData);
             // Successful login: regenerate session ID to prevent fixation
-            $businesses  = $businessModel->getBusinessesByUserId($user['id']);
-            $businessIds = [];
-            foreach ($businesses as $business) {
-                $businessIds[] = $business['business_id'];
+            $businesses      = $businessModel->getBusinessesByUserId($user['id'], true);
+            $businessIds     = [];
+            $currentBusiness = [];
+            if (!empty($businesses)) {
+                foreach ($businesses as $business) {
+                    $businessIds[] = $business['business_id'];
+                    if ($business['my_default_business'] == 'Y') {
+                        $currentBusiness = $business;
+                    }
+                }
+                if (empty($currentBusiness)) {
+                    $currentBusiness = $businesses[0];
+                }
+                $currentBusiness['business_local_names'] = json_decode($currentBusiness['business_local_names'], true);
             }
             $session->regenerate();
             unset($user['password_hash']);
@@ -135,11 +145,12 @@ class Home extends BaseController
                 'sessionStart'   => date(DATETIME_FORMAT_DB),
                 'sessionExpiry'  => date(DATETIME_FORMAT_DB, strtotime(self::SESSION_EXPIRY_STRING)),
                 'user_id'        => $user['id'],
+                'full_name'      => $user['user_name_first'] . ' ' . $user['user_name_last'],
+                'avatar'         => retrieve_avatars($user['email_address'], $user['user_name_first'] . ' ' . $user['user_name_last']),
                 'user'           => $user,
-                'business'       => $businesses[0] ?? null,
+                'business'       => $currentBusiness,
                 'business_ids'   => $businessIds,
                 'needOTP'        => false, // Not for now
-
             ]);
             // Redirect to intended page or dashboard
             $redirectTo = $session->get('redirect_url') ?? '/admin/dashboard';

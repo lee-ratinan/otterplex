@@ -7,6 +7,10 @@ class Admin extends BaseController
 
     public function index(): string
     {
-        return 'OK - dashboard';
+        $data    = [
+            'slug'         => 'dashboard',
+            'lang'         => $this->request->getLocale(),
+        ];
+        return view('admin/dashboard', $data);
     }
 }

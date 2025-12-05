@@ -12,6 +12,7 @@ class BusinessUserModel extends AppBaseModel
         'user_id',
         'user_role',
         'role_status',
+        'my_default_business',
         'created_by',
         'created_at',
         'updated_at'
@@ -26,20 +27,27 @@ class BusinessUserModel extends AppBaseModel
     const string ROLE_STATUS_REQUESTED = 'REQUESTED';
     const string ROLE_STATUS_ACTIVE = 'ACTIVE';
     const string ROLE_STATUS_REVOKED = 'REVOKED';
+    const string MY_DEFAULT_BUSINESS_YES = 'Y';
+    const string MY_DEFAULT_BUSINESS_NO = 'N';
 
     /**
      * Get business by user IDs
-     * @param $userId
+     * @param int $userId
+     * @param bool $onlyActive (optional) Only retrieve active businesses
      * @return array
      */
-    public function getBusinessesByUserId($userId): array
+    public function getBusinessesByUserId(int $userId, bool $onlyActive = false): array
     {
+        if ($onlyActive) {
+            $todayDate = date(DATE_FORMAT_DB);
+            $this->where('contract_expiry >=', $todayDate)
+                ->where('role_status', self::ROLE_STATUS_ACTIVE);
+        }
         return $this->select('business_user.*, business_master.business_type_id, business_master.business_name,
                 business_master.business_slug, business_master.business_local_names, business_master.country_code,
                 business_master.currency_code, business_master.tax_percentage, business_master.tax_inclusive, business_master.contract_expiry')
             ->join('business_master', 'business_master.id = business_user.business_id')
             ->where('user_id', $userId)
-            ->where('role_status', self::ROLE_STATUS_ACTIVE)
             ->findAll();
     }
 }

@@ -1272,3 +1272,6 @@ h6 {
   font-size: 13px;
   color: #012970;
 }
+
+.avatar-txt {width:2em!important;height:2em!important;border-radius:50%;display:flex;justify-content:center;align-items:center;text-transform:uppercase;}
+.avatar-img {width:2em!important;height:2em!important;border-radius:50%;}
