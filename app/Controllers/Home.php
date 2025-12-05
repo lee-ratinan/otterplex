@@ -73,26 +73,26 @@ class Home extends BaseController
             $throttleKey = 'login-' . $this->request->getIPAddress() . '-' . md5($username);
             if (!$throttler->check($throttleKey, self::THROTTLER_LOGIN_CAPACITY, self::THROTTLER_LOGIN_SECOND)) {
                 // Too many attempts
-                return $this->generateErrorResponse(ResponseInterface::HTTP_UNAUTHORIZED, lang('System.response-msg.error.generic') . ' [TOO_MANY_ATTEMPTS]');
+                return $this->generateErrorResponse(ResponseInterface::HTTP_UNAUTHORIZED, lang('System.response-msg.error.generic') . ' [MA]'); // too Many Attempts
             }
             // Validate input
-            if (empty($username) || empty($password) || !preg_match('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', $username)) {
+            if (empty($username) || empty($password)) {
                 $throttler->check($throttleKey, self::THROTTLER_LOGIN_CAPACITY, self::THROTTLER_LOGIN_SECOND);
-                return $this->generateErrorResponse(ResponseInterface::HTTP_UNAUTHORIZED, lang('System.response-msg.error.wrong-credentials'));
+                return $this->generateErrorResponse(ResponseInterface::HTTP_UNAUTHORIZED, lang('System.response-msg.error.wrong-credentials') . ' [VF]'); // Verification
             }
             $user = $userModel->where('email_address', $username)->first();
             if (!$user) {
                 $throttler->check($throttleKey, self::THROTTLER_LOGIN_CAPACITY, self::THROTTLER_LOGIN_SECOND);
-                return $this->generateErrorResponse(ResponseInterface::HTTP_UNAUTHORIZED, lang('System.response-msg.error.wrong-credentials'));
+                return $this->generateErrorResponse(ResponseInterface::HTTP_UNAUTHORIZED, lang('System.response-msg.error.wrong-credentials') . ' [NF]'); // Not Found
             }
             // Verify password
             if (!password_verify($password, $user['password_hash'])) {
                 $throttler->check($throttleKey, self::THROTTLER_LOGIN_CAPACITY, self::THROTTLER_LOGIN_SECOND);
-                return $this->generateErrorResponse(ResponseInterface::HTTP_UNAUTHORIZED, lang('System.response-msg.error.wrong-credentials'));
+                return $this->generateErrorResponse(ResponseInterface::HTTP_UNAUTHORIZED, lang('System.response-msg.error.wrong-credentials') . ' [PH]'); // not equal Password Hash
             }
             // Check status
             if ($userModel::ACCOUNT_STATUS_ACTIVE != $user['account_status']) {
-                return $this->generateErrorResponse(ResponseInterface::HTTP_UNAUTHORIZED, lang('System.response-msg.error.inactive-account'));
+                return $this->generateErrorResponse(ResponseInterface::HTTP_UNAUTHORIZED, lang('System.response-msg.error.inactive-account') . ' [NA]'); // account Not Active
             }
             // Log
             $userAgent  = $this->request->getUserAgent();
@@ -131,7 +131,7 @@ class Home extends BaseController
                 'session_expiry' => date(DATETIME_FORMAT_DB, strtotime(self::SESSION_EXPIRY_STRING)),
                 'user_id'        => $user['id'],
                 'user'           => $user,
-                'business'       => $businesses[0],
+                'business'       => $businesses[0] ?? null,
                 'business_ids'   => $businessIds,
                 'isLoggedIn'     => true,
             ]);

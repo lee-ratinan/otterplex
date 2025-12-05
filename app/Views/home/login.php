@@ -66,8 +66,9 @@
                         }
                     },
                     "json"
-                ).fail(function () {
-                    toastr.error('<?= lang('System.response-msg.error.generic') ?>')
+                ).fail(function (response) {
+                    let message = response.responseJSON.message ?? '<?= lang('System.response-msg.error.generic') ?>';
+                    toastr.error(message);
                 });
             })
         });

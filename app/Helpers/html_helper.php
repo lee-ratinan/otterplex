@@ -27,7 +27,7 @@ if (!function_exists('gen_json_fields_to_fields')) {
     {
         $assigned_vals = [];
         foreach ($fields as $field) {
-            $assigned_vals[] = "{$field}: '{$field}'";
+            $assigned_vals[] = "{$field}: $('#{$field}').val()";
         }
         echo '{' . implode(',', $assigned_vals) . '}';
     }
