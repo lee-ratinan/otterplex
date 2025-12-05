@@ -12,16 +12,30 @@ return [
     ],
     'response-msg'    => [
         'error'   => [
-            'generic'           => 'Sorry, something went wrong. Please try again later.',
-            'wrong-credentials' => 'Your username or password is incorrect, please try again.',
-            'inactive-account'  => 'Your account is not active. Please contact your administrator or email the support team.',
-            'not-logged-in'     => 'Please login to continue.',
-            'session-expired'   => 'Your session has expired. Please login to continue.',
-            'business-inactive' => 'You cannot switch to this business.'
+            'generic'                   => 'Sorry, something went wrong. Please try again later.',
+            'please-check-empty-field'  => 'Please check required field.',
+            'password-does-not-matched' => 'Sorry, the confirm password does not match.',
+            'wrong-credentials'         => 'Your username or password is incorrect, please try again.',
+            'inactive-account'          => 'Your account is not active. Please contact your administrator or email the support team.',
+            'not-logged-in'             => 'Please login to continue.',
+            'session-expired'           => 'Your session has expired. Please login to continue.',
+            'business-inactive'         => 'You cannot switch to this business.'
         ],
         'success' => [
             'business-switched' => 'You have successfully switched your business.',
         ]
+    ],
+    'buttons'         => [
+        'new'             => 'New',
+        'edit'            => 'Edit',
+        'save'            => 'Save',
+        'upload'          => 'Upload',
+        'remove'          => 'Remove',
+        'remove-confirm'  => 'Remove Confirmation',
+        'switch-role'     => 'Switch Role',
+        'switch-business' => 'Switch Business',
+        'filter'          => 'Filter',
+        'reset'           => 'Reset',
     ],
     'login'           => [
         'title'             => 'Login',

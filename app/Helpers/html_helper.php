@@ -131,3 +131,48 @@ if (!function_exists('format_date_time')) {
         return format_date($pieces[0]) . ' ' . format_time($pieces[1]);
     }
 }
+if (!function_exists('build_form_input')) {
+    /**
+     * @param string $id
+     * @param string $label
+     * @param array $attributes
+     * @param string $current_value
+     * @param string $other_classes
+     * @param array $options
+     * @return string
+     */
+    function build_form_input(string $id, string $label, array $attributes, string $current_value = '', string $other_classes = '', array $options = []): string
+    {
+        $structure = "<div class='mb-3'><label for='{$id}' class='form-label'>{$label}</label>###FORM###</div>";
+        $attr      = [];
+        $attr[]    = "id='{$id}'";
+        $attr[]    = "class='form-control $other_classes'";
+        foreach ($attributes as $key => $value) {
+            $attr[]    = "{$key}='{$value}'";
+        }
+        if ('select' == $attributes['type']) {
+            $attr_str   = implode(' ', $attr);
+            $select_tag = "<select {$attr_str}>";
+            foreach ($options as $key => $value) {
+                $select_tag .= "<option value='{$key}' " . ($current_value == $key ? 'selected' : '') . ">{$value}</option>";
+            }
+            $select_tag .= "</select>";
+            return str_replace('###FORM###' , $select_tag, $structure);
+        } else if ('checkbox' == $attributes['type'] || 'radio' == $attributes['type']) {
+            return '';
+        }
+        // TextArea and Others
+        $attr[]    = "placeholder='{$label}'";
+        if ('textarea' == $attributes['type']) {
+            $attr_str  = implode(' ', $attr);
+            $ta_tag    = "<textarea {$attr_str}>{$current_value}</textarea>}";
+            return str_replace('###FORM###' , $ta_tag, $structure);
+        }
+        if (!empty($current_value)) {
+            $attr[] = "value='{$current_value}'";
+        }
+        $attr_str  = implode(' ', $attr);
+        $input_tag = "<input {$attr_str} />";
+        return str_replace('###FORM###' , $input_tag, $structure);
+    }
+}

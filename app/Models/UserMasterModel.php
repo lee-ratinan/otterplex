@@ -17,6 +17,7 @@ class UserMasterModel extends AppBaseModel
         'password_hash',
         'password_expiry',
         'telephone_number',
+        'lang_code',
         'account_status',
         'user_name_first',
         'user_name_last',

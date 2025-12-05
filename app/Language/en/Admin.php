@@ -23,6 +23,25 @@ return [
             'switch-to' => '<i class="bi bi-toggle2-on"></i> Switch to this Business',
         ]
     ],
+    'profile'       => [
+        'controlled-account-data'  => 'Controlled Data',
+        'profile-data'             => 'Profile Data',
+        'upload-avatar'            => 'Upload Avatar',
+        'upload-explanation'       => 'The system only accepts <code>png</code> and <code>jpg</code> files under 200kb. If the file is not square, it will be cropped to a square.',
+        'change-password'          => 'Change Password',
+        'new-password-requirement' => [
+            'title'  => 'Password Strength Requirements:',
+            'item-1' => 'Password must be at least 8 characters long.',
+            'item-2' => 'Password must contain at least one number.',
+            'item-3' => 'Password must contain at least one uppercase letter.',
+            'item-4' => 'Password must contain at least one lowercase letter.',
+            'item-5' => 'Password must contain at least one special character: @$!%*?&',
+            'item-6' => 'Password must not contain first and/or family name(s).',
+            'item-7' => 'Password must not be too common.',
+            'item-8' => 'Password must not contain illegal letters.',
+            'requirement-not-met' => 'Password requirements not met, please modify your password.',
+        ],
+    ],
     'about'         => [
         'about'          => [
             'title'     => '🦦 About OtterNova',

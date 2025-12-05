@@ -3326,15 +3326,13 @@ if (!function_exists('get_available_locales')) {
     {
         if ('long' == $format) {
             return [
-                'en-US' => 'English (US)',
-                'th'    => 'ภาษาไทย',
-                'ja'    => '日本語'
+                'en' => 'English (US)',
+                'th' => 'ภาษาไทย'
             ];
         }
         return [
-            'en-US' => 'E',
-            'th'    => 'ท',
-            'ja'    => '日'
+            'en' => 'E',
+            'th' => 'ท'
         ];
     }
 }
