@@ -27,7 +27,7 @@ body {
   color: #444444;
 }
 
-.lang-th body {
+body.lang-th {
   font-family: var(--default-font-th), sans-serif;
 }
 

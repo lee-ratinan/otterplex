@@ -20,6 +20,9 @@ $routes->post('login', 'Home::login_post');
 // Internal System
 $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->get('dashboard', 'Admin::index');
+    $routes->get('profile', 'Admin::profile');
+    $routes->get('my-businesses', 'Admin::my_businesses');
+    $routes->get('about', 'Admin::about');
 });
 // Booking APIs
 $routes->group('api/v1.0/', function ($routes) {

@@ -45,7 +45,7 @@ if (!empty($session->business)) {
     * License: https://bootstrapmade.com/license/
     ======================================================== -->
 </head>
-<body>
+<body class="lang-<?= $lang ?>">
 <!-- ======= Header ======= -->
 <header id="header" class="header fixed-top d-flex align-items-center">
     <div class="d-flex align-items-center justify-content-between">
@@ -210,7 +210,9 @@ if (!empty($session->business)) {
     <div class="copyright">
         <?= lang('System.copyrights', [date('Y')]) ?>
         <br>
-        <small>Session Expiry : <?= $session->sessionExpiry ?> VS now : <?= date(DATETIME_FORMAT_DB) ?> UTC</small>
+        <small>
+            Session Expiry : <?= $session->sessionExpiry ?> VS now : <?= date(DATETIME_FORMAT_DB) ?> UTC - <a href="?hl=th">ภาษาไทย</a> - <a href="?hl=en">English</a>
+        </small>
     </div>
 </footer>
 <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
