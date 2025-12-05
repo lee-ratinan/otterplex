@@ -1,11 +1,12 @@
 <?php
 return [
     'field' => [
-        'id'          => 'ID',
-        'business_id' => 'Business',
-        'user_id'     => 'User',
-        'user_role'   => 'Role',
-        'role_status' => 'Status',
+        'id'                  => 'ID',
+        'business_id'         => 'Business',
+        'user_id'             => 'User',
+        'user_role'           => 'Role',
+        'role_status'         => 'Status',
+        'my_default_business' => 'Default Business',
     ],
     'enum'  => [
         'user_role'           => [
@@ -14,9 +15,9 @@ return [
             'STAFF'   => 'Staff'
         ],
         'role_status'         => [
-            'REQUESTED' => 'Requested',
-            'ACTIVE'    => 'Active',
-            'REVOKED'   => 'Revoked',
+            'REQUESTED' => 'Requested', // cancel this status
+            'ACTIVE'    => '<i class="bi bi-check-circle-fill text-success"></i> Active',
+            'REVOKED'   => '<i class="bi bi-x-circle-fill text-danger"></i> Revoked',
         ],
         'my_default_business' => [
             'Y' => 'Yes',

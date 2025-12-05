@@ -43,11 +43,15 @@ class BusinessUserModel extends AppBaseModel
             $this->where('contract_expiry >=', $todayDate)
                 ->where('role_status', self::ROLE_STATUS_ACTIVE);
         }
-        return $this->select('business_user.*, business_master.business_type_id, business_master.business_name,
+        $businesses = $this->select('business_user.*, business_master.business_type_id, business_master.business_name,
                 business_master.business_slug, business_master.business_local_names, business_master.country_code,
                 business_master.currency_code, business_master.tax_percentage, business_master.tax_inclusive, business_master.contract_expiry')
             ->join('business_master', 'business_master.id = business_user.business_id')
             ->where('user_id', $userId)
             ->findAll();
+        for ($i = 0; $i < count($businesses); $i++) {
+            $businesses[$i]['business_local_names'] = json_decode($businesses[$i]['business_local_names'], true);
+        }
+        return $businesses;
     }
 }

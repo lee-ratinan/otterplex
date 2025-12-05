@@ -67,3 +67,67 @@ if (!function_exists('retrieve_avatars')) {
         return "<div class='avatar-txt' style='background-color:$color;color:$text_color' title='$full_name' data-bs-toggle='tooltip' data-bs-placement='top'>$initials</div>";
     }
 }
+if (!function_exists('format_date')) {
+    /**
+     * Format date
+     * @param string $date Date in YYYY-MM-DD (MySQL) format
+     * @return string
+     */
+    function format_date(string $date): string
+    {
+        $lang = get_session_field('lang');
+        $month_array = [
+            'en' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+            'th' => ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.']
+        ];
+        $pieces = explode('-', $date);
+        $dd     = intval($pieces[2]);
+        $mmmm   = $month_array[$lang][intval($pieces[1]) - 1];
+        $yyyy   = intval($pieces[0]);
+        if ('th' == $lang) {
+            $yyyy += 543;
+        }
+        return "{$dd} {$mmmm} {$yyyy}";
+    }
+}
+if (!function_exists('format_time')) {
+    /**
+     * Format time
+     * @param string $time Time in HH:II:SS (MySQL) format
+     * @return string
+     */
+    function format_time(string $time): string
+    {
+        $lang = get_session_field('lang');
+        if ('th' == $lang) {
+            return substr($time, 0, 5) . 'น.';
+        }
+        // English (US)
+        $pieces = explode(':', $time);
+        $am     = 'am';
+        $hh     = intval($pieces[0]);
+        $mm     = intval($pieces[1]);
+        if (11 < $hh) {
+            $am = 'pm';
+        }
+        if (12 < $hh) {
+            $hh -= 12;
+        }
+        if (10 > $mm) {
+            $mm = '0' . $mm;
+        }
+        return "$hh:$mm $am";
+    }
+}
+if (!function_exists('format_date_time')) {
+    /**
+     * Format date-time
+     * @param string $date Date-time in YYYY-MM-DD HH:II:SS (MySQL) format
+     * @return string
+     */
+    function format_date_time(string $date): string
+    {
+        $pieces = explode(' ', $date);
+        return format_date($pieces[0]) . ' ' . format_time($pieces[1]);
+    }
+}

@@ -136,7 +136,6 @@ class Home extends BaseController
                 if (empty($currentBusiness)) {
                     $currentBusiness = $businesses[0];
                 }
-                $currentBusiness['business_local_names'] = json_decode($currentBusiness['business_local_names'], true);
             }
             $session->regenerate();
             unset($user['password_hash']);

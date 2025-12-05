@@ -2,6 +2,8 @@
 
 namespace App\Controllers;
 
+use App\Models\BusinessUserModel;
+
 class Admin extends BaseController
 {
 
@@ -37,9 +39,13 @@ class Admin extends BaseController
      */
     public function my_businesses(): string
     {
-        $data    = [
+        $session           = session();
+        $businessUserModel = new BusinessUserModel();
+        $myBusinesses      = $businessUserModel->getBusinessesByUserId($session->user_id);
+        $data              = [
             'slug'         => 'my-businesses',
             'lang'         => $this->request->getLocale(),
+            'myBusinesses' => $myBusinesses
         ];
         return view('admin/my-businesses', $data);
     }

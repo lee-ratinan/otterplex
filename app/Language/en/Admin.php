@@ -1,7 +1,7 @@
 <?php
 return [
-    'site-name' => 'OtterNova',
-    'pages'     => [
+    'site-name'     => 'OtterNova',
+    'pages'         => [
         'dashboard'     => 'Dashboard',
         'search'        => 'Search',
         'profile'       => 'Profile',
@@ -9,13 +9,21 @@ return [
         'about'         => 'About',
         'logout'        => 'Logout',
     ],
-    'dashboard' => [
+    'dashboard'     => [
         'no-business' => [
             'title'     => 'You have no active businesses',
             'paragraph' => 'There is no active businesses linked to your account. please go to <a href="{0}">My Businesses</a> to manage your business account(s).'
         ]
     ],
-    'about'     => [
+    'my-businesses' => [
+        'title'        => 'All My Businesses',
+        'you-are-here' => '<i class="bi bi-geo-alt"></i> You are here',
+        'btn'          => [
+            'manage'    => '<i class="bi bi-gear"></i> Manage this Business',
+            'switch-to' => '<i class="bi bi-toggle2-on"></i> Switch to this Business',
+        ]
+    ],
+    'about'         => [
         'about'          => [
             'title'     => '🦦 About OtterNova',
             'subtitle'  => 'Your command center for bookings, schedules, products, and all the operational magic.',
