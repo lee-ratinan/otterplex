@@ -88,12 +88,12 @@ if (!empty($session->business)) {
                 <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
                     <li class="dropdown-header">
                         <h6><?= $session->full_name ?></h6>
-                        <span><?= substr($session->user['profile_status_msg'], 0, 30) . (empty($businessName) ? '' : '<br>' . $businessName . ' / ' . lang('BusinessUser.enum.user_role.' . $session->business['user_role'])) ?></span>
+                        <span><?= substr($session->user['profile_status_msg'], 0, 30) . (empty($businessName) ? '' : '<br>' . $businessName . ' / ' . lang('BusinessUser.enum.user_role.' . $session->user_role)) ?></span>
                     </li>
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item d-flex align-items-center" href="<?= base_url('/admin/profile') ?>"><i class="bi bi-person-fill-gear me-3"></i><span><?= lang('Admin.pages.profile') ?></span></a></li>
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item d-flex align-items-center" href="<?= base_url('/admin/switch-business') ?>"><i class="bi bi-shop-window me-3"></i><span><?= lang('Admin.pages.my-businesses') ?></span></a></li>
+                    <li><a class="dropdown-item d-flex align-items-center" href="<?= base_url('/admin/my-businesses') ?>"><i class="bi bi-shop-window me-3"></i><span><?= lang('Admin.pages.my-businesses') ?></span></a></li>
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item d-flex align-items-center" href="<?= base_url('/admin/about') ?>"><i class="bi bi-info-circle me-3"></i><span><?= lang('Admin.pages.about') ?></span></a></li>
                     <li><hr class="dropdown-divider"></li>
@@ -208,7 +208,7 @@ if (!empty($session->business)) {
 <!-- FOOTER -->
 <footer id="footer" class="footer">
     <div class="copyright">
-        <?= lang('Admin.copyrights', [lang('System.site-name'), date('Y')]) ?>
+        <?= lang('System.copyrights', [date('Y')]) ?>
         <br>
         <small>Session Expiry : <?= $session->sessionExpiry ?> VS now : <?= date(DATETIME_FORMAT_DB) ?> UTC</small>
     </div>

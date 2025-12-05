@@ -61,6 +61,11 @@
                                         <i class="bi bi-chevron-left"></i> <a href="<?= getenv('main_site') ?>"><?= lang('System.go-to-main-site') ?></a>
                                     </div>
                                 </div>
+                                <div class="row mt-3">
+                                    <div class="col text-center small">
+                                        <?= lang('System.copyrights', [date('Y')]) ?>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

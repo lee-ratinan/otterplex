@@ -1,6 +1,7 @@
 <?php
 return [
     'site-name'       => 'OtterNova System',
+    'copyrights'      => 'Copyrights &copy; 2025-{0} <b>OtterNova</b> All rights reserved.',
     'change-language' => 'Change Language',
     'go-to-main-site' => 'Go to main site',
     'pages'           => [
