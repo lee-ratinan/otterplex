@@ -45,9 +45,11 @@ class Home extends BaseController
         if (session()->get('isLoggedIn')) {
             return redirect()->to('/admin/dashboard');
         }
-        $data = [
-            'slug' => 'login',
-            'lang' => $this->request->getLocale(),
+        $session = session();
+        $data    = [
+            'slug'  => 'login',
+            'lang'  => $this->request->getLocale(),
+            'error' => $session->get('error') ?? ''
         ];
         return view('home/login', $data);
     }
@@ -118,6 +120,7 @@ class Home extends BaseController
                 'browser'       => $browser,
                 'platform'      => $platform,
             ];
+            $session->set('user_id', $user['id']);
             $logModel->insertLogin($logData);
             // Successful login: regenerate session ID to prevent fixation
             $businesses  = $businessModel->getBusinessesByUserId($user['id']);
@@ -128,12 +131,15 @@ class Home extends BaseController
             $session->regenerate();
             unset($user['password_hash']);
             $session->set([
-                'session_expiry' => date(DATETIME_FORMAT_DB, strtotime(self::SESSION_EXPIRY_STRING)),
+                'isLoggedIn'     => true,
+                'sessionStart'   => date(DATETIME_FORMAT_DB),
+                'sessionExpiry'  => date(DATETIME_FORMAT_DB, strtotime(self::SESSION_EXPIRY_STRING)),
                 'user_id'        => $user['id'],
                 'user'           => $user,
                 'business'       => $businesses[0] ?? null,
                 'business_ids'   => $businessIds,
-                'isLoggedIn'     => true,
+                'needOTP'        => false, // Not for now
+
             ]);
             // Redirect to intended page or dashboard
             $redirectTo = $session->get('redirect_url') ?? '/admin/dashboard';

@@ -18,7 +18,7 @@ $routes->post('forgot-password', 'Home::forgot_password_post');
 $routes->post('reset-password', 'Home::reset_password_post');
 $routes->post('login', 'Home::login_post');
 // Internal System
-$routes->group('admin', [], function ($routes) {
+$routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->get('dashboard', 'Admin::index');
 });
 // Booking APIs

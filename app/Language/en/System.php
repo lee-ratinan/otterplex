@@ -12,8 +12,10 @@ return [
     'response-msg'    => [
         'error' => [
             'generic'           => 'Sorry, something went wrong. Please try again later.',
-            'wrong-credentials' => 'Sorry, your username or password is incorrect.',
-            'inactive-account'  => 'Sorry, your account is not active. Please contact your administrator or email the support team.',
+            'wrong-credentials' => 'Your username or password is incorrect, please try again.',
+            'inactive-account'  => 'Your account is not active. Please contact your administrator or email the support team.',
+            'not-logged-in'     => 'Please login to continue.',
+            'session-expired'   => 'Your session has expired. Please login to continue.',
         ]
     ],
     'login'           => [

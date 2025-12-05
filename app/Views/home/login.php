@@ -71,6 +71,9 @@
                     toastr.error(message);
                 });
             })
+            <?php if (!empty($error)) : ?>
+            toastr.error('<?= $error ?>');
+            <?php endif; ?>
         });
     </script>
 <?php $this->endSection() ?>

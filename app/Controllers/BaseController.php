@@ -44,9 +44,12 @@ abstract class BaseController extends Controller
     // protected $session;
 
     /**
+     * @param RequestInterface $request
+     * @param ResponseInterface $response
+     * @param LoggerInterface $logger
      * @return void
      */
-    public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
+    public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger): void
     {
         // Do Not Edit This Line
         parent::initController($request, $response, $logger);
@@ -55,6 +58,7 @@ abstract class BaseController extends Controller
         $config   = config('App');
         $language = service('language');
         // Set locale, use locale in the GET parameter (highest priority), then the session, then the default (or from the header)
+        $request  = service('request');
         $get_param_locale = $request->getGet('hl');
         if (!empty($get_param_locale) && in_array($get_param_locale, $config->supportedLocales)) {
             $session->set('lang', $get_param_locale);
@@ -63,6 +67,10 @@ abstract class BaseController extends Controller
         } else if ($session->has('lang')) {
             $request->setLocale($session->get('lang'));
             $language->setLocale($session->get('lang'));
+        } else {
+            $lang = $language->getLocale();
+            $request->setLocale($lang);
+            $session->set('lang', $lang);
         }
     }
 }
