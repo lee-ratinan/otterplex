@@ -39,11 +39,10 @@
             </div>
         </div>
         <div class="col-12">
-            <div class="btn-group btn-group-sm w-100">
-                <a class="btn btn-outline-primary" href="<?= getenv('main_site') ?>"><i class="bi bi-chevron-left"></i> <?= lang('System.go-to-main-site') ?></a>
-                <a class="btn btn-outline-danger" href="<?= base_url('forgot-password') ?>"><i class="bi bi-exclamation-circle"></i> <?= lang('System.pages.forgot-password') ?></a>
-            </div>
-            <p class="small mt-3"><?= lang('System.login.dont-have-account') ?> <a href="<?= base_url('create-account') ?>"><?= lang('System.pages.create-account') ?></a></p>
+            <p class="small">
+                <?= lang('System.login.dont-have-account') ?> <a href="<?= base_url('create-account') ?>"><?= lang('System.pages.create-account') ?></a><br>
+                <i class="bi bi-exclamation-circle"></i> <a href="<?= base_url('forgot-password') ?>"><?= lang('System.pages.forgot-password') ?></a>
+            </p>
         </div>
     </form>
     <script>

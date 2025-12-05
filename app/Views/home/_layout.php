@@ -51,11 +51,16 @@
                             <div class="card-body">
                                 <?= $this->renderSection('content') ?>
                                 <hr class="mt-0" />
-                                <p class="small">
-                                    <i class="bi bi-translate" title="<?= lang('System.change-language') ?>"></i>
-                                    <?php if ('en' == $lang) : ?>English<?php else: ?><a href="?hl=en">English</a><?php endif; ?> |
-                                    <?php if ('th' == $lang) : ?>ภาษาไทย<?php else: ?><a href="?hl=th">ภาษาไทย</a><?php endif; ?>
-                                </p>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <i class="bi bi-translate" title="<?= lang('System.change-language') ?>"></i>
+                                        <?php if ('en' == $lang) : ?>English<?php else: ?><a href="?hl=en">English</a><?php endif; ?> |
+                                        <?php if ('th' == $lang) : ?>ภาษาไทย<?php else: ?><a href="?hl=th">ภาษาไทย</a><?php endif; ?>
+                                    </div>
+                                    <div class="col-6 text-end small">
+                                        <i class="bi bi-chevron-left"></i> <a href="<?= getenv('main_site') ?>"><?= lang('System.go-to-main-site') ?></a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

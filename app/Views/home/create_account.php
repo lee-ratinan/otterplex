@@ -50,7 +50,6 @@
             <button class="btn btn-primary w-100" type="submit"><?= lang('System.pages.create-account') ?></button>
         </div>
         <div class="col-12">
-            <a class="btn btn-outline-primary btn-sm w-100 mb-3" href="<?= getenv('main_site') ?>"><i class="bi bi-chevron-left"></i> <?= lang('System.go-to-main-site') ?></a>
             <p class="small"><?= lang('System.create-account.already-have-account') ?> <a href="<?= base_url() ?>"><?= lang('System.pages.login') ?></a></p>
         </div>
     </form>
