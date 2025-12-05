@@ -141,6 +141,7 @@ class Home extends BaseController
             $session->regenerate();
             unset($user['password_hash']);
             $session->set([
+                'lang'           => $user['lang_code'], // Override everything because it's the user's preferred setting
                 'isLoggedIn'     => true,
                 'sessionStart'   => date(DATETIME_FORMAT_DB),
                 'sessionExpiry'  => date(DATETIME_FORMAT_DB, strtotime(self::SESSION_EXPIRY_STRING)),
