@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\BusinessUserModel;
+use CodeIgniter\HTTP\ResponseInterface;
 
 class Admin extends BaseController
 {
@@ -48,6 +49,32 @@ class Admin extends BaseController
             'myBusinesses' => $myBusinesses
         ];
         return view('admin/my-businesses', $data);
+    }
+
+    /**
+     * Switch current business
+     * @return ResponseInterface
+     */
+    public function switch_business(): ResponseInterface
+    {
+        $session              = session();
+        $businessUserModel    = new BusinessUserModel();
+        $target_business_slug = $this->request->getPost('target_business_slug');
+        $business             = $businessUserModel->getBusinessesByUserId($session->user_id, true, $target_business_slug);
+        if (!$business) {
+            return $this->response->setJSON([
+                'status' => STATUS_RESPONSE_ERR,
+                'message' => lang('System.response-msg.error.business-inactive')
+            ]);
+        }
+        $session->set([
+            'user_role' => $business[0]['user_role'],
+            'business'  => $business[0]
+        ]);
+        return $this->response->setJSON([
+            'status' => STATUS_RESPONSE_OK,
+            'message' => lang('System.response-msg.success.business-switched')
+        ]);
     }
 
     /**

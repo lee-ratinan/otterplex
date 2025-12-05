@@ -22,6 +22,7 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->get('dashboard', 'Admin::index');
     $routes->get('profile', 'Admin::profile');
     $routes->get('my-businesses', 'Admin::my_businesses');
+    $routes->post('switch-business', 'Admin::switch_business');
     $routes->get('about', 'Admin::about');
 });
 // Booking APIs

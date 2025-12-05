@@ -34,14 +34,18 @@ class BusinessUserModel extends AppBaseModel
      * Get business by user IDs
      * @param int $userId
      * @param bool $onlyActive (optional) Only retrieve active businesses
+     * @param string $business_slug (optional) Only try to search for this slug if not empty
      * @return array
      */
-    public function getBusinessesByUserId(int $userId, bool $onlyActive = false): array
+    public function getBusinessesByUserId(int $userId, bool $onlyActive = false, string $business_slug = ''): array
     {
         if ($onlyActive) {
             $todayDate = date(DATE_FORMAT_DB);
             $this->where('contract_expiry >=', $todayDate)
                 ->where('role_status', self::ROLE_STATUS_ACTIVE);
+        }
+        if (!empty($business_slug)) {
+            $this->where('business_master.business_slug', $business_slug);
         }
         $businesses = $this->select('business_user.*, business_master.business_type_id, business_master.business_name,
                 business_master.business_slug, business_master.business_local_names, business_master.country_code,

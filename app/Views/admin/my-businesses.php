@@ -40,7 +40,7 @@
                                         <?php if ($session->business['business_slug'] == $business['business_slug']) : ?>
                                             <?= lang('Admin.my-businesses.you-are-here') ?>
                                         <?php else : ?>
-                                            <a href="#" data-target="<?= $business['business_slug'] ?>" class="btn btn-sm btn-outline-primary"><?= lang('Admin.my-businesses.btn.switch-to') ?></a>
+                                            <a href="#" data-target="<?= $business['business_slug'] ?>" class="btn btn-sm btn-outline-primary btn-switch-biz"><?= lang('Admin.my-businesses.btn.switch-to') ?></a>
                                         <?php endif; ?>
                                     <?php endif; ?>
                                 </td>
@@ -57,4 +57,28 @@
             </div>
         </div>
     </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            $('.btn-switch-biz').click(function (e) {
+                e.preventDefault();
+                let target_business_slug = $(this).data('target');
+                $.post(
+                    "<?= base_url('admin/switch-business') ?>",
+                    {target_business_slug: target_business_slug},
+                    function(response, status) {
+                        if (response.status === "<?= STATUS_RESPONSE_OK ?>") {
+                            toastr.success(response.message);
+                            setTimeout(function() { location.reload(); }, 3000);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    "json"
+                ).fail(function (response) {
+                    let message = response.responseJSON.message ?? '<?= lang('System.response-msg.error.generic') ?>';
+                    toastr.error(message);
+                });
+            });
+        });
+    </script>
 <?php $this->endSection() ?>

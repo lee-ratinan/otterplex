@@ -29,6 +29,11 @@ class AuthFilter implements FilterInterface
                 $session->set('lang', $lang);
                 $language->setLocale($lang);
             }
+            if ($request->getMethod() === 'post') {
+                return Services::response()
+                    ->setJSON(['status'  => STATUS_RESPONSE_ERR, 'message' => 'Unauthorized'])
+                    ->setStatusCode(401);
+            }
             return redirect()->to('/')
                 ->with('error', lang('System.response-msg.error.not-logged-in'));
         }
@@ -39,6 +44,11 @@ class AuthFilter implements FilterInterface
             if (!empty($lang)) {
                 $session->set('lang', $lang);
                 $language->setLocale($lang);
+            }
+            if ($request->getMethod() === 'post') {
+                return Services::response()
+                    ->setJSON(['status'  => STATUS_RESPONSE_ERR, 'message' => 'Unauthorized'])
+                    ->setStatusCode(401);
             }
             return redirect()->to('/')
                 ->with('lang', $lang)

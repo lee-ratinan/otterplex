@@ -61,7 +61,7 @@
                             // Future: add OTP feature when ready
                             window.location.href = '<?= base_url('admin/dashboard') ?>';
                         } else {
-                            toastr.error(response.message)
+                            toastr.error(response.message);
                         }
                     },
                     "json"
