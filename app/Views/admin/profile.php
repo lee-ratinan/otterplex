@@ -141,7 +141,7 @@
                     {phone_number: phone_number, country_code: country_code},
                     function (response, status) {
                         if (response.status === "<?= STATUS_RESPONSE_OK ?>") {
-                            ('#telephone_number').val(response.formatted_number);
+                            $('#telephone_number').val(response.e164);
                         } else {
                             toastr.error(response.message);
                         }

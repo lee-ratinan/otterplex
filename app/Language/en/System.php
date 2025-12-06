@@ -19,10 +19,12 @@ return [
             'inactive-account'          => 'Your account is not active. Please contact your administrator or email the support team.',
             'not-logged-in'             => 'Please login to continue.',
             'session-expired'           => 'Your session has expired. Please login to continue.',
-            'business-inactive'         => 'You cannot switch to this business.'
+            'business-inactive'         => 'You cannot switch to this business.',
+            'db-issue'                  => 'Your data could not be saved at the moment. Please try again later.',
         ],
         'success' => [
             'business-switched' => 'You have successfully switched your business.',
+            'data-saved'        => 'Your data has been saved.',
         ]
     ],
     'buttons'         => [
