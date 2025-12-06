@@ -38,7 +38,7 @@
                     <!-- UPLOAD AVATAR -->
                     <h5><i class="bi bi-cloud-arrow-up"></i> <?= lang('Admin.profile.upload-avatar') ?></h5>
                     <form id="form-upload-avatar" action="<?= base_url('/admin/profile') ?>" method="post" enctype="multipart/form-data">
-                        <input type="hidden" name="script_action" value="upload-avatar"/>
+                        <input type="hidden" name="script_action" value="upload_avatar"/>
                         <input type="file" id="avatar" name="avatar" class="form-control my-3"/>
                         <p class="small"><?= lang('Admin.profile.upload-explanation') ?></p>
                         <div class="text-end">
@@ -68,7 +68,7 @@
                         <button id="btn-change-password" type="submit" class="btn btn-primary"><i class="bi bi-lock"></i>  <?= lang('Admin.profile.change-password') ?></button>
                     </div>
                 </div>
-                <label for="script_action"><input type="text" name="script_action" id="script_action" value="" /></label>
+                <label for="script_action"><input type="hidden" name="script_action" id="script_action" value="" /></label>
             </div>
         </div>
     </div>
@@ -162,6 +162,7 @@
                     "<?= base_url('/admin/profile') ?>",
                     <?php gen_json_fields_to_fields(['script_action', 'telephone_number', 'lang_code', 'user_gender', 'user_date_of_birth', 'user_nationality', 'profile_status_msg']) ?>,
                     function (response, status) {
+                        $('#btn-save-changes').prop('disabled', false);
                         if (response.status === "<?= STATUS_RESPONSE_OK ?>") {
                             toastr.success(response.message);
                             setTimeout(function() { location.reload(); }, 3000);
@@ -171,123 +172,114 @@
                     },
                     "json"
                 ).fail(function (response) {
+                    $('#btn-save-changes').prop('disabled', false);
                     let message = response.responseJSON.message ?? '<?= lang('System.response-msg.error.generic') ?>';
                     toastr.error(message);
                 });
             });
-            //$('#btn-upload-avatar').on('click', function (e) {
-            //    e.preventDefault();
-            //    // check if the file is selected
-            //    if ($('#avatar').val() === '') {
-            //        toastr.warning('<?php //= lang('System.response-msg.error.please-check-empty-field') ?>//');
-            //        $('#avatar').focus();
-            //        return;
-            //    }
-            //    $('#btn-upload-avatar').prop('disabled', true);
-            //    // submit #form-upload-avatar form in AJAX
-            //    $.ajax({
-            //        url: '<?php //= base_url('/admin/profile') ?>//',
-            //        type: 'POST',
-            //        data: new FormData($('#form-upload-avatar')[0]),
-            //        contentType: false,
-            //        cache: false,
-            //        processData: false,
-            //        success: function (response) {
-            //            $('#btn-upload-avatar').prop('disabled', false);
-            //            if (response.success) {
-            //                toastr.success(response.toast);
-            //                setTimeout(function () {
-            //                    window.location = '<?php //= base_url('/admin/profile') ?>//';
-            //                }, 5000);
-            //            } else {
-            //                toastr.error(response.toast);
-            //            }
-            //        },
-            //        error: function (xhr, status, error) {
-            //            let response = JSON.parse(xhr.responseText);
-            //            let error_message = (response.toast ?? '<?php //= lang('System.response-msg.error.generic-error') ?>//');
-            //            $('#btn-upload-avatar').prop('disabled', false);
-            //            toastr.error(error_message);
-            //        }
-            //    });
-            //});
-            //$('#btn-remove-avatar').on('click', function (e) {
-            //    e.preventDefault();
-            //    $('#btn-remove-avatar').hide();
-            //    $('#btn-remove-avatar-confirm').show();
-            //});
-            //$('#btn-remove-avatar-confirm').on('click', function (e) {
-            //    e.preventDefault();
-            //    $('#btn-remove-avatar-confirm').prop('disabled', true);
-            //    $.ajax({
-            //        url: '<?php //= base_url('/admin/profile') ?>//',
-            //        type: 'POST',
-            //        data: {
-            //            script_action: 'remove-avatar'
-            //        },
-            //        success: function (response) {
-            //            $('#btn-remove-avatar-confirm').prop('disabled', false);
-            //            if (response.success) {
-            //                toastr.success(response.toast);
-            //                setTimeout(function () {
-            //                    window.location = '<?php //= base_url('/admin/profile') ?>//';
-            //                }, 5000);
-            //            } else {
-            //                toastr.error(response.toast);
-            //            }
-            //        },
-            //        error: function (xhr, status, error) {
-            //            let response = JSON.parse(xhr.responseText);
-            //            let error_message = (response.toast ?? '<?php //= lang('System.response-msg.error.generic-error') ?>//');
-            //            $('#btn-remove-avatar-confirm').prop('disabled', false);
-            //            toastr.error(error_message);
-            //        }
-            //    });
-            //});
-            //$('#btn-change-password').on('click', function (e) {
-            //    e.preventDefault();
-            //    let field_ids = ['current_password', 'new_password', 'confirm_password'];
-            //    for (let i = 0; i < field_ids.length; i++) {
-            //        if ($('#' + field_ids[i]).val() === '') {
-            //            toastr.warning('<?php //= lang('System.response-msg.error.please-check-empty-field') ?>//');
-            //            $('#' + field_ids[i]).focus();
-            //            return;
-            //        }
-            //    }
-            //    if ($('#new_password').val() !== $('#confirm_password').val()) {
-            //        toastr.warning('<?php //= lang('System.response-msg.error.password-does-not-matched') ?>//');
-            //        $('#confirm_password').val('').focus();
-            //        return;
-            //    }
-            //    $('#btn-change-password').prop('disabled', true);
-            //    $.ajax({
-            //        url: '<?php //= base_url('/admin/profile') ?>//',
-            //        type: 'POST',
-            //        data: {
-            //            script_action: 'change-password',
-            //            current_password: $('#current_password').val(),
-            //            new_password: $('#new_password').val(),
-            //            confirm_password: $('#confirm_password').val()
-            //        },
-            //        success: function (response) {
-            //            $('#btn-change-password').prop('disabled', false);
-            //            if (response.success) {
-            //                toastr.success(response.toast);
-            //                $('#current_password').val('');
-            //                $('#new_password').val('');
-            //                $('#confirm_password').val('');
-            //            } else {
-            //                toastr.error(response.toast);
-            //            }
-            //        },
-            //        error: function (xhr, status, error) {
-            //            $('#btn-change-password').prop('disabled', false);
-            //            let response = JSON.parse(xhr.responseText);
-            //            let error_message = (response.toast ?? '<?php //= lang('System.response-msg.error.generic-error') ?>//');
-            //            toastr.error(error_message);
-            //        }
-            //    });
-            //});
+            $('#btn-upload-avatar').on('click', function (e) {
+                e.preventDefault();
+                // check if the file is selected
+                if ($('#avatar').val() === '') {
+                    toastr.warning('<?= lang('System.response-msg.error.please-check-empty-field') ?>');
+                    $('#avatar').focus();
+                    return;
+                }
+                $('#btn-upload-avatar').prop('disabled', true);
+                // submit #form-upload-avatar form in AJAX
+                $.ajax({
+                    url: '<?= base_url('/admin/profile') ?>',
+                    type: 'POST',
+                    data: new FormData($('#form-upload-avatar')[0]),
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+                    success: function (response) {
+                        $('#btn-upload-avatar').prop('disabled', false);
+                        if (response.status === "<?= STATUS_RESPONSE_OK ?>") {
+                            toastr.success(response.message);
+                            setTimeout(function() { location.reload(); }, 3000);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        $('#btn-upload-avatar').prop('disabled', false);
+                        let response = JSON.parse(xhr.responseText);
+                        let message = response.message ?? '<?= lang('System.response-msg.error.generic') ?>';
+                        toastr.error(message);
+                    }
+                });
+            });
+            $('#btn-remove-avatar').on('click', function (e) {
+               e.preventDefault();
+               $('#btn-remove-avatar').hide();
+               $('#btn-remove-avatar-confirm').show();
+            });
+            $('#btn-remove-avatar-confirm').on('click', function (e) {
+                e.preventDefault();
+                $('#btn-remove-avatar-confirm').prop('disabled', true);
+                $.ajax({
+                    url: '<?= base_url('/admin/profile') ?>',
+                    type: 'POST',
+                    data: {
+                        script_action: 'remove_avatar'
+                    },
+                    success: function (response) {
+                        $('#btn-remove-avatar-confirm').prop('disabled', false);
+                        if (response.status === "<?= STATUS_RESPONSE_OK ?>") {
+                            toastr.success(response.message);
+                            setTimeout(function() { location.reload(); }, 3000);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        $('#btn-remove-avatar-confirm').prop('disabled', false);
+                        let response = JSON.parse(xhr.responseText);
+                        let message = response.message ?? '<?= lang('System.response-msg.error.generic') ?>';
+                        toastr.error(message);
+                    }
+                });
+            });
+            $('#btn-change-password').on('click', function (e) {
+                e.preventDefault();
+                $('#script_action').val('change_password');
+                <?php
+                $fields = ['current_password', 'new_password', 'confirm_password'];
+                gen_js_fields_checker($fields);
+                ?>
+                if ($('#new_password').val() !== $('#confirm_password').val()) {
+                    toastr.warning('<?= lang('System.response-msg.error.password-does-not-matched') ?>');
+                    $('#confirm_password').val('').focus();
+                    return;
+                }
+                $('#btn-change-password').prop('disabled', true);
+                <?php $fields = array_merge(['script_action'], $fields); ?>
+                $.post(
+                    "<?= base_url('/admin/profile') ?>",
+                    <?php gen_json_fields_to_fields($fields) ?>,
+                    function (response, status) {
+                        $('#btn-change-password').prop('disabled', false);
+                        $('#current_password').val('');
+                        $('#new_password').val('');
+                        $('#confirm_password').val('');
+                        if (response.status === "<?= STATUS_RESPONSE_OK ?>") {
+                            toastr.success(response.message);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    "json"
+                ).fail(function (response) {
+                    $('#btn-change-password').prop('disabled', false);
+                    $('#current_password').val('');
+                    $('#new_password').val('');
+                    $('#confirm_password').val('');
+                    let message = response.responseJSON.message ?? '<?= lang('System.response-msg.error.generic') ?>';
+                    toastr.error(message);
+                });
+            });
         });
     </script>
 <?php $this->endSection() ?>

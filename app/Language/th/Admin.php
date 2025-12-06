@@ -26,6 +26,7 @@ return [
     'profile'       => [
         'controlled-account-data'  => 'ข้อมูลบัญชีควบคุม',
         'profile-data'             => 'ข้อมูลส่วนตัว',
+        'avatar'                   => 'รูปโปรไฟล์',
         'upload-avatar'            => 'อัปโหลดรูปโปรไฟล์',
         'upload-explanation'       => 'ระบบรองรับไฟล์ประเภท <code>png</code> และ <code>jpg</code> ที่มีขนาดต่ำกว่า 200kb เท่านั้น และถ้ารูปไม่ใช่สี่เหลี่ยมจตุรัส ระบบจะทำการตัดส่วนเกิดออกให้โดยอัตโนมัติ',
         'change-password'          => 'เปลี่ยนรหัสผ่าน',

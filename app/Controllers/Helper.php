@@ -39,7 +39,7 @@ class Helper extends BaseController
             return $this->response->setJSON([
                 'status'  => STATUS_RESPONSE_ERR,
                 'message' => $e->getMessage(),
-            ]);
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 }

@@ -26,6 +26,7 @@ return [
     'profile'       => [
         'controlled-account-data'  => 'Controlled Data',
         'profile-data'             => 'Profile Data',
+        'avatar'                   => 'Avatar',
         'upload-avatar'            => 'Upload Avatar',
         'upload-explanation'       => 'The system only accepts <code>png</code> and <code>jpg</code> files under 200kb. If the file is not square, it will be cropped to a square.',
         'change-password'          => 'Change Password',

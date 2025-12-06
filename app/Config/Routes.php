@@ -17,6 +17,9 @@ $routes->post('create-account', 'Home::create_account_post');
 $routes->post('forgot-password', 'Home::forgot_password_post');
 $routes->post('reset-password', 'Home::reset_password_post');
 $routes->post('login', 'Home::login_post');
+// Files
+$routes->get('file/(:any)', 'File::index/$1/0');
+$routes->get('download/(:any)', 'File::index/$1/1');
 // Internal System
 $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->get('dashboard', 'Admin::index');

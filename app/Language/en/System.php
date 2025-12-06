@@ -15,16 +15,22 @@ return [
             'generic'                   => 'Sorry, something went wrong. Please try again later.',
             'please-check-empty-field'  => 'Please check required field.',
             'password-does-not-matched' => 'Sorry, the confirm password does not match.',
+            'password-failed'           => 'Sorry, failed to update your password.',
             'wrong-credentials'         => 'Your username or password is incorrect, please try again.',
             'inactive-account'          => 'Your account is not active. Please contact your administrator or email the support team.',
             'not-logged-in'             => 'Please login to continue.',
             'session-expired'           => 'Your session has expired. Please login to continue.',
             'business-inactive'         => 'You cannot switch to this business.',
             'db-issue'                  => 'Your data could not be saved at the moment. Please try again later.',
+            'upload-failed'             => 'Sorry, the file failed to be uploaded.',
+            'removed'                   => 'Sorry, the file failed to be removed.',
         ],
         'success' => [
             'business-switched' => 'You have successfully switched your business.',
             'data-saved'        => 'Your data has been saved.',
+            'password-changed'  => 'Your password has been changed.',
+            'uploaded'          => 'Your file has been uploaded.',
+            'removed'           => 'Your file has been removed.',
         ]
     ],
     'buttons'         => [

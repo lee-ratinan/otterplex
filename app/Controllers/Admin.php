@@ -69,14 +69,94 @@ class Admin extends BaseController
                     $user = $userMasterModel->find($session->user_id);
                     unset($user['password_hash']);
                     $session->set('user', $user);
+                    $session->set('lang', $lang_code);
                     return $this->response->setJSON([
                         'status'    => STATUS_RESPONSE_OK,
                         'message'   => lang('System.response-msg.success.data-saved'),
                     ]);
                 }
                 $error_msg = lang('System.response-msg.error.db-issue');
+            } elseif ('change_password' == $script_action) {
+                $current_password = $this->request->getPost('current_password');
+                $new_password     = $this->request->getPost('new_password');
+                $confirm_password = $this->request->getPost('confirm_password');
+                if ($new_password != $confirm_password || empty($new_password)) {
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_ERR,
+                        'message' => lang('System.response-msg.error.password-failed') . ' [VR]',
+                    ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+                }
+                $result = $userMasterModel->updatePassword($session->user_id, $new_password, $current_password);
+                if ('OK' == $result) {
+                    return $this->response->setJSON([
+                        'status'    => STATUS_RESPONSE_OK,
+                        'message'   => lang('System.response-msg.success.password-changed'),
+                    ]);
+                }
+                $error_msg = lang('System.response-msg.error.password-failed') . ' ' . $result;
+            } elseif ('upload_avatar' == $script_action) {
+                helper(['form']);
+                $validationRule = [
+                    'avatar' => [
+                        'label' => lang('Admin.profile.avatar'),
+                        'rules' => [
+                            'uploaded[avatar]',
+                            'is_image[avatar]',
+                            'mime_in[avatar,image/jpg,image/jpeg,image/png]',
+                            'max_size[avatar,200]',
+                            'max_dims[avatar,1024,1024]',
+                        ],
+                    ],
+                ];
+                if (!$this->validateData([], $validationRule)) {
+                    $errors = $this->validator->getErrors();
+                    $toast  = lang('System.response-msg.error.upload-failed');
+                    foreach ($errors as $error) {
+                        $toast .= '<br>- ' . $error;
+                    }
+                    return $this->response->setJSON([
+                        'success' => STATUS_RESPONSE_ERR,
+                        'message' => $toast
+                    ]);
+                }
+                $img                  = $this->request->getFile('avatar');
+                list($width, $height) = getimagesize($img->getPathname());
+                $side                 = round(min($width, $height));
+                $file_type            = $img->getClientMimeType();
+                $email_address        = $session->user['email_address'];
+                $file_name            = 'profile_' . preg_replace('/[^a-z0-9]/i', '', strtolower($email_address)) . '.jpg';
+                if ('image/png' == $file_type) {
+                    $source = imagecreatefrompng($img->getPathname());
+                } else {
+                    $source = imagecreatefromjpeg($img->getPathname());
+                }
+                $destination = imagecreatetruecolor($side, $side);
+                $x           = round(($width - $side) / 2);
+                $y           = round(($height - $side) / 2);
+                imagecopyresampled($destination, $source, 0, 0, $x, $y, $side, $side, $side, $side);
+                imagejpeg($destination, WRITEPATH . 'uploads/profile_pictures/' . $file_name, 90);
+                imagedestroy($source);
+                imagedestroy($destination);
+                $session->set(['avatar' => retrieve_avatars($session->user['email_address'], $session->full_name)]);
+                return $this->response->setJSON([
+                    'status'  => STATUS_RESPONSE_OK,
+                    'message' => lang('System.response-msg.success.uploaded')
+                ]);
+            } elseif ('remove_avatar' == $script_action) {
+                $email_address = $session->user['email_address'];
+                $file_name     = 'profile_' . preg_replace('/[^a-z0-9]/i', '', strtolower($email_address)) . '.jpg';
+                $file_path     = WRITEPATH . 'uploads/profile_pictures/' . $file_name;
+                if (file_exists($file_path)) {
+                    if (unlink($file_path)) {
+                        $session->set(['avatar' => retrieve_avatars($session->user['email_address'], $session->full_name)]);
+                        return $this->response->setJSON([
+                            'status'  => STATUS_RESPONSE_OK,
+                            'message' => lang('System.response-msg.success.removed')
+                        ]);
+                    }
+                }
+                $error_msg  = lang('System.response-msg.error.removed');
             }
-
             return $this->response->setJSON([
                 'status'  => STATUS_RESPONSE_ERR,
                 'message' => $error_msg
@@ -85,7 +165,7 @@ class Admin extends BaseController
             return $this->response->setJSON([
                 'status'  => STATUS_RESPONSE_ERR,
                 'message' => $e->getMessage(),
-            ]);
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -120,7 +200,7 @@ class Admin extends BaseController
             return $this->response->setJSON([
                 'status' => STATUS_RESPONSE_ERR,
                 'message' => lang('System.response-msg.error.business-inactive')
-            ]);
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
         }
         $session->set([
             'user_role' => $business[0]['user_role'],

@@ -15,7 +15,8 @@
         "ext-mbstring": "*",
         "giggsey/libphonenumber-for-php": "^9.0",
         "laminas/laminas-escaper": "^2.17",
-        "psr/log": "^3.0"
+        "psr/log": "^3.0",
+        "ext-gd": "If you use Image class GDHandler"
     },
     "require-dev": {
         "codeigniter/coding-standard": "^1.7",
@@ -32,7 +33,6 @@
         "ext-dom": "If you use TestResponse",
         "ext-exif": "If you run Image class tests",
         "ext-fileinfo": "Improves mime type detection for files",
-        "ext-gd": "If you use Image class GDHandler",
         "ext-imagick": "If you use Image class ImageMagickHandler",
         "ext-libxml": "If you use TestResponse",
         "ext-memcache": "If you use Cache class MemcachedHandler with Memcache",

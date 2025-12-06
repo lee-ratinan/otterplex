@@ -130,28 +130,31 @@ class UserMasterModel extends AppBaseModel
      * @param int $user_id
      * @param string $new_password
      * @param string $current_password
-     * @return bool
+     * @return string
      * @throws ReflectionException
      */
-    public function updatePassword(int $user_id, string $new_password, string $current_password): bool
+    public function updatePassword(int $user_id, string $new_password, string $current_password): string
     {
         $updating_user = $this->find($user_id);
         log_message('debug', "Updating password for user {$user_id} - START");
-        if (password_verify($current_password, $updating_user['account_password_hash'])) {
+        if (password_verify($current_password, $updating_user['password_hash'])) {
             // Verified, then, do the new
-            if (!password_verify($new_password, $updating_user['account_password_hash'])) {
+            if (!password_verify($new_password, $updating_user['password_hash'])) {
                 // New password is not the same as the previous one
                 $row      = [
-                    'account_password_hash'   => password_hash($new_password, PASSWORD_DEFAULT, $this->password_options),
-                    'account_password_expiry' => date('Y-m-d', strtotime(self::PASSWORD_EXPIRY))
+                    'password_hash'   => password_hash($new_password, PASSWORD_DEFAULT, $this->password_options),
+                    'password_expiry' => date('Y-m-d', strtotime(self::PASSWORD_EXPIRY))
                 ];
-                return $this->update($user_id, $row);
+                if ($this->update($user_id, $row)) {
+                    return 'OK';
+                }
+                return 'ER';
             }
             log_message('debug', "Updating password for user #{$user_id} - New password seems to be the same as previous one.");
-            return false;
+            return 'SP';
         }
         log_message('debug', "Updating password for user #{$user_id} - Fail to verify current password.");
-        return false;
+        return 'PC';
     }
 
     /**
