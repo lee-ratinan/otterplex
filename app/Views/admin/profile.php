@@ -68,11 +68,13 @@
                         <button id="btn-change-password" type="submit" class="btn btn-primary"><i class="bi bi-lock"></i>  <?= lang('Admin.profile.change-password') ?></button>
                     </div>
                 </div>
+                <label for="script_action"><input type="text" name="script_action" id="script_action" value="" /></label>
             </div>
         </div>
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // FIX INPUTS
             $('#new_password')
                 .on('keyup', function () {
                     // Reset
@@ -131,49 +133,48 @@
                         }
                     }
                 );
-            //$('#btn-save-changes').on('click', function (e) {
-            //    e.preventDefault();
-            //    let field_ids = ['telephone_country_calling_code_select', 'telephone_number', 'user_gender', 'user_date_of_birth', 'preferred_language'];
-            //    for (let i = 0; i < field_ids.length; i++) {
-            //        if ($('#' + field_ids[i]).val() === '') {
-            //            toastr.warning('<?php //= lang('System.response-msg.error.please-check-empty-field') ?>//');
-            //            $('#' + field_ids[i]).focus();
-            //            return;
-            //        }
-            //    }
-            //    $('#btn-save-changes').prop('disabled', true);
-            //    $.ajax({
-            //        url: '<?php //= base_url('/admin/profile') ?>//',
-            //        type: 'POST',
-            //        data: {
-            //            script_action: 'save-info',
-            //            telephone_country_calling_code: $('#telephone_country_calling_code_select').val(),
-            //            telephone_number: $('#telephone_number').val(),
-            //            user_gender: $('#user_gender').val(),
-            //            user_date_of_birth: $('#user_date_of_birth').val(),
-            //            user_profile_status: $('#user_profile_status').val(),
-            //            preferred_language: $('#preferred_language').val(),
-            //            user_nationality: $('#user_nationality').val()
-            //        },
-            //        success: function (response) {
-            //            $('#btn-save-changes').prop('disabled', false);
-            //            if (response.success) {
-            //                toastr.success(response.toast);
-            //                setTimeout(function () {
-            //                    window.location.href = response.redirect;
-            //                }, 5000);
-            //            } else {
-            //                toastr.error(response.toast);
-            //            }
-            //        },
-            //        error: function (xhr, status, error) {
-            //            $('#btn-save-changes').prop('disabled', false);
-            //            let response = JSON.parse(xhr.responseText);
-            //            let error_message = (response.toast ?? '<?php //= lang('System.response-msg.error.generic-error') ?>//');
-            //            toastr.error(error_message);
-            //        }
-            //    });
-            //});
+            $('#telephone_number').on('change', function () {
+                let phone_number = $(this).val(),
+                    country_code = '<?= $session->business['country_code'] ?>';
+                $.post(
+                    "<?= base_url('helper/format-phone-number') ?>",
+                    {phone_number: phone_number, country_code: country_code},
+                    function (response, status) {
+                        if (response.status === "<?= STATUS_RESPONSE_OK ?>") {
+                            ('#telephone_number').val(response.formatted_number);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    "json"
+                ).fail(function (response) {
+                    let message = response.responseJSON.message ?? '<?= lang('System.response-msg.error.generic') ?>';
+                    toastr.error(message);
+                });
+            });
+            // SAVE
+            $('#btn-save-changes').on('click', function (e) {
+                e.preventDefault();
+                <?php gen_js_fields_checker(['lang_code']); ?>
+                $('#btn-save-changes').prop('disabled', true);
+                $('#script_action').val('save_profile');
+                $.post(
+                    "<?= base_url('/admin/profile') ?>",
+                    <?php gen_json_fields_to_fields(['script_action', 'telephone_number', 'lang_code', 'user_gender', 'user_date_of_birth', 'user_nationality', 'profile_status_msg']) ?>,
+                    function (response, status) {
+                        if (response.status === "<?= STATUS_RESPONSE_OK ?>") {
+                            toastr.success(response.message);
+                            setTimeout(function() { location.reload(); }, 3000);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    "json"
+                ).fail(function (response) {
+                    let message = response.responseJSON.message ?? '<?= lang('System.response-msg.error.generic') ?>';
+                    toastr.error(message);
+                });
+            });
             //$('#btn-upload-avatar').on('click', function (e) {
             //    e.preventDefault();
             //    // check if the file is selected

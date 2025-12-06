@@ -143,7 +143,11 @@ if (!function_exists('build_form_input')) {
      */
     function build_form_input(string $id, string $label, array $attributes, string $current_value = '', string $other_classes = '', array $options = []): string
     {
-        $structure = "<div class='mb-3'><label for='{$id}' class='form-label'>{$label}</label>###FORM###</div>";
+        $required = '';
+        if (isset($attributes['required']) && 'true' == $attributes['required']) {
+            $required = '*';
+        }
+        $structure = "<div class='mb-3'><label for='{$id}' class='form-label'>{$label} {$required}</label>###FORM###</div>";
         $attr      = [];
         $attr[]    = "id='{$id}'";
         $attr[]    = "class='form-control $other_classes'";
