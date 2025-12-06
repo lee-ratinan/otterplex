@@ -2,6 +2,8 @@
 
 namespace App\Controllers;
 
+use App\Models\BusinessMasterModel;
+use App\Models\BusinessTypeModel;
 use App\Models\BusinessUserModel;
 use App\Models\UserMasterModel;
 use CodeIgniter\HTTP\ResponseInterface;
@@ -223,5 +225,41 @@ class Admin extends BaseController
             'lang'         => $this->request->getLocale(),
         ];
         return view('admin/about', $data);
+    }
+
+    /**
+     * Manage business page
+     * @return string
+     */
+    public function business(): string
+    {
+        $session             = session();
+        if ('OWNER' != $session->user_role) {
+            $data = [
+                'slug' => 'business',
+                'lang' => $this->request->getLocale(),
+            ];
+            return view('admin/_forbidden', $data);
+        }
+        $businessMasterModel = new BusinessMasterModel();
+        $businessTypeModel   = new BusinessTypeModel();
+        $businessId          = $session->business['id'];
+        $business            = $businessMasterModel->find($businessId);
+        $businessTypes       = $businessTypeModel->findAll();
+        $allLanguages        = get_available_locales('long');
+        // Fix JSON
+        $business['business_local_names'] = json_decode($business['business_local_names'], true);
+        for ($i = 0; $i < count($businessTypes); $i++) {
+            $businessTypes[$i]['type_local_names'] = json_decode($businessTypes[$i]['type_local_names'], true);
+        }
+        // DATA
+        $data                = [
+            'slug'           => 'business',
+            'lang'           => $this->request->getLocale(),
+            'business'       => $business,
+            'business_types' => $businessTypes,
+            'all_languages'  => $allLanguages
+        ];
+        return view('admin/business', $data);
     }
 }

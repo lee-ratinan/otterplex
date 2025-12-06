@@ -8,6 +8,7 @@ return [
         'my-businesses' => 'ธุรกิจของฉัน',
         'about'         => 'เกี่ยวกับระบบ',
         'logout'        => 'ออกจากระบบ',
+        'business'      => 'ธุรกิจ',
     ],
     'dashboard'     => [
         'no-business' => [
@@ -22,6 +23,10 @@ return [
             'manage'    => '<i class="bi bi-gear"></i> จัดการธุรกิจนี้',
             'switch-to' => '<i class="bi bi-toggle2-on"></i> เปลี่ยนไปธุรกิจนี้',
         ]
+    ],
+    'forbidden'     => [
+        'title'     => 'สิทธิไม่เพียงพอ',
+        'paragraph' => 'ขออภัย คุณไม่มีสิทธิเข้าถึงหน้านี้',
     ],
     'profile'       => [
         'controlled-account-data'  => 'ข้อมูลบัญชีควบคุม',

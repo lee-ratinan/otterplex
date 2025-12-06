@@ -8,6 +8,7 @@ return [
         'my-businesses' => 'My Businesses',
         'about'         => 'About',
         'logout'        => 'Logout',
+        'business'      => 'Business',
     ],
     'dashboard'     => [
         'no-business' => [
@@ -22,6 +23,10 @@ return [
             'manage'    => '<i class="bi bi-gear"></i> Manage this Business',
             'switch-to' => '<i class="bi bi-toggle2-on"></i> Switch to this Business',
         ]
+    ],
+    'forbidden'     => [
+        'title'     => 'Not Permitted',
+        'paragraph' => 'You do not have permission to access this page.',
     ],
     'profile'       => [
         'controlled-account-data'  => 'Controlled Data',

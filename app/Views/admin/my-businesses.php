@@ -5,7 +5,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-body p-3">
-                    <h2><?= lang('Admin.my-businesses.title') ?></h2>
+                    <h5><i class="bi bi-shop-window"></i> <?= lang('Admin.my-businesses.title') ?></h5>
                     <table class="table table-sm table-hover table-striped">
                         <thead>
                         <tr>
@@ -46,7 +46,7 @@
                                 </td>
                                 <td>
                                     <?php if ('OWNER' == $business['user_role'] && $business['business_id'] == $session->business['id']) : ?>
-                                        <a href="<?= base_url('admin/business/edit/') ?>" class="btn btn-sm btn-outline-primary"><?= lang('Admin.my-businesses.btn.manage') ?></a>
+                                        <a href="<?= base_url('admin/business') ?>" class="btn btn-sm btn-outline-primary"><?= lang('Admin.my-businesses.btn.manage') ?></a>
                                     <?php endif; ?>
                                 </td>
                             </tr>

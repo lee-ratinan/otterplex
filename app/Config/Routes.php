@@ -28,6 +28,8 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->get('my-businesses', 'Admin::my_businesses');
     $routes->post('switch-business', 'Admin::switch_business');
     $routes->get('about', 'Admin::about');
+    // Business
+    $routes->get('business', 'Admin::business');
 });
 // Booking APIs
 $routes->group('api/v1.0', function ($routes) {

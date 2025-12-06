@@ -107,6 +107,11 @@ if (!empty($session->business)) {
 <aside id="sidebar" class="sidebar">
     <ul class="sidebar-nav" id="sidebar-nav">
         <li class="nav-item"><a class="nav-link <?= ('dashboard' == $slug ? '' : 'collapsed' ) ?>" href="<?= base_url('/admin/dashboard') ?>"><i class="bi bi-house-door me-3"></i><span><?= lang('Admin.pages.dashboard') ?></span></a></li>
+        <?php if ('OWNER' == $session->user_role) : ?>
+            <li class="nav-item"><a class="nav-link <?= ('business' == $slug ? '' : 'collapsed' ) ?>" href="<?= base_url('/admin/business') ?>"><i class="bi bi-shop-window me-3"></i><span><?= lang('Admin.pages.business') ?></span></a></li>
+        <?php endif; ?>
+
+
         <!-- AREA FOR OTHER MENU -->
 
 
