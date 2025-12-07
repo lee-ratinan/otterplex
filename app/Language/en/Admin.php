@@ -2,13 +2,21 @@
 return [
     'site-name'     => 'OtterNova',
     'pages'         => [
-        'dashboard'     => 'Dashboard',
-        'search'        => 'Search',
-        'profile'       => 'Profile',
-        'my-businesses' => 'My Businesses',
-        'about'         => 'About',
-        'logout'        => 'Logout',
-        'business'      => 'Business',
+        'dashboard'         => 'Dashboard',
+        'search'            => 'Search',
+        'profile'           => 'Profile',
+        'my-businesses'     => 'My Businesses',
+        'about'             => 'About',
+        'logout'            => 'Logout',
+        'order'             => 'Order',
+        'service'           => 'Service',
+        'product'           => 'Product',
+        'product-category'  => 'Product Category',
+        'blog'              => 'Blog',
+        'business'          => 'Business',
+        'business-branch'   => 'Branch',
+        'business-user'     => 'Staff',
+        'business-customer' => 'Customer'
     ],
     'dashboard'     => [
         'no-business' => [

@@ -2,13 +2,21 @@
 return [
     'site-name'     => 'OtterNova',
     'pages'         => [
-        'dashboard'     => 'แดชบอร์ด',
-        'search'        => 'ค้นหา',
-        'profile'       => 'โปรไฟล์',
-        'my-businesses' => 'ธุรกิจของฉัน',
-        'about'         => 'เกี่ยวกับระบบ',
-        'logout'        => 'ออกจากระบบ',
-        'business'      => 'ธุรกิจ',
+        'dashboard'         => 'แดชบอร์ด',
+        'search'            => 'ค้นหา',
+        'profile'           => 'โปรไฟล์',
+        'my-businesses'     => 'ธุรกิจของฉัน',
+        'about'             => 'เกี่ยวกับระบบ',
+        'logout'            => 'ออกจากระบบ',
+        'order'             => 'ออร์เดอร์',
+        'service'           => 'บริการ',
+        'product'           => 'สินค้า',
+        'product-category'  => 'ประเภทสินค้า',
+        'blog'              => 'บล็อก',
+        'business'          => 'ธุรกิจ',
+        'business-branch'   => 'สาขา',
+        'business-user'     => 'พนักงาน',
+        'business-customer' => 'ลูกค้า'
     ],
     'dashboard'     => [
         'no-business' => [

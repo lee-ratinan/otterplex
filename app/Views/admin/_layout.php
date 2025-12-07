@@ -109,6 +109,35 @@ if (!empty($session->business)) {
         <li class="nav-item"><a class="nav-link <?= ('dashboard' == $slug ? '' : 'collapsed' ) ?>" href="<?= base_url('/admin/dashboard') ?>"><i class="bi bi-house-door me-3"></i><span><?= lang('Admin.pages.dashboard') ?></span></a></li>
         <?php
         $sidebar_menu = [];
+        // ORDER
+        $sidebar_menu['order'] = [
+            'title' => '<i class="bi bi-bag"></i> <span>' . lang('Admin.pages.order') . '</span>',
+            'links' => [
+                'order' => [base_url('/admin/order'), lang('Admin.pages.order')],
+            ]
+        ];
+        // PRODUCT/SERVICE/BLOG
+        if (in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            $sidebar_menu['service'] = [
+                'title' => '<i class="bi bi-lightbulb me-3"></i> <span>' . lang('Admin.pages.service') . '</span>',
+                'links' => [
+                    'service' => [base_url('/admin/service'), lang('Admin.pages.service')],
+                ]
+            ];
+            $sidebar_menu['product'] = [
+                'title' => '<i class="bi bi-box-seam me-3"></i> <span>' . lang('Admin.pages.product') . '</span>',
+                'links' => [
+                    'product' => [base_url('/admin/product'), lang('Admin.pages.product')],
+                    'product-category' => [base_url('admin/product/category'), lang('Admin.pages.product-category')],
+                ]
+            ];
+            $sidebar_menu['blog'] = [
+                'title' => '<i class="bi bi-book me-3"></i> <span>' . lang('Admin.pages.blog') . '</span>',
+                'links' => [
+                    'blog' => [base_url('/admin/blog'), lang('Admin.pages.blog')],
+                ]
+            ];
+        }
         // BUSINESS
         if ('OWNER' == $session->user_role) {
             $sidebar_menu['business'] = [
@@ -138,22 +167,7 @@ if (!empty($session->business)) {
                 ]
             ];
         }
-        // PRODUCT/SERVICE
-        if (in_array($session->user_role, ['OWNER', 'MANAGER'])) {
-            $sidebar_menu['service'] = [
-                'title' => '<i class="bi bi-lightbulb me-3"></i> <span>' . lang('Admin.pages.service') . '</span>',
-                'links' => [
-                    'service' => [base_url('/admin/service'), lang('Admin.pages.service')],
-                ]
-            ];
-            $sidebar_menu['product'] = [
-                'title' => '<i class="bi bi-box-seam me-3"></i> <span>' . lang('Admin.pages.product') . '</span>',
-                'links' => [
-                    'product' => [base_url('/admin/product'), lang('Admin.pages.product')],
-                    'product-category' => [base_url('admin/product/category'), lang('Admin.pages.product-category')],
-                ]
-            ];
-        }
+        // RENDER MENU
         foreach ($sidebar_menu as $group_key => $item) {
             $in_group = array_keys($item['links']);
             echo '<li class="nav-item">
@@ -166,82 +180,6 @@ if (!empty($session->business)) {
             echo '</ul></li>';
         }
         ?>
-
-
-
-
-
-
-        <!-- BUSINESSES+BRANCHES -->
-        <?php if (isset($session->permitted_features['branch-management'])): ?>
-            <li class="nav-item">
-                <a class="nav-link <?= (in_array($slug, ['businesses', 'branches', 'business-settings', 'resource-types', 'resources', 'staff', 'staff-types']) ? '' : 'collapsed' ) ?>" data-bs-target="#branches-nav" data-bs-toggle="collapse" href="#">
-                    <i class="bi bi-shop me-3"></i><span><?= lang('Admin.nav.businesses-and-branches') ?></span><i class="bi bi-chevron-down ms-auto"></i>
-                </a>
-                <ul id="branches-nav" class="nav-content collapse <?= (in_array($slug, ['businesses', 'branches', 'business-settings', 'resource-types', 'resources', 'staff', 'staff-types']) ? 'show' : '' ) ?>" data-bs-parent="#sidebar-nav" style="">
-                    <li><a class="<?= ('businesses' == $slug ? 'active' : '' ) ?>" href="<?= base_url('/admin/businesses') ?>"><i class="bi bi-circle"></i><span><?= lang('Admin.pages.businesses') ?></span></a></li>
-                    <li><a class="<?= ('branches' == $slug ? 'active' : '' ) ?>" href="<?= base_url('/admin/branches') ?>"><i class="bi bi-circle ms-3"></i><span><?= lang('Admin.pages.branches') ?></span></a></li>
-                    <li><a class="<?= ('business-settings' == $slug ? 'active' : '' ) ?>" href="<?= base_url('/admin/business-settings') ?>"><i class="bi bi-circle ms-3"></i><span><?= lang('Admin.pages.business-settings') ?></span></a></li>
-                    <li><a class="<?= ('resources' == $slug ? 'active' : '' ) ?>" href="<?= base_url('/admin/resources') ?>"><i class="bi bi-circle"></i><span><?= lang('Admin.pages.resources') ?></span></a></li>
-                    <li><a class="<?= ('resource-types' == $slug ? 'active' : '' ) ?>" href="<?= base_url('/admin/resource-types') ?>"><i class="bi bi-circle ms-3"></i><span><?= lang('Admin.pages.resource-types') ?></span></a></li>
-                    <li><a class="<?= ('staff' == $slug ? 'active' : '' ) ?>" href="<?= base_url('/admin/staff') ?>"><i class="bi bi-circle"></i><span><?= lang('Admin.pages.staff') ?></span></a></li>
-                    <li><a class="<?= ('staff-types' == $slug ? 'active' : '' ) ?>" href="<?= base_url('/admin/staff-types') ?>"><i class="bi bi-circle ms-3"></i><span><?= lang('Admin.pages.staff-types') ?></span></a></li>
-                </ul>
-            </li>
-        <?php endif; ?>
-        <!-- SERVICES -->
-        <?php if (isset($session->permitted_features['service-management'])): ?>
-            <li class="nav-item">
-                <a class="nav-link <?= (in_array($slug, ['services', 'variants']) ? '' : 'collapsed' ) ?>" data-bs-target="#services-nav" data-bs-toggle="collapse" href="#">
-                    <i class="bi bi-lightbulb me-3"></i><span><?= lang('Admin.nav.services') ?></span><i class="bi bi-chevron-down ms-auto"></i>
-                </a>
-                <ul id="services-nav" class="nav-content collapse <?= (in_array($slug, ['services', 'variants']) ? 'show' : '' ) ?>" data-bs-parent="#sidebar-nav" style="">
-                    <li><a class="<?= ('services' == $slug ? 'active' : '' ) ?>" href="<?= base_url('/admin/services') ?>"><i class="bi bi-circle"></i><span><?= lang('Admin.pages.services') ?></span></a></li>
-                    <li><a class="<?= ('variants' == $slug ? 'active' : '' ) ?>" href="<?= base_url('/admin/service-variants') ?>"><i class="bi bi-circle ms-3"></i><span><?= lang('Admin.pages.variants') ?></span></a></li>
-                </ul>
-            </li>
-        <?php endif; ?>
-        <!-- PRODUCTS -->
-        <?php if (isset($session->permitted_features['product-management'])): ?>
-            <li class="nav-item">
-                <a class="nav-link <?= (in_array($slug, ['products', 'product-variants', 'product-categories', 'product-variant-keys']) ? '' : 'collapsed' ) ?>" data-bs-target="#products-nav" data-bs-toggle="collapse" href="#">
-                    <i class="bi bi-box-seam me-3"></i><span><?= lang('Admin.nav.products') ?></span><i class="bi bi-chevron-down ms-auto"></i>
-                </a>
-                <ul id="products-nav" class="nav-content collapse <?= (in_array($slug, ['products', 'product-variants', 'product-categories', 'product-variant-keys']) ? 'show' : '' ) ?>" data-bs-parent="#sidebar-nav" style="">
-                    <li><a class="<?= ('products' == $slug ? 'active' : '' ) ?>" href="<?= base_url('/admin/products') ?>"><i class="bi bi-circle"></i><span><?= lang('Admin.pages.products') ?></span></a></li>
-                    <li><a class="<?= ('product-variants' == $slug ? 'active' : '' ) ?>" href="<?= base_url('/admin/product-variants') ?>"><i class="bi bi-circle ms-3"></i><span><?= lang('Admin.pages.product-variants') ?></span></a></li>
-                    <li><a class="<?= ('product-categories' == $slug ? 'active' : '' ) ?>" href="<?= base_url('/admin/product-categories') ?>"><i class="bi bi-circle ms-3"></i><span><?= lang('Admin.pages.product-categories') ?></span></a></li>
-                    <li><a class="<?= ('product-variant-keys' == $slug ? 'active' : '' ) ?>" href="<?= base_url('/admin/product-variant-keys') ?>"><i class="bi bi-circle ms-3"></i><span><?= lang('Admin.pages.product-variant-keys') ?></span></a></li>
-                </ul>
-            </li>
-        <?php endif; ?>
-        <!-- BLOG MASTER -->
-        <?php if (isset($session->permitted_features['blog'])): ?>
-            <li class="nav-item">
-                <a class="nav-link <?= (in_array($slug, ['blog', 'blog-categories']) ? '' : 'collapsed' ) ?>" data-bs-target="#blog-nav" data-bs-toggle="collapse" href="#">
-                    <i class="bi bi-pen me-3"></i><span><?= lang('Admin.nav.blog') ?></span><i class="bi bi-chevron-down ms-auto"></i>
-                </a>
-                <ul id="blog-nav" class="nav-content collapse <?= (in_array($slug, ['blog', 'blog-categories']) ? 'show' : '' ) ?>" data-bs-parent="#sidebar-nav" style="">
-                    <li><a class="<?= ('blog' == $slug ? 'active' : '' ) ?>" href="<?= base_url('/admin/blog') ?>"><i class="bi bi-circle"></i><span><?= lang('Admin.pages.blog') ?></span></a></li>
-                    <li><a class="<?= ('blog-categories' == $slug ? 'active' : '' ) ?>" href="<?= base_url('/admin/blog-categories') ?>"><i class="bi bi-circle ms-3"></i><span><?= lang('Admin.pages.blog-categories') ?></span></a></li>
-                </ul>
-            </li>
-        <?php endif; ?>
-        <!-- USER MASTER -->
-        <?php if (isset($session->permitted_features['users'])): ?>
-            <li class="nav-item">
-                <a class="nav-link <?= (in_array($slug, ['users', 'roles']) ? '' : 'collapsed' ) ?>" data-bs-target="#users-nav" data-bs-toggle="collapse" href="#">
-                    <i class="bi bi-people me-3"></i><span><?= lang('Admin.nav.users-and-roles') ?></span><i class="bi bi-chevron-down ms-auto"></i>
-                </a>
-                <ul id="users-nav" class="nav-content collapse <?= (in_array($slug, ['users', 'roles']) ? 'show' : '' ) ?>" data-bs-parent="#sidebar-nav" style="">
-                    <li><a class="<?= ('users' == $slug ? 'active' : '' ) ?>" href="<?= base_url('/admin/users') ?>"><i class="bi bi-circle"></i><span><?= lang('Admin.pages.users') ?></span></a></li>
-                    <li><a class="<?= ('roles' == $slug ? 'active' : '' ) ?>" href="<?= base_url('/admin/roles') ?>"><i class="bi bi-circle ms-3"></i><span><?= lang('Admin.pages.roles') ?></span></a></li>
-                </ul>
-            </li>
-        <?php endif; ?>
-        <?php if (isset($session->permitted_features['site-configurations'])): ?>
-            <li class="nav-item"><a class="nav-link <?= ('site-configurations' == $slug ? '' : 'collapsed' ) ?>" href="<?= base_url('/admin/site-configurations') ?>"><i class="bi bi-gear-wide-connected me-3"></i><span><?= lang('Admin.pages.site-configurations') ?></span></a></li>
-        <?php endif; ?>
     </ul>
 </aside>
 <!-- MAIN -->
