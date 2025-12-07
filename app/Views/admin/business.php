@@ -6,6 +6,9 @@
             <div class="card">
                 <div class="card-body p-3">
                     <pre>
+                        use cases:
+                        - edit business itself (business types are dropdown)
+                        - show the contract and history of payments
                         <?php print_r($business); ?>
                         <?php print_r($business_types); ?>
                         <?php print_r($all_languages); ?>

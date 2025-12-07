@@ -243,9 +243,11 @@ class Admin extends BaseController
         }
         $businessMasterModel = new BusinessMasterModel();
         $businessTypeModel   = new BusinessTypeModel();
+//        $businessUserModel   = new BusinessUserModel();
         $businessId          = $session->business['id'];
         $business            = $businessMasterModel->find($businessId);
         $businessTypes       = $businessTypeModel->findAll();
+//        $businessUsers       = $businessUserModel->getUsersByBusinessId($businessId);
         $allLanguages        = get_available_locales('long');
         // Fix JSON
         $business['business_local_names'] = json_decode($business['business_local_names'], true);
@@ -258,6 +260,7 @@ class Admin extends BaseController
             'lang'           => $this->request->getLocale(),
             'business'       => $business,
             'business_types' => $businessTypes,
+//            'business_users' => $businessUsers,
             'all_languages'  => $allLanguages
         ];
         return view('admin/business', $data);

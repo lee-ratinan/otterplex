@@ -107,12 +107,67 @@ if (!empty($session->business)) {
 <aside id="sidebar" class="sidebar">
     <ul class="sidebar-nav" id="sidebar-nav">
         <li class="nav-item"><a class="nav-link <?= ('dashboard' == $slug ? '' : 'collapsed' ) ?>" href="<?= base_url('/admin/dashboard') ?>"><i class="bi bi-house-door me-3"></i><span><?= lang('Admin.pages.dashboard') ?></span></a></li>
-        <?php if ('OWNER' == $session->user_role) : ?>
-            <li class="nav-item"><a class="nav-link <?= ('business' == $slug ? '' : 'collapsed' ) ?>" href="<?= base_url('/admin/business') ?>"><i class="bi bi-shop-window me-3"></i><span><?= lang('Admin.pages.business') ?></span></a></li>
-        <?php endif; ?>
+        <?php
+        $sidebar_menu = [];
+        // BUSINESS
+        if ('OWNER' == $session->user_role) {
+            $sidebar_menu['business'] = [
+                'title' => '<i class="bi bi-shop-window me-3"></i><span>' . lang('Admin.pages.business') . '</span>',
+                'links' => [
+                    'business'          => [base_url('/admin/business'), lang('Admin.pages.business')],
+                    'business-branch'   => [
+                        base_url('/admin/business/branch'), lang('Admin.pages.business-branch')
+                    ],
+                    'business-user'     => [base_url('/admin/business/user'), lang('Admin.pages.business-user')],
+                    'business-customer' => [
+                        base_url('/admin/business/customer'), lang('Admin.pages.business-customer')
+                    ],
+                ]
+            ];
+        } elseif ('MANAGER' == $session->user_role) {
+            $sidebar_menu['business'] = [
+                'title' => '<i class="bi bi-shop-window me-3"></i><span>' . lang('Admin.pages.business') . '</span>',
+                'links' => [
+                    'business-branch'   => [
+                        base_url('/admin/business/branch'), lang('Admin.pages.business-branch')
+                    ],
+                    'business-user'     => [base_url('/admin/business/user'), lang('Admin.pages.business-user')],
+                    'business-customer' => [
+                        base_url('/admin/business/customer'), lang('Admin.pages.business-customer')
+                    ],
+                ]
+            ];
+        }
+        // PRODUCT/SERVICE
+        if (in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            $sidebar_menu['service'] = [
+                'title' => '<i class="bi bi-lightbulb me-3"></i> <span>' . lang('Admin.pages.service') . '</span>',
+                'links' => [
+                    'service' => [base_url('/admin/service'), lang('Admin.pages.service')],
+                ]
+            ];
+            $sidebar_menu['product'] = [
+                'title' => '<i class="bi bi-box-seam me-3"></i> <span>' . lang('Admin.pages.product') . '</span>',
+                'links' => [
+                    'product' => [base_url('/admin/product'), lang('Admin.pages.product')],
+                    'product-category' => [base_url('admin/product/category'), lang('Admin.pages.product-category')],
+                ]
+            ];
+        }
+        foreach ($sidebar_menu as $group_key => $item) {
+            $in_group = array_keys($item['links']);
+            echo '<li class="nav-item">
+                <a class="nav-link ' . (in_array($slug, $in_group) ? '' : 'collapsed' ) . '" data-bs-target="#' . $group_key . '-nav" data-bs-toggle="collapse" href="#">
+                    ' . $item['title'] . '<i class="bi bi-chevron-down ms-auto"></i>
+                </a><ul id="' . $group_key . '-nav" class="nav-content collapse ' . (in_array($slug, $in_group) ? 'show' : '' ) . '" data-bs-parent="#sidebar-nav" style="">';
+            foreach ($item['links'] as $link_slug => $link) {
+                echo '<li><a class="' . ($link_slug == $slug ? 'active' : '' ) . '" href="' . $link[0] . '"><i class="bi bi-circle ms-3"></i><span>' . $link[1] . '</span></a></li>';
+            }
+            echo '</ul></li>';
+        }
+        ?>
 
 
-        <!-- AREA FOR OTHER MENU -->
 
 
 

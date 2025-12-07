@@ -58,4 +58,20 @@ class BusinessUserModel extends AppBaseModel
         }
         return $businesses;
     }
+
+    /**
+     * @param int $businessId
+     * @param bool $onlyActive
+     * @return array
+     */
+    public function getUsersByBusinessId(int $businessId, bool $onlyActive = false): array
+    {
+        if ($onlyActive) {
+            $this->where('role_status', self::ROLE_STATUS_ACTIVE);
+        }
+        return $this->select('business_user.*, user_master.user_name_first, user_master.user_name_last, user_master.email_address, user_master.account_status')
+            ->join('user_master', 'user_master.id = business_user.user_id')
+            ->where('business_id', $businessId)
+            ->findAll();
+    }
 }

@@ -53,6 +53,10 @@
                         <?php endforeach; ?>
                         </tbody>
                     </table>
+                    <pre>
+                        use cases:
+                        - add business here
+                    </pre>
                 </div>
             </div>
         </div>
