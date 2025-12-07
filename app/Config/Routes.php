@@ -28,8 +28,20 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->get('my-businesses', 'Admin::my_businesses');
     $routes->post('switch-business', 'Admin::switch_business');
     $routes->get('about', 'Admin::about');
-    // Business
+    // BUSINESS
     $routes->get('business', 'Admin::business');
+    $routes->get('business/branch', 'Admin::business_branch');
+    $routes->get('business/user', 'Admin::business_user');
+    $routes->get('business/customer', 'Admin::business_customer');
+    // ORDER
+    $routes->get('order', 'Admin::order');
+    // SERVICE
+    $routes->get('service', 'Admin::service');
+    // PRODUCT
+    $routes->get('product', 'Admin::product');
+    $routes->get('product/category', 'Admin::product_category');
+    // BLOG
+    $routes->get('blog', 'Admin::blog');
 });
 // Booking APIs
 $routes->group('api/v1.0', function ($routes) {

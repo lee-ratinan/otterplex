@@ -185,7 +185,7 @@ class Admin extends BaseController
             'lang'         => $this->request->getLocale(),
             'myBusinesses' => $myBusinesses
         ];
-        return view('admin/my-businesses', $data);
+        return view('admin/my_businesses', $data);
     }
 
     /**
@@ -264,5 +264,109 @@ class Admin extends BaseController
             'all_languages'  => $allLanguages
         ];
         return view('admin/business', $data);
+    }
+
+    /**
+     * Manage branch
+     * @return string
+     */
+    public function business_branch(): string
+    {
+        $data = [
+            'slug'           => 'business-branch',
+            'lang'           => $this->request->getLocale(),
+        ];
+        return view('admin/business_branch', $data);
+    }
+
+    /**
+     * Manage staff
+     * @return string
+     */
+    public function business_user(): string
+    {
+        $data = [
+            'slug'           => 'business-user',
+            'lang'           => $this->request->getLocale(),
+        ];
+        return view('admin/business_user', $data);
+    }
+
+    /**
+     * Manage customer
+     * @return string
+     */
+    public function business_customer(): string
+    {
+        $data = [
+            'slug'           => 'business-customer',
+            'lang'           => $this->request->getLocale(),
+        ];
+        return view('admin/business_customer', $data);
+    }
+
+    /**
+     * Manage order
+     * @return string
+     */
+    public function order(): string
+    {
+        $data = [
+            'slug'           => 'order',
+            'lang'           => $this->request->getLocale(),
+        ];
+        return view('admin/order', $data);
+    }
+
+    /**
+     * Manage service
+     * @return string
+     */
+    public function service(): string
+    {
+        $data = [
+            'slug'           => 'service',
+            'lang'           => $this->request->getLocale(),
+        ];
+        return view('admin/service', $data);
+    }
+
+    /**
+     * Manage product
+     * @return string
+     */
+    public function product(): string
+    {
+        $data = [
+            'slug'           => 'product',
+            'lang'           => $this->request->getLocale(),
+        ];
+        return view('admin/product', $data);
+    }
+
+    /**
+     * Manage product category
+     * @return string
+     */
+    public function product_category(): string
+    {
+        $data = [
+            'slug'           => 'product-category',
+            'lang'           => $this->request->getLocale(),
+        ];
+        return view('admin/product_category', $data);
+    }
+
+    /**
+     * Manage blog
+     * @return string
+     */
+    public function blog(): string
+    {
+        $data = [
+            'slug'           => 'blog',
+            'lang'           => $this->request->getLocale(),
+        ];
+        return view('admin/blog', $data);
     }
 }
