@@ -2,6 +2,8 @@
 
 namespace App\Controllers;
 
+use App\Models\BusinessContractModel;
+use App\Models\BusinessContractPaymentModel;
 use App\Models\BusinessMasterModel;
 use App\Models\BusinessTypeModel;
 use App\Models\BusinessUserModel;
@@ -241,26 +243,21 @@ class Admin extends BaseController
             ];
             return view('admin/_forbidden', $data);
         }
-        $businessMasterModel = new BusinessMasterModel();
-        $businessTypeModel   = new BusinessTypeModel();
-//        $businessUserModel   = new BusinessUserModel();
-        $businessId          = $session->business['id'];
-        $business            = $businessMasterModel->find($businessId);
-        $businessTypes       = $businessTypeModel->findAll();
-//        $businessUsers       = $businessUserModel->getUsersByBusinessId($businessId);
-        $allLanguages        = get_available_locales('long');
-        // Fix JSON
-        $business['business_local_names'] = json_decode($business['business_local_names'], true);
-        for ($i = 0; $i < count($businessTypes); $i++) {
-            $businessTypes[$i]['type_local_names'] = json_decode($businessTypes[$i]['type_local_names'], true);
-        }
+        $businessMasterModel  = new BusinessMasterModel();
+        $businessTypeModel    = new BusinessTypeModel();
+        $contractModel        = new BusinessContractModel();
+        $businessId           = $session->business['id'];
+        $business             = $businessMasterModel->find($businessId);
+        $businessTypes        = $businessTypeModel->retrieveData();
+        $contracts            = $contractModel->retrieveDataByBusinessId($businessId);
+        $allLanguages         = get_available_locales('long');
         // DATA
         $data                = [
             'slug'           => 'business',
             'lang'           => $this->request->getLocale(),
             'business'       => $business,
             'business_types' => $businessTypes,
-//            'business_users' => $businessUsers,
+            'contracts'      => $contracts,
             'all_languages'  => $allLanguages
         ];
         return view('admin/business', $data);

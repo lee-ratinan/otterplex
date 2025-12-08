@@ -205,3 +205,33 @@ if (!function_exists('build_form_input')) {
         return str_replace('###FORM###' , $input_tag, $structure);
     }
 }
+if (!function_exists('format_price')) {
+    /**
+     * Currency format
+     * @param float $price
+     * @param string $currency
+     * @param int $decimals_override
+     * @return string
+     */
+    function format_price(float $price, string $currency, int $decimals_override = 2): string
+    {
+        $currency            = strtoupper($currency);
+        $country_to_currency = [
+            'TH' => 'THB',
+            'US' => 'USD',
+        ];
+        if (isset($country_to_currency[$currency])) {
+            $currency = $country_to_currency[$currency];
+        }
+        // Check negative
+        $negative = '';
+        if (0 > $price) {
+            $negative = '-';
+            $price    = abs($price);
+        }
+        if ('THB' == $currency) {
+            return $negative . '฿' . number_format($price, $decimals_override);
+        }
+        return $negative . '$' . number_format($price, $decimals_override);
+    }
+}
