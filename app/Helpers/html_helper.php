@@ -34,6 +34,33 @@ if (!function_exists('gen_json_fields_to_fields')) {
 }
 if (!function_exists('retrieve_avatars')) {
     /**
+     * @param string $word
+     * @return string
+     */
+    function retrieve_avatars_extract_initial(string $word): string
+    {
+        $thai_consonants = [
+            'ก','ข','ฃ','ค','ฅ','ฆ',
+            'ง','จ','ฉ','ช','ซ','ฌ',
+            'ญ','ฎ','ฏ','ฐ','ฑ','ฒ',
+            'ณ','ด','ต','ถ','ท','ธ',
+            'น','บ','ป','ผ','ฝ','พ','ฟ',
+            'ภ','ม','ย','ร','ล','ว',
+            'ศ','ษ','ส','ห','ฬ','อ','ฮ'
+        ];
+        $chars = preg_split('//u', $word, -1, PREG_SPLIT_NO_EMPTY);
+        // If Thai: try to find first consonant
+        if (preg_match('/\p{Thai}/u', $word)) {
+            foreach ($chars as $c) {
+                if (in_array($c, $thai_consonants, true)) {
+                    return $c;
+                }
+            }
+        }
+        return $chars[0];
+    }
+
+    /**
      * Create avatar - only for admin
      * @param string $email_address
      * @param string $full_name
@@ -41,6 +68,7 @@ if (!function_exists('retrieve_avatars')) {
      */
     function retrieve_avatars(string $email_address, string $full_name): string
     {
+        $full_name      = trim(preg_replace('/\s+/u', ' ', $full_name));
         $email_address  = preg_replace('/[^a-z0-9]/i', '', strtolower($email_address));
         $file_url       = base_url('file/profile_picture_' . $email_address . '.jpg');
         $file_path      = WRITEPATH . 'uploads/profile_pictures/profile_' . $email_address . '.jpg';
@@ -57,13 +85,10 @@ if (!function_exists('retrieve_avatars')) {
         if ($avg > 50) {
             $text_color = '#000';
         }
-        $name_pieces = explode(' ', $full_name);
-        $initials = '';
-        for ($i = 0; $i <= 1; $i++) {
-            if ($name_pieces[$i]) {
-                $initials .= strtoupper(substr($name_pieces[$i], 0, 1));
-            }
-        }
+        $parts    = explode(' ', $full_name);
+        $first    = $parts[0];
+        $last     = $parts[count($parts) - 1];
+        $initials = retrieve_avatars_extract_initial($first) . retrieve_avatars_extract_initial($last);
         return "<div class='avatar-txt' style='background-color:$color;color:$text_color' title='$full_name' data-bs-toggle='tooltip' data-bs-placement='top'>$initials</div>";
     }
 }
