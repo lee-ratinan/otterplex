@@ -33,6 +33,9 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->get('business/branch', 'Admin::business_branch');
     $routes->get('business/user', 'Admin::business_user');
     $routes->get('business/customer', 'Admin::business_customer');
+    // RESOURCE
+    $routes->get('resource/type', 'Admin::resource_type');
+    $routes->get('resource', 'Admin::resource');
     // ORDER
     $routes->get('order', 'Admin::order');
     // SERVICE
@@ -40,8 +43,14 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     // PRODUCT
     $routes->get('product', 'Admin::product');
     $routes->get('product/category', 'Admin::product_category');
+    // REVIEW
+    $routes->get('review', 'Admin::review');
+    // ALLOCATION
+    $routes->get('allocation/staff', 'Admin::allocation_staff');
+    $routes->get('allocation/resource', 'Admin::allocation_resource');
     // BLOG
     $routes->get('blog', 'Admin::blog');
+    $routes->get('blog/category', 'Admin::blog_category');
 });
 // Booking APIs
 $routes->group('api/v1.0', function ($routes) {

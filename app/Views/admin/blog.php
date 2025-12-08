@@ -7,7 +7,7 @@
                 <div class="card-body p-3">
                     <pre>
                         use cases:
-                        ...
+                        blog_master
                     </pre>
                 </div>
             </div>

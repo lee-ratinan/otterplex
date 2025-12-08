@@ -7,7 +7,14 @@
                 <div class="card-body p-3">
                     <pre>
                         use cases:
-                        ...
+                        everything for the order:
+                        order_master
+                        order_booking_item
+                        order_booking_session
+                        order_line_adjustment
+                        order_line_item
+                        order_payment
+                        session_master
                     </pre>
                 </div>
             </div>

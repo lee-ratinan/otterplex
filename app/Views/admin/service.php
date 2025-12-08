@@ -7,7 +7,7 @@
                 <div class="card-body p-3">
                     <pre>
                         use cases:
-                        ...
+                        service_master, service_variant
                     </pre>
                 </div>
             </div>

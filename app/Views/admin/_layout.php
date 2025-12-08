@@ -109,11 +109,18 @@ if (!empty($session->business)) {
         <li class="nav-item"><a class="nav-link <?= ('dashboard' == $slug ? '' : 'collapsed' ) ?>" href="<?= base_url('/admin/dashboard') ?>"><i class="bi bi-house-door me-3"></i><span><?= lang('Admin.pages.dashboard') ?></span></a></li>
         <?php
         $sidebar_menu = [];
-        // ORDER
+        // ORDER & ALLOCATION
         $sidebar_menu['order'] = [
-            'title' => '<i class="bi bi-bag"></i> <span>' . lang('Admin.pages.order') . '</span>',
+            'title' => '<i class="bi bi-bag me-3"></i> <span>' . lang('Admin.pages.order') . '</span>',
             'links' => [
                 'order' => [base_url('/admin/order'), lang('Admin.pages.order')],
+            ]
+        ];
+        $sidebar_menu['allocation'] = [
+            'title' => '<i class="bi bi-calendar-check me-3"></i> <span>' . lang('Admin.pages.allocation') . '</span>',
+            'links' => [
+                'allocation-staff'    => [base_url('/admin/allocation/staff'), lang('Admin.pages.allocation-staff')],
+                'allocation-resource' => [base_url('/admin/allocation/resource'), lang('Admin.pages.allocation-resource')],
             ]
         ];
         // PRODUCT/SERVICE/BLOG
@@ -131,10 +138,17 @@ if (!empty($session->business)) {
                     'product-category' => [base_url('admin/product/category'), lang('Admin.pages.product-category')],
                 ]
             ];
+            $sidebar_menu['review'] = [
+                'title' => '<i class="bi bi-chat-left-heart me-3"></i> <span>' . lang('Admin.pages.review') . '</span>',
+                'links' => [
+                    'review' => [base_url('/admin/review'), lang('Admin.pages.review')],
+                ]
+            ];
             $sidebar_menu['blog'] = [
                 'title' => '<i class="bi bi-book me-3"></i> <span>' . lang('Admin.pages.blog') . '</span>',
                 'links' => [
                     'blog' => [base_url('/admin/blog'), lang('Admin.pages.blog')],
+                    'blog-category' => [base_url('/admin/blog/category'), lang('Admin.pages.blog-category')],
                 ]
             ];
         }
@@ -151,6 +165,8 @@ if (!empty($session->business)) {
                     'business-customer' => [
                         base_url('/admin/business/customer'), lang('Admin.pages.business-customer')
                     ],
+                    'resource-type'     => [base_url('/admin/resource/type'), lang('Admin.pages.resource-type')],
+                    'resource'          => [base_url('/admin/resource'), lang('Admin.pages.resource')],
                 ]
             ];
         } elseif ('MANAGER' == $session->user_role) {

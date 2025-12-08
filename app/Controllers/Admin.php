@@ -306,6 +306,32 @@ class Admin extends BaseController
     }
 
     /**
+     * Manage resource type
+     * @return string
+     */
+    public function resource_type(): string
+    {
+        $data = [
+            'slug'           => 'resource-type',
+            'lang'           => $this->request->getLocale(),
+        ];
+        return view('admin/resource_type', $data);
+    }
+
+    /**
+     * Manage resource
+     * @return string
+     */
+    public function resource(): string
+    {
+        $data = [
+            'slug'           => 'resource',
+            'lang'           => $this->request->getLocale(),
+        ];
+        return view('admin/resource', $data);
+    }
+
+    /**
      * Manage order
      * @return string
      */
@@ -316,6 +342,32 @@ class Admin extends BaseController
             'lang'           => $this->request->getLocale(),
         ];
         return view('admin/order', $data);
+    }
+
+    /**
+     * Manage staff allocation
+     * @return string
+     */
+    public function allocation_staff(): string
+    {
+        $data = [
+            'slug'           => 'allocation-staff',
+            'lang'           => $this->request->getLocale(),
+        ];
+        return view('admin/allocation_staff', $data);
+    }
+
+    /**
+     * Manage staff allocation
+     * @return string
+     */
+    public function allocation_resource(): string
+    {
+        $data = [
+            'slug'           => 'allocation-resource',
+            'lang'           => $this->request->getLocale(),
+        ];
+        return view('admin/allocation_resource', $data);
     }
 
     /**
@@ -358,6 +410,19 @@ class Admin extends BaseController
     }
 
     /**
+     * Manage review
+     * @return string
+     */
+    public function review(): string
+    {
+        $data = [
+            'slug'           => 'review',
+            'lang'           => $this->request->getLocale(),
+        ];
+        return view('admin/review', $data);
+    }
+
+    /**
      * Manage blog
      * @return string
      */
@@ -369,4 +434,18 @@ class Admin extends BaseController
         ];
         return view('admin/blog', $data);
     }
+
+    /**
+     * Manage blog category
+     * @return string
+     */
+    public function blog_category(): string
+    {
+        $data = [
+            'slug'           => 'blog-category',
+            'lang'           => $this->request->getLocale(),
+        ];
+        return view('admin/blog_category', $data);
+    }
+
 }

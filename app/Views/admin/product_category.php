@@ -7,7 +7,7 @@
                 <div class="card-body p-3">
                     <pre>
                         use cases:
-                        ...
+                        product_category
                     </pre>
                 </div>
             </div>

@@ -7,7 +7,7 @@
                 <div class="card-body p-3">
                     <pre>
                         use cases:
-                        ...
+                        product_master, product_variant, and then, product_variant_inventory
                     </pre>
                 </div>
             </div>

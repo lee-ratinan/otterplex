@@ -7,8 +7,8 @@
                 <div class="card-body p-3">
                     <pre>
                         use cases:
-                        business_customer (view, unlink only)
-                        customer_master, customer_address (view only - strictly - customer data - only partial address can be viewed)
+                        review_master
+                        review_summary
                     </pre>
                 </div>
             </div>
