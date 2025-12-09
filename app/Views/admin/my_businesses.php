@@ -5,7 +5,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-body p-3">
-                    <h5><i class="bi bi-shop-window"></i> <?= lang('Admin.my-businesses.title') ?></h5>
+                    <h2><i class="bi bi-shop-window"></i> <?= lang('Admin.my-businesses.title') ?></h2>
                     <table class="table table-sm table-hover table-striped">
                         <thead>
                         <tr>

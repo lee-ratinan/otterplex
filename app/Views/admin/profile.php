@@ -8,7 +8,7 @@
                     <div class="float-end avatar-4x">
                         <?= $session->avatar ?>
                     </div>
-                    <h5><i class="bi bi-lock"></i> <?= lang('Admin.profile.controlled-account-data') ?></h5>
+                    <h2><i class="bi bi-lock"></i> <?= lang('Admin.profile.controlled-account-data') ?></h2>
                     <div class="row">
                         <div class="col-12"><p><small><?= lang('UserMaster.field.email_address') ?></small><br><?= $session->user['email_address'] ?></p></div>
                         <div class="col-6"><p><small><?= lang('UserMaster.field.user_name_first') ?></small><br><?= $session->user['user_name_first'] ?></p></div>
@@ -18,7 +18,7 @@
                     </div>
                     <hr class="my-3"/>
                     <!-- PROFILE DATA -->
-                    <h5><i class="bi bi-person-badge"></i> <?= lang('Admin.profile.profile-data') ?></h5>
+                    <h2><i class="bi bi-person-badge"></i> <?= lang('Admin.profile.profile-data') ?></h2>
                     <?php
                     echo build_form_input('telephone_number', lang('UserMaster.field.telephone_number'), ['type' => 'tel'], $session->user['telephone_number']);
                     $lang_options = get_available_locales('long');
@@ -36,7 +36,7 @@
                     </div>
                     <hr class="my-3"/>
                     <!-- UPLOAD AVATAR -->
-                    <h5><i class="bi bi-cloud-arrow-up"></i> <?= lang('Admin.profile.upload-avatar') ?></h5>
+                    <h2><i class="bi bi-cloud-arrow-up"></i> <?= lang('Admin.profile.upload-avatar') ?></h2>
                     <form id="form-upload-avatar" action="<?= base_url('/admin/profile') ?>" method="post" enctype="multipart/form-data">
                         <input type="hidden" name="script_action" value="upload_avatar"/>
                         <input type="file" id="avatar" name="avatar" class="form-control my-3"/>
@@ -49,7 +49,7 @@
                     </form>
                     <hr class="my-3"/>
                     <!-- CHANGE PASSWORD -->
-                    <h5><i class="bi bi-lock"></i> <?= lang('Admin.profile.change-password') ?></h5>
+                    <h2><i class="bi bi-lock"></i> <?= lang('Admin.profile.change-password') ?></h2>
                     <form>
                         <?php
                         echo build_form_input('current_password', lang('UserMaster.field.current_password'), ['type' => 'password', 'required'  => 'true', 'minlength' => '8', 'maxlength' => '32', 'autocomplete' => 'off']);
