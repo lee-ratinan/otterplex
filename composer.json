@@ -16,7 +16,8 @@
         "giggsey/libphonenumber-for-php": "^9.0",
         "laminas/laminas-escaper": "^2.17",
         "psr/log": "^3.0",
-        "ext-gd": "If you use Image class GDHandler"
+        "ext-gd": "If you use Image class GDHandler",
+        "ext-mysql_xdevapi": "*"
     },
     "require-dev": {
         "codeigniter/coding-standard": "^1.7",

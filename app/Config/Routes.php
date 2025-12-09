@@ -30,6 +30,7 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->get('about', 'Admin::about');
     // BUSINESS
     $routes->get('business', 'Admin::business');
+    $routes->post('business', 'Admin::business_post');
     $routes->get('business/branch', 'Admin::business_branch');
     $routes->get('business/user', 'Admin::business_user');
     $routes->get('business/customer', 'Admin::business_customer');
@@ -59,4 +60,5 @@ $routes->group('api/v1.0', function ($routes) {
 // Helper
 $routes->group('helper', function ($routes) {
     $routes->post('format-phone-number', 'Helper::format_phone_number');
+    $routes->post('generate-slug', 'Helper::generate_slug');
 });

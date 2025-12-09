@@ -20,7 +20,6 @@
                                 'type'     => 'text',
                                 'readonly' => 'readonly',
                             ], $business['business_slug']);
-                            // business_local_names x all_languages
                             foreach ($all_languages as $lang_code => $language_name) {
                                 echo build_form_input('business_local_names_' . $lang_code, lang('BusinessMaster.field.business_local_names') . ' (' . $language_name . ')', [
                                     'type' => 'text',
@@ -49,8 +48,8 @@
                             ?>
                             <div class="row">
                                 <div class="col p-5 m-3" id="example-mart-background">
-                                    <img id="example-mart-logo" src="<?= base_url('assets/img/logo.png') ?>" alt="OtterNova" style="width:3em;" />
-                                    <h3 id="example-mart-primary"><?= lang('Business.marketplace') ?></h3>
+                                    <img id="example-mart-logo" src="<?= $logo_file ?>" alt="OtterNova" style="width:5em;" />
+                                    <h3 id="example-mart-primary"><?= lang('Business.marketplace') ?>: <?= $business['business_local_names'][$lang] ?></h3>
                                     <p id="example-mart-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam eu tristique ante, eget euismod lacus.</p>
                                 </div>
                             </div>
@@ -160,6 +159,7 @@
     </div>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
+            // MODAL
             $('.btn-modal').click(function (e) {
                 e.preventDefault();
                 $('#contract-modal-label').html($(this).data('invoice-number'));
@@ -187,6 +187,25 @@
                     $('#modal-payment-records').html(payment_lines);
                 }
             });
+            // ON KEYUP
+            $('#business_name').keyup(function () {
+                let business_name = $(this).val();
+                $.post(
+                    "<?= base_url('helper/generate-slug') ?>",
+                    {name: business_name},
+                    function (response) {
+                        if (response.status === "<?= STATUS_RESPONSE_OK ?>") {
+                            $('#business_slug').val(response.slug);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    "json"
+                ).fail(function (response) {
+                    let message = response.responseJSON.message ?? '<?= lang('System.response-msg.error.generic') ?>';
+                    toastr.error(message);
+                });
+            });
             // MART COLORS
             let setColor = function () {
                 let primary = $('#mart_primary_color').val(),
@@ -199,6 +218,72 @@
             setColor();
             $('.mart-reset-color').change(function () {
                 setColor();
+            });
+            // LOGO
+            $('#btn-upload-logo').on('click', function (e) {
+                e.preventDefault();
+                // check if the file is selected
+                if ($('#logo').val() === '') {
+                    toastr.warning('<?= lang('System.response-msg.error.please-check-empty-field') ?>');
+                    $('#logo').focus();
+                    return;
+                }
+                $('#btn-upload-logo').prop('disabled', true);
+                // submit #form-upload-avatar form in AJAX
+                $.ajax({
+                    url: '<?= base_url('/admin/business') ?>',
+                    type: 'POST',
+                    data: new FormData($('#form-upload-logo')[0]),
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+                    success: function (response) {
+                        $('#btn-upload-logo').prop('disabled', false);
+                        if (response.status === "<?= STATUS_RESPONSE_OK ?>") {
+                            toastr.success(response.message);
+                            setTimeout(function() { location.reload(); }, 3000);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        $('#btn-upload-logo').prop('disabled', false);
+                        let response = JSON.parse(xhr.responseText);
+                        let message = response.message ?? '<?= lang('System.response-msg.error.generic') ?>';
+                        toastr.error(message);
+                    }
+                });
+            });
+            $('#btn-remove-logo').on('click', function (e) {
+                e.preventDefault();
+                $('#btn-remove-logo').hide();
+                $('#btn-remove-logo-confirm').show();
+            });
+            $('#btn-remove-logo-confirm').on('click', function (e) {
+                e.preventDefault();
+                $('#btn-remove-logo-confirm').prop('disabled', true);
+                $.ajax({
+                    url: '<?= base_url('/admin/business') ?>',
+                    type: 'POST',
+                    data: {
+                        script_action: 'remove_logo'
+                    },
+                    success: function (response) {
+                        $('#btn-remove-logo-confirm').prop('disabled', false);
+                        if (response.status === "<?= STATUS_RESPONSE_OK ?>") {
+                            toastr.success(response.message);
+                            setTimeout(function() { location.reload(); }, 3000);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        $('#btn-remove-logo-confirm').prop('disabled', false);
+                        let response = JSON.parse(xhr.responseText);
+                        let message = response.message ?? '<?= lang('System.response-msg.error.generic') ?>';
+                        toastr.error(message);
+                    }
+                });
             });
         });
     </script>

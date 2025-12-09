@@ -107,7 +107,7 @@ class Admin extends BaseController
                             'uploaded[avatar]',
                             'is_image[avatar]',
                             'mime_in[avatar,image/jpg,image/jpeg,image/png]',
-                            'max_size[avatar,200]',
+                            'max_size[avatar,400]',
                             'max_dims[avatar,1024,1024]',
                         ],
                     ],
@@ -251,6 +251,11 @@ class Admin extends BaseController
         $businessTypes        = $businessTypeModel->retrieveData();
         $contracts            = $contractModel->retrieveDataByBusinessId($businessId);
         $allLanguages         = get_available_locales('long');
+        $logo_file            = base_url('assets/img/logo.png');
+        $file_path            = WRITEPATH . 'uploads/business_logos/logo_' . $business['business_slug'] . '.jpg';
+        if (file_exists($file_path)) {
+            $logo_file        = base_url('file/business_logo_' . $business['business_slug'] . '.jpg');
+        }
         // DATA
         $business['business_local_names'] = json_decode($business['business_local_names'], true);
         $data                = [
@@ -259,9 +264,118 @@ class Admin extends BaseController
             'business'       => $business,
             'business_types' => $businessTypes,
             'contracts'      => $contracts,
-            'all_languages'  => $allLanguages
+            'all_languages'  => $allLanguages,
+            'logo_file'      => $logo_file
         ];
         return view('admin/business', $data);
+    }
+
+    /**
+     * Handle saving businesses
+     * - business_master
+     * - upload/remove logo
+     * @return ResponseInterface
+     */
+    public function business_post(): ResponseInterface
+    {
+        try {
+            $session         = session();
+            $script_action   = $this->request->getPost('script_action');
+            $available_lang  = get_available_locales();
+            $error_msg       = lang('System.response-msg.error.generic');
+            if ('business_master' == $script_action) {
+                //
+            } else if ('upload_logo' == $script_action) {
+                $business_slug = $session->business['business_slug'];
+                helper(['form']);
+                $validationRule = [
+                    'logo' => [
+                        'label' => lang('Business.logo'),
+                        'rules' => [
+                            'uploaded[logo]',
+                            'is_image[logo]',
+                            'mime_in[logo,image/jpg,image/jpeg,image/png]',
+                            'max_size[logo,600]',
+                            'max_dims[logo,1280,960]',
+                        ],
+                    ],
+                ];
+                if (!$this->validateData([], $validationRule)) {
+                    $errors = $this->validator->getErrors();
+                    $toast  = lang('System.response-msg.error.upload-failed');
+                    foreach ($errors as $error) {
+                        $toast .= '<br>- ' . $error;
+                    }
+                    return $this->response->setJSON([
+                        'success' => STATUS_RESPONSE_ERR,
+                        'message' => $toast
+                    ]);
+                }
+                $img                  = $this->request->getFile('logo');
+                list($width, $height) = getimagesize($img->getPathname());
+                $file_type            = $img->getClientMimeType();
+                $file_name            = 'logo_' . $business_slug . '.jpg';
+                if ($file_type === 'image/png') {
+                    $source = imagecreatefrompng($img->getPathname());
+                } else {
+                    $source = imagecreatefromjpeg($img->getPathname());
+                }
+                // --- Target dimensions ---
+                $targetW     = 1280;
+                $targetH     = 960;
+                $targetRatio = $targetW / $targetH;
+                // --- Step 1: scale the image proportionally so that it is >= target size ---
+                $srcRatio    = $width / $height;
+                // If image is wider relative to height → height is limiting
+                if ($srcRatio > $targetRatio) {
+                    // Height determines scale
+                    $scaledH = $targetH;
+                    $scaledW = intval($targetH * $srcRatio);
+                } else {
+                    // Width determines scale
+                    $scaledW = $targetW;
+                    $scaledH = intval($targetW / $srcRatio);
+                }
+                $scaled = imagecreatetruecolor($scaledW, $scaledH);
+                imagecopyresampled($scaled, $source, 0, 0, 0, 0, $scaledW, $scaledH, $width, $height);
+                // --- Step 2: crop the center to 1280 × 960 ---
+                $cropX = intval(($scaledW - $targetW) / 2);
+                $cropY = intval(($scaledH - $targetH) / 2);
+                $final = imagecreatetruecolor($targetW, $targetH);
+                imagecopyresampled($final, $scaled, 0, 0, $cropX, $cropY, $targetW, $targetH, $targetW, $targetH);
+                imagejpeg($final, WRITEPATH . 'uploads/business_logos/' . $file_name, 90);
+                // --- Cleanup ---
+                imagedestroy($source);
+                imagedestroy($scaled);
+                imagedestroy($final);
+                return $this->response->setJSON([
+                    'status'  => STATUS_RESPONSE_OK,
+                    'message' => lang('System.response-msg.success.uploaded')
+                ]);
+            } else if ('remove_logo' == $script_action) {
+                $business_slug = $session->business['business_slug'];
+                $file_name     = 'logo_' . $business_slug . '.jpg';
+                $file_path     = WRITEPATH . 'uploads/business_logos/' . $file_name;
+                if (file_exists($file_path)) {
+                    if (unlink($file_path)) {
+                        return $this->response->setJSON([
+                            'status'  => STATUS_RESPONSE_OK,
+                            'message' => lang('System.response-msg.success.removed')
+                        ]);
+                    }
+                }
+                $error_msg = lang('System.response-msg.error.removed');
+            }
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => $error_msg
+            ]);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => $e->getMessage(),
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
