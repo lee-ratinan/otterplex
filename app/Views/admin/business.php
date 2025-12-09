@@ -17,8 +17,7 @@
                                 'type' => 'text',
                             ], $business['business_name']);
                             echo build_form_input('business_slug', lang('BusinessMaster.field.business_slug'), [
-                                'type'     => 'text',
-                                'readonly' => 'readonly',
+                                'type'     => 'text'
                             ], $business['business_slug']);
                             foreach ($all_languages as $lang_code => $language_name) {
                                 echo build_form_input('business_local_names_' . $lang_code, lang('BusinessMaster.field.business_local_names') . ' (' . $language_name . ')', [
@@ -205,6 +204,12 @@
                     let message = response.responseJSON.message ?? '<?= lang('System.response-msg.error.generic') ?>';
                     toastr.error(message);
                 });
+            });
+            $('#business_slug').change(function () {
+                let slug = $(this).val();
+                slug = slug.toLowerCase();
+                slug = slug.replace(/[^a-z-]/g, '');
+                $(this).val(slug);
             });
             // MART COLORS
             let setColor = function () {
