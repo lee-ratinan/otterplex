@@ -46,6 +46,9 @@ return [
         'reset'           => 'Reset',
         'view-more'       => 'View More',
     ],
+    'generic-term'    => [
+        'no-data' => 'No data'
+    ],
     'login'           => [
         'title'             => 'Login',
         'instruction'       => 'Please login to your account.',

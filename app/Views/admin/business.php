@@ -17,7 +17,8 @@
                                 'type' => 'text',
                             ], $business['business_name']);
                             echo build_form_input('business_slug', lang('BusinessMaster.field.business_slug'), [
-                                'type' => 'text',
+                                'type'     => 'text',
+                                'readonly' => 'readonly',
                             ], $business['business_slug']);
                             // business_local_names x all_languages
                             foreach ($all_languages as $lang_code => $language_name) {
@@ -38,18 +39,39 @@
                             echo '<h3>' . lang('Business.subtitle.mart-decoration') . '</h3>';
                             echo build_form_input('mart_primary_color', lang('BusinessMaster.field.mart_primary_color'), [
                                 'type' => 'color',
-                            ], $business['mart_primary_color']);
+                            ], '#' . $business['mart_primary_color'], 'mart-reset-color');
                             echo build_form_input('mart_text_color', lang('BusinessMaster.field.mart_text_color'), [
                                 'type' => 'color',
-                            ], $business['mart_text_color']);
+                            ], '#' . $business['mart_text_color'], 'mart-reset-color');
                             echo build_form_input('mart_background_color', lang('BusinessMaster.field.mart_background_color'), [
                                 'type' => 'color',
-                            ], $business['mart_background_color']);
-                            echo 'UPLOAD LOGO';
+                            ], '#' . $business['mart_background_color'], 'mart-reset-color');
                             ?>
+                            <div class="row">
+                                <div class="col p-5 m-3" id="example-mart-background">
+                                    <img id="example-mart-logo" src="<?= base_url('assets/img/logo.png') ?>" alt="OtterNova" style="width:3em;" />
+                                    <h3 id="example-mart-primary"><?= lang('Business.marketplace') ?></h3>
+                                    <p id="example-mart-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam eu tristique ante, eget euismod lacus.</p>
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <button class="btn btn-primary" id="btn-save"><?= lang('System.buttons.save') ?></button>
+                            </div>
+                            <!-- UPLOAD AVATAR -->
+                            <h3><?= lang('Business.upload-logo') ?></h3>
+                            <form id="form-upload-logo" action="<?= base_url('/admin/business') ?>" method="post" enctype="multipart/form-data">
+                                <input type="hidden" name="script_action" value="upload_logo"/>
+                                <input type="file" id="logo" name="logo" class="form-control my-3"/>
+                                <p class="small"><?= lang('Business.upload-explanation') ?></p>
+                                <div class="text-end">
+                                    <button id="btn-upload-logo" type="submit" class="btn btn-primary"><i class="bi bi-cloud-arrow-up"></i> <?= lang('System.buttons.upload') ?></button>
+                                    <button id="btn-remove-logo" type="button" class="btn btn-outline-danger"><i class="bi bi-trash"></i> <?= lang('System.buttons.remove') ?></button>
+                                    <button id="btn-remove-logo-confirm" type="button" class="btn btn-outline-danger" style="display:none"><i class="bi bi-exclamation-triangle"></i> <?= lang('System.buttons.remove-confirm') ?></button>
+                                </div>
+                            </form>
                         </div>
                     </div>
-                    <hr />
+                    <hr class="my-3" />
                     <h2><?= lang('Business.contracts') ?></h2>
                     <div class="table-responsive">
                         <table class="table table-sm table-striped table-hover">
@@ -89,17 +111,17 @@
                                         }
                                     }
                                     ?>
-                                    <td><a href="#" data-bs-toggle="modal" data-bs-target="#contract-modal"
+                                    <td><a class="btn-modal" href="#" data-bs-toggle="modal" data-bs-target="#contract-modal"
                                            data-package="<?= $contract['package_name'] ?>"
                                            data-invoice-number="<?= $contract['invoice_number'] ?>"
                                            data-start="<?= format_date($contract['contract_start']) ?>"
                                            data-expiry="<?= format_date($contract['contract_expiry']) ?>"
-                                           data-invoiced-amount="<?= lang('BusinessContract.field.invoiced_amount') ?>"
-                                           data-discount-amount="<?= lang('BusinessContract.field.discount_amount') ?>"
+                                           data-invoiced-amount="<?= format_price($contract['invoiced_amount'], $contract['country_code']) ?>"
+                                           data-discount-amount="<?= format_price($contract['discount_amount'], $contract['country_code']) ?>"
                                            data-total-amount="<?= format_price($contract['total_amount'], $contract['country_code']) ?>"
                                            data-paid-amount="<?= format_price($contract['paid_amount'], $contract['country_code']) ?>"
                                            data-status="<?= lang('BusinessContract.enum.financial_status.' . $contract['financial_status']) ?>"
-                                           data-payment="<?= json_encode($payments) ?>"
+                                           data-payments="<?= htmlspecialchars(json_encode($payments), ENT_QUOTES, 'UTF-8') ?>"
                                         ><?= lang('System.buttons.view-more') ?></a></td>
                                 </tr>
                             <?php endforeach; ?>
@@ -120,13 +142,14 @@
                                         <tr><td><?= lang('BusinessContract.field.invoice_number') ?></td><td id="modal-invoice-number"></td></tr>
                                         <tr><td><?= lang('BusinessContract.field.contract_start') ?></td><td id="modal-start"></td></tr>
                                         <tr><td><?= lang('BusinessContract.field.contract_expiry') ?></td><td id="modal-expiry"></td></tr>
-                                        <tr><td><?= lang('BusinessContract.field.invoiced_amount') ?></td><td id="modal-invoiced-amount="></td></tr>
+                                        <tr><td><?= lang('BusinessContract.field.invoiced_amount') ?></td><td id="modal-invoiced-amount"></td></tr>
                                         <tr><td><?= lang('BusinessContract.field.discount_amount') ?></td><td id="modal-discount-amount"></td></tr>
                                         <tr><td><?= lang('BusinessContract.field.total_amount') ?></td><td id="modal-total-amount"></td></tr>
                                         <tr><td><?= lang('BusinessContract.field.paid_amount') ?></td><td id="modal-paid-amount"></td></tr>
                                         <tr><td><?= lang('BusinessContract.field.financial_status') ?></td><td id="modal-status"></td></tr>
-                                        <tr><td><?= lang('Business.payment-records') ?></td><td id="payments"></td></tr>
                                     </table>
+                                    <h4><?= lang('Business.payment-records') ?></h4>
+                                    <div id="modal-payment-records"></div>
                                 </div>
                             </div>
                         </div>
@@ -135,4 +158,48 @@
             </div>
         </div>
     </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            $('.btn-modal').click(function (e) {
+                e.preventDefault();
+                $('#contract-modal-label').html($(this).data('invoice-number'));
+                $('#modal-package').html($(this).data('package'));
+                $('#modal-invoice-number').html($(this).data('invoice-number'));
+                $('#modal-start').html($(this).data('start'));
+                $('#modal-expiry').html($(this).data('expiry'));
+                $('#modal-invoiced-amount').html($(this).data('invoiced-amount'));
+                $('#modal-discount-amount').html($(this).data('discount-amount'));
+                $('#modal-total-amount').html($(this).data('total-amount'));
+                $('#modal-paid-amount').html($(this).data('paid-amount'));
+                $('#modal-status').html($(this).data('status'));
+                let payments = $(this).data('payments');
+                $('#modal-payment-records').html('<?= lang('System.generic-term.no-data') ?>');
+                if (0 < payments.length) {
+                    let payment_lines = '';
+                    $.each(payments, function (i, data) {
+                        console.log(data);
+                        payment_lines += '<?= lang('BusinessContractPayment.field.payment_method') ?>: ' + data.payment_method + '<br />';
+                        payment_lines += '<?= lang('BusinessContractPayment.field.payment_notes') ?>: ' + data.payment_notes + '<br />';
+                        payment_lines += '<?= lang('BusinessContractPayment.field.amount_paid') ?>: ' + data.amount_paid + '<br />';
+                        payment_lines += '<?= lang('BusinessContractPayment.field.payment_status') ?>: ' + data.payment_status + '<br />';
+                        payment_lines += '<?= lang('BusinessContractPayment.field.staff_comment') ?>: ' + data.staff_comment + '<br />';
+                    });
+                    $('#modal-payment-records').html(payment_lines);
+                }
+            });
+            // MART COLORS
+            let setColor = function () {
+                let primary = $('#mart_primary_color').val(),
+                    text = $('#mart_text_color').val(),
+                    background = $('#mart_background_color').val();
+                $('#example-mart-primary').css('color', primary);
+                $('#example-mart-text').css('color', text);
+                $('#example-mart-background').css('background-color', background);
+            }
+            setColor();
+            $('.mart-reset-color').change(function () {
+                setColor();
+            });
+        });
+    </script>
 <?php $this->endSection() ?>
