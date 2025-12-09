@@ -1274,4 +1274,7 @@ h6 {
 }
 
 .avatar-txt {width:2em!important;height:2em!important;border-radius:50%;display:flex;justify-content:center;align-items:center;text-transform:uppercase;}
-.avatar-img {width:2em!important;height:2em!important;border-radius:50%;}
+.avatar-img {width:2em;height:2em;border-radius:50%;}
+.avatar-3x img {width:3em!important;height:3em!important;}
+.avatar-4x img {width:4em!important;height:4em!important;}
+.header-nav .nav-profile img.avatar-img {width:36px!important;height:36px!important;}

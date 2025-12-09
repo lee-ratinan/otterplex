@@ -5,7 +5,7 @@
         <div class="col-12 col-lg-10 col-xxl-8">
             <div class="card">
                 <div class="card-body p-3">
-                    <div class="float-end">
+                    <div class="float-end avatar-4x">
                         <?= $session->avatar ?>
                     </div>
                     <h5><i class="bi bi-lock"></i> <?= lang('Admin.profile.controlled-account-data') ?></h5>
