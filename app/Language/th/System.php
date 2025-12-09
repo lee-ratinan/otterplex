@@ -44,6 +44,7 @@ return [
         'switch-business' => 'เปลี่ยนธุรกิจ',
         'filter'          => 'กรอง',
         'reset'           => 'รีเซ็ต',
+        'view-more'       => 'ดูเพิ่มเติม',
     ],
     'login'           => [
         'title'             => 'เข้าสู่ระบบ',

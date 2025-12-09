@@ -252,6 +252,7 @@ class Admin extends BaseController
         $contracts            = $contractModel->retrieveDataByBusinessId($businessId);
         $allLanguages         = get_available_locales('long');
         // DATA
+        $business['business_local_names'] = json_decode($business['business_local_names'], true);
         $data                = [
             'slug'           => 'business',
             'lang'           => $this->request->getLocale(),

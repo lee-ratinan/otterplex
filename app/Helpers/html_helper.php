@@ -161,12 +161,12 @@ if (!function_exists('build_form_input')) {
      * @param string $id
      * @param string $label
      * @param array $attributes
-     * @param string $current_value
+     * @param string|null $current_value
      * @param string $other_classes
      * @param array $options
      * @return string
      */
-    function build_form_input(string $id, string $label, array $attributes, string $current_value = '', string $other_classes = '', array $options = []): string
+    function build_form_input(string $id, string $label, array $attributes, string|null $current_value = '', string $other_classes = '', array $options = []): string
     {
         $required = '';
         if (isset($attributes['required']) && 'true' == $attributes['required']) {

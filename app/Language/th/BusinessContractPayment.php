@@ -17,9 +17,9 @@ return [
             'OTHER'     => 'อื่น'
         ],
         'payment_status' => [
-            'COMPLETE' => 'Completed',
-            'FAIL'     => 'Failed',
-            'PENDING'  => 'Pending',
+            'COMPLETE' => 'จ่ายแล้ว',
+            'FAIL'     => 'ล้มเหลว',
+            'PENDING'  => 'ยังไม่ได้จ่าย',
         ]
     ]
 ];

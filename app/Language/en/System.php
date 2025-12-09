@@ -44,6 +44,7 @@ return [
         'switch-business' => 'Switch Business',
         'filter'          => 'Filter',
         'reset'           => 'Reset',
+        'view-more'       => 'View More',
     ],
     'login'           => [
         'title'             => 'Login',
