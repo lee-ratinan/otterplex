@@ -155,6 +155,7 @@
                 </div>
             </div>
         </div>
+        <label for="script_action"><input type="hidden" name="script_action" id="script_action" value="" /></label>
     </div>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
@@ -210,6 +211,39 @@
                 slug = slug.toLowerCase();
                 slug = slug.replace(/[^a-z-]/g, '');
                 $(this).val(slug);
+            });
+            // SAVE
+            $('#btn-save').on('click', function (e) {
+                e.preventDefault();
+                // business_local_names_en
+                <?php
+                $all_fields = ['business_type_id', 'business_name', 'business_slug', 'tax_percentage', 'tax_inclusive', 'mart_primary_color', 'mart_text_color', 'mart_background_color'];
+                foreach ($all_languages as $lang_code => $language_name) {
+                    $all_fields[] = 'business_local_names_' . $lang_code;
+                }
+                gen_js_fields_checker($all_fields);
+                $all_fields[] = 'script_action';
+                ?>
+                $('#btn-save').prop('disabled', true);
+                $('#script_action').val('save_business');
+                $.post(
+                    "<?= base_url('/admin/business') ?>",
+                    <?php gen_json_fields_to_fields($all_fields) ?>,
+                    function (response, status) {
+                        $('#btn-save').prop('disabled', false);
+                        if (response.status === "<?= STATUS_RESPONSE_OK ?>") {
+                            toastr.success(response.message);
+                            setTimeout(function() { location.reload(); }, 3000);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    "json"
+                ).fail(function (response) {
+                    $('#btn-save').prop('disabled', false);
+                    let message = response.responseJSON.message ?? '<?= lang('System.response-msg.error.generic') ?>';
+                    toastr.error(message);
+                });
             });
             // MART COLORS
             let setColor = function () {

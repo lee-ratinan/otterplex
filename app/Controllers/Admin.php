@@ -284,7 +284,7 @@ class Admin extends BaseController
             $available_lang  = get_available_locales();
             $error_msg       = lang('System.response-msg.error.generic');
             if ('business_master' == $script_action) {
-                //
+                //'business_type_id', 'business_name', 'business_slug', 'tax_percentage', 'tax_inclusive', 'mart_primary_color', 'mart_text_color', 'mart_background_color'
             } else if ('upload_logo' == $script_action) {
                 $business_slug = $session->business['business_slug'];
                 helper(['form']);
