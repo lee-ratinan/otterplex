@@ -549,11 +549,37 @@ class Admin extends BaseController
      */
     public function business_branch(): string
     {
+        $session       = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            $data = [
+                'slug' => 'business-branch',
+                'lang' => $this->request->getLocale(),
+            ];
+            return view('admin/_forbidden', $data);
+        }
         $data = [
             'slug'           => 'business-branch',
             'lang'           => $this->request->getLocale(),
         ];
         return view('admin/business_branch', $data);
+    }
+
+    /**
+     * Get data for business branch
+     * @return ResponseInterface
+     */
+    public function business_branch_post(): ResponseInterface
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->response->setJSON([
+                'draw'            => $this->request->getPost("draw"),
+                'recordsTotal'    => 0,
+                'recordsFiltered' => 0,
+                'error'           => lang('System.response-msg.error.no-permission')
+            ]);
+        }
+        return $this->response->setJSON([]);
     }
 
     /**
