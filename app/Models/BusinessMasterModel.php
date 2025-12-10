@@ -19,6 +19,7 @@ class BusinessMasterModel extends AppBaseModel
         'mart_primary_color',
         'mart_text_color',
         'mart_background_color',
+        'contract_anchor_day',
         'contract_expiry',
         'created_by',
         'created_at',

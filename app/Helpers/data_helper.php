@@ -4581,3 +4581,47 @@ if (!function_exists('get_telephone_country_calling_code')) {
         ];
     }
 }
+if (!function_exists('calculate_bill_cycle')) {
+    /**
+     * Calculate bill cycle
+     * @param string $baseDate
+     * @param int $anchorDay
+     * @param string $cycle Either 'month' or 'year'
+     * @return string
+     * @throws DateMalformedStringException
+     */
+    function calculate_bill_cycle(string $baseDate, int $anchorDay, string $cycle = 'month'): string
+    {
+        $dt    = new DateTime($baseDate);
+        $day   = (int) $dt->format('d');
+        if ('month' == $cycle) {
+            // Jump to first day of the month to avoid overflow weirdness
+            $dt->modify('first day of this month');
+            $dt->modify("+1 month");               // now first day of target month
+            $daysInTarget = (int) $dt->format('t'); // days in target month
+            $day          = min($anchorDay, $daysInTarget);
+            $dt->setDate(
+                (int) $dt->format('Y'),
+                (int) $dt->format('m'),
+                $day
+            );
+            return $dt->format('Y-m-d');
+        }
+        $month = (int) $dt->format('m');
+        $year  = (int) $dt->format('Y') + 1;
+        // Try same day/month next year
+        $candidate = DateTime::createFromFormat(
+            'Y-m-d',
+            sprintf('%04d-%02d-%02d', $year, $month, $day)
+        );
+        if ($candidate === false) {
+            // Invalid date (e.g. 2020-02-29 + 1 year)
+            $candidate = DateTime::createFromFormat(
+                'Y-m-d',
+                sprintf('%04d-%02d-01', $year, $month)
+            );
+            $candidate->modify('last day of this month');
+        }
+        return $candidate->format('Y-m-d');
+    }
+}

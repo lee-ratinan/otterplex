@@ -31,6 +31,8 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     // BUSINESS
     $routes->get('business', 'Admin::business');
     $routes->post('business', 'Admin::business_post');
+    $routes->get('business/contract-renewal', 'Admin::business_contract_renewal');
+    $routes->post('business/contract-renewal', 'Admin::business_contract_renewal_post');
     $routes->get('business/branch', 'Admin::business_branch');
     $routes->get('business/user', 'Admin::business_user');
     $routes->get('business/customer', 'Admin::business_customer');

@@ -7,8 +7,11 @@ use App\Models\BusinessContractPaymentModel;
 use App\Models\BusinessMasterModel;
 use App\Models\BusinessTypeModel;
 use App\Models\BusinessUserModel;
+use App\Models\OtternautPackageModel;
 use App\Models\UserMasterModel;
 use CodeIgniter\HTTP\ResponseInterface;
+use DateMalformedStringException;
+use DateTime;
 
 class Admin extends BaseController
 {
@@ -278,6 +281,13 @@ class Admin extends BaseController
      */
     public function business_post(): ResponseInterface
     {
+        $session = session();
+        if ('OWNER' != $session->user_role) {
+            return $this->response->setJSON([
+                'success' => STATUS_RESPONSE_ERR,
+                'message' => lang('System.response-msg.error.business-inactive')
+            ]);
+        }
         try {
             $session         = session();
             $script_action   = $this->request->getPost('script_action');
@@ -298,6 +308,9 @@ class Admin extends BaseController
                 $businessId          = $session->business['id'];
                 $businessMasterModel = new BusinessMasterModel();
                 if ($businessMasterModel->update($businessId, $data)) {
+                    // Reset business
+                    $business = $businessMasterModel->find($businessId);
+                    $session->set('business', $business);
                     return $this->response->setJSON([
                         'status'  => STATUS_RESPONSE_OK,
                         'message' => lang('System.response-msg.success.data-saved')
@@ -396,6 +409,58 @@ class Admin extends BaseController
         }
     }
 
+    /**
+     * Manage business contract
+     * @return string
+     * @throws DateMalformedStringException
+     */
+    public function business_contract_renewal(): string
+    {
+        $session       = session();
+        $packageModel  = new OtternautPackageModel();
+        $countryCode   = $session->business['country_code'];
+        $packages      = $packageModel->getOtternautPackageForCountry($countryCode);
+        $final         = [];
+        $today         = date(DATE_FORMAT_DB);
+        $currentExpiry = date(DATE_FORMAT_DB, strtotime($session->business['contract_expiry']));
+        if ($currentExpiry && $currentExpiry > $today) {
+            $baseDate = $currentExpiry;   // still active → extend from expiry
+        } else {
+            $baseDate = $today;           // expired or null → extend from today
+        }
+        $expiryMonthly = calculate_bill_cycle($baseDate, $session->business['contract_anchor_day']);
+        $expiryYearly  = calculate_bill_cycle($baseDate, $session->business['contract_anchor_day'], 'year');
+        foreach ($packages as $package) {
+            $final['month'][] = [
+                'id'                  => $package['id'],
+                'package_name'        => $package['package_name'],
+                'package_price'       => $package['package_monthly_price'],
+                'package_validity'    => lang('Business.packages.validity.month'),
+                'package_start_date'  => $baseDate,
+                'package_expiry_date' => $expiryMonthly,
+            ];
+            $final['year'][] = [
+                'id'                  => $package['id'],
+                'package_name'        => $package['package_name'],
+                'package_price'       => $package['package_annual_price'],
+                'package_validity'    => lang('Business.packages.validity.year'),
+                'package_start_date'  => $baseDate,
+                'package_expiry_date' => $expiryYearly,
+            ];
+        }
+        $data         = [
+            'slug'       => 'business-contract-renewal',
+            'lang'       => $this->request->getLocale(),
+            'breadcrumb' => [
+                [
+                    'url'        => base_url('admin/business'),
+                    'page_title' => lang('Admin.pages.business'),
+                ]
+            ],
+            'packages'   => $final
+        ];
+        return view('admin/business_contract_renewal', $data);
+    }
     /**
      * Manage branch
      * @return string

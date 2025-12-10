@@ -13,5 +13,12 @@ return [
     'marketplace-example-text' => 'นี่คือตัวอย่างของข้อความที่จะแสดงบนเว็บไซต์มาร์เก็ตเพลสของคุณ',
     'contracts'                => 'สัญญา',
     'contract-renew'           => 'ต่อสัญญา',
-    'payment-records'          => 'รายการค่าใช้จ่าย'
+    'payment-records'          => 'รายการค่าใช้จ่าย',
+    'packages'                 => [
+        'pick-one' => 'กรุณาเลือกแพ็กเกจสำหรับการต่ออายุ',
+        'validity' => [
+            'month' => 'รายเดือน',
+            'year'  => 'รายปี',
+        ]
+    ]
 ];

@@ -24,6 +24,7 @@ return [
             'db-issue'                  => 'Your data could not be saved at the moment. Please try again later.',
             'upload-failed'             => 'Sorry, the file failed to be uploaded.',
             'removed'                   => 'Sorry, the file failed to be removed.',
+            'no-permission'             => 'You do not have permission to access this feature.',
         ],
         'success' => [
             'business-switched' => 'You have successfully switched your business.',

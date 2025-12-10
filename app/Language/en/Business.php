@@ -14,4 +14,11 @@ return [
     'contracts'                => 'Contracts',
     'contract-renew'           => 'Renew Contract',
     'payment-records'          => 'Payment Records',
+    'packages'                 => [
+        'pick-one' => 'Please select a package to renew',
+        'validity' => [
+            'month' => 'Monthly Package',
+            'year'  => 'Yearly Package',
+        ]
+    ]
 ];

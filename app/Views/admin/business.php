@@ -132,7 +132,7 @@
                             </tbody>
                         </table>
                     </div>
-                    <p><a class="btn btn-outline-primary" href="#"><?= lang('Business.contract-renew') ?></a></p>
+                    <div class="text-end"><a class="btn btn-primary" href="<?= base_url('admin/business/contract-renewal') ?>"><?= lang('Business.contract-renew') ?></a></div>
                     <div class="modal fade" id="contract-modal" tabindex="-1" aria-labelledby="contract-modal-label" aria-hidden="true">
                         <div class="modal-dialog">
                             <div class="modal-content">
