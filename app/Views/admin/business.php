@@ -17,7 +17,8 @@
                                 'type' => 'text',
                             ], $business['business_name']);
                             echo build_form_input('business_slug', lang('BusinessMaster.field.business_slug'), [
-                                'type'     => 'text'
+                                'type'             => 'text',
+                                'data-explanation' => lang('BusinessMaster.explanation.business_slug')
                             ], $business['business_slug']);
                             foreach ($all_languages as $lang_code => $language_name) {
                                 echo build_form_input('business_local_names_' . $lang_code, lang('BusinessMaster.field.business_local_names') . ' (' . $language_name . ')', [
@@ -32,8 +33,13 @@
                                 'max'  => 100
                             ], $business['tax_percentage']);
                             echo build_form_input('tax_inclusive', lang('BusinessMaster.field.tax_inclusive'), [
-                                'type' => 'select'
-                            ], $business['tax_inclusive'], '', ['I' => lang('BusinessMaster.enum.tax_inclusive.I'), 'E' => lang('BusinessMaster.enum.tax_inclusive.E')]);
+                                'type'             => 'select',
+                                'data-explanation' => lang('BusinessMaster.explanation.tax_inclusive')
+                            ], $business['tax_inclusive'], '', [
+                                'I' => lang('BusinessMaster.enum.tax_inclusive.I'),
+                                'E' => lang('BusinessMaster.enum.tax_inclusive.E'),
+                                'X' => lang('BusinessMaster.enum.tax_inclusive.X')
+                            ]);
                             echo '<h3>' . lang('Business.subtitle.mart-decoration') . '</h3>';
                             echo build_form_input('mart_primary_color', lang('BusinessMaster.field.mart_primary_color'), [
                                 'type' => 'color',
@@ -49,7 +55,7 @@
                                 <div class="col p-5 m-3" id="example-mart-background">
                                     <img id="example-mart-logo" src="<?= $logo_file ?>" alt="OtterNova" style="width:5em;" />
                                     <h3 id="example-mart-primary"><?= lang('Business.marketplace') ?>: <?= $business['business_local_names'][$lang] ?></h3>
-                                    <p id="example-mart-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam eu tristique ante, eget euismod lacus.</p>
+                                    <p id="example-mart-text"><?= lang('Business.marketplace-example-text') ?></p>
                                 </div>
                             </div>
                             <div class="text-end">
@@ -136,7 +142,7 @@
                                 </div>
                                 <div class="modal-body">
                                     <table class="table table-sm table-borderless">
-                                        <tr><td><?= lang('BusinessContract.field.package_id') ?></td><td id="modal-package"></td></tr>
+                                        <tr><td style="width:50%;"><?= lang('BusinessContract.field.package_id') ?></td><td id="modal-package"></td></tr>
                                         <tr><td><?= lang('BusinessContract.field.invoice_number') ?></td><td id="modal-invoice-number"></td></tr>
                                         <tr><td><?= lang('BusinessContract.field.contract_start') ?></td><td id="modal-start"></td></tr>
                                         <tr><td><?= lang('BusinessContract.field.contract_expiry') ?></td><td id="modal-expiry"></td></tr>
@@ -175,15 +181,15 @@
                 let payments = $(this).data('payments');
                 $('#modal-payment-records').html('<?= lang('System.generic-term.no-data') ?>');
                 if (0 < payments.length) {
-                    let payment_lines = '';
+                    let payment_lines = '<table class="table table-sm table-borderless">';
                     $.each(payments, function (i, data) {
-                        console.log(data);
-                        payment_lines += '<?= lang('BusinessContractPayment.field.payment_method') ?>: ' + data.payment_method + '<br />';
-                        payment_lines += '<?= lang('BusinessContractPayment.field.payment_notes') ?>: ' + data.payment_notes + '<br />';
-                        payment_lines += '<?= lang('BusinessContractPayment.field.amount_paid') ?>: ' + data.amount_paid + '<br />';
-                        payment_lines += '<?= lang('BusinessContractPayment.field.payment_status') ?>: ' + data.payment_status + '<br />';
-                        payment_lines += '<?= lang('BusinessContractPayment.field.staff_comment') ?>: ' + data.staff_comment + '<br />';
+                        payment_lines += '<tr><td style="width:50%"><?= lang('BusinessContractPayment.field.payment_method') ?></td><td>' + data.payment_method + '</td></tr>';
+                        payment_lines += '<tr><td><?= lang('BusinessContractPayment.field.payment_notes') ?></td><td>' + data.payment_notes + '</td></tr>';
+                        payment_lines += '<tr><td><?= lang('BusinessContractPayment.field.amount_paid') ?></td><td>' + data.amount_paid + '</td></tr>';
+                        payment_lines += '<tr><td><?= lang('BusinessContractPayment.field.payment_status') ?></td><td>' + data.payment_status + '</td></tr>';
+                        payment_lines += '<tr><td><?= lang('BusinessContractPayment.field.staff_comment') ?></td><td>' + data.staff_comment + '</td></tr>';
                     });
+                    payment_lines += '</table>';
                     $('#modal-payment-records').html(payment_lines);
                 }
             });

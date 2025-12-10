@@ -283,8 +283,26 @@ class Admin extends BaseController
             $script_action   = $this->request->getPost('script_action');
             $available_lang  = get_available_locales();
             $error_msg       = lang('System.response-msg.error.generic');
-            if ('business_master' == $script_action) {
-                //'business_type_id', 'business_name', 'business_slug', 'tax_percentage', 'tax_inclusive', 'mart_primary_color', 'mart_text_color', 'mart_background_color'
+            if ('save_business' == $script_action) {
+                $fields = ['business_type_id', 'business_name', 'business_slug', 'tax_percentage', 'tax_inclusive', 'mart_primary_color', 'mart_text_color', 'mart_background_color'];
+                $data   = [];
+                foreach ($available_lang as $code => $language_name) {
+                    $fields[] = 'business_local_names_' . $code;
+                }
+                foreach ($fields as $field) {
+                    $data[$field]     = $this->request->getPost($field);
+                    if (in_array($field, ['mart_primary_color', 'mart_text_color', 'mart_background_color'])) {
+                        $data[$field] = str_replace('#', '', $data[$field]);
+                    }
+                }
+                $businessId          = $session->business['id'];
+                $businessMasterModel = new BusinessMasterModel();
+                if ($businessMasterModel->update($businessId, $data)) {
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_OK,
+                        'message' => lang('System.response-msg.success.data-saved')
+                    ]);
+                }
             } else if ('upload_logo' == $script_action) {
                 $business_slug = $session->business['business_slug'];
                 helper(['form']);

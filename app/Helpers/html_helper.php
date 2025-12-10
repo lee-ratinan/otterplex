@@ -172,12 +172,17 @@ if (!function_exists('build_form_input')) {
         if (isset($attributes['required']) && 'true' == $attributes['required']) {
             $required = '*';
         }
-        $structure = "<div class='mb-3'><label for='{$id}' class='form-label'>{$label} {$required}</label>###FORM###</div>";
+        $structure = "<div class='mb-3'><label for='{$id}' class='form-label'>{$label} {$required}</label> ###FORM### ###EXP### </div>";
         $attr      = [];
         $attr[]    = "id='{$id}'";
         $attr[]    = "class='form-control $other_classes'";
         foreach ($attributes as $key => $value) {
             $attr[]    = "{$key}='{$value}'";
+        }
+        if (isset($attributes['data-explanation'])) {
+            $structure = str_replace('###EXP###', '<p class="small mt-1 ms-2">' . $attributes['data-explanation'] . '</p>', $structure);
+        } else {
+            $structure = str_replace('###EXP###', '', $structure);
         }
         if ('select' == $attributes['type']) {
             $attr_str   = implode(' ', $attr);

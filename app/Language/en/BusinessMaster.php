@@ -20,10 +20,15 @@ return [
         'tax_inclusive'   => [
             'I' => 'Inclusive',
             'E' => 'Exclusive',
+            'X' => 'Not Applicable'
         ],
         'business_status' => [
             'A' => '<i class="bi bi-check-circle-fill text-success"></i> Active',
             'E' => '<i class="bi bi-x-circle-fill text-danger"></i> Expired',
         ]
+    ],
+    'explanation' => [
+        'business_slug' => 'The slug is used to create your marketplace URL. It’s auto-generated, but you can override it using only <b>a–z</b>, <b>0–9</b>, and <b>dashes</b>; all other characters will be removed automatically.',
+        'tax_inclusive' => 'Choose how tax is handled: <b>Inclusive</b> (tax is already inside the price), <b>Exclusive</b> (tax is added on top), or <b>Not Applicable</b> (your business is not required to charge tax).'
     ]
 ];
