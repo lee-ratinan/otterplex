@@ -120,8 +120,8 @@
                                            data-invoice-number="<?= $contract['invoice_number'] ?>"
                                            data-start="<?= format_date($contract['contract_start']) ?>"
                                            data-expiry="<?= format_date($contract['contract_expiry']) ?>"
-                                           data-invoiced-amount="<?= format_price($contract['invoiced_amount'], $contract['country_code']) ?>"
-                                           data-discount-amount="<?= format_price($contract['discount_amount'], $contract['country_code']) ?>"
+                                           data-invoiced-amount="<?= $contract['invoiced_amount'] != $contract['total_amount'] ? format_price($contract['invoiced_amount'], $contract['country_code']) : '' ?>"
+                                           data-discount-amount="<?= $contract['discount_amount'] != 0 ? format_price($contract['discount_amount'], $contract['country_code']) : '' ?>"
                                            data-total-amount="<?= format_price($contract['total_amount'], $contract['country_code']) ?>"
                                            data-paid-amount="<?= format_price($contract['paid_amount'], $contract['country_code']) ?>"
                                            data-status="<?= lang('BusinessContract.enum.financial_status.' . $contract['financial_status']) ?>"
@@ -146,8 +146,8 @@
                                         <tr><td><?= lang('BusinessContract.field.invoice_number') ?></td><td id="modal-invoice-number"></td></tr>
                                         <tr><td><?= lang('BusinessContract.field.contract_start') ?></td><td id="modal-start"></td></tr>
                                         <tr><td><?= lang('BusinessContract.field.contract_expiry') ?></td><td id="modal-expiry"></td></tr>
-                                        <tr><td><?= lang('BusinessContract.field.invoiced_amount') ?></td><td id="modal-invoiced-amount"></td></tr>
-                                        <tr><td><?= lang('BusinessContract.field.discount_amount') ?></td><td id="modal-discount-amount"></td></tr>
+                                        <tr id="modal-invoice-row"><td><?= lang('BusinessContract.field.invoiced_amount') ?></td><td id="modal-invoiced-amount"></td></tr>
+                                        <tr id="modal-discount-row"><td><?= lang('BusinessContract.field.discount_amount') ?></td><td id="modal-discount-amount"></td></tr>
                                         <tr><td><?= lang('BusinessContract.field.total_amount') ?></td><td id="modal-total-amount"></td></tr>
                                         <tr><td><?= lang('BusinessContract.field.paid_amount') ?></td><td id="modal-paid-amount"></td></tr>
                                         <tr><td><?= lang('BusinessContract.field.financial_status') ?></td><td id="modal-status"></td></tr>
@@ -178,6 +178,13 @@
                 $('#modal-total-amount').html($(this).data('total-amount'));
                 $('#modal-paid-amount').html($(this).data('paid-amount'));
                 $('#modal-status').html($(this).data('status'));
+                $('#modal-invoice-row, #modal-discount-row').removeClass('d-none');
+                if ('' === $(this).data('invoiced-amount')) {
+                    $('#modal-invoice-row').addClass('d-none');
+                }
+                if ('' === $(this).data('discount-amount')) {
+                    $('#modal-discount-row').addClass('d-none');
+                }
                 let payments = $(this).data('payments');
                 $('#modal-payment-records').html('<?= lang('System.generic-term.no-data') ?>');
                 if (0 < payments.length) {

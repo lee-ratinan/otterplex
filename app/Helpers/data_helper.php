@@ -4625,3 +4625,23 @@ if (!function_exists('calculate_bill_cycle')) {
         return $candidate->format('Y-m-d');
     }
 }
+if (!function_exists('calculate_invoice_number')) {
+    /**
+     * Generate an almost random invoice number that means something
+     * @return string
+     */
+    function calculate_invoice_number(): string
+    {
+        $session     = session();
+        $year        = date('Y') - 2018; // Use Reiwa year
+        $year        = sprintf('%02d', $year);
+        $month       = date('m') - 1;
+        $month_array = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M'];
+        $month       = $month_array[$month];
+        $date        = date('d');
+        $slug        = $session->business['business_slug'];
+        $hash        = substr(strtoupper(md5($slug)), 0, 4);
+        $rand        = rand(10, 99);
+        return "{$year}{$date}{$month}{$hash}{$rand}";
+    }
+}

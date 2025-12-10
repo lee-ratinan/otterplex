@@ -21,5 +21,13 @@ return [
             'year'  => 'Yearly Package',
         ]
     ],
-    'has-unpaid-contract'      => 'You have an unpaid contract, please make a payment.'
+    'has-unpaid-contract'      => 'You have an unpaid contract, please make a payment.',
+    'renewal'                  => [
+        'amount-due'         => 'Amount Due',
+        'payments'           => 'Payment Records',
+        'payment-at'         => 'Recorded At',
+        'how-to-pay'         => 'How to Pay',
+        'pay-by-credit-card' => 'Pay by Credit Card',
+        'pay-by-qr-thailand' => 'Pay by PromptPay QR Code (Thailand)',
+    ]
 ];

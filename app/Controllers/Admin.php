@@ -426,9 +426,13 @@ class Admin extends BaseController
         }
         $businessContractModel = new BusinessContractModel();
         $businessId            = $session->business['id'];
-        $unpaidContract        = $businessContractModel->where('financial_status', 'PENDING')->where('business_id', $businessId)->findAll();
+        $unpaidContract        = $businessContractModel->select('business_contract.*, package_name')
+            ->join('otternaut_package', 'otternaut_package.id = business_contract.package_id')
+            ->where('financial_status', 'PENDING')->where('business_id', $businessId)->first();
         if ($unpaidContract) {
-            $data = [
+            $paymentModel = new BusinessContractPaymentModel();
+            $payments     = $paymentModel->where('contract_id', $unpaidContract['id'])->findAll();
+            $data         = [
                 'slug'           => 'business-contract-renewal',
                 'lang'           => $this->request->getLocale(),
                 'breadcrumb'     => [
@@ -438,7 +442,8 @@ class Admin extends BaseController
                     ]
                 ],
                 'unpaid_pending' => lang('Business.has-unpaid-contract'),
-                'record'         => $unpaidContract
+                'record'         => $unpaidContract,
+                'payments'       => $payments,
             ];
             return view('admin/business_contract_renewal', $data);
         }
@@ -507,7 +512,7 @@ class Admin extends BaseController
                 $data[$field]     = $this->request->getPost($field);
             }
             $data['business_id']      = $session->business['id'];
-            $data['invoice_number']   = '';
+            $data['invoice_number']   = calculate_invoice_number();
             $data['invoiced_amount']  = $data['total_amount'];
             $data['discount_amount']  = 0;
             $data['paid_amount']      = 0;

@@ -3,11 +3,85 @@
 <?php $session = session(); ?>
 <?php if (isset($unpaid_pending)) : ?>
     <div class="row">
-        <div class="col">
+        <div class="col col-md-10 col-lg-8 col-xl-6">
             <div class="card">
                 <div class="card-body p-3">
                     <h1><?= $unpaid_pending ?></h1>
-                    <pre><?php print_r($record) ?></pre>
+                    <table class="table table-sm table-borderless">
+                        <tr>
+                            <td><?= lang('BusinessContract.field.package_id') ?></td>
+                            <td><?= $record['package_name'] ?></td>
+                        </tr>
+                        <tr>
+                            <td><?= lang('BusinessContract.field.invoice_number') ?></td>
+                            <td><?= $record['invoice_number'] ?></td>
+                        </tr>
+                        <tr>
+                            <td><?= lang('BusinessContract.field.contract_start') ?></td>
+                            <td><?= format_date($record['contract_start']) ?></td>
+                        </tr>
+                        <tr>
+                            <td><?= lang('BusinessContract.field.contract_expiry') ?></td>
+                            <td><?= format_date($record['contract_expiry']) ?></td>
+                        </tr>
+                        <tr>
+                            <td><?= lang('BusinessContract.field.total_amount') ?></td>
+                            <td><?= format_price($record['total_amount'], $session->business['country_code']) ?></td>
+                        </tr>
+                        <tr>
+                            <td><?= lang('BusinessContract.field.paid_amount') ?></td>
+                            <td><?= format_price($record['paid_amount'], $session->business['country_code']) ?></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" class="text-end" style="font-size:2em">
+                                <small><?= lang('Business.renewal.amount-due') ?></small>
+                                <?= format_price($record['total_amount']-$record['paid_amount'], $session->business['country_code']) ?>
+                            </td>
+                        </tr>
+                    </table>
+                    <?php if (!empty($payments)) : ?>
+                        <h2><?= lang('Business.renewal.payments') ?></h2>
+                        <table class="table table-sm table-borderless">
+                            <?php foreach ($payments as $payment) : ?>
+                                <tr>
+                                    <td><?= lang('BusinessContractPayment.field.amount_paid') ?></td>
+                                    <td><?= format_price($payment['amount_paid'], $session->business['country_code']) ?></td>
+                                </tr>
+                                <tr>
+                                    <td><?= lang('BusinessContractPayment.field.payment_method') ?></td>
+                                    <td><?= $payment['payment_method'] ?></td>
+                                </tr>
+                                <tr>
+                                    <td><?= lang('BusinessContractPayment.field.payment_notes') ?></td>
+                                    <td><?= $payment['payment_notes'] ?></td>
+                                </tr>
+                                <tr>
+                                    <td><?= lang('BusinessContractPayment.field.staff_comment') ?></td>
+                                    <td><?= $payment['staff_comment'] ?></td>
+                                </tr>
+                                <tr>
+                                    <td><?= lang('BusinessContractPayment.field.payment_status') ?></td>
+                                    <td><?= $payment['payment_status'] ?></td>
+                                </tr>
+                                <tr>
+                                    <td><?= lang('Business.renewal.payment-at') ?></td>
+                                    <td class="utc-to-local"><?= $payment['created_at'] ?></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2"><hr /></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </table>
+                    <?php endif; ?>
+                    <h2><?= lang('Business.renewal.how-to-pay') ?></h2>
+                    <a href="#" class="btn btn-outline-primary w-100 py-3 mb-3">
+                        <img class="img float-end" src="<?= base_url('assets/img/visa-master.png') ?>" alt="Credit Card: VISA/MasterCard" style="max-height:2em" />
+                        <b class="float-start text-start"><i class="bi bi-credit-card"></i><br><?= lang('Business.renewal.pay-by-credit-card') ?></b>
+                    </a>
+                    <a href="#" class="btn btn-outline-primary w-100 py-3 mb-3">
+                        <img class="img float-end" src="<?= base_url('assets/img/thai-qr.png') ?>" alt="Thai PromptPay" style="max-height:2em" />
+                        <b class="float-start text-start"><i class="bi bi-qr-code"></i><br><?= lang('Business.renewal.pay-by-qr-thailand') ?></b>
+                    </a>
                 </div>
             </div>
         </div>
