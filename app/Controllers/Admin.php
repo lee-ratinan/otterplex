@@ -693,6 +693,19 @@ class Admin extends BaseController
     }
 
     /**
+     * Manage discount
+     * @return string
+     */
+    public function discount(): string
+    {
+        $data = [
+            'slug'           => 'discount',
+            'lang'           => $this->request->getLocale(),
+        ];
+        return view('admin/discount', $data);
+    }
+
+    /**
      * Manage blog
      * @return string
      */

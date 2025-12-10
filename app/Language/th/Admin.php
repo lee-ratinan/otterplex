@@ -16,6 +16,7 @@ return [
         'product'                   => 'สินค้า',
         'product-category'          => 'ประเภทสินค้า',
         'review'                    => 'รีวิว',
+        'discount'                  => 'ส่วนลด',
         'resource'                  => 'ทรัพยากร',
         'resource-type'             => 'ประเภททรัพยากร',
         'blog'                      => 'บล็อก',

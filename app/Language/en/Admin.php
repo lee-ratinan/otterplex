@@ -16,6 +16,7 @@ return [
         'product'                   => 'Product',
         'product-category'          => 'Product Category',
         'review'                    => 'Review',
+        'discount'                  => 'Discount',
         'resource'                  => 'Resource',
         'resource-type'             => 'Resource Type',
         'blog'                      => 'Blog',

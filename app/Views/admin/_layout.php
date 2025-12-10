@@ -144,6 +144,12 @@ if (!empty($session->business)) {
                     'review' => [base_url('/admin/review'), lang('Admin.pages.review')],
                 ]
             ];
+            $sidebar_menu['discount'] = [
+                'title' => '<i class="bi bi-ticket-perforated me-3"></i> <span>' . lang('Admin.pages.discount') . '</span>',
+                'links' => [
+                    'discount' => [base_url('/admin/discount'), lang('Admin.pages.discount')],
+                ]
+            ];
             $sidebar_menu['blog'] = [
                 'title' => '<i class="bi bi-book me-3"></i> <span>' . lang('Admin.pages.blog') . '</span>',
                 'links' => [
