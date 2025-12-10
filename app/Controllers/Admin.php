@@ -294,10 +294,10 @@ class Admin extends BaseController
             $available_lang  = get_available_locales();
             $error_msg       = lang('System.response-msg.error.generic');
             if ('save_business' == $script_action) {
-                $fields = ['business_type_id', 'business_name', 'business_slug', 'tax_percentage', 'tax_inclusive', 'mart_primary_color', 'mart_text_color', 'mart_background_color'];
-                $data   = [];
+                $fields      = ['business_type_id', 'business_name', 'business_slug', 'tax_percentage', 'tax_inclusive', 'mart_primary_color', 'mart_text_color', 'mart_background_color'];
+                $data        = [];
                 foreach ($available_lang as $code => $language_name) {
-                    $fields[] = 'business_local_names_' . $code;
+                    $fields[]      = 'business_local_names_' . $code;
                 }
                 foreach ($fields as $field) {
                     $data[$field]     = $this->request->getPost($field);
@@ -305,6 +305,13 @@ class Admin extends BaseController
                         $data[$field] = str_replace('#', '', $data[$field]);
                     }
                 }
+                // Fix JSON field
+                $business_local_names_values = [];
+                foreach ($available_lang as $code => $language_name) {
+                    $business_local_names_values[$code] = $data['business_local_names_' . $code];
+                }
+                $data['business_local_names'] = json_encode($business_local_names_values);
+                // Save
                 $businessId          = $session->business['id'];
                 $businessMasterModel = new BusinessMasterModel();
                 if ($businessMasterModel->update($businessId, $data)) {
