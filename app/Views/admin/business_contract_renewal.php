@@ -1,6 +1,18 @@
 <?php $this->extend('admin/_layout'); ?>
 <?= $this->section('content') ?>
 <?php $session = session(); ?>
+<?php if (isset($unpaid_pending)) : ?>
+    <div class="row">
+        <div class="col">
+            <div class="card">
+                <div class="card-body p-3">
+                    <h1><?= $unpaid_pending ?></h1>
+                    <pre><?php print_r($record) ?></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+<?php else: ?>
     <div class="row">
         <div class="col-12 col-lg-10 col-xxl-8">
             <div class="card">
@@ -85,4 +97,5 @@
             });
         });
     </script>
+<?php endif; ?>
 <?php $this->endSection() ?>

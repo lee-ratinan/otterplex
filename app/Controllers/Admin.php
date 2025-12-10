@@ -285,7 +285,7 @@ class Admin extends BaseController
         if ('OWNER' != $session->user_role) {
             return $this->response->setJSON([
                 'success' => STATUS_RESPONSE_ERR,
-                'message' => lang('System.response-msg.error.business-inactive')
+                'message' => lang('System.response-msg.error.no-permission')
             ]);
         }
         try {
@@ -417,6 +417,31 @@ class Admin extends BaseController
     public function business_contract_renewal(): string
     {
         $session       = session();
+        if ('OWNER' != $session->user_role) {
+            $data = [
+                'slug' => 'business',
+                'lang' => $this->request->getLocale(),
+            ];
+            return view('admin/_forbidden', $data);
+        }
+        $businessContractModel = new BusinessContractModel();
+        $businessId            = $session->business['id'];
+        $unpaidContract        = $businessContractModel->where('financial_status', 'PENDING')->where('business_id', $businessId)->findAll();
+        if ($unpaidContract) {
+            $data = [
+                'slug'           => 'business-contract-renewal',
+                'lang'           => $this->request->getLocale(),
+                'breadcrumb'     => [
+                    [
+                        'url'        => base_url('admin/business'),
+                        'page_title' => lang('Admin.pages.business'),
+                    ]
+                ],
+                'unpaid_pending' => lang('Business.has-unpaid-contract'),
+                'record'         => $unpaidContract
+            ];
+            return view('admin/business_contract_renewal', $data);
+        }
         $packageModel  = new OtternautPackageModel();
         $countryCode   = $session->business['country_code'];
         $packages      = $packageModel->getOtternautPackageForCountry($countryCode);
@@ -461,6 +486,51 @@ class Admin extends BaseController
         ];
         return view('admin/business_contract_renewal', $data);
     }
+
+    /**
+     * Create a new contract
+     * @return ResponseInterface
+     */
+    public function business_contract_renewal_post(): ResponseInterface
+    {
+        $session = session();
+        if ('OWNER' != $session->user_role) {
+            return $this->response->setJSON([
+                'success' => STATUS_RESPONSE_ERR,
+                'message' => lang('System.response-msg.error.no-permission')
+            ]);
+        }
+        try {
+            $fields = ['contract_start', 'contract_expiry', 'total_amount', 'package_id'];
+            $data   = [];
+            foreach ($fields as $field) {
+                $data[$field]     = $this->request->getPost($field);
+            }
+            $data['business_id']      = $session->business['id'];
+            $data['invoice_number']   = '';
+            $data['invoiced_amount']  = $data['total_amount'];
+            $data['discount_amount']  = 0;
+            $data['paid_amount']      = 0;
+            $businessContractModel    = new BusinessContractModel();
+            $data['financial_status'] = $businessContractModel::FINANCIAL_STATUS_PENDING;
+            if ($businessContractModel->insert($data)) {
+                return $this->response->setJSON([
+                    'status'  => STATUS_RESPONSE_OK,
+                    'message' => lang('System.response-msg.success.contract-renewal-done')
+                ]);
+            }
+            return $this->response->setJSON([
+                'success' => STATUS_RESPONSE_ERR,
+                'message' => lang('System.response-msg.error.generic')
+            ]);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => $e->getMessage(),
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
     /**
      * Manage branch
      * @return string

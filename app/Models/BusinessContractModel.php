@@ -27,6 +27,11 @@ class BusinessContractModel extends AppBaseModel
     protected $createdField = 'created_at';
     protected $updatedField = 'updated_at';
 
+    const string FINANCIAL_STATUS_PENDING = 'PENDING';
+    const string FINANCIAL_STATUS_PAID = 'PAID';
+    const string FINANCIAL_STATUS_REFUNDED = 'REFUNDED';
+    const string FINANCIAL_STATUS_CANCELED = 'CANCELED';
+
     /**
      * Get contracts and their payment data
      * @param int $businessId

@@ -20,5 +20,6 @@ return [
             'month' => 'Monthly Package',
             'year'  => 'Yearly Package',
         ]
-    ]
+    ],
+    'has-unpaid-contract'      => 'You have an unpaid contract, please make a payment.'
 ];

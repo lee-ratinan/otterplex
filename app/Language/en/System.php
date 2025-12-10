@@ -27,11 +27,12 @@ return [
             'no-permission'             => 'You do not have permission to access this feature.',
         ],
         'success' => [
-            'business-switched' => 'You have successfully switched your business.',
-            'data-saved'        => 'Your data has been saved.',
-            'password-changed'  => 'Your password has been changed.',
-            'uploaded'          => 'Your file has been uploaded.',
-            'removed'           => 'Your file has been removed.',
+            'business-switched'     => 'You have successfully switched your business.',
+            'data-saved'            => 'Your data has been saved.',
+            'password-changed'      => 'Your password has been changed.',
+            'uploaded'              => 'Your file has been uploaded.',
+            'removed'               => 'Your file has been removed.',
+            'contract-renewal-done' => 'Your contract renewal has been recorded, please make a payment'
         ]
     ],
     'buttons'         => [
