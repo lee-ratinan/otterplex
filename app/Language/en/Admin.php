@@ -37,6 +37,7 @@ return [
     'my-businesses' => [
         'title'        => 'All My Businesses',
         'you-are-here' => '<i class="bi bi-geo-alt"></i> You are here',
+        'new-business' => 'New Business',
         'btn'          => [
             'manage'    => '<i class="bi bi-gear"></i> Manage this Business',
             'switch-to' => '<i class="bi bi-toggle2-on"></i> Switch to this Business',

@@ -6,6 +6,9 @@
             <div class="card">
                 <div class="card-body p-3">
                     <h2><i class="bi bi-shop-window"></i> <?= lang('Admin.my-businesses.title') ?></h2>
+                    <div class="text-end">
+                        <a class="btn btn-primary" href="#"><i class="bi bi-plus-circle"></i> <?= lang('Admin.my-businesses.new-business') ?></a>
+                    </div>
                     <div class="table-responsive">
                         <table class="table table-sm table-hover table-striped">
                             <thead>
@@ -55,10 +58,6 @@
                             </tbody>
                         </table>
                     </div>
-                    <pre>
-                        use cases:
-                        - add business here
-                    </pre>
                 </div>
             </div>
         </div>

@@ -36,12 +36,12 @@ return [
         ]
     ],
     'buttons'         => [
-        'new'             => 'สร้างใหม่',
-        'edit'            => 'แก้ไข',
-        'save'            => 'บันทึก',
-        'upload'          => 'อัปโหลด',
-        'remove'          => 'ลบ',
-        'remove-confirm'  => 'ยืนยันการลบ',
+        'new'             => '<i class="bi bi-plus-circle"></i> สร้างใหม่',
+        'edit'            => '<i class="bi bi-pencil"></i> แก้ไข',
+        'save'            => '<i class="bi bi-floppy"></i> บันทึก',
+        'upload'          => '<i class="bi bi-cloud-upload"></i> อัปโหลด',
+        'remove'          => '<i class="bi bi-trash"></i> ลบ',
+        'remove-confirm'  => '<i class="bi bi-exclamation-triangle"></i> ยืนยันการลบ',
         'switch-role'     => 'เปลี่ยนตำแหน่ง',
         'switch-business' => 'เปลี่ยนธุรกิจ',
         'filter'          => 'กรอง',

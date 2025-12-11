@@ -53,7 +53,7 @@ class BranchMasterModel extends AppBaseModel
                 get_tzdb_by_code($branch['timezone_code']),
                 lang('BranchMaster.enum.branch_type.' . $branch['branch_type']),
                 lang('BranchMaster.enum.branch_status.' . $branch['branch_status']),
-                '<a href="' . base_url('admin/business/branch/' . $branch['branch_slug']) . '">' . lang('System.buttons.view-more') . '</a>'
+                '<a class="btn btn-outline-primary btn-sm float-end" href="' . base_url('admin/business/branch/' . $branch['branch_slug']) . '">' . lang('System.buttons.edit') . '</a>'
             ];
         }
         return [

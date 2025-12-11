@@ -37,6 +37,7 @@ return [
     'my-businesses' => [
         'title'        => 'ธุรกิจทั้งหมดของฉัน',
         'you-are-here' => '<i class="bi bi-geo-alt"></i> คุณอยู่ที่นี่',
+        'new-business' => 'เพิ่มธุรกิจใหม่',
         'btn'          => [
             'manage'    => '<i class="bi bi-gear"></i> จัดการธุรกิจนี้',
             'switch-to' => '<i class="bi bi-toggle2-on"></i> เปลี่ยนไปธุรกิจนี้',

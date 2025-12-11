@@ -36,12 +36,12 @@ return [
         ]
     ],
     'buttons'         => [
-        'new'             => 'New',
-        'edit'            => 'Edit',
-        'save'            => 'Save',
-        'upload'          => 'Upload',
-        'remove'          => 'Remove',
-        'remove-confirm'  => 'Remove Confirmation',
+        'new'             => '<i class="bi bi-plus-circle"></i> New',
+        'edit'            => '<i class="bi bi-pencil"></i> Edit',
+        'save'            => '<i class="bi bi-floppy"></i> Save',
+        'upload'          => '<i class="bi bi-cloud-upload"></i> Upload',
+        'remove'          => '<i class="bi bi-trash"></i> Remove',
+        'remove-confirm'  => '<i class="bi bi-exclamation-triangle"></i> Remove Confirmation',
         'switch-role'     => 'Switch Role',
         'switch-business' => 'Switch Business',
         'filter'          => 'Filter',

@@ -20,7 +20,7 @@
                                 <th><?= lang('BranchMaster.field.timezone_code') ?></th>
                                 <th><?= lang('BranchMaster.field.branch_type') ?></th>
                                 <th><?= lang('BranchMaster.field.branch_status') ?></th>
-                                <th><?= lang('System.buttons.view-more') ?></th>
+                                <th></th>
                             </tr>
                             </thead>
                             <tbody></tbody>
