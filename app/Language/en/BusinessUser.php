@@ -4,8 +4,8 @@ return [
         'id'                  => 'ID',
         'business_id'         => 'Business',
         'user_id'             => 'User',
-        'user_role'           => 'Role',
-        'role_status'         => 'Status',
+        'user_role'           => 'User Role',
+        'role_status'         => 'Role Status',
         'my_default_business' => 'Default Business',
     ],
     'enum'  => [

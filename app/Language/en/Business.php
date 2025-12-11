@@ -52,4 +52,7 @@ return [
             'SU' => 'Sunday',
         ]
     ],
+    'user-management'          => [
+        'new-user' => 'New User',
+    ]
 ];

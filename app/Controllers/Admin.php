@@ -694,6 +694,24 @@ class Admin extends BaseController
     }
 
     /**
+     * Get users in the business
+     * @return ResponseInterface
+     */
+    public function business_user_post(): ResponseInterface
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('DataTable');
+        }
+        $staffModel = new BusinessUserModel();
+        $draw       = $this->request->getPost('draw');
+        $start      = $this->request->getPost('start');
+        $length     = $this->request->getPost('length');
+        $users      = $staffModel->getDataTable($draw, $start, $length);
+        return $this->response->setJSON($users);
+    }
+
+    /**
      * Manage customer
      * @return string
      */

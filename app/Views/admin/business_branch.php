@@ -45,20 +45,7 @@
                     url: '<?= base_url('/admin/business/branch') ?>',
                     type: 'POST',
                     data: function (data) {}
-                },
-                //order: <?php //= isset($table_order) ? $table_order : "[[1, 'desc']]" ?>//,
-                // columnDefs: [{orderable: false, targets: 0}],
-                drawCallback: function () {
-                    // let DateTime = luxon.DateTime;
-                    // $('.utc-to-local-time').each(function () {
-                    //     const utc = $(this).text();
-                    //     if ('' !== utc) {
-                    //         $(this).text(DateTime.fromISO(utc).toLocaleString(DateTime.DATETIME_MED));
-                    //     } else {
-                    //         $(this).text('-');
-                    //     }
-                    // });
-                },
+                }
             });
         });
     </script>
