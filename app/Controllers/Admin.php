@@ -8,6 +8,7 @@ use App\Models\BranchOpeningHoursModel;
 use App\Models\BranchUserModel;
 use App\Models\BusinessContractModel;
 use App\Models\BusinessContractPaymentModel;
+use App\Models\BusinessCustomerModel;
 use App\Models\BusinessMasterModel;
 use App\Models\BusinessTypeModel;
 use App\Models\BusinessUserModel;
@@ -762,6 +763,25 @@ class Admin extends BaseController
             'lang'           => $this->request->getLocale(),
         ];
         return view('admin/business_customer', $data);
+    }
+
+    public function business_customer_post(): ResponseInterface
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('DataTable');
+        }
+        $draw      = $this->request->getPost('draw');
+        $offset    = $this->request->getPost('start');
+        $length    = $this->request->getPost('length');
+        $search    = $this->request->getPost('search');
+        $search    = $search['value'];
+        $order     = $this->request->getPost('order');
+        $orderBy   = $order[0]['column'];
+        $orderDir  = $order[0]['dir'];
+        $custModel = new BusinessCustomerModel();
+        $users     = $custModel->getDataTable($draw, $offset, $length, $search, $orderBy, $orderDir);
+        return $this->response->setJSON($users);
     }
 
     /**
