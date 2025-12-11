@@ -281,9 +281,8 @@ class Admin extends BaseController
         $contracts            = $contractModel->retrieveDataByBusinessId($businessId);
         $allLanguages         = get_available_locales('long');
         $logo_file            = base_url('assets/img/logo.png');
-        $file_path            = WRITEPATH . 'uploads/business_logos/logo_' . $business['business_slug'] . '.jpg';
-        if (file_exists($file_path)) {
-            $logo_file        = base_url('file/business_logo_' . $business['business_slug'] . '.jpg');
+        if (!empty($business['business_logo'])) {
+            $logo_file = base_url('file/business_' . $business['business_logo']);
         }
         // DATA
         $business['business_local_names'] = json_decode($business['business_local_names'], true);
@@ -312,10 +311,12 @@ class Admin extends BaseController
             return $this->forbiddenResponse('ResponseInterface');
         }
         try {
-            $session         = session();
-            $script_action   = $this->request->getPost('script_action');
-            $available_lang  = get_available_locales();
-            $error_msg       = lang('System.response-msg.error.generic');
+            $session             = session();
+            $businessId          = $session->business['id'];
+            $businessMasterModel = new BusinessMasterModel();
+            $script_action       = $this->request->getPost('script_action');
+            $available_lang      = get_available_locales();
+            $error_msg           = lang('System.response-msg.error.generic');
             if ('save_business' == $script_action) {
                 $fields      = ['business_type_id', 'business_name', 'business_slug', 'tax_percentage', 'tax_inclusive', 'mart_primary_color', 'mart_text_color', 'mart_background_color'];
                 $data        = [];
@@ -335,11 +336,10 @@ class Admin extends BaseController
                 }
                 $data['business_local_names'] = json_encode($business_local_names_values);
                 // Save
-                $businessId          = $session->business['id'];
-                $businessMasterModel = new BusinessMasterModel();
                 if ($businessMasterModel->update($businessId, $data)) {
                     // Reset business
-                    $business = $businessMasterModel->find($businessId);
+                    $business                         = $businessMasterModel->find($businessId);
+                    $business['business_local_names'] = json_decode($business['business_local_names'], true);
                     $session->set('business', $business);
                     return $this->response->setJSON([
                         'status'  => STATUS_RESPONSE_OK,
@@ -405,6 +405,8 @@ class Admin extends BaseController
                 $final = imagecreatetruecolor($targetW, $targetH);
                 imagecopyresampled($final, $scaled, 0, 0, $cropX, $cropY, $targetW, $targetH, $targetW, $targetH);
                 imagejpeg($final, WRITEPATH . 'uploads/business_logos/' . $file_name, 90);
+                // Update Database
+                $businessMasterModel->update($businessId, ['business_logo' => $file_name]);
                 // --- Cleanup ---
                 imagedestroy($source);
                 imagedestroy($scaled);
@@ -414,11 +416,13 @@ class Admin extends BaseController
                     'message' => lang('System.response-msg.success.uploaded')
                 ]);
             } else if ('remove_logo' == $script_action) {
-                $business_slug = $session->business['business_slug'];
-                $file_name     = 'logo_' . $business_slug . '.jpg';
+                $business      = $businessMasterModel->find($businessId);
+                $file_name     = $business['business_logo'];
                 $file_path     = WRITEPATH . 'uploads/business_logos/' . $file_name;
                 if (file_exists($file_path)) {
                     if (unlink($file_path)) {
+                        // Update Database
+                        $businessMasterModel->update($businessId, ['business_logo' => null]);
                         return $this->response->setJSON([
                             'status'  => STATUS_RESPONSE_OK,
                             'message' => lang('System.response-msg.success.removed')
