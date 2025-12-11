@@ -119,14 +119,17 @@
                     <label class="d-none" for="package_id"><input type="text" id="package_id" name="package_id" value="" /></label>
                     <?php
                     echo build_form_input('contract_start', lang('BusinessContract.field.contract_start'), [
-                        'type' => 'date'
-                    ]);
+                        'type'     => 'date',
+                        'readonly' => 'true',
+                    ], '', 'border-0');
                     echo build_form_input('contract_expiry', lang('BusinessContract.field.contract_expiry'), [
-                        'type' => 'date'
-                    ]);
+                        'type'     => 'date',
+                        'readonly' => 'true',
+                    ], '', 'border-0');
                     echo build_form_input('total_amount', lang('BusinessContract.field.total_amount'), [
-                        'type' => 'text'
-                    ]);
+                        'type'     => 'text',
+                        'readonly' => 'true',
+                    ], '', 'border-0');
                     ?>
                     <div class="text-end">
                         <button class="btn btn-primary" id="btn-renew"><?= lang('Business.contract-renew') ?></button>

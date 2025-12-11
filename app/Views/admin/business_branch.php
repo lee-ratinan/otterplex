@@ -11,19 +11,21 @@
                             <?= lang('Business.branch-management.new-branch') ?>
                         </a>
                     </div>
-                    <table class="table table-sm table-hover table-striped">
-                        <thead>
-                        <tr>
-                            <th><?= lang('BranchMaster.field.subdivision_code') ?></th>
-                            <th><?= lang('BranchMaster.field.branch_name') ?></th>
-                            <th><?= lang('BranchMaster.field.timezone_code') ?></th>
-                            <th><?= lang('BranchMaster.field.branch_type') ?></th>
-                            <th><?= lang('BranchMaster.field.branch_status') ?></th>
-                            <th><?= lang('System.buttons.view-more') ?></th>
-                        </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover table-striped">
+                            <thead>
+                            <tr>
+                                <th><?= lang('BranchMaster.field.subdivision_code') ?></th>
+                                <th><?= lang('BranchMaster.field.branch_name') ?></th>
+                                <th><?= lang('BranchMaster.field.timezone_code') ?></th>
+                                <th><?= lang('BranchMaster.field.branch_type') ?></th>
+                                <th><?= lang('BranchMaster.field.branch_status') ?></th>
+                                <th><?= lang('System.buttons.view-more') ?></th>
+                            </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
