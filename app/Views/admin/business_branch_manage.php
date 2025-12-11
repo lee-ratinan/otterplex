@@ -52,7 +52,7 @@
                             </div>
                         </div>
                         <?php if ('edit' == $mode) : ?>
-                        <div class="col-12">
+                        <div class="col-12 col-md-8">
                             <h3><?= lang('Business.branch-management.opening-hours') ?></h3>
                             <div class="table-responsive">
                                 <table class="table table-sm table-hover table-striped">

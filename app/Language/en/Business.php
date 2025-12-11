@@ -29,5 +29,26 @@ return [
         'how-to-pay'         => 'How to Pay',
         'pay-by-credit-card' => 'Pay by Credit Card',
         'pay-by-qr-thailand' => 'Pay by PromptPay QR Code (Thailand)',
-    ]
+    ],
+    'branch-management'        => [
+        'new-branch'          => 'New Branch',
+        'generic-title'       => 'New Branch Information',
+        'generic-information' => 'Generic Information',
+        'opening-hours'       => 'Opening Hours',
+        'modified-hours'      => 'Modified Hours',
+        'hours'               => [
+            'day'    => 'Day',
+            'opens'  => 'Opens',
+            'closes' => 'Closes',
+        ],
+        'days'                => [
+            'M'  => 'Monday',
+            'T'  => 'Tuesday',
+            'W'  => 'Wednesday',
+            'TH' => 'Thursday',
+            'F'  => 'Friday',
+            'S'  => 'Saturday',
+            'SU' => 'Sunday',
+        ]
+    ],
 ];

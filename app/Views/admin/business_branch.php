@@ -8,7 +8,7 @@
                     <div class="text-end">
                         <a class="btn btn-primary" href="<?= base_url('admin/business/branch/new-branch') ?>">
                             <i class="bi bi-plus-circle"></i>
-                            <?= lang('Business.branch.new-branch') ?>
+                            <?= lang('Business.branch-management.new-branch') ?>
                         </a>
                     </div>
                     <table class="table table-sm table-hover table-striped">
