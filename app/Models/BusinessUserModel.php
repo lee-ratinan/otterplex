@@ -109,7 +109,7 @@ class BusinessUserModel extends AppBaseModel
                 lang('BusinessUser.enum.user_role.' . $staff['user_role']),
                 lang('BusinessUser.enum.role_status.' . $staff['role_status']),
                 $branchList,
-                '<a class="btn btn-outline-primary btn-sm float-end" href="' . base_url('admin/business/user/' . (ID_MASKED_PRIME*$staff['user_id'])) . '">' . lang('System.buttons.edit') . '</a>'
+                '<a class="btn btn-primary btn-sm float-end" href="' . base_url('admin/business/user/' . (ID_MASKED_PRIME*$staff['user_id'])) . '">' . lang('System.buttons.edit') . '</a>'
             ];
         }
         return [

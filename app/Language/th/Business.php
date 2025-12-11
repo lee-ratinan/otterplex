@@ -53,6 +53,10 @@ return [
         ]
     ],
     'user-management'          => [
-        'new-user' => 'พนักงานใหม่',
+        'new-user'         => 'พนักงานใหม่',
+        'new-user-info'    => 'ข้อมูลพนักงานใหม่',
+        'generic-info'     => 'ข้อมูลทั่วไป',
+        'link-to-business' => 'สถานะของผู้ใช้ในธุรกิจ',
+        'link-to-branches' => 'สถานะของผู้ใช้ในสาขา'
     ]
 ];

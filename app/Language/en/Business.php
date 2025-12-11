@@ -53,6 +53,10 @@ return [
         ]
     ],
     'user-management'          => [
-        'new-user' => 'New User',
+        'new-user'         => 'New User',
+        'new-user-info'    => 'New User Information',
+        'generic-info'     => 'Generic Information',
+        'link-to-business' => 'User Status in Business',
+        'link-to-branches' => 'User Status in Branches'
     ]
 ];
