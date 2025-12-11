@@ -28,19 +28,14 @@ class BranchMasterModel extends AppBaseModel
     protected $updatedField = 'updated_at';
 
     /**
-     * @param int $draw
-     * @param int $start
-     * @param int $length
      * @return array
      */
-    public function getDataTable(int $draw, int $start, int $length): array
+    public function getDataTable(): array
     {
         $session    = session();
         $businessId = $session->business['id'];
-        $total      = $this->where('business_id', $businessId)->countAllResults();
         $branches   = $this->where('business_id', $businessId)
             ->orderBy('branch_name', 'ASC')
-            ->limit($length, $start)
             ->find();
         $data       = [];
         // external data
@@ -57,10 +52,7 @@ class BranchMasterModel extends AppBaseModel
             ];
         }
         return [
-            'draw'            => $draw,
-            'recordsTotal'    => $total,
-            'recordsFiltered' => $total,
-            'data'            => $data,
+            'data' => $data,
         ];
     }
 }

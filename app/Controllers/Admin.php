@@ -598,10 +598,7 @@ class Admin extends BaseController
             return $this->forbiddenResponse('DataTable');
         }
         $branchModel = new BranchMasterModel();
-        $draw        = $this->request->getPost('draw');
-        $start       = $this->request->getPost('start');
-        $length      = $this->request->getPost('length');
-        $branches    = $branchModel->getDataTable($draw, $start, $length);
+        $branches    = $branchModel->getDataTable();
         return $this->response->setJSON($branches);
     }
 
@@ -704,10 +701,7 @@ class Admin extends BaseController
             return $this->forbiddenResponse('DataTable');
         }
         $staffModel = new BusinessUserModel();
-        $draw       = $this->request->getPost('draw');
-        $start      = $this->request->getPost('start');
-        $length     = $this->request->getPost('length');
-        $users      = $staffModel->getDataTable($draw, $start, $length);
+        $users      = $staffModel->getDataTable();
         return $this->response->setJSON($users);
     }
 

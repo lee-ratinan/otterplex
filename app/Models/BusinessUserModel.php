@@ -76,21 +76,16 @@ class BusinessUserModel extends AppBaseModel
     }
 
     /**
-     * @param $draw
-     * @param $start
-     * @param $length
      * @return array
      */
-    public function getDataTable(int $draw, int $start, int $length): array
+    public function getDataTable(): array
     {
         $session    = session();
         $businessId = $session->business['id'];
-        $total      = $this->where('business_id', $businessId)->countAllResults();
         $allStaff   = $this->select('business_user.*, user_master.user_name_first, user_master.user_name_last, user_master.email_address, user_master.account_status')
             ->join('user_master', 'user_master.id = business_user.user_id')
             ->where('business_id', $businessId)
             ->orderBy('user_name_last', 'ASC')
-            ->limit($length, $start)
             ->find();
         $branchModel   = new BranchUserModel();
         $inBranch      = $branchModel->getUsersByBusinessId($businessId);
@@ -118,10 +113,7 @@ class BusinessUserModel extends AppBaseModel
             ];
         }
         return [
-            'draw'            => $draw,
-            'recordsTotal'    => $total,
-            'recordsFiltered' => $total,
-            'data'            => $data,
+            'data' => $data
         ];
     }
 }

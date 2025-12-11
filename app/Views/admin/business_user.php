@@ -40,11 +40,11 @@
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const table = $('table').DataTable({
-                processing: true,
-                serverSide: true,
+                processing: false,
+                serverSide: false,
                 fixedHeader: true,
                 searching: true,
-                ordering: false,
+                ordering: true,
                 <?php if ('en' != $lang) : ?>
                 language: {url: '<?= base_url('/assets/vendor/DataTables/i18n/' . $lang . '.json') ?>',},
                 <?php endif; ?>
