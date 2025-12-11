@@ -26,6 +26,7 @@ return [
         'business-branch'           => 'สาขา',
         'business-branch-manage'    => 'การจัดการสาขา',
         'business-user'             => 'พนักงาน',
+        'business-user-manage'      => 'การจัดการพนักงาน',
         'business-customer'         => 'ลูกค้า'
     ],
     'dashboard'     => [

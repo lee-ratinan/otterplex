@@ -26,6 +26,7 @@ return [
         'business-branch'           => 'Branch',
         'business-branch-manage'    => 'Branch Manager',
         'business-user'             => 'Staff',
+        'business-user-manage'      => 'Staff Manager',
         'business-customer'         => 'Customer'
     ],
     'dashboard'     => [

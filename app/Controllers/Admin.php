@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\BranchMasterModel;
 use App\Models\BranchModifiedHoursModel;
 use App\Models\BranchOpeningHoursModel;
+use App\Models\BranchUserModel;
 use App\Models\BusinessContractModel;
 use App\Models\BusinessContractPaymentModel;
 use App\Models\BusinessMasterModel;
@@ -705,6 +706,47 @@ class Admin extends BaseController
         return $this->response->setJSON($users);
     }
 
+    /**
+     * @param int $userId
+     * @return string
+     */
+    public function business_user_manage(int $userId): string
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('string');
+        }
+        $businessId    = $session->business['id'];
+        $userId        = (int) $userId / ID_MASKED_PRIME;
+        $userModel     = new UserMasterModel();
+        $BusinessModel = new BusinessUserModel();
+        $BranchModel   = new BranchUserModel();
+        $mode          = 'new';
+        $user          = [];
+        $businessUser  = [];
+        $branchUser    = [];
+        if (0 < $userId) {
+            $mode         = 'edit';
+            $user         = $userModel->find($userId);
+            $businessUser = $BusinessModel->where('user_id', $userId)->where('business_id', $businessId)->findAll();
+            $branchUser   = $BranchModel->getUserByBusinessId($userId, $businessId);
+        }
+        $data = [
+            'slug'         => 'business-user-manage',
+            'lang'         => $this->request->getLocale(),
+            'mode'         => $mode,
+            'user'         => $user,
+            'businessUser' => $businessUser,
+            'branchUser'   => $branchUser,
+            'breadcrumb'   => [
+                [
+                    'url'        => base_url('admin/business/user'),
+                    'page_title' => lang('Admin.pages.business-user'),
+                ]
+            ]
+        ];
+        return view('admin/business_user_management', $data);
+    }
     /**
      * Manage customer
      * @return string

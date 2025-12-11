@@ -27,12 +27,6 @@
                             <tbody></tbody>
                         </table>
                     </div>
-                    <pre>
-                        use cases:
-                        user_master (add new user who is just a staff/manager > link to business_user)
-                        business_user (link, unlink)
-                        branch_user (link, unlink, change branch, whatever)
-                    </pre>
                 </div>
             </div>
         </div>

@@ -40,6 +40,7 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->post('business/branch-manage', 'Admin::business_branch_manage_post');
     $routes->get('business/user', 'Admin::business_user');
     $routes->post('business/user', 'Admin::business_user_post');
+    $routes->get('business/user/(:num)', 'Admin::business_user_manage/$1');
     $routes->get('business/customer', 'Admin::business_customer');
     // RESOURCE
     $routes->get('resource/type', 'Admin::resource_type');

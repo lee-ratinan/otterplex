@@ -31,4 +31,18 @@ class BranchUserModel extends AppBaseModel
             ->where('branch_master.business_id', $businessId)
             ->findAll();
     }
+
+    /**
+     * @param int $userId
+     * @param int $businessId
+     * @return array
+     */
+    public function getUserByBusinessId(int $userId, int $businessId): array
+    {
+        return $this->select('branch_user.*, branch_master.branch_name, branch_master.branch_local_names')
+            ->join('branch_master', 'branch_master.id = branch_user.branch_id')
+            ->where('branch_master.business_id', $businessId)
+            ->where('branch_user.user_id', $userId)
+            ->findAll();
+    }
 }
