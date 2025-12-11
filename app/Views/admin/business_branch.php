@@ -29,6 +29,9 @@
                 serverSide: true,
                 fixedHeader: true,
                 searching: true,
+                <?php if ('th' == $lang) : ?>
+                language: {url: '//cdn.datatables.net/plug-ins/2.3.5/i18n/th.json',},
+                <?php endif; ?>
                 ajax: {
                     url: '<?= base_url('/admin/business/branch') ?>',
                     type: 'POST',

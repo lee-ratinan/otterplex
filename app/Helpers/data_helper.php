@@ -2167,11 +2167,12 @@ if (!function_exists('get_currency_common_name')) {
 if (!function_exists('get_tzdb')) {
     /**
      * Get IANA TZ Database Codes
-     * @return array
+     * @param string $zone
+     * @return array|string
      */
-    function get_tzdb(): array
+    function get_tzdb(string $zone = ''): array|string
     {
-        return [
+        $zones = [
             'Africa/Abidjan'                 => [
                 'label'        => 'Côte d’Ivoire',
                 'country_code' => 'CI'
@@ -2705,7 +2706,7 @@ if (!function_exists('get_tzdb')) {
                 'country_code' => 'AZ'
             ],
             'Asia/Bangkok'                   => [
-                'label'        => 'Thailand',
+                'label'        => 'Thailand ประเทศไทย',
                 'country_code' => 'TH'
             ],
             'Asia/Beirut'                    => [
@@ -3353,6 +3354,10 @@ if (!function_exists('get_tzdb')) {
                 'country_code' => ''
             ],
         ];
+        if (isset($zones[$zone])) {
+            return $zones[$zone];
+        }
+        return $zones;
     }
 }
 if (!function_exists('get_available_locales')) {

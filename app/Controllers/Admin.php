@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Models\BranchMasterModel;
 use App\Models\BusinessContractModel;
 use App\Models\BusinessContractPaymentModel;
 use App\Models\BusinessMasterModel;
@@ -15,6 +16,35 @@ use DateTime;
 
 class Admin extends BaseController
 {
+
+    /**
+     * Use to return forbidden page/JSON
+     * @param string $type
+     * @return ResponseInterface|string
+     */
+    private function forbiddenResponse(string $type): ResponseInterface|string
+    {
+        if ('string' == $type) {
+            $data = [
+                'slug' => 'business',
+                'lang' => $this->request->getLocale(),
+            ];
+            return view('admin/_forbidden', $data);
+        } elseif ('ResponseInterface' == $type) {
+            return $this->response->setJSON([
+                'success' => STATUS_RESPONSE_ERR,
+                'message' => lang('System.response-msg.error.no-permission')
+            ]);
+        }
+        // DataTable
+        return $this->response->setJSON([
+            'draw'            => $this->request->getPost("draw"),
+            'recordsTotal'    => 0,
+            'recordsFiltered' => 0,
+            'data'            => [],
+            'error'           => lang('System.response-msg.error.no-permission')
+        ]);
+    }
 
     /**
      * Dashboard page
@@ -240,11 +270,7 @@ class Admin extends BaseController
     {
         $session             = session();
         if ('OWNER' != $session->user_role) {
-            $data = [
-                'slug' => 'business',
-                'lang' => $this->request->getLocale(),
-            ];
-            return view('admin/_forbidden', $data);
+            return $this->forbiddenResponse('string');
         }
         $businessMasterModel  = new BusinessMasterModel();
         $businessTypeModel    = new BusinessTypeModel();
@@ -283,10 +309,7 @@ class Admin extends BaseController
     {
         $session = session();
         if ('OWNER' != $session->user_role) {
-            return $this->response->setJSON([
-                'success' => STATUS_RESPONSE_ERR,
-                'message' => lang('System.response-msg.error.no-permission')
-            ]);
+            return $this->forbiddenResponse('ResponseInterface');
         }
         try {
             $session         = session();
@@ -425,11 +448,7 @@ class Admin extends BaseController
     {
         $session       = session();
         if ('OWNER' != $session->user_role) {
-            $data = [
-                'slug' => 'business',
-                'lang' => $this->request->getLocale(),
-            ];
-            return view('admin/_forbidden', $data);
+            return $this->forbiddenResponse('string');
         }
         $businessContractModel = new BusinessContractModel();
         $businessId            = $session->business['id'];
@@ -507,10 +526,7 @@ class Admin extends BaseController
     {
         $session = session();
         if ('OWNER' != $session->user_role) {
-            return $this->response->setJSON([
-                'success' => STATUS_RESPONSE_ERR,
-                'message' => lang('System.response-msg.error.no-permission')
-            ]);
+            return $this->forbiddenResponse('ResponseInterface');
         }
         try {
             $fields = ['contract_start', 'contract_expiry', 'total_amount', 'package_id'];
@@ -551,11 +567,7 @@ class Admin extends BaseController
     {
         $session       = session();
         if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
-            $data = [
-                'slug' => 'business-branch',
-                'lang' => $this->request->getLocale(),
-            ];
-            return view('admin/_forbidden', $data);
+            return $this->forbiddenResponse('string');
         }
         $data = [
             'slug'           => 'business-branch',
@@ -572,14 +584,14 @@ class Admin extends BaseController
     {
         $session = session();
         if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
-            return $this->response->setJSON([
-                'draw'            => $this->request->getPost("draw"),
-                'recordsTotal'    => 0,
-                'recordsFiltered' => 0,
-                'error'           => lang('System.response-msg.error.no-permission')
-            ]);
+            return $this->forbiddenResponse('DataTable');
         }
-        return $this->response->setJSON([]);
+        $branchModel = new BranchMasterModel();
+        $draw        = $this->request->getPost('draw');
+        $start       = $this->request->getPost('start');
+        $length      = $this->request->getPost('length');
+        $branches    = $branchModel->getDataTable($draw, $start, $length);
+        return $this->response->setJSON($branches);
     }
 
     /**
@@ -588,6 +600,10 @@ class Admin extends BaseController
      */
     public function business_user(): string
     {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('string');
+        }
         $data = [
             'slug'           => 'business-user',
             'lang'           => $this->request->getLocale(),
@@ -601,6 +617,10 @@ class Admin extends BaseController
      */
     public function business_customer(): string
     {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('string');
+        }
         $data = [
             'slug'           => 'business-customer',
             'lang'           => $this->request->getLocale(),
@@ -614,6 +634,10 @@ class Admin extends BaseController
      */
     public function resource_type(): string
     {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('string');
+        }
         $data = [
             'slug'           => 'resource-type',
             'lang'           => $this->request->getLocale(),
@@ -627,6 +651,10 @@ class Admin extends BaseController
      */
     public function resource(): string
     {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('string');
+        }
         $data = [
             'slug'           => 'resource',
             'lang'           => $this->request->getLocale(),
