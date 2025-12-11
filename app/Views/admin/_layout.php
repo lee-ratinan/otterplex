@@ -231,6 +231,8 @@ if (!empty($session->business)) {
         <?= lang('System.copyrights', [date('Y')]) ?>
         <br>
         <small>
+            VERSION <?= VERSIONING_NO ?> | RELEASED <?= format_date(VERSIONING_DT) ?>
+            <br>
             Session Expiry : <?= $session->sessionExpiry ?> VS now : <?= date(DATETIME_FORMAT_DB) ?> UTC - <a href="?hl=th">ภาษาไทย</a> - <a href="?hl=en">English</a>
         </small>
     </div>

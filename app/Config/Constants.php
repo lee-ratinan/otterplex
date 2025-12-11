@@ -1,5 +1,8 @@
 <?php
 
+defined('VERSIONING_NO') || define('VERSIONING_NO', '0.1.2');
+defined('VERSIONING_DT') || define('VERSIONING_DT', '2025-12-14');
+
 /*
  | --------------------------------------------------------------------
  | App Namespace
