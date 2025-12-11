@@ -5,6 +5,12 @@
         <div class="col">
             <div class="card">
                 <div class="card-body p-3">
+                    <div class="text-end">
+                        <a class="btn btn-primary" href="<?= base_url('admin/business/branch/new-branch') ?>">
+                            <i class="bi bi-plus-circle"></i>
+                            <?= lang('Business.branch.new-branch') ?>
+                        </a>
+                    </div>
                     <table class="table table-sm table-hover table-striped">
                         <thead>
                         <tr>
@@ -29,8 +35,9 @@
                 serverSide: true,
                 fixedHeader: true,
                 searching: true,
-                <?php if ('th' == $lang) : ?>
-                language: {url: '//cdn.datatables.net/plug-ins/2.3.5/i18n/th.json',},
+                ordering: false,
+                <?php if ('en' != $lang) : ?>
+                language: {url: '<?= base_url('/assets/vendor/DataTables/i18n/' . $lang . '.json') ?>',},
                 <?php endif; ?>
                 ajax: {
                     url: '<?= base_url('/admin/business/branch') ?>',

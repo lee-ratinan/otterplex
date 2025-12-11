@@ -35,6 +35,9 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->post('business/contract-renewal', 'Admin::business_contract_renewal_post');
     $routes->get('business/branch', 'Admin::business_branch');
     $routes->post('business/branch', 'Admin::business_branch_post');
+    $routes->get('business/branch/new-branch', 'Admin::business_branch_manage/new-branch');
+    $routes->get('business/branch/(:any)', 'Admin::business_branch_manage/$1');
+    $routes->post('business/branch-manage', 'Admin::business_branch_manage_post');
     $routes->get('business/user', 'Admin::business_user');
     $routes->get('business/customer', 'Admin::business_customer');
     // RESOURCE

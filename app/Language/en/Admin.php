@@ -24,6 +24,7 @@ return [
         'business'                  => 'Business',
         'business-contract-renewal' => 'Business Contract Renewal',
         'business-branch'           => 'Branch',
+        'business-branch-manage'    => 'Branch Manager',
         'business-user'             => 'Staff',
         'business-customer'         => 'Customer'
     ],

@@ -3,6 +3,8 @@
 namespace App\Controllers;
 
 use App\Models\BranchMasterModel;
+use App\Models\BranchModifiedHoursModel;
+use App\Models\BranchOpeningHoursModel;
 use App\Models\BusinessContractModel;
 use App\Models\BusinessContractPaymentModel;
 use App\Models\BusinessMasterModel;
@@ -10,9 +12,12 @@ use App\Models\BusinessTypeModel;
 use App\Models\BusinessUserModel;
 use App\Models\OtternautPackageModel;
 use App\Models\UserMasterModel;
+use CodeIgniter\Exceptions\PageNotFoundException;
+use CodeIgniter\HTTP\RedirectResponse;
 use CodeIgniter\HTTP\ResponseInterface;
 use DateMalformedStringException;
 use DateTime;
+use function PHPUnit\Framework\throwException;
 
 class Admin extends BaseController
 {
@@ -596,6 +601,77 @@ class Admin extends BaseController
         $length      = $this->request->getPost('length');
         $branches    = $branchModel->getDataTable($draw, $start, $length);
         return $this->response->setJSON($branches);
+    }
+
+    /**
+     * Manage branch
+     * @param string $branch_slug
+     * @return RedirectResponse|string
+     */
+    public function business_branch_manage(string $branch_slug): RedirectResponse|string
+    {
+        $session       = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('string');
+        }
+        $branchModel   = new BranchMasterModel();
+        $hoursModel    = new BranchOpeningHoursModel();
+        $modifiedModel = new BranchModifiedHoursModel();
+        $mode          = 'new';
+        $branch        = [];
+        $hours         = [
+            'M'  => [0, null, null],
+            'T'  => [0, null, null],
+            'W'  => [0, null, null],
+            'TH' => [0, null, null],
+            'F'  => [0, null, null],
+            'S'  => [0, null, null],
+            'SU' => [0, null, null],
+        ];
+        $modified      = [];
+        $allLanguages  = get_available_locales('long');
+        if ('new-branch' !== $branch_slug) {
+            $branch = $branchModel
+                ->where('business_id', $session->business['id'])
+                ->where('branch_slug', $branch_slug)->first();
+            if (!$branch) {
+                return redirect('admin/business/branch');
+            }
+            $branch['branch_local_names'] = json_decode($branch['branch_local_names'], true);
+            // OTHER INFO
+            $yesterday = date('Y-m-d', strtotime('-1 day'));
+            $hour_raw  = $hoursModel->where('branch_id', $branch['id'])->findAll();
+            $modified  = $modifiedModel
+                ->where('branch_id', $branch['id'])
+                ->where('modified_hours_date >=', $yesterday)
+                ->orderBy('modified_hours_date', 'ASC')->findAll();
+            foreach ($hour_raw as $hour) {
+                $hours[$hour['day_of_the_week']] = [$hour['id'], $hour['opening_hours'], $hour['closing_hours']];
+            }
+            // FIX MODE
+            $mode      = 'edit';
+        }
+        // OPTIONS
+        $subdivisions = get_country_codes()['subdivisions'][$session->business['country_code']];
+        $timezones    = get_tzdb_by_country($session->business['country_code']);
+        $data         = [
+            'slug'          => 'business-branch-manage',
+            'lang'          => $this->request->getLocale(),
+            'branch'        => $branch,
+            'mode'          => $mode,
+            'hours'         => $hours,
+            'modified'      => $modified,
+            'subdivisions'  => $subdivisions,
+            'all_languages' => $allLanguages,
+            'timezones'     => $timezones,
+            'breadcrumb'    => [
+                [
+                    'url'        => base_url('admin/business/branch'),
+                    'page_title' => lang('Admin.pages.business-branch'),
+                ]
+            ]
+        ];
+        return view('admin/business_branch_manage', $data);
     }
 
     /**

@@ -24,6 +24,7 @@ return [
         'business'                  => 'ธุรกิจ',
         'business-contract-renewal' => 'ต่ออายุสัญญาธุรกิจ',
         'business-branch'           => 'สาขา',
+        'business-branch-manage'    => 'การจัดการสาขา',
         'business-user'             => 'พนักงาน',
         'business-customer'         => 'ลูกค้า'
     ],

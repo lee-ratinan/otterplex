@@ -3360,6 +3360,50 @@ if (!function_exists('get_tzdb')) {
         return $zones;
     }
 }
+if (!function_exists('get_tzdb_by_country')) {
+    /**
+     * @param string $country
+     * @return array
+     */
+    function get_tzdb_by_country(string $country): array
+    {
+        $codes = [
+            'ID' => [
+                'Asia/Jakarta'  => '+07:00 Western Indonesia Time (WIB; Jakarta)',
+                'Asia/Makassar' => '+08:00 Central Indonesia Time (WITA; Bali/Makassar)',
+                'Asia/Jayapura' => '+09:00 Eastern Indonesia Time (WIT; Jayapura)',
+            ],
+            'JP' => [
+                'Asia/Tokyo' => '+09:00 日本 (Japan)'
+            ],
+            'SG' => [
+                'Asia/Singapore' => '+08:00 Singapore'
+            ],
+            'TH' => [
+                'Asia/Bangkok' => '+07:00 ประเทศไทย (Thailand)'
+            ],
+        ];
+        return $codes[$country] ?? [];
+    }
+}
+if (!function_exists('get_tzdb_by_code')) {
+    /**
+     * @param string $code
+     * @return string
+     */
+    function get_tzdb_by_code(string $code): string
+    {
+        $codes = [
+            'Asia/Jakarta'   => '+07:00 Western Indonesia Time (WIB; Jakarta)',
+            'Asia/Makassar'  => '+08:00 Central Indonesia Time (WITA; Bali/Makassar)',
+            'Asia/Jayapura'  => '+09:00 Eastern Indonesia Time (WIT; Jayapura)',
+            'Asia/Tokyo'     => '+09:00 日本 (Japan)',
+            'Asia/Singapore' => '+08:00 Singapore',
+            'Asia/Bangkok'   => '+07:00 ประเทศไทย (Thailand)'
+        ];
+        return $codes[$code] ?? '';
+    }
+}
 if (!function_exists('get_available_locales')) {
     /**
      * @param string $format (optional) either long or short

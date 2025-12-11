@@ -39,6 +39,7 @@ class BranchMasterModel extends AppBaseModel
         $businessId = $session->business['id'];
         $total      = $this->where('business_id', $businessId)->countAllResults();
         $branches   = $this->where('business_id', $businessId)
+            ->orderBy('branch_name', 'ASC')
             ->limit($length, $start)
             ->find();
         $data       = [];
@@ -49,7 +50,7 @@ class BranchMasterModel extends AppBaseModel
             $data[] = [
                 $subdivisions[$branch['subdivision_code']],
                 $branch['branch_name'],
-                get_tzdb($branch['timezone_code'])['label'],
+                get_tzdb_by_code($branch['timezone_code']),
                 lang('BranchMaster.enum.branch_type.' . $branch['branch_type']),
                 lang('BranchMaster.enum.branch_status.' . $branch['branch_status']),
                 '<a href="' . base_url('admin/business/branch/' . $branch['branch_slug']) . '">' . lang('System.buttons.view-more') . '</a>'
