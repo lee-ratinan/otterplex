@@ -3368,13 +3368,20 @@ if (!function_exists('get_tzdb_by_country')) {
     function get_tzdb_by_country(string $country): array
     {
         $codes = [
+            // SOUTHEAST ASIA - BN, KH, TL, MM
             'ID' => [
-                'Asia/Jakarta'  => '+07:00 Western Indonesia Time (WIB; Jakarta)',
-                'Asia/Makassar' => '+08:00 Central Indonesia Time (WITA; Bali/Makassar)',
-                'Asia/Jayapura' => '+09:00 Eastern Indonesia Time (WIT; Jayapura)',
+                'Asia/Jakarta'  => '+07:00 WIB; Jakarta (Western Indonesia Time)',
+                'Asia/Makassar' => '+08:00 WITA; Bali/Makassar (Central Indonesia Time)',
+                'Asia/Jayapura' => '+09:00 WIT; Jayapura (Eastern Indonesia Time)',
             ],
-            'JP' => [
-                'Asia/Tokyo' => '+09:00 日本 (Japan)'
+            'LA' => [
+                'Asia/Vientiane' => '+07:00 ປະເທດລາວ (Laos)'
+            ],
+            'MY' => [
+                'Asia/Kuala_Lumpur' => '+08:00 Malaysia'
+            ],
+            'PH' => [
+                'Asia/Manila' => '+08:00 Philippines'
             ],
             'SG' => [
                 'Asia/Singapore' => '+08:00 Singapore'
@@ -3382,6 +3389,16 @@ if (!function_exists('get_tzdb_by_country')) {
             'TH' => [
                 'Asia/Bangkok' => '+07:00 ประเทศไทย (Thailand)'
             ],
+            'VN' => [
+                'Asia/Ho_Chi_Minh' => '+07:00 Viet Nam (Vietnam)'
+            ],
+            // EAST ASIA
+            'JP' => [
+                'Asia/Tokyo' => '+09:00 日本 (Japan)'
+            ],
+            'TW' => [
+                'Asia/Taipei' => '+08:00 台灣 (Taiwan)'
+            ]
         ];
         return $codes[$country] ?? [];
     }
@@ -3394,12 +3411,19 @@ if (!function_exists('get_tzdb_by_code')) {
     function get_tzdb_by_code(string $code): string
     {
         $codes = [
-            'Asia/Jakarta'   => '+07:00 Western Indonesia Time (WIB; Jakarta)',
-            'Asia/Makassar'  => '+08:00 Central Indonesia Time (WITA; Bali/Makassar)',
-            'Asia/Jayapura'  => '+09:00 Eastern Indonesia Time (WIT; Jayapura)',
+            // SOUTHEAST ASIA
+            'Asia/Bangkok'      => '+07:00 ประเทศไทย (Thailand)',
+            'Asia/Ho_Chi_Minh'  => '+07:00 Viet Nam (Vietnam)',
+            'Asia/Jakarta'      => '+07:00 Western Indonesia Time (WIB; Jakarta)',
+            'Asia/Jayapura'     => '+09:00 Eastern Indonesia Time (WIT; Jayapura)',
+            'Asia/Kuala_Lumpur' => '+08:00 Malaysia',
+            'Asia/Makassar'     => '+08:00 Central Indonesia Time (WITA; Bali/Makassar)',
+            'Asia/Manila'       => '+08:00 Philippines',
+            'Asia/Singapore'    => '+08:00 Singapore',
+            'Asia/Vientiane'    => '+07:00 ປະເທດລາວ (Laos)',
+            // EAST ASIA
+            'Asia/Taipei' => '+08:00 台灣 (Taiwan)',
             'Asia/Tokyo'     => '+09:00 日本 (Japan)',
-            'Asia/Singapore' => '+08:00 Singapore',
-            'Asia/Bangkok'   => '+07:00 ประเทศไทย (Thailand)'
         ];
         return $codes[$code] ?? '';
     }
