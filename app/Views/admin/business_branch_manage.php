@@ -70,7 +70,7 @@
                                             <td><?= lang('Business.branch-management.days.' . $d) ?></td>
                                             <td><label><input class="form-control branch-opening-hours-<?= $d ?>" name="branch-opening-hours-<?= $d ?>[]" data-id="<?= $hour[0] ?>" data-day="<?= $d ?>" value="<?= $hour[1] ?>"/></label></td>
                                             <td><label><input class="form-control branch-opening-hours-<?= $d ?>" name="branch-opening-hours-<?= $d ?>[]" data-id="<?= $hour[0] ?>" data-day="<?= $d ?>" value="<?= $hour[2] ?>"/></label></td>
-                                            <td><button class="btn btn-primary" data-target="branch-opening-hours-<?= $d ?>" id="btn-save-hours"><?= lang('System.buttons.save') ?></button></td>
+                                            <td class="text-end"><button class="btn btn-primary btn-sm" data-target="branch-opening-hours-<?= $d ?>" id="btn-save-hours"><?= lang('System.buttons.save') ?></button></td>
                                         </tr>
                                     <?php endforeach; ?>
                                     </tbody>
@@ -90,18 +90,48 @@
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    <?php foreach ($modified as $row) : ?>
-                                    <tr>
-                                        <td><?= format_date($row['modified_hours_date']) ?></td>
-                                        <td><?= $row['modified_reason'] ?></td>
-                                        <td><?= lang('BranchModifiedHours.enum.modified_type.' . $row['modified_type']) ?></td>
-                                        <td><?= empty($row['updated_opening_hours']) ? '' : format_time($row['updated_opening_hours']) ?></td>
-                                        <td><?= empty($row['updated_closing_hours']) ? '' : format_time($row['updated_closing_hours']) ?></td>
-                                        <td>btn</td>
-                                    </tr>
-                                    <?php endforeach; ?>
+                                    <?php if (empty($modified)) : ?>
+                                        <tr>
+                                            <td colspan="6" class="text-center">-</td>
+                                        </tr>
+                                    <?php else : ?>
+                                        <?php foreach ($modified as $row) : ?>
+                                            <tr>
+                                                <td><?= format_date($row['modified_hours_date']) ?></td>
+                                                <td><?= $row['modified_reason'] ?></td>
+                                                <td><?= lang('BranchModifiedHours.enum.modified_type.' . $row['modified_type']) ?></td>
+                                                <td><?= empty($row['updated_opening_hours']) ? '' : format_time($row['updated_opening_hours']) ?></td>
+                                                <td><?= empty($row['updated_closing_hours']) ? '' : format_time($row['updated_closing_hours']) ?></td>
+                                                <td class="text-end"><button class="btn btn-primary btn-sm"><?= lang('System.buttons.remove') ?></button></td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
                                     </tbody>
                                 </table>
+                            </div>
+                            <h3><?= lang('Business.branch-management.modified-hours-new') ?></h3>
+                            <?php
+                            echo build_form_input('modified_hours_date', lang('BranchModifiedHours.field.modified_hours_date'), [
+                                'type' => 'date',
+                            ], null);
+                            echo build_form_input('modified_reason', lang('BranchModifiedHours.field.modified_reason'), [
+                                'type' => 'text',
+                            ], null);
+                            echo build_form_input('modified_type', lang('BranchModifiedHours.field.modified_type'), [
+                                'type' => 'select',
+                            ], null, '', [
+                                'CLOSED'         => lang('BranchModifiedHours.enum.modified_type.CLOSED'),
+                                'MODIFIED_HOURS' => lang('BranchModifiedHours.enum.modified_type.MODIFIED_HOURS'),
+                            ]);
+                            echo build_form_input('updated_opening_hours', lang('BranchModifiedHours.field.updated_opening_hours'), [
+                                'type' => 'time',
+                            ], null);
+                            echo build_form_input('updated_closing_hours', lang('BranchModifiedHours.field.updated_closing_hours'), [
+                                'type' => 'time',
+                            ], null);
+                            ?>
+                            <div class="text-end">
+                                <button class="btn btn-primary" id="btn-save-master"><?= lang('System.buttons.save') ?></button>
                             </div>
                         </div>
                         <?php endif; ?>

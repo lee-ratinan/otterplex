@@ -36,6 +36,7 @@ return [
         'generic-information' => 'ข้อมูลทั่วไป',
         'opening-hours'       => 'เวลาเปิดทำการ',
         'modified-hours'      => 'การเปลี่ยนแปลงเวลาเปิดทำการ',
+        'modified-hours-new'  => 'เพิ่มวันที่มีการเปลี่ยนแปลง',
         'hours'               => [
             'day'    => 'วัน',
             'opens'  => 'เวลาเปิด',

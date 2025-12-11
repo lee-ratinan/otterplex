@@ -36,6 +36,7 @@ return [
         'generic-information' => 'Generic Information',
         'opening-hours'       => 'Opening Hours',
         'modified-hours'      => 'Modified Hours',
+        'modified-hours-new'  => 'Add Date with Modified Hours',
         'hours'               => [
             'day'    => 'Day',
             'opens'  => 'Opens',
