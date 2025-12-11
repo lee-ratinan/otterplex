@@ -48,7 +48,7 @@ class BusinessUserModel extends AppBaseModel
             $this->where('business_master.business_slug', $business_slug);
         }
         $businesses = $this->select('business_user.*, business_master.business_type_id, business_master.business_name,
-                business_master.business_slug, business_master.business_local_names, business_master.country_code,
+                business_master.business_slug, business_master.business_local_names, business_master.country_code, business_master.business_logo,
                 business_master.currency_code, business_master.tax_percentage, business_master.tax_inclusive, business_master.contract_anchor_day, business_master.contract_expiry')
             ->join('business_master', 'business_master.id = business_user.business_id')
             ->where('user_id', $userId)

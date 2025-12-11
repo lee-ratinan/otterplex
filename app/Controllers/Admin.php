@@ -410,7 +410,8 @@ class Admin extends BaseController
                 $final = imagecreatetruecolor($targetW, $targetH);
                 imagecopyresampled($final, $scaled, 0, 0, $cropX, $cropY, $targetW, $targetH, $targetW, $targetH);
                 imagejpeg($final, WRITEPATH . 'uploads/business_logos/' . $file_name, 90);
-                // Update Database
+                // Update database & session
+                $session->set('business_logo', base_url('file/business_' . $file_name));
                 $businessMasterModel->update($businessId, ['business_logo' => $file_name]);
                 // --- Cleanup ---
                 imagedestroy($source);
@@ -424,9 +425,10 @@ class Admin extends BaseController
                 $business      = $businessMasterModel->find($businessId);
                 $file_name     = $business['business_logo'];
                 $file_path     = WRITEPATH . 'uploads/business_logos/' . $file_name;
-                if (file_exists($file_path)) {
+                if (!empty($file_name) && file_exists($file_path)) {
                     if (unlink($file_path)) {
-                        // Update Database
+                        // Update database & session
+                        $session->set('business_logo', '');
                         $businessMasterModel->update($businessId, ['business_logo' => null]);
                         return $this->response->setJSON([
                             'status'  => STATUS_RESPONSE_OK,

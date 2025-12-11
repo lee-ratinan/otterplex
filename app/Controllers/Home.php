@@ -147,6 +147,7 @@ class Home extends BaseController
                 'user_id'        => $user['id'],
                 'full_name'      => $user['user_name_first'] . ' ' . $user['user_name_last'],
                 'avatar'         => retrieve_avatars($user['email_address'], $user['user_name_first'] . ' ' . $user['user_name_last']),
+                'business_logo'  => base_url('file/business_' . $currentBusiness['business_logo']),
                 'user'           => $user,
                 'user_role'      => $currentBusiness['user_role'],
                 'business'       => $currentBusiness,

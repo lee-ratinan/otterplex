@@ -50,6 +50,9 @@ if (!empty($session->business)) {
 <header id="header" class="header fixed-top d-flex align-items-center">
     <div class="d-flex align-items-center justify-content-between">
         <a href="<?= base_url('/admin/dashboard') ?>" class="logo d-flex align-items-center">
+            <?php if (!empty($session->business_logo)) : ?>
+                <img src="<?= $session->business_logo ?>" alt="<?= (!empty($businessName) ? $businessName : 'OtterNova Business') ?>" class="img-fluid">
+            <?php endif; ?>
             <?= (!empty($businessName) ? $businessName . ' @ ' : '') ?>
             <?= lang('Admin.site-name') ?>
         </a>
