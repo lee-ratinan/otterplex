@@ -46,8 +46,12 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     // RESOURCE
     $routes->get('resource/type', 'Admin::resource_type');
     $routes->post('resource/type', 'Admin::resource_type_post');
+    $routes->get('resource/type/(:num)', 'Admin::resource_type_manage/$1');
+    $routes->post('resource/type-manage', 'Admin::resource_type_manage_post');
     $routes->get('resource', 'Admin::resource');
     $routes->post('resource', 'Admin::resource_post');
+    $routes->get('resource/(:num)', 'Admin::resource_manage/$1');
+    $routes->post('resource/manage', 'Admin::resource_manage_post');
     // ORDER
     $routes->get('order', 'Admin::order');
     // SERVICE

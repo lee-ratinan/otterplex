@@ -821,6 +821,40 @@ class Admin extends BaseController
     }
 
     /**
+     * Manage resource type manage
+     * @param int $resourceTypeId
+     * @return string
+     */
+    public function resource_type_manage(int $resourceTypeId): string
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('string');
+        }
+        $typeModel      = new ResourceTypeModel();
+        $resourceType   = [];
+        $resourceTypeId = $resourceTypeId / ID_MASKED_PRIME;
+        if (0 < $resourceTypeId) {
+            $resourceType = $typeModel
+                ->where('id', $resourceTypeId)
+                ->where('business_id', $session->business['id'])
+                ->first();
+        }
+        $data           = [
+            'slug'         => 'resource-type-manage',
+            'lang'         => $this->request->getLocale(),
+            'resourceType' => $resourceType,
+            'breadcrumb'   => [
+                [
+                    'url'        => base_url('admin/resource/type'),
+                    'page_title' => lang('Admin.pages.resource-type'),
+                ]
+            ]
+        ];
+        return view('admin/resource_type_manage', $data);
+    }
+
+    /**
      * Manage resource
      * @return string
      */
@@ -857,6 +891,45 @@ class Admin extends BaseController
         $typeModel = new ResourceMasterModel();
         $types     = $typeModel->getDataTable($draw, $offset, $length, $search, $orderBy, $orderDir);
         return $this->response->setJSON($types);
+    }
+
+    /**
+     * Manage resource manage
+     * @param int $resourceId
+     * @return string
+     */
+    public function resource_manage(int $resourceId): string
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('string');
+        }
+        $typeModel     = new ResourceTypeModel();
+        $resourceModel = new ResourceMasterModel();
+        $typesRaw      = $typeModel->where('business_id', $session->business['id'])->findAll();
+        $types         = [];
+        foreach ($typesRaw as $type) {
+            $local_names        = json_decode($type['resource_local_names'], true);
+            $types[$type['id']] = $local_names[$session->lang] ?? $type['resource_type'];
+        }
+        $resource   = [];
+        $resourceId = $resourceId / ID_MASKED_PRIME;
+        if (0 < $resourceId) {
+            $resource = $resourceModel->where('id', $resourceId)->first();
+        }
+        $data     = [
+            'slug'       => 'resource-manage',
+            'lang'       => $this->request->getLocale(),
+            'resource'   => $resource,
+            'types'      => $types,
+            'breadcrumb' => [
+                [
+                    'url'        => base_url('admin/resource'),
+                    'page_title' => lang('Admin.pages.resource'),
+                ]
+            ]
+        ];
+        return view('admin/resource_manage', $data);
     }
 
     /**
