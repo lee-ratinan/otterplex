@@ -6,7 +6,7 @@
             <div class="card">
                 <div class="card-body p-3">
                     <h2><i class="bi bi-shop-window"></i> <?= lang('Admin.my-businesses.title') ?></h2>
-                    <div class="text-end">
+                    <div class="text-end d-none">
                         <a class="btn btn-primary" href="#"><i class="bi bi-plus-circle"></i> <?= lang('Admin.my-businesses.new-business') ?></a>
                     </div>
                     <div class="table-responsive">

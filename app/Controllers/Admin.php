@@ -731,8 +731,12 @@ class Admin extends BaseController
         if (0 < $userId) {
             $mode         = 'edit';
             $user         = $userModel->find($userId);
-            $businessUser = $BusinessModel->where('user_id', $userId)->where('business_id', $businessId)->findAll();
-            $branchUser   = $BranchModel->getUserByBusinessId($userId, $businessId);
+            if (!empty($user)) {
+                $businessUser = $BusinessModel->where('user_id', $userId)->where('business_id', $businessId)->findAll();
+                $branchUser   = $BranchModel->getUserByBusinessId($userId, $businessId);
+            } else {
+                throw new PageNotFoundException(lang('Admin.pages.page-not-found'));
+            }
         }
         $data = [
             'slug'         => 'business-user-manage',
@@ -839,6 +843,10 @@ class Admin extends BaseController
                 ->where('id', $resourceTypeId)
                 ->where('business_id', $session->business['id'])
                 ->first();
+            if (empty($resourceType)) {
+                throw new PageNotFoundException(lang('Admin.pages.page-not-found'));
+            }
+            $resourceType['resource_local_names'] = json_decode($resourceType['resource_local_names'], true);
         }
         $data           = [
             'slug'         => 'resource-type-manage',
@@ -906,22 +914,38 @@ class Admin extends BaseController
         }
         $typeModel     = new ResourceTypeModel();
         $resourceModel = new ResourceMasterModel();
+        $branchModel   = new BranchMasterModel();
+        $resource      = [];
+        $resourceId    = $resourceId / ID_MASKED_PRIME;
+        if (0 < $resourceId) {
+            $resource = $resourceModel->where('id', $resourceId)->first();
+            if (empty($resource)) {
+                throw new PageNotFoundException(lang('Admin.pages.page-not-found'));
+            }
+        }
         $typesRaw      = $typeModel->where('business_id', $session->business['id'])->findAll();
+        $branchRaw     = $branchModel->where('business_id', $session->business['id'])->findAll();
         $types         = [];
+        $branches      = [];
+        $branchIds     = [];
         foreach ($typesRaw as $type) {
             $local_names        = json_decode($type['resource_local_names'], true);
             $types[$type['id']] = $local_names[$session->lang] ?? $type['resource_type'];
         }
-        $resource   = [];
-        $resourceId = $resourceId / ID_MASKED_PRIME;
-        if (0 < $resourceId) {
-            $resource = $resourceModel->where('id', $resourceId)->first();
+        foreach ($branchRaw as $branch) {
+            $local_names             = json_decode($branch['branch_local_names'], true);
+            $branches[$branch['id']] = $local_names[$session->lang] ?? $branch['branch_name'];
+            $branchIds[]             = $branch['id'];
+        }
+        if (!empty($resource) && !in_array($resource['branch_id'], $branchIds)) {
+            throw new PageNotFoundException(lang('Admin.pages.page-not-found'));
         }
         $data     = [
             'slug'       => 'resource-manage',
             'lang'       => $this->request->getLocale(),
             'resource'   => $resource,
             'types'      => $types,
+            'branches'   => $branches,
             'breadcrumb' => [
                 [
                     'url'        => base_url('admin/resource'),
