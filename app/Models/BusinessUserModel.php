@@ -81,7 +81,7 @@ class BusinessUserModel extends AppBaseModel
     public function getDataTable(): array
     {
         $session    = session();
-        $businessId = $session->business['id'];
+        $businessId = $session->business['business_id'];
         $allStaff   = $this->select('business_user.*, user_master.user_name_first, user_master.user_name_last, user_master.email_address, user_master.account_status')
             ->join('user_master', 'user_master.id = business_user.user_id')
             ->where('business_id', $businessId)
@@ -96,7 +96,10 @@ class BusinessUserModel extends AppBaseModel
         }
         $data       = [];
         foreach ($allStaff as $staff) {
-            $branchData = $usersInBranch[$staff['user_id']];
+            $branchData = [];
+            if (!empty($usersInBranch[$staff['user_id']])) {
+                $branchData = $usersInBranch[$staff['user_id']];
+            }
             $branchList = '';
             foreach ($branchData as $row) {
                 $branchName = $row['branch_local_names'][$session->lang] ?? $row['branch_name'];

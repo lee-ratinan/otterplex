@@ -48,7 +48,7 @@ class ResourceMasterModel extends AppBaseModel
     public function getDataTable(int $draw, int $offset, int $length, string $search, int $orderBy, string $orderDir): array
     {
         $session    = session();
-        $businessId = $session->business['id'];
+        $businessId = $session->business['business_id'];
         $columns    = [
             'resource_master.resource_name',
             'resource_master.resource_description',

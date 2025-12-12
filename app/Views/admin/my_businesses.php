@@ -49,7 +49,7 @@
                                         <?php endif; ?>
                                     </td>
                                     <td>
-                                        <?php if ('OWNER' == $business['user_role'] && $business['business_id'] == $session->business['id']) : ?>
+                                        <?php if ('OWNER' == $business['user_role'] && $business['business_id'] == $session->business['business_id']) : ?>
                                             <a href="<?= base_url('admin/business') ?>" class="btn btn-sm btn-outline-primary"><?= lang('Admin.my-businesses.btn.manage') ?></a>
                                         <?php endif; ?>
                                     </td>

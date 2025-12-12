@@ -49,9 +49,11 @@ class BusinessContractModel extends AppBaseModel
             $contractIds[]          = $contract['id'];
             $final[$contract['id']] = $contract;
         }
-        $payments = $paymentModel->whereIn('contract_id', $contractIds)->findAll();
-        foreach ($payments as $payment) {
-            $final[$payment['contract_id']]['payments'][] = $payment;
+        if (!empty($contractIds)) {
+            $payments = $paymentModel->whereIn('contract_id', $contractIds)->findAll();
+            foreach ($payments as $payment) {
+                $final[$payment['contract_id']]['payments'][] = $payment;
+            }
         }
         return $final;
     }

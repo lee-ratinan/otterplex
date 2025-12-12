@@ -284,7 +284,7 @@ class Admin extends BaseController
         $businessMasterModel  = new BusinessMasterModel();
         $businessTypeModel    = new BusinessTypeModel();
         $contractModel        = new BusinessContractModel();
-        $businessId           = $session->business['id'];
+        $businessId           = $session->business['business_id'];
         $business             = $businessMasterModel->find($businessId);
         $businessTypes        = $businessTypeModel->retrieveData();
         $contracts            = $contractModel->retrieveDataByBusinessId($businessId);
@@ -321,7 +321,7 @@ class Admin extends BaseController
         }
         try {
             $session             = session();
-            $businessId          = $session->business['id'];
+            $businessId          = $session->business['business_id'];
             $businessMasterModel = new BusinessMasterModel();
             $script_action       = $this->request->getPost('script_action');
             $available_lang      = get_available_locales();
@@ -466,7 +466,7 @@ class Admin extends BaseController
             return $this->forbiddenResponse('string');
         }
         $businessContractModel = new BusinessContractModel();
-        $businessId            = $session->business['id'];
+        $businessId            = $session->business['business_id'];
         $unpaidContract        = $businessContractModel->select('business_contract.*, package_name')
             ->join('otternaut_package', 'otternaut_package.id = business_contract.package_id')
             ->where('financial_status', 'PENDING')->where('business_id', $businessId)->first();
@@ -549,7 +549,7 @@ class Admin extends BaseController
             foreach ($fields as $field) {
                 $data[$field]     = $this->request->getPost($field);
             }
-            $data['business_id']      = $session->business['id'];
+            $data['business_id']      = $session->business['business_id'];
             $data['invoice_number']   = calculate_invoice_number();
             $data['invoiced_amount']  = $data['total_amount'];
             $data['discount_amount']  = 0;
@@ -635,7 +635,7 @@ class Admin extends BaseController
         $allLanguages  = get_available_locales('long');
         if ('new-branch' !== $branch_slug) {
             $branch = $branchModel
-                ->where('business_id', $session->business['id'])
+                ->where('business_id', $session->business['business_id'])
                 ->where('branch_slug', $branch_slug)->first();
             if (!$branch) {
                 return redirect('admin/business/branch');
@@ -719,7 +719,7 @@ class Admin extends BaseController
         if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
             return $this->forbiddenResponse('string');
         }
-        $businessId    = $session->business['id'];
+        $businessId    = $session->business['business_id'];
         $userId        = (int) $userId / ID_MASKED_PRIME;
         $userModel     = new UserMasterModel();
         $BusinessModel = new BusinessUserModel();
@@ -841,7 +841,7 @@ class Admin extends BaseController
         if (0 < $resourceTypeId) {
             $resourceType = $typeModel
                 ->where('id', $resourceTypeId)
-                ->where('business_id', $session->business['id'])
+                ->where('business_id', $session->business['business_id'])
                 ->first();
             if (empty($resourceType)) {
                 throw new PageNotFoundException(lang('Admin.pages.page-not-found'));
@@ -923,8 +923,8 @@ class Admin extends BaseController
                 throw new PageNotFoundException(lang('Admin.pages.page-not-found'));
             }
         }
-        $typesRaw      = $typeModel->where('business_id', $session->business['id'])->findAll();
-        $branchRaw     = $branchModel->where('business_id', $session->business['id'])->findAll();
+        $typesRaw      = $typeModel->where('business_id', $session->business['business_id'])->findAll();
+        $branchRaw     = $branchModel->where('business_id', $session->business['business_id'])->findAll();
         $types         = [];
         $branches      = [];
         $branchIds     = [];

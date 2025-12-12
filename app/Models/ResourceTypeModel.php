@@ -29,7 +29,7 @@ class ResourceTypeModel extends AppBaseModel
     public function getDataTable(): array
     {
         $session    = session();
-        $businessId = $session->business['id'];
+        $businessId = $session->business['business_id'];
         $data       = $this
             ->where('business_id', $businessId)
             ->orderBy('resource_type', 'ASC')

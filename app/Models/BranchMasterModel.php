@@ -33,7 +33,7 @@ class BranchMasterModel extends AppBaseModel
     public function getDataTable(): array
     {
         $session    = session();
-        $businessId = $session->business['id'];
+        $businessId = $session->business['business_id'];
         $branches   = $this->where('business_id', $businessId)
             ->orderBy('branch_name', 'ASC')
             ->find();
