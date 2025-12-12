@@ -61,5 +61,9 @@ return [
     ],
     'customer-management'       => [
         'privacy-policy' => 'Customer data is considered sensitive information. The customers have their rights to modify and/or delete their information at any given time.',
+    ],
+    'resource-management'      => [
+        'new-resource'         => 'New Resource',
+        'new-resource-type'    => 'New Resource Type',
     ]
 ];

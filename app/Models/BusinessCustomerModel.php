@@ -63,7 +63,7 @@ class BusinessCustomerModel extends AppBaseModel
             'customer_address.address_city',
             'customer_address.country_code',
         ];
-        $orderBy    = $columns[$orderBy];
+        $orderBy    = $columns[$orderBy] ?? $columns[0];
         $businessId = $session->business['id'];
         $total      = $this->where('business_id', $businessId)->countAllResults();
         $filtered   = $total;

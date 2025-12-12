@@ -13,6 +13,8 @@ use App\Models\BusinessMasterModel;
 use App\Models\BusinessTypeModel;
 use App\Models\BusinessUserModel;
 use App\Models\OtternautPackageModel;
+use App\Models\ResourceMasterModel;
+use App\Models\ResourceTypeModel;
 use App\Models\UserMasterModel;
 use CodeIgniter\Exceptions\PageNotFoundException;
 use CodeIgniter\HTTP\RedirectResponse;
@@ -765,6 +767,9 @@ class Admin extends BaseController
         return view('admin/business_customer', $data);
     }
 
+    /**
+     * @return ResponseInterface
+     */
     public function business_customer_post(): ResponseInterface
     {
         $session = session();
@@ -777,8 +782,8 @@ class Admin extends BaseController
         $search    = $this->request->getPost('search');
         $search    = $search['value'];
         $order     = $this->request->getPost('order');
-        $orderBy   = $order[0]['column'];
-        $orderDir  = $order[0]['dir'];
+        $orderBy   = $order[0]['column'] ?? 0;
+        $orderDir  = $order[0]['dir'] ?? 'asc';
         $custModel = new BusinessCustomerModel();
         $users     = $custModel->getDataTable($draw, $offset, $length, $search, $orderBy, $orderDir);
         return $this->response->setJSON($users);
@@ -802,6 +807,20 @@ class Admin extends BaseController
     }
 
     /**
+     * @return ResponseInterface
+     */
+    public function resource_type_post(): ResponseInterface
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('DataTable');
+        }
+        $typeModel = new ResourceTypeModel();
+        $types     = $typeModel->getDataTable();
+        return $this->response->setJSON($types);
+    }
+
+    /**
      * Manage resource
      * @return string
      */
@@ -816,6 +835,28 @@ class Admin extends BaseController
             'lang'           => $this->request->getLocale(),
         ];
         return view('admin/resource', $data);
+    }
+
+    /**
+     * @return ResponseInterface
+     */
+    public function resource_post(): ResponseInterface
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('DataTable');
+        }
+        $draw      = $this->request->getPost('draw');
+        $offset    = $this->request->getPost('start');
+        $length    = $this->request->getPost('length');
+        $search    = $this->request->getPost('search');
+        $search    = $search['value'];
+        $order     = $this->request->getPost('order');
+        $orderBy   = $order[0]['column'] ?? 0;
+        $orderDir  = $order[0]['dir'] ?? 'asc';
+        $typeModel = new ResourceMasterModel();
+        $types     = $typeModel->getDataTable($draw, $offset, $length, $search, $orderBy, $orderDir);
+        return $this->response->setJSON($types);
     }
 
     /**

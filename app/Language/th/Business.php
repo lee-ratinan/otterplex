@@ -61,5 +61,9 @@ return [
     ],
     'customer-management'       => [
         'privacy-policy' => 'ข้อมูลลูกค้าเป็นข้อมูลส่วนบุคคล ลูกค้ามีสิทธิที่จะแก้ไขหรือลบข้อมูลได้ทุกเมื่อ',
+    ],
+    'resource-management'      => [
+        'new-resource'         => 'ทรัพยากรใหม่',
+        'new-resource-type'    => 'ประเภททรัพยากรใหม่',
     ]
 ];

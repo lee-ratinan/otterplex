@@ -45,7 +45,9 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->post('business/customer', 'Admin::business_customer_post');
     // RESOURCE
     $routes->get('resource/type', 'Admin::resource_type');
+    $routes->post('resource/type', 'Admin::resource_type_post');
     $routes->get('resource', 'Admin::resource');
+    $routes->post('resource', 'Admin::resource_post');
     // ORDER
     $routes->get('order', 'Admin::order');
     // SERVICE
