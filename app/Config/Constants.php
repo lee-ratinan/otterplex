@@ -96,5 +96,7 @@ defined('DATE_FORMAT_UI')             || define('DATE_FORMAT_UI', 'd M Y');
 
 defined('ID_MASKED_PRIME')            || define('ID_MASKED_PRIME', 787);
 
+defined('DEFAULT_FREE_TRIAL')         || define('DEFAULT_FREE_TRIAL', '+30 days');
+
 defined('VERSION_NUMBER')             || define('VERSION_NUMBER', '0.9.1');
 defined('VERSION_RELEASED_DATE')      || define('VERSION_RELEASED_DATE', '7 November 2025');

@@ -928,7 +928,8 @@ if (!function_exists('get_country_codes')) {
                 ],
                 'TH' => [
                     'common_name'   => 'Thailand',
-                    'official_name' => 'the Kingdom of Thailand'
+                    'official_name' => 'the Kingdom of Thailand',
+                    'th'            => 'ประเทศไทย'
                 ],
                 'TL' => [
                     'common_name'   => 'Timor-Leste (East Timor)',
@@ -1503,7 +1504,26 @@ if (!function_exists('get_country_common_name')) {
     function get_country_common_name(string $country_code): string
     {
         $countries = get_country_codes();
+        $session   = session();
+        if (isset($countries['countries'][$country_code][$session->lang])) {
+            return $countries['countries'][$country_code][$session->lang];
+        }
         return $countries['countries'][$country_code]['common_name'] ?? $country_code;
+    }
+}
+if (!function_exists('get_available_countries')) {
+    /**
+     * Get countries already available in this system
+     * @return array
+     */
+    function get_available_countries(): array
+    {
+        $countries = ['TH'];
+        $final     = [];
+        foreach ($countries as $code) {
+            $final[$code] = get_country_common_name($code);
+        }
+        return $final;
     }
 }
 if (!function_exists('get_currency_codes')) {
@@ -2162,6 +2182,15 @@ if (!function_exists('get_currency_common_name')) {
     {
         $currencies = get_currency_codes();
         return $currencies[$currency_code]['currency_name'] ?? $currency_code;
+    }
+}
+if (!function_exists('get_available_currency_codes')) {
+    function get_available_currency_code_by_country(string $country_code): array
+    {
+        $codes = [
+            'TH' => ['THB']
+        ];
+        return $codes[$country_code] ?? [];
     }
 }
 if (!function_exists('get_tzdb')) {
@@ -3445,6 +3474,22 @@ if (!function_exists('get_available_locales')) {
             'en' => 'E',
             'th' => 'ท'
         ];
+    }
+}
+if (!function_exists('get_default_tax_settings_by_country')) {
+    /**
+     * @param string $country
+     * @return array
+     */
+    function get_default_tax_settings_by_country(string $country): array
+    {
+        $codes = [
+            'TH' => [
+                'tax_percentage' => '7.00',
+                'tax_inclusive'  => 'I'
+            ]
+        ];
+        return $codes[$country] ?? [];
     }
 }
 if (!function_exists('get_telephone_country_calling_code')) {

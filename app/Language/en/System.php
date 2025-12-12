@@ -25,6 +25,7 @@ return [
             'upload-failed'             => 'Sorry, the file failed to be uploaded.',
             'removed'                   => 'Sorry, the file failed to be removed.',
             'no-permission'             => 'You do not have permission to access this feature.',
+            'account-created-issue'     => 'Sorry, there was an error creating your account.',
         ],
         'success' => [
             'business-switched'     => 'You have successfully switched your business.',
@@ -32,7 +33,8 @@ return [
             'password-changed'      => 'Your password has been changed.',
             'uploaded'              => 'Your file has been uploaded.',
             'removed'               => 'Your file has been removed.',
-            'contract-renewal-done' => 'Your contract renewal has been recorded, please make a payment'
+            'contract-renewal-done' => 'Your contract renewal has been recorded, please make a payment',
+            'account-created'       => 'Your account has been created. Please check your email and activate your account before logging in.',
         ]
     ],
     'buttons'         => [
@@ -73,6 +75,10 @@ return [
             'username-empty-error'  => 'Please enter your username (email address).',
             'password'              => 'Password',
             'password-empty-error'  => 'Please enter your password.',
+            'confirm-password'      => 'Confirm password',
+            'business-name'         => 'Your business name',
+            'country-code'          => 'Country',
+            'country-code-note'     => 'You cannot change your country after your account is created.',
             'plan'                  => 'Select your plan',
             'plan-empty-error'      => 'Please select your plan.',
             'plan-options'          => [

@@ -2,12 +2,14 @@
 
 namespace App\Controllers;
 
+use App\Models\BusinessMasterModel;
 use App\Models\BusinessUserModel;
 use App\Models\LogActivityModel;
 use App\Models\UserMasterModel;
 use CodeIgniter\HTTP\RedirectResponse;
 use CodeIgniter\HTTP\ResponseInterface;
 use Config\Services;
+use Transliterator;
 
 class Home extends BaseController
 {
@@ -124,6 +126,7 @@ class Home extends BaseController
             $logModel->insertLogin($logData);
             // Successful login: regenerate session ID to prevent fixation
             $businesses      = $businessModel->getBusinessesByUserId($user['id'], true);
+            log_message('debug', '[SYSTEM] ' . json_encode($businesses));
             $businessIds     = [];
             $currentBusiness = [];
             if (!empty($businesses)) {
@@ -137,6 +140,10 @@ class Home extends BaseController
                     $currentBusiness = $businesses[0];
                 }
             }
+            $businessLogo = '';
+            if (!empty($currentBusiness['business_logo'])) {
+                $businessLogo = base_url('file/business_' . $currentBusiness['business_logo']);
+            }
             $session->regenerate();
             unset($user['password_hash']);
             $session->set([
@@ -147,7 +154,7 @@ class Home extends BaseController
                 'user_id'        => $user['id'],
                 'full_name'      => $user['user_name_first'] . ' ' . $user['user_name_last'],
                 'avatar'         => retrieve_avatars($user['email_address'], $user['user_name_first'] . ' ' . $user['user_name_last']),
-                'business_logo'  => base_url('file/business_' . $currentBusiness['business_logo']),
+                'business_logo'  => $businessLogo,
                 'user'           => $user,
                 'user_role'      => $currentBusiness['user_role'],
                 'business'       => $currentBusiness,
@@ -193,7 +200,7 @@ class Home extends BaseController
     public function create_account(): string
     {
         $data = [
-            'slug' => 'login',
+            'slug' => 'create-account',
             'lang' => $this->request->getLocale(),
         ];
         return view('home/create_account', $data);
@@ -205,7 +212,108 @@ class Home extends BaseController
      */
     public function create_account_post(): ResponseInterface
     {
-        return $this->response->setJSON([]);
+        $user_master_fields     = ['user_name_first', 'user_name_last', 'email_address', 'password'];
+        $business_master_fields = ['business_name', 'country_code'];
+        $user_master            = [];
+        $business_master        = [];
+        foreach ($user_master_fields as $field) {
+            $user_master[$field] = $this->request->getPost($field);
+        }
+        foreach ($business_master_fields as $field) {
+            $business_master[$field] = $this->request->getPost($field);
+        }
+        $userMasterModel     = new UserMasterModel();
+        $businessMasterModel = new BusinessMasterModel();
+        $businessUserModel   = new BusinessUserModel();
+        // Get the DB connection to manage the transaction
+        $db = \Config\Database::connect();
+        $db->transBegin(); // <<< START TRANSACTION
+        try {
+            $password                          = $user_master['password'];
+            unset($user_master['password']);
+            $user_master['password_hash']      = $userMasterModel->hash_password($password);
+            $user_master['password_expiry']    = date(DATE_FORMAT_DB, strtotime($userMasterModel::PASSWORD_EXPIRY));
+            $user_master['telephone_number']   = null;
+            $user_master['lang_code']          = $this->request->getLocale();
+            $user_master['account_status']     = $userMasterModel::ACCOUNT_STATUS_PENDING;
+            $user_master['user_gender']        = $userMasterModel::USER_GENDER_UNKNOWN;
+            $user_master['date_of_birth']      = null;
+            $user_master['nationality']        = null;
+            $user_master['profile_status_msg'] = null;
+            $user_master['user_type']          = $userMasterModel::USER_TYPE_CLIENT;
+            $userMasterModel->insert($user_master);
+            $userId                            = $userMasterModel->getInsertID();
+            if (!$userId) {
+                throw new \Exception(lang('System.response-msg.error.account-created-issue') . ' [USR-ERR]');
+            }
+            // SLUG
+            $transliterator = Transliterator::create('Any-Latin; Latin-ASCII; Lower()');
+            $slug = $transliterator->transliterate($business_master['business_name']);
+            $slug = strtolower($slug);
+            $slug = preg_replace('/[^a-z0-9]+/', '-', $slug);
+            $slug = preg_replace('/-+/', '-', $slug);
+            $slug = trim($slug, '-');
+            // LOCALES
+            $available_language_codes = get_available_locales();
+            $available_language_codes = array_keys($available_language_codes);
+            $local_names = [];
+            foreach ($available_language_codes as $code) {
+                $local_names[$code] = $business_master['business_name'];
+            }
+            // CURRENCIES AND TAX
+            $available_currencies = get_available_currency_code_by_country($business_master['country_code']);
+            $tax_default_settings = get_default_tax_settings_by_country($business_master['country_code']);
+            // CONTRACT
+            $free_trial_expiry    = date(DATE_FORMAT_DB, strtotime(DEFAULT_FREE_TRIAL));
+            // DATA
+            $business_master['business_type_id']      = 1; // DEFAULT
+            $business_master['business_slug']         = $slug;
+            $business_master['business_local_names']  = json_encode($local_names);
+            $business_master['currency_code']         = $available_currencies[0];
+            $business_master['tax_percentage']        = $tax_default_settings['tax_percentage'];
+            $business_master['tax_inclusive']         = $tax_default_settings['tax_inclusive'];
+            $business_master['mart_primary_color']    = '00AA00';
+            $business_master['mart_text_color']       = '000000';
+            $business_master['mart_background_color'] = 'FFFFFF';
+            $business_master['business_logo']         = null;
+            $business_master['contract_anchor_date']  = null;
+            $business_master['contract_expiry']       = $free_trial_expiry;
+            $businessMasterModel->insert($business_master);
+            $businessId = $businessMasterModel->getInsertID();
+            if (!$businessId) {
+                throw new \Exception(lang('System.response-msg.error.account-created-issue') . ' [BIZ-ERR]');
+            }
+            $business_user['business_id']         = $businessId;
+            $business_user['user_id']             = $userId;
+            $business_user['user_role']           = $businessUserModel::USER_ROLE_OWNER;
+            $business_user['role_status']         = $businessUserModel::ROLE_STATUS_ACTIVE;
+            $business_user['my_default_business'] = $businessUserModel::MY_DEFAULT_BUSINESS_YES;
+            $businessUserModel->insert($business_user);
+            $buId = $businessUserModel->getInsertID();
+            if (!$buId) {
+                throw new \Exception(lang('System.response-msg.error.account-created-issue') . ' [BIZUSR-ERR]');
+            }
+            if ($db->transStatus() === false) {
+                $db->transRollback(); // <<< ROLLBACK (Undoes changes from all Models)
+                return $this->response->setJSON([
+                    'status'  => STATUS_RESPONSE_ERR,
+                    'message' => lang('System.response-msg.error.account-created-issue')
+                ]);
+            }
+            // todo: send email for account activation
+            $db->transCommit(); // <<< COMMIT (Saves changes from all Models)
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_OK,
+                'message' => lang('System.response-msg.success.account-created')
+            ]);
+        } catch (\Exception $e) {
+            $db->transRollback(); // <<< ROLLBACK (Undoes changes from all Models)
+            log_message('error', $e->getMessage());
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => $e->getMessage()
+            ]);
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
