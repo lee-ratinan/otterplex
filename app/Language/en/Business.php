@@ -58,5 +58,8 @@ return [
         'generic-info'     => 'Generic Information',
         'link-to-business' => 'User Status in Business',
         'link-to-branches' => 'User Status in Branches'
+    ],
+    'customer-management'       => [
+        'privacy-policy' => 'Customer data is considered sensitive information. The customers have their rights to modify and/or delete their information at any given time.',
     ]
 ];
