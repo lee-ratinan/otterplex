@@ -297,10 +297,25 @@ class Home extends BaseController
                 $db->transRollback(); // <<< ROLLBACK (Undoes changes from all Models)
                 return $this->response->setJSON([
                     'status'  => STATUS_RESPONSE_ERR,
-                    'message' => lang('System.response-msg.error.account-created-issue')
+                    'message' => lang('System.response-msg.error.account-created-issue') . ' [UKNDB]'
                 ]);
             }
-            // todo: send email for account activation
+            // EMAIL
+            $exp     = strtotime('+5 minutes')*11;
+            $userTkn = $userId*37;
+            $token   = "$exp;$userTkn";
+            $tknLnk  = base_url('account-activation?token=' . $token);
+            $subject = lang('System.email.account-activation.subject');
+            $message = lang('System.email.account-activation.message', [$tknLnk, $tknLnk]);
+            $preheader = substr($message, 0, 50);
+            $reply_to  = getenv('SUPPORT_EMAIL');
+            if (!send_system_email($user_master['email_address'], $subject, $preheader, $message, $reply_to)) {
+                $db->transRollback(); // <<< ROLLBACK (Undoes changes from all Models)
+                return $this->response->setJSON([
+                    'status'  => STATUS_RESPONSE_ERR,
+                    'message' => lang('System.response-msg.error.account-created-issue') . ' [ACTEM]'
+                ]);
+            }
             $db->transCommit(); // <<< COMMIT (Saves changes from all Models)
             return $this->response->setJSON([
                 'status'  => STATUS_RESPONSE_OK,
