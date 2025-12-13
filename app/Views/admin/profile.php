@@ -2,70 +2,74 @@
 <?= $this->section('content') ?>
 <?php $session = session(); ?>
     <div class="row">
-        <div class="col-12 col-lg-10 col-xxl-8">
+        <div class="col">
             <div class="card">
                 <div class="card-body p-3">
-                    <div class="float-end avatar-4x">
-                        <?= $session->avatar ?>
-                    </div>
-                    <h2><i class="bi bi-lock"></i> <?= lang('Admin.profile.controlled-account-data') ?></h2>
                     <div class="row">
-                        <div class="col-12"><p><small><?= lang('UserMaster.field.email_address') ?></small><br><?= $session->user['email_address'] ?></p></div>
-                        <div class="col-6"><p><small><?= lang('UserMaster.field.user_name_first') ?></small><br><?= $session->user['user_name_first'] ?></p></div>
-                        <div class="col-6"><p><small><?= lang('UserMaster.field.user_name_last') ?></small><br><?= $session->user['user_name_last'] ?></p></div>
-                        <div class="col-6"><p><small><?= lang('UserMaster.field.password_expiry') ?></small><br><?= format_date($session->user['password_expiry']) ?></p></div>
-                        <div class="col-6"><p><small><?= lang('UserMaster.field.account_status') ?></small><br><?= lang('UserMaster.enum.account_status.' . $session->user['account_status']) ?></p></div>
-                    </div>
-                    <hr class="my-3"/>
-                    <!-- PROFILE DATA -->
-                    <h2><i class="bi bi-person-badge"></i> <?= lang('Admin.profile.profile-data') ?></h2>
-                    <?php
-                    echo build_form_input('telephone_number', lang('UserMaster.field.telephone_number'), ['type' => 'tel'], $session->user['telephone_number']);
-                    $lang_options = get_available_locales('long');
-                    echo build_form_input('lang_code', lang('UserMaster.field.lang_code'), ['type' => 'select', 'required' => 'true'], $session->user['lang_code'], '', $lang_options);
-                    echo build_form_input('user_gender', lang('UserMaster.field.user_gender'), ['type' => 'select'], $session->user['user_gender'], '', lang('UserMaster.enum.user_gender'));
-                    echo build_form_input('user_date_of_birth', lang('UserMaster.field.user_date_of_birth'), ['type' => 'date'], $session->user['user_date_of_birth']);
-                    $country_options = array_map(function ($names) {
-                        return $names['common_name'];
-                    }, get_country_codes()['countries']);
-                    echo build_form_input('user_nationality', lang('UserMaster.field.user_nationality'), ['type' => 'select'], $session->user['user_nationality'], '', $country_options);
-                    echo build_form_input('profile_status_msg', lang('UserMaster.field.profile_status_msg'), ['type' => 'text'], $session->user['profile_status_msg']);
-                    ?>
-                    <div class="text-end">
-                        <button id="btn-save-changes" type="submit" class="btn btn-primary"><i class="bi bi-floppy"></i> <?= lang('System.buttons.save') ?></button>
-                    </div>
-                    <hr class="my-3"/>
-                    <!-- UPLOAD AVATAR -->
-                    <h2><i class="bi bi-cloud-arrow-up"></i> <?= lang('Admin.profile.upload-avatar') ?></h2>
-                    <form id="form-upload-avatar" action="<?= base_url('/admin/profile') ?>" method="post" enctype="multipart/form-data">
-                        <input type="hidden" name="script_action" value="upload_avatar"/>
-                        <input type="file" id="avatar" name="avatar" class="form-control my-3"/>
-                        <p class="small"><?= lang('Admin.profile.upload-explanation') ?></p>
-                        <div class="text-end">
-                            <button id="btn-upload-avatar" type="submit" class="btn btn-primary"><i class="bi bi-cloud-arrow-up"></i> <?= lang('System.buttons.upload') ?></button>
-                            <button id="btn-remove-avatar" type="button" class="btn btn-outline-danger"><i class="bi bi-trash"></i> <?= lang('System.buttons.remove') ?></button>
-                            <button id="btn-remove-avatar-confirm" type="button" class="btn btn-outline-danger" style="display:none"><i class="bi bi-exclamation-triangle"></i> <?= lang('System.buttons.remove-confirm') ?></button>
+                        <div class="col col-lg-6">
+                            <div class="float-end avatar-4x">
+                                <?= $session->avatar ?>
+                            </div>
+                            <h2><i class="bi bi-lock"></i> <?= lang('Admin.profile.controlled-account-data') ?></h2>
+                            <div class="row">
+                                <div class="col-12"><p><small><?= lang('UserMaster.field.email_address') ?></small><br><?= $session->user['email_address'] ?></p></div>
+                                <div class="col-6"><p><small><?= lang('UserMaster.field.user_name_first') ?></small><br><?= $session->user['user_name_first'] ?></p></div>
+                                <div class="col-6"><p><small><?= lang('UserMaster.field.user_name_last') ?></small><br><?= $session->user['user_name_last'] ?></p></div>
+                                <div class="col-6"><p><small><?= lang('UserMaster.field.password_expiry') ?></small><br><?= format_date($session->user['password_expiry']) ?></p></div>
+                                <div class="col-6"><p><small><?= lang('UserMaster.field.account_status') ?></small><br><?= lang('UserMaster.enum.account_status.' . $session->user['account_status']) ?></p></div>
+                            </div>
+                            <hr class="my-3"/>
+                            <!-- PROFILE DATA -->
+                            <h2><i class="bi bi-person-badge"></i> <?= lang('Admin.profile.profile-data') ?></h2>
+                            <?php
+                            echo build_form_input('telephone_number', lang('UserMaster.field.telephone_number'), ['type' => 'tel'], $session->user['telephone_number']);
+                            $lang_options = get_available_locales('long');
+                            echo build_form_input('lang_code', lang('UserMaster.field.lang_code'), ['type' => 'select', 'required' => 'true'], $session->user['lang_code'], '', $lang_options);
+                            echo build_form_input('user_gender', lang('UserMaster.field.user_gender'), ['type' => 'select'], $session->user['user_gender'], '', lang('UserMaster.enum.user_gender'));
+                            echo build_form_input('user_date_of_birth', lang('UserMaster.field.user_date_of_birth'), ['type' => 'date'], $session->user['user_date_of_birth']);
+                            $country_options = array_map(function ($names) {
+                                return $names['common_name'];
+                            }, get_country_codes()['countries']);
+                            echo build_form_input('user_nationality', lang('UserMaster.field.user_nationality'), ['type' => 'select'], $session->user['user_nationality'], '', $country_options);
+                            echo build_form_input('profile_status_msg', lang('UserMaster.field.profile_status_msg'), ['type' => 'text'], $session->user['profile_status_msg']);
+                            ?>
+                            <div class="text-end">
+                                <button id="btn-save-changes" type="submit" class="btn btn-primary"><?= lang('System.buttons.save') ?></button>
+                            </div>
+                            <hr class="my-3"/>
+                            <!-- UPLOAD AVATAR -->
+                            <h2><i class="bi bi-cloud-arrow-up"></i> <?= lang('Admin.profile.upload-avatar') ?></h2>
+                            <form id="form-upload-avatar" action="<?= base_url('/admin/profile') ?>" method="post" enctype="multipart/form-data">
+                                <input type="hidden" name="script_action" value="upload_avatar"/>
+                                <input type="file" id="avatar" name="avatar" class="form-control my-3"/>
+                                <p class="small"><?= lang('Admin.profile.upload-explanation') ?></p>
+                                <div class="text-end">
+                                    <button id="btn-upload-avatar" type="submit" class="btn btn-primary"><?= lang('System.buttons.upload') ?></button>
+                                    <button id="btn-remove-avatar" type="button" class="btn btn-outline-danger"><?= lang('System.buttons.remove') ?></button>
+                                    <button id="btn-remove-avatar-confirm" type="button" class="btn btn-outline-danger" style="display:none"><?= lang('System.buttons.remove-confirm') ?></button>
+                                </div>
+                            </form>
+                            <hr class="my-3"/>
+                            <!-- CHANGE PASSWORD -->
+                            <h2><i class="bi bi-lock"></i> <?= lang('Admin.profile.change-password') ?></h2>
+                            <form>
+                                <?php
+                                echo build_form_input('current_password', lang('UserMaster.field.current_password'), ['type' => 'password', 'required'  => 'true', 'minlength' => '8', 'maxlength' => '32', 'autocomplete' => 'off']);
+                                echo build_form_input('new_password', lang('UserMaster.field.new_password'), ['type' => 'password', 'required'  => 'true', 'minlength' => '8', 'maxlength' => '32', 'autocomplete' => 'off']);
+                                echo build_form_input('confirm_password', lang('UserMaster.field.confirm_password'), ['type' => 'password', 'required'  => 'true', 'minlength' => '8', 'maxlength' => '32', 'autocomplete' => 'off']);
+                                ?>
+                            </form>
+                            <p class="small">
+                                <?= lang('Admin.profile.new-password-requirement.title') ?><br>
+                                <?php for ($i = 1; $i <= 8; $i++) : ?>
+                                    <i class="bi <?= (5 < $i ? 'password-strength-circle-invert bi-check-circle-fill text-success' : 'password-strength-circle bi-x-circle-fill text-danger') ?>" id="password-requirement-item-<?= $i ?>"></i> <?= lang('Admin.profile.new-password-requirement.item-' . $i) ?><br>
+                                <?php endfor; ?>
+                                <label><input type="hidden" id="password-strength-count" name="password-strength-count" value="0" /></label>
+                            </p>
+                            <div class="text-end">
+                                <button id="btn-change-password" type="submit" class="btn btn-primary"><i class="bi bi-lock"></i>  <?= lang('Admin.profile.change-password') ?></button>
+                            </div>
                         </div>
-                    </form>
-                    <hr class="my-3"/>
-                    <!-- CHANGE PASSWORD -->
-                    <h2><i class="bi bi-lock"></i> <?= lang('Admin.profile.change-password') ?></h2>
-                    <form>
-                        <?php
-                        echo build_form_input('current_password', lang('UserMaster.field.current_password'), ['type' => 'password', 'required'  => 'true', 'minlength' => '8', 'maxlength' => '32', 'autocomplete' => 'off']);
-                        echo build_form_input('new_password', lang('UserMaster.field.new_password'), ['type' => 'password', 'required'  => 'true', 'minlength' => '8', 'maxlength' => '32', 'autocomplete' => 'off']);
-                        echo build_form_input('confirm_password', lang('UserMaster.field.confirm_password'), ['type' => 'password', 'required'  => 'true', 'minlength' => '8', 'maxlength' => '32', 'autocomplete' => 'off']);
-                        ?>
-                    </form>
-                    <p class="small">
-                        <?= lang('Admin.profile.new-password-requirement.title') ?><br>
-                        <?php for ($i = 1; $i <= 8; $i++) : ?>
-                            <i class="bi <?= (5 < $i ? 'password-strength-circle-invert bi-check-circle-fill text-success' : 'password-strength-circle bi-x-circle-fill text-danger') ?>" id="password-requirement-item-<?= $i ?>"></i> <?= lang('Admin.profile.new-password-requirement.item-' . $i) ?><br>
-                        <?php endfor; ?>
-                        <label><input type="hidden" id="password-strength-count" name="password-strength-count" value="0" /></label>
-                    </p>
-                    <div class="text-end">
-                        <button id="btn-change-password" type="submit" class="btn btn-primary"><i class="bi bi-lock"></i>  <?= lang('Admin.profile.change-password') ?></button>
                     </div>
                 </div>
                 <label for="script_action"><input type="hidden" name="script_action" id="script_action" value="" /></label>

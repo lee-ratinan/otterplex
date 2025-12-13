@@ -18,13 +18,17 @@ return [
         'review'                    => 'Review',
         'discount'                  => 'Discount',
         'resource'                  => 'Resource',
+        'resource-manage'           => 'Resource Manager',
         'resource-type'             => 'Resource Type',
+        'resource-type-manage'      => 'Resource Type Manager',
         'blog'                      => 'Blog',
         'blog-category'             => 'Blog Category',
         'business'                  => 'Business',
         'business-contract-renewal' => 'Business Contract Renewal',
         'business-branch'           => 'Branch',
+        'business-branch-manage'    => 'Branch Manager',
         'business-user'             => 'Staff',
+        'business-user-manage'      => 'Staff Manager',
         'business-customer'         => 'Customer'
     ],
     'dashboard'     => [
@@ -36,6 +40,7 @@ return [
     'my-businesses' => [
         'title'        => 'All My Businesses',
         'you-are-here' => '<i class="bi bi-geo-alt"></i> You are here',
+        'new-business' => 'New Business',
         'btn'          => [
             'manage'    => '<i class="bi bi-gear"></i> Manage this Business',
             'switch-to' => '<i class="bi bi-toggle2-on"></i> Switch to this Business',

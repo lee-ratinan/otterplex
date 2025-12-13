@@ -88,6 +88,16 @@ class UserMasterModel extends AppBaseModel
     ];
 
     /**
+     * Hash password
+     * @param string $password
+     * @return string
+     */
+    public function hash_password(string $password): string
+    {
+        return password_hash($password, PASSWORD_DEFAULT, $this->password_options);
+    }
+
+    /**
      * Get configurations for generating forms
      * @return array
      */

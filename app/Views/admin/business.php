@@ -7,7 +7,7 @@
                 <div class="card-body p-3">
                     <h2><?= lang('Business.title', [$business['business_local_names'][$lang] ?? $business['business_name']]) ?></h2>
                     <div class="row">
-                        <div class="col-12 col-md-6">
+                        <div class="col-12 col-lg-6">
                             <?php
                             echo '<h3>' . lang('Business.subtitle.generic-information') . '</h3>';
                             echo build_form_input('business_type_id', lang('BusinessMaster.field.business_type_id'), [
@@ -68,9 +68,9 @@
                                 <input type="file" id="logo" name="logo" class="form-control my-3"/>
                                 <p class="small"><?= lang('Business.upload-explanation') ?></p>
                                 <div class="text-end">
-                                    <button id="btn-upload-logo" type="submit" class="btn btn-primary"><i class="bi bi-cloud-arrow-up"></i> <?= lang('System.buttons.upload') ?></button>
-                                    <button id="btn-remove-logo" type="button" class="btn btn-outline-danger"><i class="bi bi-trash"></i> <?= lang('System.buttons.remove') ?></button>
-                                    <button id="btn-remove-logo-confirm" type="button" class="btn btn-outline-danger" style="display:none"><i class="bi bi-exclamation-triangle"></i> <?= lang('System.buttons.remove-confirm') ?></button>
+                                    <button id="btn-upload-logo" type="submit" class="btn btn-primary"><?= lang('System.buttons.upload') ?></button>
+                                    <button id="btn-remove-logo" type="button" class="btn btn-outline-danger"><?= lang('System.buttons.remove') ?></button>
+                                    <button id="btn-remove-logo-confirm" type="button" class="btn btn-outline-danger" style="display:none"><?= lang('System.buttons.remove-confirm') ?></button>
                                 </div>
                             </form>
                         </div>

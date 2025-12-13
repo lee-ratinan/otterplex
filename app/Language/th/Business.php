@@ -29,5 +29,41 @@ return [
         'how-to-pay'         => 'วิธีการชำระเงิน',
         'pay-by-credit-card' => 'ชำระโดยบัตรเครดิต',
         'pay-by-qr-thailand' => 'ชำระโดยการสแกน QR (พร้อมเพย์)',
+    ],
+    'branch-management'        => [
+        'new-branch'          => 'สาขาใหม่',
+        'generic-title'       => 'ข้อมูลสาขาเปิดใหม่',
+        'generic-information' => 'ข้อมูลทั่วไป',
+        'opening-hours'       => 'เวลาเปิดทำการ',
+        'modified-hours'      => 'การเปลี่ยนแปลงเวลาเปิดทำการ',
+        'modified-hours-new'  => 'เพิ่มวันที่มีการเปลี่ยนแปลง',
+        'hours'               => [
+            'day'    => 'วัน',
+            'opens'  => 'เวลาเปิด',
+            'closes' => 'เวลาปิด',
+        ],
+        'days'                => [
+            'M'  => 'วันจันทร์',
+            'T'  => 'วันอังคาร',
+            'W'  => 'วันพุธ',
+            'TH' => 'วันพฤหัสบดี',
+            'F'  => 'วันศุกร์',
+            'S'  => 'วันเสาร์',
+            'SU' => 'วันอาทิตย์',
+        ]
+    ],
+    'user-management'          => [
+        'new-user'         => 'พนักงานใหม่',
+        'new-user-info'    => 'ข้อมูลพนักงานใหม่',
+        'generic-info'     => 'ข้อมูลทั่วไป',
+        'link-to-business' => 'สถานะของผู้ใช้ในธุรกิจ',
+        'link-to-branches' => 'สถานะของผู้ใช้ในสาขา'
+    ],
+    'customer-management'       => [
+        'privacy-policy' => 'ข้อมูลลูกค้าเป็นข้อมูลส่วนบุคคล ลูกค้ามีสิทธิที่จะแก้ไขหรือลบข้อมูลได้ทุกเมื่อ',
+    ],
+    'resource-management'      => [
+        'new-resource'         => 'ทรัพยากรใหม่',
+        'new-resource-type'    => 'ประเภททรัพยากรใหม่',
     ]
 ];

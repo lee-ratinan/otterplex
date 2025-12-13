@@ -6,7 +6,7 @@ return [
         'subdivision_code'   => 'ที่ตั้ง',
         'branch_name'        => 'ชื่อสาขา',
         'branch_slug'        => 'รหัสสาขา',
-        'branch_local_names' => 'ชืื่อสาขาในภาษาอื่น',
+        'branch_local_names' => 'ชื่อสาขาในภาษาอื่น',
         'timezone_code'      => 'โซนเวลา',
         'branch_type'        => 'ประเภทสาขา',
         'branch_address'     => 'ที่อยู่',

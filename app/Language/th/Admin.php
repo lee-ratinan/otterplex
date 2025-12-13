@@ -18,13 +18,17 @@ return [
         'review'                    => 'รีวิว',
         'discount'                  => 'ส่วนลด',
         'resource'                  => 'ทรัพยากร',
+        'resource-manage'           => 'การจัดการทรัพยากร',
         'resource-type'             => 'ประเภททรัพยากร',
+        'resource-type-manage'      => 'การจัดการประเภททรัพยากร',
         'blog'                      => 'บล็อก',
         'blog-category'             => 'ประเภทบล็อก',
         'business'                  => 'ธุรกิจ',
         'business-contract-renewal' => 'ต่ออายุสัญญาธุรกิจ',
         'business-branch'           => 'สาขา',
+        'business-branch-manage'    => 'การจัดการสาขา',
         'business-user'             => 'พนักงาน',
+        'business-user-manage'      => 'การจัดการพนักงาน',
         'business-customer'         => 'ลูกค้า'
     ],
     'dashboard'     => [
@@ -36,6 +40,7 @@ return [
     'my-businesses' => [
         'title'        => 'ธุรกิจทั้งหมดของฉัน',
         'you-are-here' => '<i class="bi bi-geo-alt"></i> คุณอยู่ที่นี่',
+        'new-business' => 'เพิ่มธุรกิจใหม่',
         'btn'          => [
             'manage'    => '<i class="bi bi-gear"></i> จัดการธุรกิจนี้',
             'switch-to' => '<i class="bi bi-toggle2-on"></i> เปลี่ยนไปธุรกิจนี้',

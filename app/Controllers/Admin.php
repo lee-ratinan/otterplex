@@ -3,16 +3,25 @@
 namespace App\Controllers;
 
 use App\Models\BranchMasterModel;
+use App\Models\BranchModifiedHoursModel;
+use App\Models\BranchOpeningHoursModel;
+use App\Models\BranchUserModel;
 use App\Models\BusinessContractModel;
 use App\Models\BusinessContractPaymentModel;
+use App\Models\BusinessCustomerModel;
 use App\Models\BusinessMasterModel;
 use App\Models\BusinessTypeModel;
 use App\Models\BusinessUserModel;
 use App\Models\OtternautPackageModel;
+use App\Models\ResourceMasterModel;
+use App\Models\ResourceTypeModel;
 use App\Models\UserMasterModel;
+use CodeIgniter\Exceptions\PageNotFoundException;
+use CodeIgniter\HTTP\RedirectResponse;
 use CodeIgniter\HTTP\ResponseInterface;
 use DateMalformedStringException;
 use DateTime;
+use function PHPUnit\Framework\throwException;
 
 class Admin extends BaseController
 {
@@ -275,7 +284,7 @@ class Admin extends BaseController
         $businessMasterModel  = new BusinessMasterModel();
         $businessTypeModel    = new BusinessTypeModel();
         $contractModel        = new BusinessContractModel();
-        $businessId           = $session->business['id'];
+        $businessId           = $session->business['business_id'];
         $business             = $businessMasterModel->find($businessId);
         $businessTypes        = $businessTypeModel->retrieveData();
         $contracts            = $contractModel->retrieveDataByBusinessId($businessId);
@@ -312,7 +321,7 @@ class Admin extends BaseController
         }
         try {
             $session             = session();
-            $businessId          = $session->business['id'];
+            $businessId          = $session->business['business_id'];
             $businessMasterModel = new BusinessMasterModel();
             $script_action       = $this->request->getPost('script_action');
             $available_lang      = get_available_locales();
@@ -405,7 +414,8 @@ class Admin extends BaseController
                 $final = imagecreatetruecolor($targetW, $targetH);
                 imagecopyresampled($final, $scaled, 0, 0, $cropX, $cropY, $targetW, $targetH, $targetW, $targetH);
                 imagejpeg($final, WRITEPATH . 'uploads/business_logos/' . $file_name, 90);
-                // Update Database
+                // Update database & session
+                $session->set('business_logo', base_url('file/business_' . $file_name));
                 $businessMasterModel->update($businessId, ['business_logo' => $file_name]);
                 // --- Cleanup ---
                 imagedestroy($source);
@@ -419,9 +429,10 @@ class Admin extends BaseController
                 $business      = $businessMasterModel->find($businessId);
                 $file_name     = $business['business_logo'];
                 $file_path     = WRITEPATH . 'uploads/business_logos/' . $file_name;
-                if (file_exists($file_path)) {
+                if (!empty($file_name) && file_exists($file_path)) {
                     if (unlink($file_path)) {
-                        // Update Database
+                        // Update database & session
+                        $session->set('business_logo', '');
                         $businessMasterModel->update($businessId, ['business_logo' => null]);
                         return $this->response->setJSON([
                             'status'  => STATUS_RESPONSE_OK,
@@ -455,7 +466,7 @@ class Admin extends BaseController
             return $this->forbiddenResponse('string');
         }
         $businessContractModel = new BusinessContractModel();
-        $businessId            = $session->business['id'];
+        $businessId            = $session->business['business_id'];
         $unpaidContract        = $businessContractModel->select('business_contract.*, package_name')
             ->join('otternaut_package', 'otternaut_package.id = business_contract.package_id')
             ->where('financial_status', 'PENDING')->where('business_id', $businessId)->first();
@@ -538,7 +549,7 @@ class Admin extends BaseController
             foreach ($fields as $field) {
                 $data[$field]     = $this->request->getPost($field);
             }
-            $data['business_id']      = $session->business['id'];
+            $data['business_id']      = $session->business['business_id'];
             $data['invoice_number']   = calculate_invoice_number();
             $data['invoiced_amount']  = $data['total_amount'];
             $data['discount_amount']  = 0;
@@ -591,11 +602,79 @@ class Admin extends BaseController
             return $this->forbiddenResponse('DataTable');
         }
         $branchModel = new BranchMasterModel();
-        $draw        = $this->request->getPost('draw');
-        $start       = $this->request->getPost('start');
-        $length      = $this->request->getPost('length');
-        $branches    = $branchModel->getDataTable($draw, $start, $length);
+        $branches    = $branchModel->getDataTable();
         return $this->response->setJSON($branches);
+    }
+
+    /**
+     * Manage branch
+     * @param string $branch_slug
+     * @return RedirectResponse|string
+     */
+    public function business_branch_manage(string $branch_slug): RedirectResponse|string
+    {
+        $session       = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('string');
+        }
+        $branchModel   = new BranchMasterModel();
+        $hoursModel    = new BranchOpeningHoursModel();
+        $modifiedModel = new BranchModifiedHoursModel();
+        $mode          = 'new';
+        $branch        = [];
+        $hours         = [
+            'M'  => [0, null, null],
+            'T'  => [0, null, null],
+            'W'  => [0, null, null],
+            'TH' => [0, null, null],
+            'F'  => [0, null, null],
+            'S'  => [0, null, null],
+            'SU' => [0, null, null],
+        ];
+        $modified      = [];
+        $allLanguages  = get_available_locales('long');
+        if ('new-branch' !== $branch_slug) {
+            $branch = $branchModel
+                ->where('business_id', $session->business['business_id'])
+                ->where('branch_slug', $branch_slug)->first();
+            if (!$branch) {
+                return redirect('admin/business/branch');
+            }
+            $branch['branch_local_names'] = json_decode($branch['branch_local_names'], true);
+            // OTHER INFO
+            $yesterday = date('Y-m-d', strtotime('-1 day'));
+            $hour_raw  = $hoursModel->where('branch_id', $branch['id'])->findAll();
+            $modified  = $modifiedModel
+                ->where('branch_id', $branch['id'])
+                ->where('modified_hours_date >=', $yesterday)
+                ->orderBy('modified_hours_date', 'ASC')->findAll();
+            foreach ($hour_raw as $hour) {
+                $hours[$hour['day_of_the_week']] = [$hour['id'], $hour['opening_hours'], $hour['closing_hours']];
+            }
+            // FIX MODE
+            $mode      = 'edit';
+        }
+        // OPTIONS
+        $subdivisions = get_country_codes()['subdivisions'][$session->business['country_code']];
+        $timezones    = get_tzdb_by_country($session->business['country_code']);
+        $data         = [
+            'slug'          => 'business-branch-manage',
+            'lang'          => $this->request->getLocale(),
+            'branch'        => $branch,
+            'mode'          => $mode,
+            'hours'         => $hours,
+            'modified'      => $modified,
+            'subdivisions'  => $subdivisions,
+            'all_languages' => $allLanguages,
+            'timezones'     => $timezones,
+            'breadcrumb'    => [
+                [
+                    'url'        => base_url('admin/business/branch'),
+                    'page_title' => lang('Admin.pages.business-branch'),
+                ]
+            ]
+        ];
+        return view('admin/business_branch_manage', $data);
     }
 
     /**
@@ -616,6 +695,66 @@ class Admin extends BaseController
     }
 
     /**
+     * Get users in the business
+     * @return ResponseInterface
+     */
+    public function business_user_post(): ResponseInterface
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('DataTable');
+        }
+        $staffModel = new BusinessUserModel();
+        $users      = $staffModel->getDataTable();
+        return $this->response->setJSON($users);
+    }
+
+    /**
+     * @param int $userId
+     * @return string
+     */
+    public function business_user_manage(int $userId): string
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('string');
+        }
+        $businessId    = $session->business['business_id'];
+        $userId        = (int) $userId / ID_MASKED_PRIME;
+        $userModel     = new UserMasterModel();
+        $BusinessModel = new BusinessUserModel();
+        $BranchModel   = new BranchUserModel();
+        $mode          = 'new';
+        $user          = [];
+        $businessUser  = [];
+        $branchUser    = [];
+        if (0 < $userId) {
+            $mode         = 'edit';
+            $user         = $userModel->find($userId);
+            if (!empty($user)) {
+                $businessUser = $BusinessModel->where('user_id', $userId)->where('business_id', $businessId)->findAll();
+                $branchUser   = $BranchModel->getUserByBusinessId($userId, $businessId);
+            } else {
+                throw new PageNotFoundException(lang('Admin.pages.page-not-found'));
+            }
+        }
+        $data = [
+            'slug'         => 'business-user-manage',
+            'lang'         => $this->request->getLocale(),
+            'mode'         => $mode,
+            'user'         => $user,
+            'businessUser' => $businessUser,
+            'branchUser'   => $branchUser,
+            'breadcrumb'   => [
+                [
+                    'url'        => base_url('admin/business/user'),
+                    'page_title' => lang('Admin.pages.business-user'),
+                ]
+            ]
+        ];
+        return view('admin/business_user_management', $data);
+    }
+    /**
      * Manage customer
      * @return string
      */
@@ -630,6 +769,28 @@ class Admin extends BaseController
             'lang'           => $this->request->getLocale(),
         ];
         return view('admin/business_customer', $data);
+    }
+
+    /**
+     * @return ResponseInterface
+     */
+    public function business_customer_post(): ResponseInterface
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('DataTable');
+        }
+        $draw      = $this->request->getPost('draw');
+        $offset    = $this->request->getPost('start');
+        $length    = $this->request->getPost('length');
+        $search    = $this->request->getPost('search');
+        $search    = $search['value'];
+        $order     = $this->request->getPost('order');
+        $orderBy   = $order[0]['column'] ?? 0;
+        $orderDir  = $order[0]['dir'] ?? 'asc';
+        $custModel = new BusinessCustomerModel();
+        $users     = $custModel->getDataTable($draw, $offset, $length, $search, $orderBy, $orderDir);
+        return $this->response->setJSON($users);
     }
 
     /**
@@ -650,6 +811,58 @@ class Admin extends BaseController
     }
 
     /**
+     * @return ResponseInterface
+     */
+    public function resource_type_post(): ResponseInterface
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('DataTable');
+        }
+        $typeModel = new ResourceTypeModel();
+        $types     = $typeModel->getDataTable();
+        return $this->response->setJSON($types);
+    }
+
+    /**
+     * Manage resource type manage
+     * @param int $resourceTypeId
+     * @return string
+     */
+    public function resource_type_manage(int $resourceTypeId): string
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('string');
+        }
+        $typeModel      = new ResourceTypeModel();
+        $resourceType   = [];
+        $resourceTypeId = $resourceTypeId / ID_MASKED_PRIME;
+        if (0 < $resourceTypeId) {
+            $resourceType = $typeModel
+                ->where('id', $resourceTypeId)
+                ->where('business_id', $session->business['business_id'])
+                ->first();
+            if (empty($resourceType)) {
+                throw new PageNotFoundException(lang('Admin.pages.page-not-found'));
+            }
+            $resourceType['resource_local_names'] = json_decode($resourceType['resource_local_names'], true);
+        }
+        $data           = [
+            'slug'         => 'resource-type-manage',
+            'lang'         => $this->request->getLocale(),
+            'resourceType' => $resourceType,
+            'breadcrumb'   => [
+                [
+                    'url'        => base_url('admin/resource/type'),
+                    'page_title' => lang('Admin.pages.resource-type'),
+                ]
+            ]
+        ];
+        return view('admin/resource_type_manage', $data);
+    }
+
+    /**
      * Manage resource
      * @return string
      */
@@ -664,6 +877,83 @@ class Admin extends BaseController
             'lang'           => $this->request->getLocale(),
         ];
         return view('admin/resource', $data);
+    }
+
+    /**
+     * @return ResponseInterface
+     */
+    public function resource_post(): ResponseInterface
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('DataTable');
+        }
+        $draw      = $this->request->getPost('draw');
+        $offset    = $this->request->getPost('start');
+        $length    = $this->request->getPost('length');
+        $search    = $this->request->getPost('search');
+        $search    = $search['value'];
+        $order     = $this->request->getPost('order');
+        $orderBy   = $order[0]['column'] ?? 0;
+        $orderDir  = $order[0]['dir'] ?? 'asc';
+        $typeModel = new ResourceMasterModel();
+        $types     = $typeModel->getDataTable($draw, $offset, $length, $search, $orderBy, $orderDir);
+        return $this->response->setJSON($types);
+    }
+
+    /**
+     * Manage resource manage
+     * @param int $resourceId
+     * @return string
+     */
+    public function resource_manage(int $resourceId): string
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('string');
+        }
+        $typeModel     = new ResourceTypeModel();
+        $resourceModel = new ResourceMasterModel();
+        $branchModel   = new BranchMasterModel();
+        $resource      = [];
+        $resourceId    = $resourceId / ID_MASKED_PRIME;
+        if (0 < $resourceId) {
+            $resource = $resourceModel->where('id', $resourceId)->first();
+            if (empty($resource)) {
+                throw new PageNotFoundException(lang('Admin.pages.page-not-found'));
+            }
+        }
+        $typesRaw      = $typeModel->where('business_id', $session->business['business_id'])->findAll();
+        $branchRaw     = $branchModel->where('business_id', $session->business['business_id'])->findAll();
+        $types         = [];
+        $branches      = [];
+        $branchIds     = [];
+        foreach ($typesRaw as $type) {
+            $local_names        = json_decode($type['resource_local_names'], true);
+            $types[$type['id']] = $local_names[$session->lang] ?? $type['resource_type'];
+        }
+        foreach ($branchRaw as $branch) {
+            $local_names             = json_decode($branch['branch_local_names'], true);
+            $branches[$branch['id']] = $local_names[$session->lang] ?? $branch['branch_name'];
+            $branchIds[]             = $branch['id'];
+        }
+        if (!empty($resource) && !in_array($resource['branch_id'], $branchIds)) {
+            throw new PageNotFoundException(lang('Admin.pages.page-not-found'));
+        }
+        $data     = [
+            'slug'       => 'resource-manage',
+            'lang'       => $this->request->getLocale(),
+            'resource'   => $resource,
+            'types'      => $types,
+            'branches'   => $branches,
+            'breadcrumb' => [
+                [
+                    'url'        => base_url('admin/resource'),
+                    'page_title' => lang('Admin.pages.resource'),
+                ]
+            ]
+        ];
+        return view('admin/resource_manage', $data);
     }
 
     /**

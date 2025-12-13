@@ -1,16 +1,17 @@
 <?php
 return [
-    'site-name'       => 'OtterNova System',
-    'copyrights'      => 'Copyrights &copy; 2025-{0} <b>OtterNova</b> All rights reserved.',
-    'change-language' => 'Change Language',
-    'go-to-main-site' => 'Go to main site',
-    'pages'           => [
-        'login'           => 'Login',
-        'create-account'  => 'Create an Account',
-        'forgot-password' => 'Forgot Password',
-        'reset-password'  => 'Reset Password',
+    'site-name'          => 'OtterNova System',
+    'copyrights'         => 'Copyrights &copy; 2025-{0} <b>OtterNova</b> All rights reserved.',
+    'change-language'    => 'Change Language',
+    'go-to-main-site'    => 'Go to main site',
+    'pages'              => [
+        'login'              => 'Login',
+        'create-account'     => 'Create an Account',
+        'forgot-password'    => 'Forgot Password',
+        'reset-password'     => 'Reset Password',
+        'account-activation' => 'Account Activation',
     ],
-    'response-msg'    => [
+    'response-msg'       => [
         'error'   => [
             'generic'                   => 'Sorry, something went wrong. Please try again later.',
             'please-check-empty-field'  => 'Please check required field.',
@@ -25,6 +26,7 @@ return [
             'upload-failed'             => 'Sorry, the file failed to be uploaded.',
             'removed'                   => 'Sorry, the file failed to be removed.',
             'no-permission'             => 'You do not have permission to access this feature.',
+            'account-created-issue'     => 'Sorry, there was an error creating your account.',
         ],
         'success' => [
             'business-switched'     => 'You have successfully switched your business.',
@@ -32,26 +34,27 @@ return [
             'password-changed'      => 'Your password has been changed.',
             'uploaded'              => 'Your file has been uploaded.',
             'removed'               => 'Your file has been removed.',
-            'contract-renewal-done' => 'Your contract renewal has been recorded, please make a payment'
+            'contract-renewal-done' => 'Your contract renewal has been recorded, please make a payment',
+            'account-created'       => 'Your account has been created. Please check your email and activate your account before logging in.',
         ]
     ],
-    'buttons'         => [
-        'new'             => 'New',
-        'edit'            => 'Edit',
-        'save'            => 'Save',
-        'upload'          => 'Upload',
-        'remove'          => 'Remove',
-        'remove-confirm'  => 'Remove Confirmation',
+    'buttons'            => [
+        'new'             => '<i class="bi bi-plus-circle"></i> New',
+        'edit'            => '<i class="bi bi-pencil"></i> Edit',
+        'save'            => '<i class="bi bi-floppy"></i> Save',
+        'upload'          => '<i class="bi bi-cloud-upload"></i> Upload',
+        'remove'          => '<i class="bi bi-trash"></i> Remove',
+        'remove-confirm'  => '<i class="bi bi-exclamation-triangle"></i> Remove Confirmation',
         'switch-role'     => 'Switch Role',
         'switch-business' => 'Switch Business',
         'filter'          => 'Filter',
         'reset'           => 'Reset',
         'view-more'       => 'View More',
     ],
-    'generic-term'    => [
+    'generic-term'       => [
         'no-data' => 'No data'
     ],
-    'login'           => [
+    'login'              => [
         'title'             => 'Login',
         'instruction'       => 'Please login to your account.',
         'fields'            => [
@@ -62,7 +65,7 @@ return [
         ],
         'dont-have-account' => 'Don’t have an account?',
     ],
-    'create-account'  => [
+    'create-account'     => [
         'instruction'          => 'Enter your personal details to create account',
         'fields'               => [
             'full-name'             => 'Full name',
@@ -73,6 +76,10 @@ return [
             'username-empty-error'  => 'Please enter your username (email address).',
             'password'              => 'Password',
             'password-empty-error'  => 'Please enter your password.',
+            'confirm-password'      => 'Confirm password',
+            'business-name'         => 'Your business name',
+            'country-code'          => 'Country',
+            'country-code-note'     => 'You cannot change your country after your account is created.',
             'plan'                  => 'Select your plan',
             'plan-empty-error'      => 'Please select your plan.',
             'plan-options'          => [
@@ -86,14 +93,14 @@ return [
         ],
         'already-have-account' => 'Already have an account?',
     ],
-    'forgot-password' => [
+    'forgot-password'    => [
         'instruction'    => 'Please enter your email address and follow the instructions on how to reset your password.',
         'email-address'  => 'Email address',
         'submit'         => 'Reset Password',
         'submit-success' => 'Your reset password request has been received. Please check your email and click the link to reset your password within 5 minutes.',
         'submit-error'   => 'An error has occurred, please try again later.'
     ],
-    'reset-password'  => [
+    'reset-password'     => [
         'instruction'     => 'Please enter your new password',
         'fields'          => [
             'password'                     => 'New Password',
@@ -103,5 +110,24 @@ return [
         ],
         'change-password' => 'Change Password',
         'token-invalid'   => 'Your token is invalid or expired, please start over again.'
+    ],
+    'account-activation' => [
+        'success-message' => 'You account has been activated, you may proceed to login.',
+        'error-message'   => 'Sorry, something went wrong. Please contact OtterNova support team.',
+        'errors'          => [
+            'bad-token'  => 'Your token is invalid. [TKN]',
+            'expired'    => 'Your token is expired.',
+            'not-found'  => 'Your token is invalid. [UID]',
+            'wrong-hash' => 'Your token is invalid. [EML]'
+        ]
+    ],
+    'email'              => [
+        'footer-line'        => 'This email is autogenerated.',
+        'footer-privacy'     => 'Privacy Policy',
+        'footer-terms'       => 'Terms & Conditions',
+        'account-activation' => [
+            'subject' => 'OtterNova Account Activation',
+            'message' => 'Welcome to OtterNova! We are so delighted to serve you.<br><br>To continue setting up, please activate your OtterNova account by clicking: <a href="{0}" target="_blank">here</a> or use the following link:<br><br>{1}.',
+        ]
     ]
 ];

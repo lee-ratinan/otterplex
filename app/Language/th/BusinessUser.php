@@ -4,8 +4,8 @@ return [
         'id'                  => 'ไอดี',
         'business_id'         => 'ธุรกิจ',
         'user_id'             => 'ผู้ใช้',
-        'user_role'           => 'ตำแหน่ง',
-        'role_status'         => 'สถานะ',
+        'user_role'           => 'ตำแหน่งของพนักงาน',
+        'role_status'         => 'สถานะของตำแหน่ง',
         'my_default_business' => 'ธุรกิจเริ่มต้น',
     ],
     'enum'  => [

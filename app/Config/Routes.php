@@ -11,6 +11,7 @@ $routes->get('forgot-password', 'Home::forgot_password');
 $routes->get('reset-password/(:any)', 'Home::reset_password/$1');
 $routes->get('login', 'Home::login');
 $routes->get('logout', 'Home::logout');
+$routes->get('account-activation', 'Home::account_activation');
 $routes->get('/', 'Home::login');
 // Public APIs
 $routes->post('create-account', 'Home::create_account_post');
@@ -35,11 +36,23 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->post('business/contract-renewal', 'Admin::business_contract_renewal_post');
     $routes->get('business/branch', 'Admin::business_branch');
     $routes->post('business/branch', 'Admin::business_branch_post');
+    $routes->get('business/branch/new-branch', 'Admin::business_branch_manage/new-branch');
+    $routes->get('business/branch/(:any)', 'Admin::business_branch_manage/$1');
+    $routes->post('business/branch-manage', 'Admin::business_branch_manage_post');
     $routes->get('business/user', 'Admin::business_user');
+    $routes->post('business/user', 'Admin::business_user_post');
+    $routes->get('business/user/(:num)', 'Admin::business_user_manage/$1');
     $routes->get('business/customer', 'Admin::business_customer');
+    $routes->post('business/customer', 'Admin::business_customer_post');
     // RESOURCE
     $routes->get('resource/type', 'Admin::resource_type');
+    $routes->post('resource/type', 'Admin::resource_type_post');
+    $routes->get('resource/type/(:num)', 'Admin::resource_type_manage/$1');
+    $routes->post('resource/type-manage', 'Admin::resource_type_manage_post');
     $routes->get('resource', 'Admin::resource');
+    $routes->post('resource', 'Admin::resource_post');
+    $routes->get('resource/(:num)', 'Admin::resource_manage/$1');
+    $routes->post('resource/manage', 'Admin::resource_manage_post');
     // ORDER
     $routes->get('order', 'Admin::order');
     // SERVICE

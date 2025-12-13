@@ -22,10 +22,10 @@ return [
     ],
     'enum'  => [
         'account_status' => [
-            'A' => 'Active',
-            'P' => 'Pending',
-            'B' => 'Blocked',
-            'S' => 'Suspended'
+            'A' => '<i class="bi bi-check-circle-fill text-success"></i> Active',
+            'P' => '<i class="bi bi-question-circle text-warning"></i> Pending',
+            'B' => '<i class="bi bi-x-circle-fill text-danger"></i> Blocked',
+            'S' => '<i class="bi bi-x-circle-fill text-danger"></i> Suspended'
         ],
         'user_gender'    => [
             'M'  => 'Male',

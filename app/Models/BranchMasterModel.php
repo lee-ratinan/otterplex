@@ -28,18 +28,14 @@ class BranchMasterModel extends AppBaseModel
     protected $updatedField = 'updated_at';
 
     /**
-     * @param int $draw
-     * @param int $start
-     * @param int $length
      * @return array
      */
-    public function getDataTable(int $draw, int $start, int $length): array
+    public function getDataTable(): array
     {
         $session    = session();
-        $businessId = $session->business['id'];
-        $total      = $this->where('business_id', $businessId)->countAllResults();
+        $businessId = $session->business['business_id'];
         $branches   = $this->where('business_id', $businessId)
-            ->limit($length, $start)
+            ->orderBy('branch_name', 'ASC')
             ->find();
         $data       = [];
         // external data
@@ -49,17 +45,14 @@ class BranchMasterModel extends AppBaseModel
             $data[] = [
                 $subdivisions[$branch['subdivision_code']],
                 $branch['branch_name'],
-                get_tzdb($branch['timezone_code'])['label'],
+                get_tzdb_by_code($branch['timezone_code']),
                 lang('BranchMaster.enum.branch_type.' . $branch['branch_type']),
                 lang('BranchMaster.enum.branch_status.' . $branch['branch_status']),
-                '<a href="' . base_url('admin/business/branch/' . $branch['branch_slug']) . '">' . lang('System.buttons.view-more') . '</a>'
+                '<a class="btn btn-primary btn-sm float-end" href="' . base_url('admin/business/branch/' . $branch['branch_slug']) . '">' . lang('System.buttons.edit') . '</a>'
             ];
         }
         return [
-            'draw'            => $draw,
-            'recordsTotal'    => $total,
-            'recordsFiltered' => $total,
-            'data'            => $data,
+            'data' => $data,
         ];
     }
 }

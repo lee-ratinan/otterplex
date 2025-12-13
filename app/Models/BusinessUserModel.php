@@ -48,7 +48,7 @@ class BusinessUserModel extends AppBaseModel
             $this->where('business_master.business_slug', $business_slug);
         }
         $businesses = $this->select('business_user.*, business_master.business_type_id, business_master.business_name,
-                business_master.business_slug, business_master.business_local_names, business_master.country_code,
+                business_master.business_slug, business_master.business_local_names, business_master.country_code, business_master.business_logo,
                 business_master.currency_code, business_master.tax_percentage, business_master.tax_inclusive, business_master.contract_anchor_day, business_master.contract_expiry')
             ->join('business_master', 'business_master.id = business_user.business_id')
             ->where('user_id', $userId)
@@ -73,5 +73,50 @@ class BusinessUserModel extends AppBaseModel
             ->join('user_master', 'user_master.id = business_user.user_id')
             ->where('business_id', $businessId)
             ->findAll();
+    }
+
+    /**
+     * @return array
+     */
+    public function getDataTable(): array
+    {
+        $session    = session();
+        $businessId = $session->business['business_id'];
+        $allStaff   = $this->select('business_user.*, user_master.user_name_first, user_master.user_name_last, user_master.email_address, user_master.account_status')
+            ->join('user_master', 'user_master.id = business_user.user_id')
+            ->where('business_id', $businessId)
+            ->orderBy('user_name_last', 'ASC')
+            ->find();
+        $branchModel   = new BranchUserModel();
+        $inBranch      = $branchModel->getUsersByBusinessId($businessId);
+        $usersInBranch = [];
+        foreach ($inBranch as $row) {
+            $row['branch_local_names']        = json_decode($row['branch_local_names'], true);
+            $usersInBranch[$row['user_id']][] = $row;
+        }
+        $data       = [];
+        foreach ($allStaff as $staff) {
+            $branchData = [];
+            if (!empty($usersInBranch[$staff['user_id']])) {
+                $branchData = $usersInBranch[$staff['user_id']];
+            }
+            $branchList = '';
+            foreach ($branchData as $row) {
+                $branchName = $row['branch_local_names'][$session->lang] ?? $row['branch_name'];
+                $branchList .= $branchName . '<br>';
+            }
+            $data[]     = [
+                $staff['user_name_first'] . ' ' . $staff['user_name_last'],
+                $staff['email_address'],
+                lang('UserMaster.enum.account_status.' . $staff['account_status']),
+                lang('BusinessUser.enum.user_role.' . $staff['user_role']),
+                lang('BusinessUser.enum.role_status.' . $staff['role_status']),
+                $branchList,
+                '<a class="btn btn-primary btn-sm float-end" href="' . base_url('admin/business/user/' . (ID_MASKED_PRIME*$staff['user_id'])) . '">' . lang('System.buttons.edit') . '</a>'
+            ];
+        }
+        return [
+            'data' => $data
+        ];
     }
 }

@@ -1,5 +1,8 @@
 <?php
 
+defined('VERSIONING_NO') || define('VERSIONING_NO', '0.1.2');
+defined('VERSIONING_DT') || define('VERSIONING_DT', '2025-12-14');
+
 /*
  | --------------------------------------------------------------------
  | App Namespace
@@ -90,6 +93,10 @@ defined('DATETIME_FORMAT_DB')         || define('DATETIME_FORMAT_DB', 'Y-m-d H:i
 defined('DATE_FORMAT_DB')             || define('DATE_FORMAT_DB', 'Y-m-d');
 defined('DATETIME_FORMAT_UI')         || define('DATETIME_FORMAT_UI', 'd M Y h:i A');
 defined('DATE_FORMAT_UI')             || define('DATE_FORMAT_UI', 'd M Y');
+
+defined('ID_MASKED_PRIME')            || define('ID_MASKED_PRIME', 787);
+
+defined('DEFAULT_FREE_TRIAL')         || define('DEFAULT_FREE_TRIAL', '+30 days');
 
 defined('VERSION_NUMBER')             || define('VERSION_NUMBER', '0.9.1');
 defined('VERSION_RELEASED_DATE')      || define('VERSION_RELEASED_DATE', '7 November 2025');

@@ -50,6 +50,9 @@ if (!empty($session->business)) {
 <header id="header" class="header fixed-top d-flex align-items-center">
     <div class="d-flex align-items-center justify-content-between">
         <a href="<?= base_url('/admin/dashboard') ?>" class="logo d-flex align-items-center">
+            <?php if (!empty($session->business_logo)) : ?>
+                <img src="<?= $session->business_logo ?>" alt="<?= (!empty($businessName) ? $businessName : 'OtterNova Business') ?>" class="img-fluid">
+            <?php endif; ?>
             <?= (!empty($businessName) ? $businessName . ' @ ' : '') ?>
             <?= lang('Admin.site-name') ?>
         </a>
@@ -138,25 +141,25 @@ if (!empty($session->business)) {
                     'product-category' => [base_url('admin/product/category'), lang('Admin.pages.product-category')],
                 ]
             ];
-            $sidebar_menu['review'] = [
-                'title' => '<i class="bi bi-chat-left-heart me-3"></i> <span>' . lang('Admin.pages.review') . '</span>',
-                'links' => [
-                    'review' => [base_url('/admin/review'), lang('Admin.pages.review')],
-                ]
-            ];
-            $sidebar_menu['discount'] = [
-                'title' => '<i class="bi bi-ticket-perforated me-3"></i> <span>' . lang('Admin.pages.discount') . '</span>',
-                'links' => [
-                    'discount' => [base_url('/admin/discount'), lang('Admin.pages.discount')],
-                ]
-            ];
-            $sidebar_menu['blog'] = [
-                'title' => '<i class="bi bi-book me-3"></i> <span>' . lang('Admin.pages.blog') . '</span>',
-                'links' => [
-                    'blog' => [base_url('/admin/blog'), lang('Admin.pages.blog')],
-                    'blog-category' => [base_url('/admin/blog/category'), lang('Admin.pages.blog-category')],
-                ]
-            ];
+//            $sidebar_menu['review'] = [
+//                'title' => '<i class="bi bi-chat-left-heart me-3"></i> <span>' . lang('Admin.pages.review') . '</span>',
+//                'links' => [
+//                    'review' => [base_url('/admin/review'), lang('Admin.pages.review')],
+//                ]
+//            ];
+//            $sidebar_menu['discount'] = [
+//                'title' => '<i class="bi bi-ticket-perforated me-3"></i> <span>' . lang('Admin.pages.discount') . '</span>',
+//                'links' => [
+//                    'discount' => [base_url('/admin/discount'), lang('Admin.pages.discount')],
+//                ]
+//            ];
+//            $sidebar_menu['blog'] = [
+//                'title' => '<i class="bi bi-book me-3"></i> <span>' . lang('Admin.pages.blog') . '</span>',
+//                'links' => [
+//                    'blog' => [base_url('/admin/blog'), lang('Admin.pages.blog')],
+//                    'blog-category' => [base_url('/admin/blog/category'), lang('Admin.pages.blog-category')],
+//                ]
+//            ];
         }
         // BUSINESS
         if ('OWNER' == $session->user_role) {
@@ -231,6 +234,8 @@ if (!empty($session->business)) {
         <?= lang('System.copyrights', [date('Y')]) ?>
         <br>
         <small>
+            VERSION <?= VERSIONING_NO ?> | RELEASED <?= format_date(VERSIONING_DT) ?>
+            <br>
             Session Expiry : <?= $session->sessionExpiry ?> VS now : <?= date(DATETIME_FORMAT_DB) ?> UTC - <a href="?hl=th">ภาษาไทย</a> - <a href="?hl=en">English</a>
         </small>
     </div>

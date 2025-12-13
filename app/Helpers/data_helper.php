@@ -928,7 +928,8 @@ if (!function_exists('get_country_codes')) {
                 ],
                 'TH' => [
                     'common_name'   => 'Thailand',
-                    'official_name' => 'the Kingdom of Thailand'
+                    'official_name' => 'the Kingdom of Thailand',
+                    'th'            => 'ประเทศไทย'
                 ],
                 'TL' => [
                     'common_name'   => 'Timor-Leste (East Timor)',
@@ -1503,7 +1504,26 @@ if (!function_exists('get_country_common_name')) {
     function get_country_common_name(string $country_code): string
     {
         $countries = get_country_codes();
+        $session   = session();
+        if (isset($countries['countries'][$country_code][$session->lang])) {
+            return $countries['countries'][$country_code][$session->lang];
+        }
         return $countries['countries'][$country_code]['common_name'] ?? $country_code;
+    }
+}
+if (!function_exists('get_available_countries')) {
+    /**
+     * Get countries already available in this system
+     * @return array
+     */
+    function get_available_countries(): array
+    {
+        $countries = ['TH'];
+        $final     = [];
+        foreach ($countries as $code) {
+            $final[$code] = get_country_common_name($code);
+        }
+        return $final;
     }
 }
 if (!function_exists('get_currency_codes')) {
@@ -2162,6 +2182,15 @@ if (!function_exists('get_currency_common_name')) {
     {
         $currencies = get_currency_codes();
         return $currencies[$currency_code]['currency_name'] ?? $currency_code;
+    }
+}
+if (!function_exists('get_available_currency_codes')) {
+    function get_available_currency_code_by_country(string $country_code): array
+    {
+        $codes = [
+            'TH' => ['THB']
+        ];
+        return $codes[$country_code] ?? [];
     }
 }
 if (!function_exists('get_tzdb')) {
@@ -3360,6 +3389,74 @@ if (!function_exists('get_tzdb')) {
         return $zones;
     }
 }
+if (!function_exists('get_tzdb_by_country')) {
+    /**
+     * @param string $country
+     * @return array
+     */
+    function get_tzdb_by_country(string $country): array
+    {
+        $codes = [
+            // SOUTHEAST ASIA - BN, KH, TL, MM
+            'ID' => [
+                'Asia/Jakarta'  => '+07:00 WIB; Jakarta (Western Indonesia Time)',
+                'Asia/Makassar' => '+08:00 WITA; Bali/Makassar (Central Indonesia Time)',
+                'Asia/Jayapura' => '+09:00 WIT; Jayapura (Eastern Indonesia Time)',
+            ],
+            'LA' => [
+                'Asia/Vientiane' => '+07:00 ປະເທດລາວ (Laos)'
+            ],
+            'MY' => [
+                'Asia/Kuala_Lumpur' => '+08:00 Malaysia'
+            ],
+            'PH' => [
+                'Asia/Manila' => '+08:00 Philippines'
+            ],
+            'SG' => [
+                'Asia/Singapore' => '+08:00 Singapore'
+            ],
+            'TH' => [
+                'Asia/Bangkok' => '+07:00 ประเทศไทย (Thailand)'
+            ],
+            'VN' => [
+                'Asia/Ho_Chi_Minh' => '+07:00 Viet Nam (Vietnam)'
+            ],
+            // EAST ASIA
+            'JP' => [
+                'Asia/Tokyo' => '+09:00 日本 (Japan)'
+            ],
+            'TW' => [
+                'Asia/Taipei' => '+08:00 台灣 (Taiwan)'
+            ]
+        ];
+        return $codes[$country] ?? [];
+    }
+}
+if (!function_exists('get_tzdb_by_code')) {
+    /**
+     * @param string $code
+     * @return string
+     */
+    function get_tzdb_by_code(string $code): string
+    {
+        $codes = [
+            // SOUTHEAST ASIA
+            'Asia/Bangkok'      => '+07:00 ประเทศไทย (Thailand)',
+            'Asia/Ho_Chi_Minh'  => '+07:00 Viet Nam (Vietnam)',
+            'Asia/Jakarta'      => '+07:00 Western Indonesia Time (WIB; Jakarta)',
+            'Asia/Jayapura'     => '+09:00 Eastern Indonesia Time (WIT; Jayapura)',
+            'Asia/Kuala_Lumpur' => '+08:00 Malaysia',
+            'Asia/Makassar'     => '+08:00 Central Indonesia Time (WITA; Bali/Makassar)',
+            'Asia/Manila'       => '+08:00 Philippines',
+            'Asia/Singapore'    => '+08:00 Singapore',
+            'Asia/Vientiane'    => '+07:00 ປະເທດລາວ (Laos)',
+            // EAST ASIA
+            'Asia/Taipei' => '+08:00 台灣 (Taiwan)',
+            'Asia/Tokyo'     => '+09:00 日本 (Japan)',
+        ];
+        return $codes[$code] ?? '';
+    }
+}
 if (!function_exists('get_available_locales')) {
     /**
      * @param string $format (optional) either long or short
@@ -3377,6 +3474,22 @@ if (!function_exists('get_available_locales')) {
             'en' => 'E',
             'th' => 'ท'
         ];
+    }
+}
+if (!function_exists('get_default_tax_settings_by_country')) {
+    /**
+     * @param string $country
+     * @return array
+     */
+    function get_default_tax_settings_by_country(string $country): array
+    {
+        $codes = [
+            'TH' => [
+                'tax_percentage' => '7.00',
+                'tax_inclusive'  => 'I'
+            ]
+        ];
+        return $codes[$country] ?? [];
     }
 }
 if (!function_exists('get_telephone_country_calling_code')) {
