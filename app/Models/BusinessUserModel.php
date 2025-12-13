@@ -96,14 +96,13 @@ class BusinessUserModel extends AppBaseModel
         }
         $data       = [];
         foreach ($allStaff as $staff) {
-            $branchData = [];
+            $branchList = '';
             if (!empty($usersInBranch[$staff['user_id']])) {
                 $branchData = $usersInBranch[$staff['user_id']];
-            }
-            $branchList = '';
-            foreach ($branchData as $row) {
-                $branchName = $row['branch_local_names'][$session->lang] ?? $row['branch_name'];
-                $branchList .= $branchName . '<br>';
+                foreach ($branchData as $row) {
+                    $branchName = $row['branch_local_names'][$session->lang] ?? $row['branch_name'];
+                    $branchList .= $branchName . '<br>';
+                }
             }
             $data[]     = [
                 $staff['user_name_first'] . ' ' . $staff['user_name_last'],
