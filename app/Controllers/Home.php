@@ -9,6 +9,7 @@ use App\Models\UserMasterModel;
 use CodeIgniter\HTTP\RedirectResponse;
 use CodeIgniter\HTTP\ResponseInterface;
 use Config\Services;
+use Couchbase\User;
 use Transliterator;
 
 class Home extends BaseController
@@ -301,14 +302,17 @@ class Home extends BaseController
                 ]);
             }
             // EMAIL
-            $exp     = strtotime('+5 minutes')*11;
-            $userTkn = $userId*37;
-            $token   = "$exp;$userTkn";
+            $exp     = dechex(strtotime('+20 minutes')*11);
+            $userTkn = dechex($userId*37);
+            $hash    = substr(hash('sha256', $user_master['email_address']), 0, 15);
+            $token   = "$exp-$userTkn-$hash";
             $tknLnk  = base_url('account-activation?token=' . $token);
             $subject = lang('System.email.account-activation.subject');
             $message = lang('System.email.account-activation.message', [$tknLnk, $tknLnk]);
             $preheader = substr($message, 0, 50);
             $reply_to  = getenv('SUPPORT_EMAIL');
+            log_message('debug', 'EMAIL: SUBJECT: ' . $subject);
+            log_message('debug', 'EMAIL: MESSAGE: ' . $message);
             if (!send_system_email($user_master['email_address'], $subject, $preheader, $message, $reply_to)) {
                 $db->transRollback(); // <<< ROLLBACK (Undoes changes from all Models)
                 return $this->response->setJSON([
@@ -329,6 +333,61 @@ class Home extends BaseController
                 'message' => $e->getMessage()
             ]);
         }
+    }
+
+    /**
+     * Verify token from the email, if correct, activate the account
+     * @return string
+     */
+    public function account_activation(): string
+    {
+        $token  = $this->request->getGet('token');
+        $error  = '';
+        if (empty($token)) {
+            $error = 'bad-token';
+        } else {
+            $pieces = explode("-", $token);
+            if (3 !== count($pieces)) {
+                $error = 'bad-token';
+            } else {
+                // Check expiry
+                $now    = strtotime('now');
+                $expiry = (int) hexdec($pieces[0])/11;
+                log_message('debug', 'ACTIVATION: EXPIRY: ' . $expiry . ' VS NOW: ' . $now);
+                if ($expiry < $now) {
+                    $error = 'expired';
+                } else {
+                    $userModel = new UserMasterModel();
+                    $userId    = (int) hexdec($pieces[1])/37;
+                    log_message('debug', 'ACTIVATION: USER ID: ' . $userId);
+                    $user      = $userModel->find($userId);
+                    if (!$user) {
+                        $error = 'not-found';
+                    } else {
+                        $new_hash = substr(hash('sha256', $user['email_address']), 0, 15);
+                        $old_hash = $pieces[2];
+                        log_message('debug', 'ACTIVATION: EMAIL: ' . $user['email_address']);
+                        log_message('debug', 'ACTIVATION: HASH: ' . $old_hash . ' VS NEW HASH: ' . $new_hash);
+                        if ($old_hash != $new_hash) {
+                            $error = 'wrong-hash';
+                        } else {
+                            try {
+                                $userModel->update($userId, ['account_status' => $userModel::ACCOUNT_STATUS_ACTIVE]);
+                            } catch (\Exception $e) {
+                                $error = $e->getMessage();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        log_message('debug', 'ACTIVATION: ERROR: ' . $error);
+        $data    = [
+            'slug'  => 'account-activation',
+            'lang'  => $this->request->getLocale(),
+            'error' => $error
+        ];
+        return view('home/account_activation', $data);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

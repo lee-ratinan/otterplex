@@ -11,6 +11,7 @@ $routes->get('forgot-password', 'Home::forgot_password');
 $routes->get('reset-password/(:any)', 'Home::reset_password/$1');
 $routes->get('login', 'Home::login');
 $routes->get('logout', 'Home::logout');
+$routes->get('account-activation', 'Home::account_activation');
 $routes->get('/', 'Home::login');
 // Public APIs
 $routes->post('create-account', 'Home::create_account_post');
