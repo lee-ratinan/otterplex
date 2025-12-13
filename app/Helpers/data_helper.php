@@ -4801,4 +4801,3 @@ if (!function_exists('calculate_invoice_number')) {
         return "{$year}{$date}{$month}{$hash}{$rand}";
     }
 }
-if (!function_exists('encrypt_')) {}
