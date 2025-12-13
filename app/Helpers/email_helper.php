@@ -19,10 +19,10 @@ if (!function_exists('send_system_email')) {
         $footer_line = lang('System.email.footer-line');
         $privacy     = lang('System.email.footer-privacy');
         $terms       = lang('System.email.footer-terms');
-        $email = Services::email();
+        $email       = Services::email();
         $email->clear();
-        $logo  = base_url('assets/img/logo.png');
-        $html  = "<!doctype html>
+        $logo        = base_url('assets/img/logo.png');
+        $html        = "<!doctype html>
 <html lang='en'>
   <head>
     <meta charset='utf-8' />
@@ -44,7 +44,7 @@ if (!function_exists('send_system_email')) {
   <body style='margin:0;padding:0;background:#f5f5f7;'>
     <!-- Preheader (hidden preview text) -->
     <div style='display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;'>
-      {$preheader}
+        {$preheader}
     </div>
     <div style='display:none;'>
         {$microdata}
@@ -123,6 +123,7 @@ if (!function_exists('send_system_email')) {
         // Email Content
         $email->setSubject("[OtterNova] {$subject}");
         $email->setMessage($html);
+        $email->setMailType('html');
         return $email->send();
     }
 }
