@@ -9,7 +9,6 @@ use App\Models\UserMasterModel;
 use CodeIgniter\HTTP\RedirectResponse;
 use CodeIgniter\HTTP\ResponseInterface;
 use Config\Services;
-use Couchbase\User;
 use Transliterator;
 
 class Home extends BaseController
