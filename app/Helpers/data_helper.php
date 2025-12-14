@@ -12,25 +12,19 @@ if (!function_exists('get_setting_limitation')) {
                 'business_user'   => 10,
                 'branch_master'   => 10,
                 'service_master'  => 10,
-                'service_variant' => 50,
                 'product_master'  => 10,
-                'product_variant' => 50,
             ],
             'standard' => [
                 'business_user'   => 20,
                 'branch_master'   => 20,
                 'service_master'  => 30,
-                'service_variant' => 150,
                 'product_master'  => 30,
-                'product_variant' => 150,
             ],
             'premium'  => [
                 'business_user'   => 50,
-                'branch_master'   => 50,
+                'branch_master'   => 20,
                 'service_master'  => 100,
-                'service_variant' => 500,
                 'product_master'  => 100,
-                'product_variant' => 500,
             ],
         ];
         return $data[$package] ?? [];
