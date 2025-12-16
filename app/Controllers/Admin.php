@@ -15,6 +15,7 @@ use App\Models\BusinessUserModel;
 use App\Models\OtternautPackageModel;
 use App\Models\ResourceMasterModel;
 use App\Models\ResourceTypeModel;
+use App\Models\ServiceMasterModel;
 use App\Models\UserMasterModel;
 use CodeIgniter\Exceptions\PageNotFoundException;
 use CodeIgniter\HTTP\RedirectResponse;
@@ -1001,9 +1002,15 @@ class Admin extends BaseController
      */
     public function service(): string
     {
-        $data = [
-            'slug'           => 'service',
-            'lang'           => $this->request->getLocale(),
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('string');
+        }
+        $serviceModel = new ServiceMasterModel();
+        $data         = [
+            'slug'     => 'service',
+            'lang'     => $this->request->getLocale(),
+            'services' => $serviceModel->getServicesForBusiness($session->business['business_id']),
         ];
         return view('admin/service', $data);
     }

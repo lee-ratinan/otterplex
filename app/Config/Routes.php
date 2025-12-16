@@ -57,6 +57,8 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->get('order', 'Admin::order');
     // SERVICE
     $routes->get('service', 'Admin::service');
+    $routes->get('service/(:num)', 'Admin::service_manage/$1');
+    $routes->post('service/manage', 'Admin::service_manage_post');
     // PRODUCT
     $routes->get('product', 'Admin::product');
     $routes->get('product/category', 'Admin::product_category');
