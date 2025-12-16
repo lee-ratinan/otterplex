@@ -24,16 +24,6 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <?php foreach ($services as $service) : ?>
-                            <tr>
-                                <td><?= $service['service_slug'] ?></td>
-                                <td><?= $service['service_local_name'][$session->lang] ?? $service['service_name'] ?></td>
-                                <td><?= lang('ServiceMaster.enum.is_active.' . $service['is_active']) ?></td>
-                                <td class="text-end" data-sort="<?= $service['price_active_lowest'] ?>"><?= format_price($service['price_active_lowest'], $session->business['currency_code']) ?></td>
-                                <td class="text-end" data-sort="<?= $service['price_compare_lowest'] ?>"><?= format_price($service['price_compare_lowest'], $session->business['currency_code']) ?></td>
-                                <td><a class="btn btn-primary btn-sm" href="<?= base_url('admin/service/' . ($service['id'] * ID_MASKED_PRIME)) ?>"> <?= lang('System.buttons.edit') ?></a></td>
-                            </tr>
-                            <?php endforeach; ?>
                             </tbody>
                         </table>
                     </div>
@@ -41,4 +31,23 @@
             </div>
         </div>
     </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const table = $('table').DataTable({
+                processing: false,
+                serverSide: false,
+                fixedHeader: true,
+                searching: true,
+                ordering: true,
+                <?php if ('en' != $lang) : ?>
+                language: {url: '<?= base_url('/assets/vendor/DataTables/i18n/' . $lang . '.json') ?>',},
+                <?php endif; ?>
+                ajax: {
+                    url: '<?= base_url('/admin/service') ?>',
+                    type: 'POST',
+                    data: function (data) {}
+                }
+            });
+        });
+    </script>
 <?php $this->endSection() ?>

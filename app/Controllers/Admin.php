@@ -16,6 +16,7 @@ use App\Models\OtternautPackageModel;
 use App\Models\ResourceMasterModel;
 use App\Models\ResourceTypeModel;
 use App\Models\ServiceMasterModel;
+use App\Models\ServiceVariantModel;
 use App\Models\UserMasterModel;
 use CodeIgniter\Exceptions\PageNotFoundException;
 use CodeIgniter\HTTP\RedirectResponse;
@@ -1006,13 +1007,77 @@ class Admin extends BaseController
         if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
             return $this->forbiddenResponse('string');
         }
-        $serviceModel = new ServiceMasterModel();
         $data         = [
             'slug'     => 'service',
-            'lang'     => $this->request->getLocale(),
-            'services' => $serviceModel->getServicesForBusiness($session->business['business_id']),
+            'lang'     => $this->request->getLocale()
         ];
         return view('admin/service', $data);
+    }
+
+    /**
+     * Manage service
+     * @return ResponseInterface
+     */
+    public function service_post(): ResponseInterface
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('ResponseInterface');
+        }
+        $serviceModel = new ServiceMasterModel();
+        $raw          = $serviceModel->getServicesForBusiness($session->business['business_id']);
+        $final        = [];
+        foreach ($raw as $service) {
+            $final[] = [
+                $service['service_slug'],
+                $service['service_local_name'][$session->lang] ?? $service['service_name'],
+                lang('ServiceMaster.enum.is_active.' . $service['is_active']),
+                format_price($service['price_active_lowest'], $session->business['currency_code']),
+                format_price($service['price_compare_lowest'], $session->business['currency_code']),
+                '<a class="btn btn-primary btn-sm float-end" href="' . base_url('admin/service/' . ($service['id'] * ID_MASKED_PRIME)) . '"> ' . lang('System.buttons.edit') . '</a>'
+            ];
+        }
+        return $this->response->setJSON([
+            'data' => $final
+        ]);
+    }
+
+    /**
+     * @param int $serviceId
+     * @return string
+     */
+    public function service_manage(int $serviceId): string
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('string');
+        }
+        $serviceId    = $serviceId / ID_MASKED_PRIME;
+        $serviceModel = new ServiceMasterModel();
+        $variantModel = new ServiceVariantModel();
+        $service      = [];
+        $variants     = [];
+        $mode         = 'new';
+        if (0 < $serviceId) {
+            $service                        = $serviceModel->findRow($serviceId);
+            $service['service_local_names'] = json_decode($service['service_local_names'], true);
+            $variants                       = $variantModel->getVariantsForService($serviceId);
+            $mode                           = 'edit';
+        }
+        $data         = [
+            'slug'       => 'service-manage',
+            'lang'       => $this->request->getLocale(),
+            'breadcrumb' => [
+                [
+                    'url'        => base_url('admin/service'),
+                    'page_title' => lang('Admin.pages.service'),
+                ]
+            ],
+            'mode'       => $mode,
+            'service'    => $service,
+            'variants'   => $variants,
+        ];
+        return view('admin/service_manage', $data);
     }
 
     /**

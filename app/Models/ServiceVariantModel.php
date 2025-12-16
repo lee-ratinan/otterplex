@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use CodeIgniter\Config\Services;
+
 class ServiceVariantModel extends AppBaseModel
 {
     protected $table = 'service_variant';
@@ -28,4 +30,37 @@ class ServiceVariantModel extends AppBaseModel
     protected $useTimestamps = true;
     protected $createdField = 'created_at';
     protected $updatedField = 'updated_at';
+
+    /**
+     * @param int $serviceId
+     * @return array
+     */
+    public function getVariantsForService(int $serviceId): array
+    {
+        $cache    = Services::cache();
+        $cacheKey = 'variants_for_service_id-' . $serviceId;
+        if ($cache->get($cacheKey)) {
+            return $cache->get($cacheKey);
+        }
+        $variants = $this->where(['service_id' => $serviceId])->findAll();
+        $final    = [];
+        foreach ($variants as $variant) {
+            $final[] = [
+                'id'                        => $variant['id'],
+                'variant_slug'              => $variant['variant_slug'],
+                'variant_name'              => $variant['variant_name'],
+                'variant_local_names'       => json_decode($variant['variant_local_names'], true),
+                'is_active'                 => $variant['is_active'],
+                'schedule_type'             => $variant['schedule_type'],
+                'variant_capacity'          => $variant['variant_capacity'],
+                'price_active'              => $variant['price_active'],
+                'price_compare'             => $variant['price_compare'],
+                'required_num_staff'        => $variant['required_num_staff'],
+                'required_resource_type_id' => $variant['required_resource_type_id'],
+                'service_duration_minutes'  => $variant['service_duration_minutes'],
+            ];
+        }
+        $cache->save($cacheKey, $final, self::HOURS_IN_SEC);
+        return $final;
+    }
 }

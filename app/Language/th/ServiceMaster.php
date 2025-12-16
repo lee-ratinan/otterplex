@@ -5,7 +5,7 @@ return [
         'business_id'          => 'ธุรกิจ',
         'service_slug'         => 'รหัสบริการ',
         'service_name'         => 'ชื่อบริการ',
-        'service_local_name'   => 'ชื่อบริการในภาษาต่างๆ',
+        'service_local_names'  => 'ชื่อบริการในภาษาต่างๆ',
         'is_active'            => 'สถานะ',
         'price_active_lowest'  => 'ราคาจริงเริ่มต้น',
         'price_compare_lowest' => 'ราคาเต็มเริ่มต้น',
