@@ -7,7 +7,7 @@
                 <div class="card-body p-3">
                     <div class="text-end">
                         <a class="btn btn-primary" href="<?= base_url('admin/business/branch/new-branch') ?>">
-                            <i class="bi bi-plus-circle"></i>
+                            <i class="fa-solid fa-circle-plus"></i>
                             <?= lang('Business.branch-management.new-branch') ?>
                         </a>
                     </div>

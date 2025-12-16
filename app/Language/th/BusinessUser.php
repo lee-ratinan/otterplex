@@ -16,8 +16,8 @@ return [
         ],
         'role_status'         => [
             'REQUESTED' => 'ร้องขอ', // cancel this status
-            'ACTIVE'    => '<i class="bi bi-check-circle-fill text-success"></i> ปกติ',
-            'REVOKED'   => '<i class="bi bi-x-circle-fill text-danger"></i> เพิกถอน',
+            'ACTIVE'    => '<i class="fa-solid fa-circle-check text-success"></i> ปกติ',
+            'REVOKED'   => '<i class="fa-solid fa-circle-xmark text-danger"></i> เพิกถอน',
         ],
         'my_default_business' => [
             'Y' => 'ใช่',

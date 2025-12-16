@@ -22,10 +22,10 @@ return [
     ],
     'enum'  => [
         'account_status' => [
-            'A' => '<i class="bi bi-check-circle-fill text-success"></i> ปกติ',
-            'P' => '<i class="bi bi-question-circle text-warning"></i> รอยืนยัน',
-            'B' => '<i class="bi bi-x-circle-fill text-danger"></i> บล็อก',
-            'S' => '<i class="bi bi-x-circle-fill text-danger"></i> ยกเลิก'
+            'A' => '<i class="fa-solid fa-circle-check text-success"></i> ปกติ',
+            'P' => '<i class="fa-solid fa-circle-question tetx-warning"></i> รอยืนยัน',
+            'B' => '<i class="fa-solid fa-circle-xmark text-danger"></i> บล็อก',
+            'S' => '<i class="fa-solid fa-circle-xmark text-danger"></i> ยกเลิก'
         ],
         'user_gender'    => [
             'M'  => 'ชาย',

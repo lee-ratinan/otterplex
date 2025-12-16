@@ -22,10 +22,10 @@ return [
     ],
     'enum'  => [
         'account_status' => [
-            'A' => '<i class="bi bi-check-circle-fill text-success"></i> Active',
-            'P' => '<i class="bi bi-question-circle text-warning"></i> Pending',
-            'B' => '<i class="bi bi-x-circle-fill text-danger"></i> Blocked',
-            'S' => '<i class="bi bi-x-circle-fill text-danger"></i> Suspended'
+            'A' => '<i class="fa-solid fa-circle-check text-success"></i> Active',
+            'P' => '<i class="fa-solid fa-circle-question tetx-warning"></i> Pending',
+            'B' => '<i class="fa-solid fa-circle-xmark text-danger"></i> Blocked',
+            'S' => '<i class="fa-solid fa-circle-xmark text-danger"></i> Suspended'
         ],
         'user_gender'    => [
             'M'  => 'Male',

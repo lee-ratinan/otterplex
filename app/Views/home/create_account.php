@@ -16,21 +16,21 @@
         <div class="col-12">
             <label for="email_address" class="form-label"><?= lang('System.create-account.fields.username') ?></label>
             <div class="input-group">
-                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
                 <input type="email" name="email_address" class="form-control" id="email_address" required="">
             </div>
         </div>
         <div class="col-12">
             <label for="password" class="form-label"><?= lang('System.create-account.fields.password') ?></label>
             <div class="input-group">
-                <span class="input-group-text"><i class="bi bi-asterisk"></i></span>
+                <span class="input-group-text"><i class="fa-solid fa-asterisk"></i></span>
                 <input type="password" name="password" class="form-control" id="password" required="">
             </div>
         </div>
         <div class="col-12">
             <label for="confirm_password" class="form-label"><?= lang('System.create-account.fields.confirm-password') ?></label>
             <div class="input-group">
-                <span class="input-group-text"><i class="bi bi-asterisk"></i></span>
+                <span class="input-group-text"><i class="fa-solid fa-asterisk"></i></span>
                 <input type="password" name="confirm_password" class="form-control" id="confirm_password" required="">
             </div>
         </div>

@@ -39,11 +39,11 @@ return [
     ],
     'my-businesses' => [
         'title'        => 'ธุรกิจทั้งหมดของฉัน',
-        'you-are-here' => '<i class="bi bi-geo-alt"></i> คุณอยู่ที่นี่',
+        'you-are-here' => '<i class="fa-solid fa-location-dot"></i> คุณอยู่ที่นี่',
         'new-business' => 'เพิ่มธุรกิจใหม่',
         'btn'          => [
-            'manage'    => '<i class="bi bi-gear"></i> จัดการธุรกิจนี้',
-            'switch-to' => '<i class="bi bi-toggle2-on"></i> เปลี่ยนไปธุรกิจนี้',
+            'manage'    => '<i class="fa-solid fa-gear"></i> จัดการธุรกิจนี้',
+            'switch-to' => '<i class="fa-solid fa-rotate"></i> เปลี่ยนไปธุรกิจนี้',
         ]
     ],
     'forbidden'     => [
