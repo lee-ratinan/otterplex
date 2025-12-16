@@ -39,17 +39,17 @@ return [
         ]
     ],
     'buttons'            => [
-        'new'             => '<i class="bi bi-plus-circle"></i> New',
-        'edit'            => '<i class="bi bi-pencil"></i> Edit',
-        'save'            => '<i class="bi bi-floppy"></i> Save',
-        'upload'          => '<i class="bi bi-cloud-upload"></i> Upload',
-        'remove'          => '<i class="bi bi-trash"></i> Remove',
-        'remove-confirm'  => '<i class="bi bi-exclamation-triangle"></i> Remove Confirmation',
+        'new'             => '<i class="fa-solid fa-circle-plus"></i> New',
+        'edit'            => '<i class="fa-solid fa-pen-to-square"></i> Edit',
+        'save'            => '<i class="fa-solid fa-floppy-disk"></i> Save',
+        'upload'          => '<i class="fa-solid fa-cloud-arrow-up"></i> Upload',
+        'remove'          => '<i class="fa-solid fa-trash-can"></i> Remove',
+        'remove-confirm'  => '<i class="fa-solid fa-triangle-exclamation"></i> Remove Confirmation',
         'switch-role'     => 'Switch Role',
         'switch-business' => 'Switch Business',
-        'filter'          => 'Filter',
+        'filter'          => '<i class="fa-solid fa-filter"></i> Filter',
         'reset'           => 'Reset',
-        'view-more'       => 'View More',
+        'view-more'       => '<i class="fa-regular fa-eye"></i> View More',
     ],
     'generic-term'       => [
         'no-data' => 'No data'

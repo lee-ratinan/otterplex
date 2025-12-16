@@ -8,7 +8,7 @@
         <div class="col-12">
             <label for="username" class="form-label"><?= lang('System.login.fields.username') ?></label>
             <div class="input-group has-validation">
-                <span class="input-group-text" id="inputGroupPrepend1"><i class="bi bi-envelope"></i></span>
+                <span class="input-group-text" id="inputGroupPrepend1"><i class="fa-solid fa-envelope"></i></span>
                 <input type="email" name="username" class="form-control" id="username" required="">
                 <div class="invalid-feedback"><?= lang('System.login.fields.username-empty-error') ?></div>
             </div>

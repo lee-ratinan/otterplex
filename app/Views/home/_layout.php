@@ -17,11 +17,9 @@
     <?php endif; ?>
     <!-- Vendor CSS Files -->
     <link href="<?= base_url('assets/vendor/bootstrap/css/bootstrap.min.css') ?>" rel="stylesheet">
-    <link href="<?= base_url('assets/vendor/bootstrap-icons/bootstrap-icons.css') ?>" rel="stylesheet">
-    <link href="<?= base_url('assets/vendor/boxicons/css/boxicons.min.css') ?>" rel="stylesheet">
+    <link href="<?= base_url('assets/vendor/fontawesome-free-7.1.0/css/all.min.css') ?>" rel="stylesheet">
     <link href="<?= base_url('assets/vendor/quill/quill.snow.css') ?>" rel="stylesheet">
     <link href="<?= base_url('assets/vendor/quill/quill.bubble.css') ?>" rel="stylesheet">
-    <link href="<?= base_url('assets/vendor/remixicon/remixicon.css') ?>" rel="stylesheet">
     <link href="<?= base_url('assets/vendor/simple-datatables/style.css') ?>" rel="stylesheet">
     <link href="<?= base_url('assets/vendor/toastrjs/toastr.min.css') ?>" rel="stylesheet">
     <!-- Template Main CSS File -->
@@ -53,7 +51,7 @@
                                 <hr class="mt-0" />
                                 <div class="row">
                                     <div class="col">
-                                        <i class="bi bi-translate" title="<?= lang('System.change-language') ?>"></i>
+                                        <i class="fa-solid fa-language" title="<?= lang('System.change-language') ?>"></i>
                                         <?php if ('en' == $lang) : ?>English<?php else: ?><a href="?hl=en">English</a><?php endif; ?> |
                                         <?php if ('th' == $lang) : ?>ภาษาไทย<?php else: ?><a href="?hl=th">ภาษาไทย</a><?php endif; ?>
                                     </div>
@@ -71,7 +69,7 @@
         </section>
     </div>
 </main><!-- End #main -->
-<a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+<a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="fa-solid fa-circle-up"></i></a>
 <!-- Vendor JS Files -->
 <script src="<?= base_url('assets/vendor/jquery/jquery-3.7.1.min.js') ?>"></script>
 <script src="<?= base_url('assets/vendor/toastrjs/toastr.min.js') ?>"></script>

@@ -39,17 +39,17 @@ return [
         ]
     ],
     'buttons'            => [
-        'new'             => '<i class="bi bi-plus-circle"></i> สร้างใหม่',
-        'edit'            => '<i class="bi bi-pencil"></i> แก้ไข',
-        'save'            => '<i class="bi bi-floppy"></i> บันทึก',
-        'upload'          => '<i class="bi bi-cloud-upload"></i> อัปโหลด',
-        'remove'          => '<i class="bi bi-trash"></i> ลบ',
-        'remove-confirm'  => '<i class="bi bi-exclamation-triangle"></i> ยืนยันการลบ',
+        'new'             => '<i class="fa-solid fa-circle-plus"></i> สร้างใหม่',
+        'edit'            => '<i class="fa-solid fa-pen-to-square"></i> แก้ไข',
+        'save'            => '<i class="fa-solid fa-floppy-disk"></i> บันทึก',
+        'upload'          => '<i class="fa-solid fa-cloud-arrow-up"></i> อัปโหลด',
+        'remove'          => '<i class="fa-solid fa-trash-can"></i> ลบ',
+        'remove-confirm'  => '<i class="fa-solid fa-triangle-exclamation"></i> ยืนยันการลบ',
         'switch-role'     => 'เปลี่ยนตำแหน่ง',
         'switch-business' => 'เปลี่ยนธุรกิจ',
-        'filter'          => 'กรอง',
+        'filter'          => '<i class="fa-solid fa-filter"></i> กรอง',
         'reset'           => 'รีเซ็ต',
-        'view-more'       => 'ดูเพิ่มเติม',
+        'view-more'       => '<i class="fa-regular fa-eye"></i> ดูเพิ่มเติม',
     ],
     'generic-term'       => [
         'no-data' => 'ไม่พบข้อมูล'

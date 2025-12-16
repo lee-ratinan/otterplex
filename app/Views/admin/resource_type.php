@@ -9,7 +9,7 @@
                         <div class="col">
                             <div class="text-end">
                                 <a class="btn btn-primary" href="<?= base_url('admin/resource/type/0') ?>">
-                                    <i class="bi bi-plus-circle"></i> <?= lang('Business.resource-management.new-resource-type') ?>
+                                    <i class="fa-solid fa-circle-plus"></i> <?= lang('Business.resource-management.new-resource-type') ?>
                                 </a>
                             </div>
                             <div class="table-responsive">

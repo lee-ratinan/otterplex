@@ -5,11 +5,11 @@
     </div>
     <div class="text-center">
         <?php if (empty($error)) : ?>
-            <div class="display-1"><i class="bi bi-check-circle text-success"></i></div>
+            <div class="display-1"><i class="fa-solid fa-circle-check text-success"></i></div>
             <p><?= lang('System.account-activation.success-message') ?></p>
             <p><a href="<?= base_url() ?>"><?= lang('System.pages.login') ?></a></p>
         <?php else : ?>
-            <div class="display-1"><i class="bi bi-exclamation-circle text-danger"></i></div>
+            <div class="display-1"><i class="fa-solid fa-circle-exclamation text-danger"></i></div>
             <p><?= lang('System.account-activation.error-message') ?></p>
             <p><?= lang('System.account-activation.errors.' . $error) ?></p>
         <?php endif; ?>

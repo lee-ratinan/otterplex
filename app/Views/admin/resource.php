@@ -7,7 +7,7 @@
                 <div class="card-body p-3">
                     <div class="text-end">
                         <a class="btn btn-primary" href="<?= base_url('admin/resource/0') ?>">
-                            <i class="bi bi-plus-circle"></i> <?= lang('Business.resource-management.new-resource') ?>
+                            <i class="fa-solid fa-circle-plus"></i> <?= lang('Business.resource-management.new-resource') ?>
                         </a>
                     </div>
                     <div class="table-responsive">

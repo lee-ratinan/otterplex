@@ -9,7 +9,7 @@
             <div class="col-12 mb-3">
                 <label for="username" class="form-label"><?= lang('System.login.fields.username') ?></label>
                 <div class="input-group has-validation">
-                    <span class="input-group-text" id="inputGroupPrepend1"><i class="bi bi-envelope"></i></span>
+                    <span class="input-group-text" id="inputGroupPrepend1"><i class="fa-solid fa-envelope"></i></span>
                     <input type="email" name="username" class="form-control" id="username" required="">
                     <div class="invalid-feedback"><?= lang('System.login.fields.username-empty-error') ?></div>
                 </div>
@@ -17,7 +17,7 @@
             <div class="col-12 mb-3">
                 <label for="password" class="form-label"><?= lang('System.login.fields.password') ?></label>
                 <div class="input-group has-validation">
-                    <span class="input-group-text" id="inputGroupPrepend2"><i class="bi bi-asterisk"></i></span>
+                    <span class="input-group-text" id="inputGroupPrepend2"><i class="fa-solid fa-asterisk"></i></span>
                     <input type="password" name="password" class="form-control" id="password" required="">
                     <div class="invalid-feedback"><?= lang('System.login.fields.password-empty-error') ?></div>
                 </div>
@@ -30,7 +30,7 @@
             <div class="col-12 mb-3">
                 <label for="otp" class="form-label"><?= lang('System.login.fields.otp') ?></label>
                 <div class="input-group">
-                    <span class="input-group-text" id="inputGroupPrepend1"><i class="bi bi-asterisk"></i></span>
+                    <span class="input-group-text" id="inputGroupPrepend1"><i class="fa-solid fa-asterisk"></i></span>
                     <input type="number" name="otp" class="form-control" id="otp" min="0" max="999999" required="">
                 </div>
             </div>
@@ -41,7 +41,7 @@
         <div class="col-12">
             <p class="small">
                 <?= lang('System.login.dont-have-account') ?> <a href="<?= base_url('create-account') ?>"><?= lang('System.pages.create-account') ?></a><br>
-                <i class="bi bi-exclamation-circle"></i> <a href="<?= base_url('forgot-password') ?>"><?= lang('System.pages.forgot-password') ?></a>
+                <i class="fa-solid fa-circle-exclamation"></i> <a href="<?= base_url('forgot-password') ?>"><?= lang('System.pages.forgot-password') ?></a>
             </p>
         </div>
     </form>

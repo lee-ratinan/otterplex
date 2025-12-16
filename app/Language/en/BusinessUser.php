@@ -16,8 +16,8 @@ return [
         ],
         'role_status'         => [
             'REQUESTED' => 'Requested', // cancel this status
-            'ACTIVE'    => '<i class="bi bi-check-circle-fill text-success"></i> Active',
-            'REVOKED'   => '<i class="bi bi-x-circle-fill text-danger"></i> Revoked',
+            'ACTIVE'    => '<i class="fa-solid fa-circle-check text-success"></i> Active',
+            'REVOKED'   => '<i class="fa-solid fa-circle-xmark text-danger"></i> Revoked',
         ],
         'my_default_business' => [
             'Y' => 'Yes',

@@ -27,11 +27,9 @@ if (!empty($session->business)) {
     <?php endif; ?>
     <!-- Vendor CSS Files -->
     <link href="<?= base_url('assets/vendor/bootstrap/css/bootstrap.min.css') ?>" rel="stylesheet">
-    <link href="<?= base_url('assets/vendor/bootstrap-icons/bootstrap-icons.css') ?>" rel="stylesheet">
-    <link href="<?= base_url('assets/vendor/boxicons/css/boxicons.min.css') ?>" rel="stylesheet">
+    <link href="<?= base_url('assets/vendor/fontawesome-free-7.1.0/css/all.min.css') ?>" rel="stylesheet">
     <link href="<?= base_url('assets/vendor/quill/quill.snow.css') ?>" rel="stylesheet">
     <link href="<?= base_url('assets/vendor/quill/quill.bubble.css') ?>" rel="stylesheet">
-    <link href="<?= base_url('assets/vendor/remixicon/remixicon.css') ?>" rel="stylesheet">
     <link href="<?= base_url('assets/vendor/simple-datatables/style.css') ?>" rel="stylesheet">
     <link href="<?= base_url('assets/vendor/toastrjs/toastr.min.css') ?>" rel="stylesheet">
     <link href="<?= base_url('assets/vendor/DataTables/datatables.min.css') ?>" rel="stylesheet">
@@ -56,26 +54,26 @@ if (!empty($session->business)) {
             <?= (!empty($businessName) ? $businessName . ' @ ' : '') ?>
             <?= lang('Admin.site-name') ?>
         </a>
-        <i class="bi bi-list toggle-sidebar-btn"></i>
+        <i class="fa-solid fa-bars toggle-sidebar-btn"></i>
     </div>
     <!-- Header / Search Bar -->
     <div class="search-bar">
         <form class="search-form d-flex align-items-center" method="GET" action="<?= base_url('/admin/search') ?>">
             <input type="search" name="q" placeholder="<?= lang('Admin.pages.search') ?>" title="<?= lang('Admin.pages.search') ?>">
-            <button type="submit" id="btn-search" title="<?= lang('Admin.pages.search') ?>"><i class="bi bi-search"></i></button>
+            <button type="submit" id="btn-search" title="<?= lang('Admin.pages.search') ?>"><i class="fa-solid fa-magnifying-glass"></i></button>
         </form>
     </div>
     <nav class="header-nav ms-auto">
         <ul class="d-flex align-items-center">
             <li class="nav-item d-block d-lg-none">
                 <a class="nav-link nav-icon search-bar-toggle" href="#">
-                    <i class="bi bi-search"></i>
+                    <i class="fa-solid fa-magnifying-glass"></i>
                 </a>
             </li>
             <!-- Header / Notifications -->
             <li class="nav-item dropdown d-none">
                 <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
-                    <i class="bi bi-bell"></i>
+                    <i class="fa-solid fa-bell"></i>
                     <span class="badge bg-primary badge-number">4</span>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications">
@@ -94,13 +92,13 @@ if (!empty($session->business)) {
                         <span><?= substr($session->user['profile_status_msg'], 0, 30) . (empty($businessName) ? '' : '<br>' . $businessName . ' / ' . lang('BusinessUser.enum.user_role.' . $session->user_role)) ?></span>
                     </li>
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item d-flex align-items-center" href="<?= base_url('/admin/profile') ?>"><i class="bi bi-person-fill-gear me-3"></i><span><?= lang('Admin.pages.profile') ?></span></a></li>
+                    <li><a class="dropdown-item d-flex align-items-center" href="<?= base_url('/admin/profile') ?>"><i class="fa-solid fa-user-gear me-3"></i><span><?= lang('Admin.pages.profile') ?></span></a></li>
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item d-flex align-items-center" href="<?= base_url('/admin/my-businesses') ?>"><i class="bi bi-shop-window me-3"></i><span><?= lang('Admin.pages.my-businesses') ?></span></a></li>
+                    <li><a class="dropdown-item d-flex align-items-center" href="<?= base_url('/admin/my-businesses') ?>"><i class="fa-solid fa-store me-3"></i><span><?= lang('Admin.pages.my-businesses') ?></span></a></li>
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item d-flex align-items-center" href="<?= base_url('/admin/about') ?>"><i class="bi bi-info-circle me-3"></i><span><?= lang('Admin.pages.about') ?></span></a></li>
+                    <li><a class="dropdown-item d-flex align-items-center" href="<?= base_url('/admin/about') ?>"><i class="fa-solid fa-circle-info me-3"></i><span><?= lang('Admin.pages.about') ?></span></a></li>
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item d-flex align-items-center" href="<?= base_url('/logout') ?>"><i class="bi bi-box-arrow-right me-3"></i><span><?= lang('Admin.pages.logout') ?></span></a></li>
+                    <li><a class="dropdown-item d-flex align-items-center" href="<?= base_url('/logout') ?>"><i class="fa-solid fa-arrow-right-from-bracket me-3"></i><span><?= lang('Admin.pages.logout') ?></span></a></li>
                 </ul>
             </li>
         </ul>
@@ -109,18 +107,18 @@ if (!empty($session->business)) {
 <!-- ======= Sidebar ======= -->
 <aside id="sidebar" class="sidebar">
     <ul class="sidebar-nav" id="sidebar-nav">
-        <li class="nav-item"><a class="nav-link <?= ('dashboard' == $slug ? '' : 'collapsed' ) ?>" href="<?= base_url('/admin/dashboard') ?>"><i class="bi bi-house-door me-3"></i><span><?= lang('Admin.pages.dashboard') ?></span></a></li>
+        <li class="nav-item"><a class="nav-link <?= ('dashboard' == $slug ? '' : 'collapsed' ) ?>" href="<?= base_url('/admin/dashboard') ?>"><i class="fa-solid fa-house me-3"></i><span><?= lang('Admin.pages.dashboard') ?></span></a></li>
         <?php
         $sidebar_menu = [];
         // ORDER & ALLOCATION
         $sidebar_menu['order'] = [
-            'title' => '<i class="bi bi-bag me-3"></i> <span>' . lang('Admin.pages.order') . '</span>',
+            'title' => '<i class="fa-solid fa-bag-shopping me-3"></i> <span>' . lang('Admin.pages.order') . '</span>',
             'links' => [
                 'order' => [base_url('/admin/order'), lang('Admin.pages.order')],
             ]
         ];
         $sidebar_menu['allocation'] = [
-            'title' => '<i class="bi bi-calendar-check me-3"></i> <span>' . lang('Admin.pages.allocation') . '</span>',
+            'title' => '<i class="fa-solid fa-calendar-check me-3"></i> <span>' . lang('Admin.pages.allocation') . '</span>',
             'links' => [
                 'allocation-staff'    => [base_url('/admin/allocation/staff'), lang('Admin.pages.allocation-staff')],
                 'allocation-resource' => [base_url('/admin/allocation/resource'), lang('Admin.pages.allocation-resource')],
@@ -129,32 +127,32 @@ if (!empty($session->business)) {
         // PRODUCT/SERVICE/BLOG
         if (in_array($session->user_role, ['OWNER', 'MANAGER'])) {
             $sidebar_menu['service'] = [
-                'title' => '<i class="bi bi-lightbulb me-3"></i> <span>' . lang('Admin.pages.service') . '</span>',
+                'title' => '<i class="fa-solid fa-lightbulb me-3"></i> <span>' . lang('Admin.pages.service') . '</span>',
                 'links' => [
                     'service' => [base_url('/admin/service'), lang('Admin.pages.service')],
                 ]
             ];
             $sidebar_menu['product'] = [
-                'title' => '<i class="bi bi-box-seam me-3"></i> <span>' . lang('Admin.pages.product') . '</span>',
+                'title' => '<i class="fa-solid fa-box-open me-3"></i> <span>' . lang('Admin.pages.product') . '</span>',
                 'links' => [
                     'product' => [base_url('/admin/product'), lang('Admin.pages.product')],
                     'product-category' => [base_url('admin/product/category'), lang('Admin.pages.product-category')],
                 ]
             ];
 //            $sidebar_menu['review'] = [
-//                'title' => '<i class="bi bi-chat-left-heart me-3"></i> <span>' . lang('Admin.pages.review') . '</span>',
+//                'title' => '<i class="fa-regular fa-comment-dots"></i> <span>' . lang('Admin.pages.review') . '</span>',
 //                'links' => [
 //                    'review' => [base_url('/admin/review'), lang('Admin.pages.review')],
 //                ]
 //            ];
 //            $sidebar_menu['discount'] = [
-//                'title' => '<i class="bi bi-ticket-perforated me-3"></i> <span>' . lang('Admin.pages.discount') . '</span>',
+//                'title' => '<i class="fa-solid fa-percent"></i> <span>' . lang('Admin.pages.discount') . '</span>',
 //                'links' => [
 //                    'discount' => [base_url('/admin/discount'), lang('Admin.pages.discount')],
 //                ]
 //            ];
 //            $sidebar_menu['blog'] = [
-//                'title' => '<i class="bi bi-book me-3"></i> <span>' . lang('Admin.pages.blog') . '</span>',
+//                'title' => '<i class="fa-solid fa-file-pen"></i> <span>' . lang('Admin.pages.blog') . '</span>',
 //                'links' => [
 //                    'blog' => [base_url('/admin/blog'), lang('Admin.pages.blog')],
 //                    'blog-category' => [base_url('/admin/blog/category'), lang('Admin.pages.blog-category')],
@@ -164,7 +162,7 @@ if (!empty($session->business)) {
         // BUSINESS
         if ('OWNER' == $session->user_role) {
             $sidebar_menu['business'] = [
-                'title' => '<i class="bi bi-shop-window me-3"></i><span>' . lang('Admin.pages.business') . '</span>',
+                'title' => '<i class="fa-solid fa-store me-3"></i><span>' . lang('Admin.pages.business') . '</span>',
                 'links' => [
                     'business'          => [base_url('/admin/business'), lang('Admin.pages.business')],
                     'business-branch'   => [
@@ -180,7 +178,7 @@ if (!empty($session->business)) {
             ];
         } elseif ('MANAGER' == $session->user_role) {
             $sidebar_menu['business'] = [
-                'title' => '<i class="bi bi-shop-window me-3"></i><span>' . lang('Admin.pages.business') . '</span>',
+                'title' => '<i class="fa-solid fa-store me-3"></i><span>' . lang('Admin.pages.business') . '</span>',
                 'links' => [
                     'business-branch'   => [
                         base_url('/admin/business/branch'), lang('Admin.pages.business-branch')
@@ -197,10 +195,10 @@ if (!empty($session->business)) {
             $in_group = array_keys($item['links']);
             echo '<li class="nav-item">
                 <a class="nav-link ' . (in_array($slug, $in_group) ? '' : 'collapsed' ) . '" data-bs-target="#' . $group_key . '-nav" data-bs-toggle="collapse" href="#">
-                    ' . $item['title'] . '<i class="bi bi-chevron-down ms-auto"></i>
+                    ' . $item['title'] . '<i class="fa-solid fa-chevron-down ms-auto"></i>
                 </a><ul id="' . $group_key . '-nav" class="nav-content collapse ' . (in_array($slug, $in_group) ? 'show' : '' ) . '" data-bs-parent="#sidebar-nav" style="">';
             foreach ($item['links'] as $link_slug => $link) {
-                echo '<li><a class="' . ($link_slug == $slug ? 'active' : '' ) . '" href="' . $link[0] . '"><i class="bi bi-circle ms-3"></i><span>' . $link[1] . '</span></a></li>';
+                echo '<li><a class="' . ($link_slug == $slug ? 'active' : '' ) . '" href="' . $link[0] . '"><i class="fa-solid fa-circle ms-3"></i><span>' . $link[1] . '</span></a></li>';
             }
             echo '</ul></li>';
         }
@@ -213,7 +211,7 @@ if (!empty($session->business)) {
         <h1><?= lang('Admin.pages.' . $slug) ?></h1>
         <nav>
             <ol class="breadcrumb">
-                <i class="bi bi-house-door me-2"></i>
+                <i class="fa-solid fa-house me-2"></i>
                 <?php if ('dashboard' != $slug) : ?>
                     <li class="breadcrumb-item"><a href="<?= base_url('/admin/dashboard') ?>"><?= lang('Admin.pages.dashboard') ?></a></li>
                 <?php endif; ?>
@@ -240,7 +238,7 @@ if (!empty($session->business)) {
         </small>
     </div>
 </footer>
-<a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+<a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="fa-solid fa-circle-up"></i></a>
 <script src="<?= base_url('assets/vendor/jquery/jquery.min.js') ?>"></script>
 <script src="<?= base_url('assets/vendor/apexcharts/apexcharts.min.js') ?>"></script>
 <script src="<?= base_url('assets/vendor/bootstrap/js/bootstrap.bundle.min.js') ?>"></script>

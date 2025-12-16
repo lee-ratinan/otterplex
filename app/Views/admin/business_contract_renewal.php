@@ -78,11 +78,11 @@
                             <h2><?= lang('Business.renewal.how-to-pay') ?></h2>
                             <a href="#" class="btn btn-outline-primary w-100 py-3 mb-3">
                                 <img class="img float-end" src="<?= base_url('assets/img/visa-master.png') ?>" alt="Credit Card: VISA/MasterCard" style="max-height:2em" />
-                                <b class="float-start text-start"><i class="bi bi-credit-card"></i><br><?= lang('Business.renewal.pay-by-credit-card') ?></b>
+                                <b class="float-start text-start"><i class="fa-solid fa-credit-card"></i><br><?= lang('Business.renewal.pay-by-credit-card') ?></b>
                             </a>
                             <a href="#" class="btn btn-outline-primary w-100 py-3 mb-3">
                                 <img class="img float-end" src="<?= base_url('assets/img/thai-qr.png') ?>" alt="Thai PromptPay" style="max-height:2em" />
-                                <b class="float-start text-start"><i class="bi bi-qr-code"></i><br><?= lang('Business.renewal.pay-by-qr-thailand') ?></b>
+                                <b class="float-start text-start"><i class="fa-solid fa-qrcode"></i><br><?= lang('Business.renewal.pay-by-qr-thailand') ?></b>
                             </a>
                         </div>
                     </div>

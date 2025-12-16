@@ -23,8 +23,8 @@ return [
             'X' => 'ไม่ต้องคิดภาษี'
         ],
         'business_status' => [
-            'A' => '<i class="bi bi-check-circle-fill text-success"></i> ปกติ',
-            'E' => '<i class="bi bi-x-circle-fill text-danger"></i> หมดอายุ',
+            'A' => '<i class="fa-solid fa-circle-check text-success"></i> ปกติ',
+            'E' => '<i class="fa-solid fa-circle-xmark text-danger"></i> หมดอายุ',
         ]
     ],
     'explanation' => [
