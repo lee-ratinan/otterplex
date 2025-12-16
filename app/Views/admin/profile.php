@@ -10,7 +10,7 @@
                             <div class="float-end avatar-4x">
                                 <?= $session->avatar ?>
                             </div>
-                            <h2><i class="bi bi-lock"></i> <?= lang('Admin.profile.controlled-account-data') ?></h2>
+                            <h2><i class="fa-solid fa-lock"></i> <?= lang('Admin.profile.controlled-account-data') ?></h2>
                             <div class="row">
                                 <div class="col-12"><p><small><?= lang('UserMaster.field.email_address') ?></small><br><?= $session->user['email_address'] ?></p></div>
                                 <div class="col-6"><p><small><?= lang('UserMaster.field.user_name_first') ?></small><br><?= $session->user['user_name_first'] ?></p></div>
@@ -20,7 +20,7 @@
                             </div>
                             <hr class="my-3"/>
                             <!-- PROFILE DATA -->
-                            <h2><i class="bi bi-person-badge"></i> <?= lang('Admin.profile.profile-data') ?></h2>
+                            <h2><i class="fa-solid fa-id-badge"></i> <?= lang('Admin.profile.profile-data') ?></h2>
                             <?php
                             echo build_form_input('telephone_number', lang('UserMaster.field.telephone_number'), ['type' => 'tel'], $session->user['telephone_number']);
                             $lang_options = get_available_locales('long');
@@ -38,7 +38,7 @@
                             </div>
                             <hr class="my-3"/>
                             <!-- UPLOAD AVATAR -->
-                            <h2><i class="bi bi-cloud-arrow-up"></i> <?= lang('Admin.profile.upload-avatar') ?></h2>
+                            <h2><i class="fa-solid fa-cloud-arrow-up"></i> <?= lang('Admin.profile.upload-avatar') ?></h2>
                             <form id="form-upload-avatar" action="<?= base_url('/admin/profile') ?>" method="post" enctype="multipart/form-data">
                                 <input type="hidden" name="script_action" value="upload_avatar"/>
                                 <input type="file" id="avatar" name="avatar" class="form-control my-3"/>
@@ -51,7 +51,7 @@
                             </form>
                             <hr class="my-3"/>
                             <!-- CHANGE PASSWORD -->
-                            <h2><i class="bi bi-lock"></i> <?= lang('Admin.profile.change-password') ?></h2>
+                            <h2><i class="fa-solid fa-lock"></i> <?= lang('Admin.profile.change-password') ?></h2>
                             <form>
                                 <?php
                                 echo build_form_input('current_password', lang('UserMaster.field.current_password'), ['type' => 'password', 'required'  => 'true', 'minlength' => '8', 'maxlength' => '32', 'autocomplete' => 'off']);
@@ -62,12 +62,12 @@
                             <p class="small">
                                 <?= lang('Admin.profile.new-password-requirement.title') ?><br>
                                 <?php for ($i = 1; $i <= 8; $i++) : ?>
-                                    <i class="bi <?= (5 < $i ? 'password-strength-circle-invert bi-check-circle-fill text-success' : 'password-strength-circle bi-x-circle-fill text-danger') ?>" id="password-requirement-item-<?= $i ?>"></i> <?= lang('Admin.profile.new-password-requirement.item-' . $i) ?><br>
+                                    <i class="fa-solid <?= (5 < $i ? 'password-strength-circle-invert fa-circle-check text-success' : 'password-strength-circle fa-circle-xmark text-danger') ?>" id="password-requirement-item-<?= $i ?>"></i> <?= lang('Admin.profile.new-password-requirement.item-' . $i) ?><br>
                                 <?php endfor; ?>
                                 <label><input type="hidden" id="password-strength-count" name="password-strength-count" value="0" /></label>
                             </p>
                             <div class="text-end">
-                                <button id="btn-change-password" type="submit" class="btn btn-primary"><i class="bi bi-lock"></i>  <?= lang('Admin.profile.change-password') ?></button>
+                                <button id="btn-change-password" type="submit" class="btn btn-primary"><i class="fa-solid fa-lock"></i>  <?= lang('Admin.profile.change-password') ?></button>
                             </div>
                         </div>
                     </div>
@@ -82,51 +82,51 @@
             $('#new_password')
                 .on('keyup', function () {
                     // Reset
-                    $('.password-strength-circle').removeClass('bi-check-circle-fill text-success').addClass('bi-x-circle-fill text-danger');
-                    $('.password-strength-circle-invert').removeClass('bi-x-circle-fill text-danger').addClass('bi-check-circle-fill text-success');
+                    $('.password-strength-circle').removeClass('fa-circle-check text-success').addClass('fa-circle-xmark text-danger');
+                    $('.password-strength-circle-invert').removeClass('fa-circle-xmark text-danger').addClass('fa-circle-check text-success');
                     // Check password
                     let password = $(this).val();
                     let strength = 0;
                     if (password.length >= 8) { // Password must be at least 8 characters long.
                         strength++;
-                        $('#password-requirement-item-1').removeClass('bi-x-circle-fill text-danger').addClass('bi-check-circle-fill text-success');
+                        $('#password-requirement-item-1').removeClass('fa-circle-xmark text-danger').addClass('fa-circle-check text-success');
                     }
                     if (password.match(/[0-9]/)) { // Password must contain at least one number.
                         strength++;
-                        $('#password-requirement-item-2').removeClass('bi-x-circle-fill text-danger').addClass('bi-check-circle-fill text-success');
+                        $('#password-requirement-item-2').removeClass('fa-circle-xmark text-danger').addClass('fa-circle-check text-success');
                     }
                     if (password.match(/[A-Z]/)) { // Password must contain at least one uppercase letter.
                         strength++;
-                        $('#password-requirement-item-3').removeClass('bi-x-circle-fill text-danger').addClass('bi-check-circle-fill text-success');
+                        $('#password-requirement-item-3').removeClass('fa-circle-xmark text-danger').addClass('fa-circle-check text-success');
                     }
                     if (password.match(/[a-z]/)) { // Password must contain at least one lowercase letter.
                         strength++;
-                        $('#password-requirement-item-4').removeClass('bi-x-circle-fill text-danger').addClass('bi-check-circle-fill text-success');
+                        $('#password-requirement-item-4').removeClass('fa-circle-xmark text-danger').addClass('fa-circle-check text-success');
                     }
                     if (password.match(/[@$!%*?&]/)) { // Password must contain at least one special character: @$!%*?&
                         strength++;
-                        $('#password-requirement-item-5').removeClass('bi-x-circle-fill text-danger').addClass('bi-check-circle-fill text-success');
+                        $('#password-requirement-item-5').removeClass('fa-circle-xmark text-danger').addClass('fa-circle-check text-success');
                     }
                     let regex_name = new RegExp('^(?:(?!<?= strtolower($session->user['user_name_first']) ?>|<?= strtolower($session->user['user_name_last']) ?>).)*$', 'i');
                     if (password.match(regex_name)) { // Password must not contain first and/or family name(s).
                         strength++;
-                        $('#password-requirement-item-6').removeClass('bi-x-circle-fill text-danger').addClass('bi-check-circle-fill text-success');
+                        $('#password-requirement-item-6').removeClass('fa-circle-xmark text-danger').addClass('fa-circle-check text-success');
                     } else {
-                        $('#password-requirement-item-6').removeClass('bi-check-circle-fill text-success').addClass('bi-x-circle-fill text-danger');
+                        $('#password-requirement-item-6').removeClass('fa-circle-check text-success').addClass('fa-circle-xmark text-danger');
                     }
                     let regex_common = new RegExp('^(?:(?!<?= BANNED_PASSWORD ?>).)*$', 'i');
                     if (password.match(regex_common)) { // Password must not be too common.
                         strength++;
-                        $('#password-requirement-item-7').removeClass('bi-x-circle-fill text-danger').addClass('bi-check-circle-fill text-success');
+                        $('#password-requirement-item-7').removeClass('fa-circle-xmark text-danger').addClass('fa-circle-check text-success');
                     } else {
-                        $('#password-requirement-item-7').removeClass('bi-check-circle-fill text-success').addClass('bi-x-circle-fill text-danger');
+                        $('#password-requirement-item-7').removeClass('fa-circle-check text-success').addClass('fa-circle-xmark text-danger');
                     }
                     let regex_illegal = new RegExp('^[0-9A-Za-z@$!%*?&]*$', 'i');
                     if (password.match(regex_illegal)) { // Password must not contain illegal letters (letters apart from number, uppercase and lowercase Latin characters, and @$!%*?&).
                         strength++;
-                        $('#password-requirement-item-8').removeClass('bi-x-circle-fill text-danger').addClass('bi-check-circle-fill text-success');
+                        $('#password-requirement-item-8').removeClass('fa-circle-xmark text-danger').addClass('fa-circle-check text-success');
                     } else {
-                        $('#password-requirement-item-8').removeClass('bi-check-circle-fill text-success').addClass('bi-x-circle-fill text-danger');
+                        $('#password-requirement-item-8').removeClass('fa-circle-check text-success').addClass('fa-circle-xmark text-danger');
                     }
                     $('#password-strength-count').val(strength);
                 })

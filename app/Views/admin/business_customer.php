@@ -5,7 +5,7 @@
         <div class="col">
             <div class="card">
                 <div class="card-body p-3">
-                    <div class="alert alert-info"><i class="bi bi-info-circle me-3"></i> <?= lang('Business.customer-management.privacy-policy') ?></div>
+                    <div class="alert alert-info"><i class="fa-solid fa-circle-info me-3"></i> <?= lang('Business.customer-management.privacy-policy') ?></div>
                     <div class="table-responsive">
                         <table class="table table-sm table-hover table-striped">
                             <thead>

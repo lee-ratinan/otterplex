@@ -23,8 +23,8 @@ return [
             'X' => 'Not Applicable'
         ],
         'business_status' => [
-            'A' => '<i class="bi bi-check-circle-fill text-success"></i> Active',
-            'E' => '<i class="bi bi-x-circle-fill text-danger"></i> Expired',
+            'A' => '<i class="fa-solid fa-circle-check text-success"></i> Active',
+            'E' => '<i class="fa-solid fa-circle-xmark text-danger"></i> Expired',
         ]
     ],
     'explanation' => [
