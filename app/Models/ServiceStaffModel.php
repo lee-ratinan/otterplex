@@ -2,18 +2,14 @@
 
 namespace App\Models;
 
-class BranchModifiedHoursModel extends AppBaseModel
+class ServiceStaffModel extends AppBaseModel
 {
-    protected $table = 'branch_modified_hours';
+    protected $table = 'service_staff';
     protected $primaryKey = 'id';
     protected $allowedFields = [
         'id',
-        'branch_id',
-        'modified_hours_date',
-        'modified_reason',
-        'modified_type',
-        'updated_opening_hours',
-        'updated_closing_hours',
+        'branch_user_id',
+        'service_id',
         'created_by',
         'created_at',
         'updated_at'
