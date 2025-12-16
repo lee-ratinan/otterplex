@@ -40,10 +40,36 @@
                             ?>
                         </div>
                     </div>
-
-                    <pre>
-                        <?php print_r($variants); ?>
-                    </pre>
+                    <?php if ('edit' == $mode) : ?>
+                    <h2><?= lang('Service.service-variant') ?></h2>
+                    <div class="text-end">
+                        <a class="btn btn-primary" href="<?= base_url('service/variant/0') ?>"><i class="fa-solid fa-plus-circle"></i> <?= lang('Service.new-variant') ?></a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover table-striped">
+                            <thead>
+                            <tr>
+                                <th><?= lang('ServiceVariant.field.variant_slug') ?></th>
+                                <th><?= lang('ServiceVariant.field.variant_name') ?></th>
+                                <th><?= lang('ServiceVariant.field.is_active') ?></th>
+                                <th><?= lang('ServiceVariant.field.schedule_type') ?></th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <?php foreach ($variants as $variant): ?>
+                            <tr>
+                                <td><?= $variant['variant_slug'] ?></td>
+                                <td><?= ($variant['variant_local_names'][$session->lang] ?? $variant['variant_name']) ?></td>
+                                <td><?= lang('ServiceVariant.enum.is_active.' . $variant['is_active']) ?></td>
+                                <td><?= lang('ServiceVariant.enum.schedule_type.' . $variant['schedule_type']) ?></td>
+                                <td><a class="btn btn-primary btn-sm float-end" href="<?= base_url('service/variant/' . ($variant['id'] * ID_MASKED_PRIME)) ?>"><?= lang('System.buttons.edit') ?></a></td>
+                            </tr>
+                            <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
