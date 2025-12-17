@@ -8,8 +8,8 @@
                     <div class="row">
                         <div class="col">
                             <div class="text-end">
-                                <a class="btn btn-primary" href="<?= base_url('admin/product/category/0') ?>">
-                                    <i class="fa-solid fa-circle-plus"></i> <?= lang('Product.new-product-category') ?>
+                                <a class="btn btn-primary" href="<?= base_url('admin/product/0') ?>">
+                                    <i class="fa-solid fa-circle-plus"></i> <?= lang('Product.new-product') ?>
                                 </a>
                             </div>
                             <div class="table-responsive">
@@ -17,7 +17,7 @@
                                     <thead>
                                     <tr>
                                         <th><?= lang('ProductMaster.field.product_slug') ?></th>
-                                        <th><?= lang('ProductMaster.field.category_id') ?></th>
+                                        <th><?= lang('ProductMaster.field.product_category_id') ?></th>
                                         <th><?= lang('ProductMaster.field.product_name') ?></th>
                                         <th><?= lang('ProductMaster.field.product_type') ?></th>
                                         <th><?= lang('ProductMaster.field.is_active') ?></th>
