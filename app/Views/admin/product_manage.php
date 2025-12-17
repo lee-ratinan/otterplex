@@ -53,10 +53,55 @@
                                     </div>
                                 </div>
                             </div>
+                            <?php if ('edit' == $mode) : ?>
+                                <h2><?= lang('Product.product-variant') ?></h2>
+                                <div class="text-end">
+                                    <a class="btn btn-primary" href="<?= base_url('admin/product/variants/' . ($product['id'] * ID_MASKED_PRIME) . '/0') ?>"><?= lang('Product.new-product-variant') ?></a>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover">
+                                        <thead>
+                                        <tr>
+                                            <th><?= lang('ProductVariant.field.variant_slug') ?></th>
+                                            <th><?= lang('ProductVariant.field.variant_sku') ?></th>
+                                            <th><?= lang('ProductVariant.field.variant_name') ?></th>
+                                            <th><?= lang('ProductVariant.field.is_active') ?></th>
+                                            <th><?= lang('ProductVariant.field.inventory_count') ?></th>
+                                            <th><?= lang('ProductVariant.field.price_active') ?></th>
+                                            <th><?= lang('ProductVariant.field.price_compare') ?></th>
+                                            <th></th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <?php foreach ($variants as $variant) : ?>
+                                        <tr>
+                                            <td><?= $variant['variant_slug'] ?></td>
+                                            <td><?= $variant['variant_sku'] ?></td>
+                                            <td><?= $variant['variant_local_names'][$session->lang] ?? $variant['variant_name'] ?></td>
+                                            <td><?= lang('ProductVariant.enum.is_active.' . $variant['is_active']) ?></td>
+                                            <td><?= number_format($variant['inventory_count']) ?></td>
+                                            <td><?= format_price($variant['price_active'], $session->business['currency_code']) ?></td>
+                                            <td><?= format_price($variant['price_compare'], $session->business['currency_code']) ?></td>
+                                            <td class="text-end">
+                                                <a class="btn btn-primary btn-sm mb-1" href="<?= base_url('admin/product/variants/inventory/' . ($variant['id'] * ID_MASKED_PRIME)) ?>"><?= lang('Product.inventory') ?></a>
+                                                <a class="btn btn-primary btn-sm ms-1" href="<?= base_url('admin/product/variants/' . ($product['id'] * ID_MASKED_PRIME) . '/' . ($variant['id'] * ID_MASKED_PRIME)) ?>"><?= lang('System.buttons.edit') ?></a>
+                                            </td>
+                                        </tr>
+                                        <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+<!--                                <pre>--><?php //print_r($variants) ?><!--</pre>-->
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const table = $('table').DataTable();
+        });
+    </script>
 <?php $this->endSection() ?>

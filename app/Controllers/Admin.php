@@ -15,6 +15,7 @@ use App\Models\BusinessUserModel;
 use App\Models\OtternautPackageModel;
 use App\Models\ProductCategoryModel;
 use App\Models\ProductMasterModel;
+use App\Models\ProductVariantModel;
 use App\Models\ResourceMasterModel;
 use App\Models\ResourceTypeModel;
 use App\Models\ServiceMasterModel;
@@ -1194,9 +1195,11 @@ class Admin extends BaseController
         $productId     = $productId / ID_MASKED_PRIME;
         $productModel  = new ProductMasterModel();
         $categoryModel = new ProductCategoryModel();
+        $variantModel  = new ProductVariantModel();
         $product       = [];
         $cateRaw       = $categoryModel->where('business_id', $session->business['business_id'])->findAll();
         $categories    = [];
+        $variants      = [];
         foreach ($cateRaw as $row) {
             $local_names            = json_decode($row['category_local_names'], true);
             $categories[$row['id']] = $local_names[$session->lang] ?? $row['category_name'];
@@ -1209,6 +1212,7 @@ class Admin extends BaseController
                 throw PageNotFoundException::forPageNotFound();
             }
             $product['product_local_names'] = json_decode($product['product_local_names'], true);
+            $variants                       = $variantModel->where('product_id', $productId)->findAll();
         }
         $data = [
             'slug'       => 'product-manage',
@@ -1221,6 +1225,7 @@ class Admin extends BaseController
             ],
             'product'    => $product,
             'categories' => $categories,
+            'variants'   => $variants,
             'mode'       => $mode,
         ];
         return view('admin/product_manage', $data);

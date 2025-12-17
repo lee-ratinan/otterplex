@@ -17,8 +17,8 @@ return [
     ],
     'enum'  => [
         'is_active'     => [
-            'A' => 'Active',
-            'B' => 'Inactive',
+            'A' => 'ปกติ',
+            'I' => 'สินค้าหมด',
         ],
         'schedule_type' => [
             'A' => 'เลือกเวลาเอง',

@@ -18,7 +18,7 @@ return [
     'enum'  => [
         'is_active'     => [
             'A' => 'Active',
-            'B' => 'Inactive',
+            'I' => 'Inactive',
         ],
         'schedule_type' => [
             'A' => 'Ad-hoc Session',
