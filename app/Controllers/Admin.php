@@ -67,9 +67,33 @@ class Admin extends BaseController
      */
     public function index(): string
     {
+        $session   = session();
+        $dashboard = [];
+        if ('OWNER' == $session->user_role) {
+            $businessId   = $session->business['business_id'];
+            $branchModel  = new BranchMasterModel;
+            $serviceModel = new ServiceMasterModel;
+            $productModel = new ProductMasterModel;
+            $staffModel   = new BranchUserModel;
+            $branches     = $branchModel->where('business_id', $businessId)->findAll();
+            $services     = $serviceModel->getServicesForBusiness($businessId);
+            $products     = $productModel->select('product_master.*, product_variant.variant_name, product_variant.variant_local_names')
+                ->join('product_variant', 'product_variant.product_id = product_master.id')
+                ->where('business_id', $businessId)->findAll();
+            $staff        = $staffModel->getUsersByBusinessId($businessId);
+            $dashboard    = [
+                'setup' => [
+                    'branches' => $branches,
+                    'services' => $services,
+                    'products' => $products,
+                    'staff'    => $staff,
+                ]
+            ];
+        }
         $data    = [
-            'slug'         => 'dashboard',
-            'lang'         => $this->request->getLocale(),
+            'slug'      => 'dashboard',
+            'lang'      => $this->request->getLocale(),
+            'dashboard' => $dashboard,
         ];
         return view('admin/dashboard', $data);
     }
