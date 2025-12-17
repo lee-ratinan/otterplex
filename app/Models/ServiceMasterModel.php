@@ -44,7 +44,7 @@ class ServiceMasterModel extends AppBaseModel
                 'id'                   => $service['id'],
                 'service_slug'         => $service['service_slug'],
                 'service_name'         => $service['service_name'],
-                'service_local_name'   => json_decode($service['service_local_names'], true),
+                'service_local_names'  => json_decode($service['service_local_names'], true),
                 'is_active'            => $service['is_active'],
 //                'price_active_lowest'  => $service['price_active_lowest'],
 //                'price_compare_lowest' => $service['price_compare_lowest'],

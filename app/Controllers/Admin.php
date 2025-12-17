@@ -76,10 +76,38 @@ class Admin extends BaseController
             $productModel = new ProductMasterModel;
             $staffModel   = new BranchUserModel;
             $branches     = $branchModel->where('business_id', $businessId)->findAll();
-            $services     = $serviceModel->getServicesForBusiness($businessId);
-            $products     = $productModel->select('product_master.*, product_variant.variant_name, product_variant.variant_local_names')
-                ->join('product_variant', 'product_variant.product_id = product_master.id')
-                ->where('business_id', $businessId)->findAll();
+            $service_raw  = $serviceModel->select('service_master.id AS service_id, service_variant.variant_name, service_variant.variant_local_names, service_master.service_name, service_master.service_local_names')
+                ->join('service_variant', 'service_master.id = service_variant.service_id', 'left outer')
+                ->where('service_master.business_id', $businessId)->findAll();
+            $services     = [];
+            $product_raw  = $productModel->select('product_master.id AS product_id, product_variant.variant_name, product_variant.variant_local_names, product_master.product_name, product_master.product_local_names')
+                ->join('product_variant', 'product_variant.product_id = product_master.id', 'left outer')
+                ->where('product_master.business_id', $businessId)->findAll();
+            $products     = [];
+            foreach ($service_raw as $service) {
+                $service_names                 = json_decode($service['service_local_names'], true);
+                $service_name                  = $service_names[$session->lang] ?? $service['service_name'];
+                $id                            = $service['service_id'] * ID_MASKED_PRIME;
+                $services[$id]['service_name'] = $service_name;
+                $services[$id]['variants']     = [];
+                if (!empty($service['variant_name'])) {
+                    $variant_names               = json_decode($service['variant_local_names'], true);
+                    $variant_name                = $variant_names[$session->lang] ?? $service['variant_name'];
+                    $services[$id]['variants'][] = $variant_name;
+                }
+            }
+            foreach ($product_raw as $product) {
+                $product_names                 = json_decode($product['product_local_names'], true);
+                $product_name                  = $product_names[$session->lang] ?? $product['product_name'];
+                $id                            = $product['product_id'] * ID_MASKED_PRIME;
+                $products[$id]['product_name'] = $product_name;
+                $products[$id]['variants']     = [];
+                if (!empty($product['variant_name'])) {
+                    $variant_names               = json_decode($product['variant_local_names'], true);
+                    $variant_name                = $variant_names[$session->lang] ?? $product['variant_name'];
+                    $products[$id]['variants'][] = $variant_name;
+                }
+            }
             $staff        = $staffModel->getUsersByBusinessId($businessId);
             $dashboard    = [
                 'setup' => [
@@ -1058,7 +1086,7 @@ class Admin extends BaseController
         foreach ($raw as $service) {
             $final[] = [
                 $service['service_slug'],
-                $service['service_local_name'][$session->lang] ?? $service['service_name'],
+                $service['service_local_names'][$session->lang] ?? $service['service_name'],
                 lang('ServiceMaster.enum.is_active.' . $service['is_active']),
                 '<a class="btn btn-primary btn-sm float-end" href="' . base_url('admin/service/' . ($service['id'] * ID_MASKED_PRIME)) . '"> ' . lang('System.buttons.edit') . '</a>'
             ];
