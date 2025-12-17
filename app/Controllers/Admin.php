@@ -1289,9 +1289,18 @@ class Admin extends BaseController
         if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
             return $this->forbiddenResponse('string');
         }
-        $productLink = base_url('admin/product/' . $productId);
-        $productId   = $productId / ID_MASKED_PRIME;
-        $variantId   = $variantId / ID_MASKED_PRIME;
+        $productLink  = base_url('admin/product/' . $productId);
+        $variantId    = $variantId / ID_MASKED_PRIME;
+        $variantModel = new ProductVariantModel();
+        $variant      = [];
+        $mode         = 'new';
+        if (0 < $variantId) {
+            $variant = $variantModel->getVariantInformation($variantId);
+            if (empty($variant)) {
+                throw PageNotFoundException::forPageNotFound();
+            }
+            $mode    = 'edit';
+        }
         $data = [
             'slug'       => 'product-variant-manage',
             'lang'       => $this->request->getLocale(),
@@ -1305,8 +1314,10 @@ class Admin extends BaseController
                     'page_title' => lang('Admin.pages.product-manage'),
                 ]
             ],
+            'variant'    => $variant,
+            'mode'       => $mode,
         ];
-        return view('admin/product_variant_manage', $data);
+        return view('admin/product_variant', $data);
     }
 
     public function product_variant_inventory(int $productId, int $variantId): string

@@ -5,7 +5,14 @@
         <div class="col">
             <div class="card">
                 <div class="card-body p-3">
-                    <h2><?= ('edit' == $mode ? ($variant['variant_local_names'][$session->lang] ?? $variant['variant_name']) : lang('Service.new-variant')) ?></h2>
+                    <h2>
+                        <?php if ('new' == $mode) : ?>
+                            <?= lang('Service.new-variant') ?>
+                        <?php else: ?>
+                            <?= $service['service_local_names'][$session->lang] ?? $service['service_name'] ?> /
+                            <?= $variant['variant_local_names'][$session->lang] ?? $variant['variant_name'] ?>
+                        <?php endif; ?>
+                    </h2>
                     <div class="row">
                         <div class="col col-md-6">
                             <?php

@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Config\Services;
+
 class ProductVariantModel extends AppBaseModel
 {
     protected $table = 'product_variant';
@@ -25,4 +27,20 @@ class ProductVariantModel extends AppBaseModel
     protected $useTimestamps = true;
     protected $createdField = 'created_at';
     protected $updatedField = 'updated_at';
+
+    public function getVariantInformation(int $variantId): array
+    {
+        $cache    = Services::cache();
+        $cacheKey = 'product_variant_info-' . $variantId;
+        if ($cache->get($cacheKey)) {
+            return $cache->get($cacheKey);
+        }
+        $variant = $this->select('product_variant.*, product_master.product_name, product_master.product_local_names')
+            ->join('product_master', 'product_variant.product_id = product_master.id')
+            ->where('product_variant.id', $variantId)->first();
+        $variant['product_local_names'] = json_decode($variant['product_local_names'], true);
+        $variant['variant_local_names'] = json_decode($variant['variant_local_names'], true);
+        $cache->save($cacheKey, $variant, self::HOURS_IN_SEC);
+        return $variant;
+    }
 }
