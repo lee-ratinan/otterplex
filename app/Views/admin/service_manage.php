@@ -13,8 +13,9 @@
                                 'type' => 'text',
                             ], @$service['service_name']);
                             echo build_form_input('service_slug', lang('ServiceMaster.field.service_slug'), [
-                                'type'     => 'text',
-                                'readonly' => 'readonly',
+                                'type'             => 'text',
+                                'readonly'         => 'readonly',
+                                'data-explanation' => lang('System.system-generated')
                             ], @$service['service_slug']);
                             $locales = get_available_locales('long');
                             foreach ($locales as $locale_code => $locale_name) {

@@ -13,8 +13,9 @@
                                 'type' => 'text',
                             ], @$variant['variant_name']);
                             echo build_form_input('variant_slug', lang('ServiceVariant.field.variant_slug'), [
-                                'type'     => 'text',
-                                'readonly' => 'readonly',
+                                'type'             => 'text',
+                                'readonly'         => 'readonly',
+                                'data-explanation' => lang('System.system-generated')
                             ], @$variant['variant_slug']);
                             $locales = get_available_locales('long');
                             foreach ($locales as $locale_code => $locale_name) {

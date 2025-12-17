@@ -4,6 +4,7 @@ return [
     'copyrights'         => 'สงวนลิขสิทธิ์ &copy; 2025-{0} <b>OtterNova</b>',
     'change-language'    => 'เปลี่ยนภาษา',
     'go-to-main-site'    => 'ไปสู่หน้าหลัก',
+    'system-generated'   => 'ข้อมูลนี้จะถูกตั้งค่าเองโดยระบบ',
     'pages'              => [
         'login'              => 'เข้าสู่ระบบ',
         'create-account'     => 'สร้างบัญชีใหม่',
