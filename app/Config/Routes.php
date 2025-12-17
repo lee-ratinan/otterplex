@@ -65,6 +65,8 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     // PRODUCT
     $routes->get('product', 'Admin::product');
     $routes->post('product', 'Admin::product_post');
+    $routes->get('product/(:num)', 'Admin::product_manage/$1');
+    $routes->post('product/manage', 'Admin::product_manage_post');
     $routes->get('product/category', 'Admin::product_category');
     $routes->post('product/category', 'Admin::product_category_post');
     $routes->get('product/category/(:num)', 'Admin::product_category_manage/$1');

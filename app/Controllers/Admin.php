@@ -1185,6 +1185,47 @@ class Admin extends BaseController
         ]);
     }
 
+    public function product_manage(int $productId): string
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('string');
+        }
+        $productId     = $productId / ID_MASKED_PRIME;
+        $productModel  = new ProductMasterModel();
+        $categoryModel = new ProductCategoryModel();
+        $product       = [];
+        $cateRaw       = $categoryModel->where('business_id', $session->business['business_id'])->findAll();
+        $categories    = [];
+        foreach ($cateRaw as $row) {
+            $local_names            = json_decode($row['category_local_names'], true);
+            $categories[$row['id']] = $local_names[$session->lang] ?? $row['category_name'];
+        }
+        $mode          = 'new';
+        if (0 < $productId) {
+            $mode    = 'edit';
+            $product = $productModel->findRow($productId);
+            if (empty($product)) {
+                throw PageNotFoundException::forPageNotFound();
+            }
+            $product['product_local_names'] = json_decode($product['product_local_names'], true);
+        }
+        $data = [
+            'slug'       => 'product-manage',
+            'lang'       => $this->request->getLocale(),
+            'breadcrumb' => [
+                [
+                    'url'        => base_url('admin/product'),
+                    'page_title' => lang('Admin.pages.product'),
+                ]
+            ],
+            'product'    => $product,
+            'categories' => $categories,
+            'mode'       => $mode,
+        ];
+        return view('admin/product_manage', $data);
+    }
+
     /**
      * Manage product category
      * @return string

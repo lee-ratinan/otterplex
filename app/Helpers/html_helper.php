@@ -190,7 +190,7 @@ if (!function_exists('build_form_input')) {
         }
         if ('select' == $attributes['type']) {
             $attr_str   = implode(' ', $attr);
-            $select_tag = "<select {$attr_str}>";
+            $select_tag = "<select {$attr_str}><option value=''></option>";
             foreach ($options as $key => $value) {
                 $select_tag .= "<option value='{$key}' " . ($current_value == $key ? 'selected' : '') . ">{$value}</option>";
             }
