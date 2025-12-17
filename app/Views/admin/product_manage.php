@@ -57,7 +57,7 @@
                             <?php if ('edit' == $mode) : ?>
                                 <h2><?= lang('Product.product-variant') ?></h2>
                                 <div class="text-end">
-                                    <a class="btn btn-primary" href="<?= base_url('admin/product/variants/' . ($product['id'] * ID_MASKED_PRIME) . '/0') ?>"><?= lang('Product.new-product-variant') ?></a>
+                                    <a class="btn btn-primary" href="<?= base_url('admin/product/variant/' . ($product['id'] * ID_MASKED_PRIME) . '/0') ?>"><?= lang('Product.new-product-variant') ?></a>
                                 </div>
                                 <div class="table-responsive">
                                     <table class="table table-striped table-hover">
@@ -84,8 +84,8 @@
                                             <td><?= format_price($variant['price_active'], $session->business['currency_code']) ?></td>
                                             <td><?= format_price($variant['price_compare'], $session->business['currency_code']) ?></td>
                                             <td class="text-end">
-                                                <a class="btn btn-primary btn-sm mb-1" href="<?= base_url('admin/product/variants/inventory/' . ($variant['id'] * ID_MASKED_PRIME)) ?>"><?= lang('Product.inventory') ?></a>
-                                                <a class="btn btn-primary btn-sm ms-1" href="<?= base_url('admin/product/variants/' . ($product['id'] * ID_MASKED_PRIME) . '/' . ($variant['id'] * ID_MASKED_PRIME)) ?>"><?= lang('System.buttons.edit') ?></a>
+                                                <a class="btn btn-primary btn-sm mb-1" href="<?= base_url('admin/product/variant/inventory/' . ($product['id'] * ID_MASKED_PRIME) . '/' . ($variant['id'] * ID_MASKED_PRIME)) ?>"><i class="fa-solid fa-warehouse"></i> <?= lang('Product.inventory') ?></a>
+                                                <a class="btn btn-primary btn-sm mb-1 ms-1" href="<?= base_url('admin/product/variant/' . ($product['id'] * ID_MASKED_PRIME) . '/' . ($variant['id'] * ID_MASKED_PRIME)) ?>"><?= lang('System.buttons.edit') ?></a>
                                             </td>
                                         </tr>
                                         <?php endforeach; ?>

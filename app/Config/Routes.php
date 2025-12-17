@@ -61,12 +61,16 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->get('service/(:num)', 'Admin::service_manage/$1');
     $routes->post('service/manage', 'Admin::service_manage_post');
     $routes->get('service/variant/(:num)/(:num)', 'Admin::service_variant_manage/$1/$2');
-    $routes->get('service/variant/manage', 'Admin::service_variant_manage_post');
+    $routes->post('service/variant/manage', 'Admin::service_variant_manage_post');
     // PRODUCT
     $routes->get('product', 'Admin::product');
     $routes->post('product', 'Admin::product_post');
     $routes->get('product/(:num)', 'Admin::product_manage/$1');
     $routes->post('product/manage', 'Admin::product_manage_post');
+    $routes->get('product/variant/(:num)/(:num)', 'Admin::product_variant_manage/$1/$2');
+    $routes->post('product/variant/manage', 'Admin::product_variant_manage_post');
+    $routes->get('product/variant/inventory/(:num)/(:num)', 'Admin::product_variant_inventory/$1/$2');
+    $routes->post('product/variant/inventory/(:num)/(:num)', 'Admin::product_variant_inventory_post/$1/$2');
     $routes->get('product/category', 'Admin::product_category');
     $routes->post('product/category', 'Admin::product_category_post');
     $routes->get('product/category/(:num)', 'Admin::product_category_manage/$1');

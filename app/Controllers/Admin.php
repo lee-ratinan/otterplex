@@ -1283,6 +1283,58 @@ class Admin extends BaseController
         return view('admin/product_manage', $data);
     }
 
+    public function product_variant_manage(int $productId, int $variantId): string
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('string');
+        }
+        $productLink = base_url('admin/product/' . $productId);
+        $productId   = $productId / ID_MASKED_PRIME;
+        $variantId   = $variantId / ID_MASKED_PRIME;
+        $data = [
+            'slug'       => 'product-variant-manage',
+            'lang'       => $this->request->getLocale(),
+            'breadcrumb' => [
+                [
+                    'url'        => base_url('admin/product'),
+                    'page_title' => lang('Admin.pages.product'),
+                ],
+                [
+                    'url'        => $productLink,
+                    'page_title' => lang('Admin.pages.product-manage'),
+                ]
+            ],
+        ];
+        return view('admin/product_variant_manage', $data);
+    }
+
+    public function product_variant_inventory(int $productId, int $variantId): string
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('string');
+        }
+        $productLink = base_url('admin/product/' . $productId);
+        $productId   = $productId / ID_MASKED_PRIME;
+        $variantId   = $variantId / ID_MASKED_PRIME;
+        $data = [
+            'slug'       => 'product-variant-inventory',
+            'lang'       => $this->request->getLocale(),
+            'breadcrumb' => [
+                [
+                    'url'        => base_url('admin/product'),
+                    'page_title' => lang('Admin.pages.product'),
+                ],
+                [
+                    'url'        => $productLink,
+                    'page_title' => lang('Admin.pages.product-manage'),
+                ]
+            ],
+        ];
+        return view('admin/product_variant_inventory', $data);
+    }
+
     /**
      * Manage product category
      * @return string

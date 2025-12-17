@@ -17,6 +17,8 @@ return [
         'service-variant-manage'    => 'Service Variant Management',
         'product'                   => 'Product',
         'product-manage'            => 'Product Management',
+        'product-variant-manage'    => 'Product Variant Management',
+        'product-variant-inventory' => 'Inventory',
         'product-category'          => 'Product Category',
         'product-category-manage'   => 'Product Category Management',
         'review'                    => 'Review',
