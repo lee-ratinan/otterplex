@@ -14,6 +14,7 @@ use App\Models\BusinessTypeModel;
 use App\Models\BusinessUserModel;
 use App\Models\OtternautPackageModel;
 use App\Models\ProductCategoryModel;
+use App\Models\ProductMasterModel;
 use App\Models\ResourceMasterModel;
 use App\Models\ResourceTypeModel;
 use App\Models\ServiceMasterModel;
@@ -1178,19 +1179,9 @@ class Admin extends BaseController
         if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
             return $this->forbiddenResponse('ResponseInterface');
         }
-        $serviceModel = new ProductMasterModel();
-        $raw          = $serviceModel->getServicesForBusiness($session->business['business_id']);
-        $final        = [];
-        foreach ($raw as $service) {
-            $final[] = [
-                $service['service_slug'],
-                $service['service_local_name'][$session->lang] ?? $service['service_name'],
-                lang('ServiceMaster.enum.is_active.' . $service['is_active']),
-                '<a class="btn btn-primary btn-sm float-end" href="' . base_url('admin/service/' . ($service['id'] * ID_MASKED_PRIME)) . '"> ' . lang('System.buttons.edit') . '</a>'
-            ];
-        }
+        $productModel = new ProductMasterModel();
         return $this->response->setJSON([
-            'data' => $final
+            'data' => $productModel->getDataTable($session->business['business_id'])
         ]);
     }
 
