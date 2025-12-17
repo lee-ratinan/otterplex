@@ -31,8 +31,9 @@
                                     echo build_form_input('product_tag', lang('ProductMaster.field.product_tag'), [
                                         'type' => 'select'
                                     ], @$product['product_tag'], '', [
-                                        'new' => lang('ProductMaster.enum.product_tag.new'),
-                                        'popular' => lang('ProductMaster.enum.product_tag.popular'),
+                                        'none'        => '-',
+                                        'new'         => lang('ProductMaster.enum.product_tag.new'),
+                                        'popular'     => lang('ProductMaster.enum.product_tag.popular'),
                                         'recommended' => lang('ProductMaster.enum.product_tag.recommended'),
                                     ]);
                                     echo build_form_input('product_type', lang('ProductMaster.field.product_type'), [
