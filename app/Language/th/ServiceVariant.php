@@ -8,7 +8,7 @@ return [
         'variant_local_names'       => 'ชื่อตัวเลือกในภาษาต่างๆ',
         'is_active'                 => 'สถานะ',
         'schedule_type'             => 'ประเภทการนัดหมาย',
-        'variant_capacity'          => 'จำนวนลูกค้าที่รับได',
+        'variant_capacity'          => 'จำนวนลูกค้าที่รับได้',
         'price_active'              => 'ราคา',
         'price_compare'             => 'ราคาเปรียบเทียบ',
         'required_num_staff'        => 'จำนวนพนักงานที่ใช้',

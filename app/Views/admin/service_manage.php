@@ -13,7 +13,8 @@
                                 'type' => 'text',
                             ], @$service['service_name']);
                             echo build_form_input('service_slug', lang('ServiceMaster.field.service_slug'), [
-                                'type' => 'text',
+                                'type'     => 'text',
+                                'readonly' => 'readonly',
                             ], @$service['service_slug']);
                             $locales = get_available_locales('long');
                             foreach ($locales as $locale_code => $locale_name) {
@@ -36,7 +37,7 @@
                     <?php if ('edit' == $mode) : ?>
                         <h2><?= lang('Service.service-variant') ?></h2>
                         <div class="text-end">
-                            <a class="btn btn-primary" href="<?= base_url('service/variant/0') ?>"><i class="fa-solid fa-plus-circle"></i> <?= lang('Service.new-variant') ?></a>
+                            <a class="btn btn-primary" href="<?= base_url('admin/service/variant/' . ($service['id'] * ID_MASKED_PRIME) . '/0') ?>"><i class="fa-solid fa-plus-circle"></i> <?= lang('Service.new-variant') ?></a>
                         </div>
                         <div class="table-responsive">
                             <table class="table table-sm table-hover table-striped">
@@ -66,7 +67,7 @@
                                         <td><?= lang('Service.num-staff', [$variant['required_num_staff']]) ?></td>
                                         <td><?= lang('Service.duration-minutes', [$variant['service_duration_minutes']]) ?></td>
                                         <td><?= $variant['resource_type'] ?></td>
-                                        <td><a class="btn btn-primary btn-sm float-end" href="<?= base_url('service/variant/' . ($variant['id'] * ID_MASKED_PRIME)) ?>"><?= lang('System.buttons.edit') ?></a></td>
+                                        <td><a class="btn btn-primary btn-sm float-end" href="<?= base_url('admin/service/variant/' . ($variant['service_id'] * ID_MASKED_PRIME) . '/' . ($variant['id'] * ID_MASKED_PRIME)) ?>"><?= lang('System.buttons.edit') ?></a></td>
                                     </tr>
                                 <?php endforeach; ?>
                                 </tbody>

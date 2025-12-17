@@ -1093,6 +1093,64 @@ class Admin extends BaseController
     }
 
     /**
+     * @param int $serviceId
+     * @param int $serviceVariantId
+     * @return string
+     */
+    public function service_variant_manage(int $serviceId, int $serviceVariantId): string
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('string');
+        }
+        $serviceId        = $serviceId / ID_MASKED_PRIME;
+        $serviceVariantId = $serviceVariantId / ID_MASKED_PRIME;
+        $serviceModel     = new ServiceMasterModel();
+        $variantModel     = new ServiceVariantModel();
+        $resourceModel    = new ResourceTypeModel();
+        $service          = $serviceModel->findRow($serviceId);
+        if (empty($service)) {
+            throw PageNotFoundException::forPageNotFound();
+        }
+        $service['service_local_names'] = json_decode($service['service_local_names'], true);
+        $resourceTypesRaw               = $resourceModel->where('business_id', $session->business['business_id'])->findAll();
+        $resourceTypes                  = [];
+        foreach ($resourceTypesRaw as $row) {
+            $row['resource_local_names'] = json_decode($row['resource_local_names'], true);
+            $resourceTypes[$row['id']]   = $row['resource_local_names'][$session->lang] ?? $row['resource_name'];
+        }
+        $variant                        = [];
+        $mode                           = 'new';
+        if (0 < $serviceVariantId) {
+            $mode    = 'edit';
+            $variant = $variantModel->findRow($serviceVariantId);
+            if (empty($variant)) {
+                throw PageNotFoundException::forPageNotFound();
+            }
+            $variant['variant_local_names'] = json_decode($variant['variant_local_names'], true);
+        }
+        $data         = [
+            'slug'          => 'service-variant-manage',
+            'lang'          => $this->request->getLocale(),
+            'breadcrumb'    => [
+                [
+                    'url'        => base_url('admin/service'),
+                    'page_title' => lang('Admin.pages.service'),
+                ],
+                [
+                    'url'        => base_url('admin/service/' . ($serviceId * ID_MASKED_PRIME)),
+                    'page_title' => lang('Admin.pages.service-manage'),
+                ]
+            ],
+            'mode'          => $mode,
+            'service'       => $service,
+            'variant'       => $variant,
+            'resourceTypes' => $resourceTypes,
+        ];
+        return view('admin/service_variant', $data);
+    }
+
+    /**
      * Manage product
      * @return string
      */

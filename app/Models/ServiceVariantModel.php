@@ -52,6 +52,7 @@ class ServiceVariantModel extends AppBaseModel
             $resource_type        = $resource_local_names[$session->lang] ?? $variant['resource_type'];
             $final[]              = [
                 'id'                        => $variant['id'],
+                'service_id'                => $serviceId,
                 'variant_slug'              => $variant['variant_slug'],
                 'variant_name'              => $variant['variant_name'],
                 'variant_local_names'       => json_decode($variant['variant_local_names'], true),

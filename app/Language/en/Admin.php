@@ -14,6 +14,7 @@ return [
         'allocation-resource'       => 'Resource Allocation',
         'service'                   => 'Service',
         'service-manage'            => 'Service Management',
+        'service-variant-manage'    => 'Service Variant Management',
         'product'                   => 'Product',
         'product-manage'            => 'Product Management',
         'product-category'          => 'Product Category',

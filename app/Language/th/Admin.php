@@ -14,6 +14,7 @@ return [
         'allocation-resource'       => 'ตารางเวลาทรัพยากร',
         'service'                   => 'บริการ',
         'service-manage'            => 'การจัดการบริการ',
+        'service-variant-manage'    => 'การจัดการตัวเลือกบริการ',
         'product'                   => 'สินค้า',
         'product-manage'            => 'การจัดการสินค้า',
         'product-category'          => 'ประเภทสินค้า',
