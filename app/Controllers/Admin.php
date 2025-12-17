@@ -16,6 +16,7 @@ use App\Models\OtternautPackageModel;
 use App\Models\ResourceMasterModel;
 use App\Models\ResourceTypeModel;
 use App\Models\ServiceMasterModel;
+use App\Models\ServiceStaffModel;
 use App\Models\ServiceVariantModel;
 use App\Models\UserMasterModel;
 use CodeIgniter\Exceptions\PageNotFoundException;
@@ -1050,17 +1051,28 @@ class Admin extends BaseController
         if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
             return $this->forbiddenResponse('string');
         }
-        $serviceId    = $serviceId / ID_MASKED_PRIME;
-        $serviceModel = new ServiceMasterModel();
-        $variantModel = new ServiceVariantModel();
-        $service      = [];
-        $variants     = [];
-        $mode         = 'new';
+        $serviceId       = $serviceId / ID_MASKED_PRIME;
+        $serviceModel    = new ServiceMasterModel();
+        $variantModel    = new ServiceVariantModel();
+        $staffModel      = new ServiceStaffModel();
+        $branchModel     = new BranchUserModel();
+        $service         = [];
+        $variants        = [];
+        $staff           = [];
+        $staffFinalList  = [];
+        $mode            = 'new';
         if (0 < $serviceId) {
             $service                        = $serviceModel->findRow($serviceId);
             $service['service_local_names'] = json_decode($service['service_local_names'], true);
             $variants                       = $variantModel->getVariantsForService($serviceId);
+            $staff                          = $staffModel->getStaffByServiceId($serviceId);
             $mode                           = 'edit';
+            $staffList                      = $branchModel->getUsersByBusinessId($session->business['business_id']);
+            foreach ($staffList as $row) {
+                $row['branch_local_names']  = json_decode($row['branch_local_names'], true);
+                $branch_name                = $row['branch_local_names'][$session->lang] ?? $row['branch_name'];
+                $staffFinalList[$row['id']] = $row['user_name_first'] . ' ' . $row['user_name_last'] . ' - ' . $branch_name;
+            }
         }
         $data         = [
             'slug'       => 'service-manage',
@@ -1074,6 +1086,8 @@ class Admin extends BaseController
             'mode'       => $mode,
             'service'    => $service,
             'variants'   => $variants,
+            'staff'      => $staff,
+            'staffList'  => $staffFinalList,
         ];
         return view('admin/service_manage', $data);
     }

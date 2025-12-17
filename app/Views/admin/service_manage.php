@@ -27,16 +27,6 @@
                                 'A' => lang('ServiceMaster.enum.is_active.A'),
                                 'I' => lang('ServiceMaster.enum.is_active.I'),
                             ]);
-//                            echo build_form_input('price_active_lowest', lang('ServiceMaster.field.price_active_lowest'), [
-//                                'type'     => 'text',
-//                                'readonly' => 'readonly',
-//                                'data-explanation' => lang('ServiceMaster.explanation.price_active_lowest')
-//                            ], @$service['price_active_lowest']);
-//                            echo build_form_input('price_compare_lowest', lang('ServiceMaster.field.price_compare_lowest'), [
-//                                'type'     => 'text',
-//                                'readonly' => 'readonly',
-//                                'data-explanation' => lang('ServiceMaster.explanation.price_compare_lowest')
-//                            ], @$service['price_compare_lowest']);
                             ?>
                             <div class="text-end">
                                 <button class="btn btn-primary" id="btn-save-master"><?= lang('System.buttons.save') ?></button>
@@ -44,49 +34,88 @@
                         </div>
                     </div>
                     <?php if ('edit' == $mode) : ?>
-                    <h2><?= lang('Service.service-variant') ?></h2>
-                    <div class="text-end">
-                        <a class="btn btn-primary" href="<?= base_url('service/variant/0') ?>"><i class="fa-solid fa-plus-circle"></i> <?= lang('Service.new-variant') ?></a>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table table-sm table-hover table-striped">
-                            <thead>
-                            <tr>
-                                <th><?= lang('ServiceVariant.field.variant_slug') ?></th>
-                                <th><?= lang('ServiceVariant.field.variant_name') ?></th>
-                                <th><?= lang('ServiceVariant.field.is_active') ?></th>
-                                <th><?= lang('ServiceVariant.field.schedule_type') ?></th>
-                                <th><?= lang('ServiceVariant.field.price_active') ?></th>
-                                <th><?= lang('ServiceVariant.field.price_compare') ?></th>
-                                <th><?= lang('ServiceVariant.field.required_num_staff') ?></th>
-                                <th><?= lang('ServiceVariant.field.service_duration_minutes') ?></th>
-                                <th><?= lang('ServiceVariant.field.required_resource_type_id') ?></th>
-                                <th></th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <?php foreach ($variants as $variant): ?>
-                            <tr>
-                                <td><?= $variant['variant_slug'] ?></td>
-                                <td><?= ($variant['variant_local_names'][$session->lang] ?? $variant['variant_name']) ?></td>
-                                <td><?= lang('ServiceVariant.enum.is_active.' . $variant['is_active']) ?></td>
-                                <td><?= lang('ServiceVariant.enum.schedule_type.' . $variant['schedule_type']) ?></td>
-                                <td><?= format_price($variant['price_active'], $session->business['currency_code']) ?></td>
-                                <td><?= format_price($variant['price_compare'], $session->business['currency_code']) ?></td>
-                                <td><?= lang('Service.num-staff', [$variant['required_num_staff']]) ?></td>
-                                <td><?= lang('Service.duration-minutes', [$variant['service_duration_minutes']]) ?></td>
-                                <td><?= $variant['resource_type'] ?></td>
-                                <td><a class="btn btn-primary btn-sm float-end" href="<?= base_url('service/variant/' . ($variant['id'] * ID_MASKED_PRIME)) ?>"><?= lang('System.buttons.edit') ?></a></td>
-                            </tr>
-                            <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                    <h2><?= lang('Service.service-staff') ?></h2>
-
+                        <h2><?= lang('Service.service-variant') ?></h2>
+                        <div class="text-end">
+                            <a class="btn btn-primary" href="<?= base_url('service/variant/0') ?>"><i class="fa-solid fa-plus-circle"></i> <?= lang('Service.new-variant') ?></a>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover table-striped">
+                                <thead>
+                                <tr>
+                                    <th><?= lang('ServiceVariant.field.variant_slug') ?></th>
+                                    <th><?= lang('ServiceVariant.field.variant_name') ?></th>
+                                    <th><?= lang('ServiceVariant.field.is_active') ?></th>
+                                    <th><?= lang('ServiceVariant.field.schedule_type') ?></th>
+                                    <th><?= lang('ServiceVariant.field.price_active') ?></th>
+                                    <th><?= lang('ServiceVariant.field.price_compare') ?></th>
+                                    <th><?= lang('ServiceVariant.field.required_num_staff') ?></th>
+                                    <th><?= lang('ServiceVariant.field.service_duration_minutes') ?></th>
+                                    <th><?= lang('ServiceVariant.field.required_resource_type_id') ?></th>
+                                    <th></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <?php foreach ($variants as $variant): ?>
+                                    <tr>
+                                        <td><?= $variant['variant_slug'] ?></td>
+                                        <td><?= ($variant['variant_local_names'][$session->lang] ?? $variant['variant_name']) ?></td>
+                                        <td><?= lang('ServiceVariant.enum.is_active.' . $variant['is_active']) ?></td>
+                                        <td><?= lang('ServiceVariant.enum.schedule_type.' . $variant['schedule_type']) ?></td>
+                                        <td><?= format_price($variant['price_active'], $session->business['currency_code']) ?></td>
+                                        <td><?= format_price($variant['price_compare'], $session->business['currency_code']) ?></td>
+                                        <td><?= lang('Service.num-staff', [$variant['required_num_staff']]) ?></td>
+                                        <td><?= lang('Service.duration-minutes', [$variant['service_duration_minutes']]) ?></td>
+                                        <td><?= $variant['resource_type'] ?></td>
+                                        <td><a class="btn btn-primary btn-sm float-end" href="<?= base_url('service/variant/' . ($variant['id'] * ID_MASKED_PRIME)) ?>"><?= lang('System.buttons.edit') ?></a></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                        <h2><?= lang('Service.service-staff') ?></h2>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover table-striped">
+                                <thead>
+                                <tr>
+                                    <th><?= lang('BranchMaster.field.branch_name') ?></th>
+                                    <th><?= lang('UserMaster.field.user_full_name') ?></th>
+                                    <th><?= lang('BranchUser.field.user_role') ?></th>
+                                    <th></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <?php foreach ($staff as $row): ?>
+                                    <tr>
+                                        <td><?= $row['branch_local_names'][$session->lang] ?? $row['branch_name'] ?></td>
+                                        <td><?= $row['user_name_first'] . ' ' . $row['user_name_last'] ?></td>
+                                        <td><?= lang('BranchUser.enum.user_role.' . $row['user_role']) ?></td>
+                                        <td><a class="btn btn-primary btn-sm float-end" href="#"><?= lang('System.buttons.remove') ?></a></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                        <h2><?= lang('Service.add-service-staff') ?></h2>
+                        <div class="row">
+                            <div class="col col-md-6">
+                                <?php
+                                echo build_form_input('service_staff_id', lang('UserMaster.field.user_full_name'), [
+                                    'type' => 'select',
+                                ], null, '', $staffList);
+                                ?>
+                                <div class="text-end">
+                                    <button class="btn btn-primary" id="btn-save-master"><?= lang('System.buttons.save') ?></button>
+                                </div>
+                            </div>
+                        </div>
                     <?php endif; ?>
                 </div>
             </div>
         </div>
     </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const table = $('table').DataTable();
+        });
+    </script>
 <?php $this->endSection() ?>
