@@ -20,7 +20,7 @@ class ServiceVariantModel extends AppBaseModel
         'price_active',
         'price_compare',
         'required_num_staff',
-        'required_resource_type',
+        'required_resource_type_id',
         'service_duration_minutes',
         'created_by',
         'created_at',
@@ -38,14 +38,19 @@ class ServiceVariantModel extends AppBaseModel
     public function getVariantsForService(int $serviceId): array
     {
         $cache    = Services::cache();
+        $session  = session();
         $cacheKey = 'variants_for_service_id-' . $serviceId;
         if ($cache->get($cacheKey)) {
             return $cache->get($cacheKey);
         }
-        $variants = $this->where(['service_id' => $serviceId])->findAll();
+        $variants = $this->select('service_variant.*, resource_type.resource_type, resource_type.resource_local_names')
+            ->join('resource_type', 'service_variant.required_resource_type_id = resource_type.id', 'left')
+            ->where(['service_id' => $serviceId])->findAll();
         $final    = [];
         foreach ($variants as $variant) {
-            $final[] = [
+            $resource_local_names = json_decode($variant['resource_local_names'], true);
+            $resource_type        = $resource_local_names[$session->lang] ?? $variant['resource_type'];
+            $final[]              = [
                 'id'                        => $variant['id'],
                 'variant_slug'              => $variant['variant_slug'],
                 'variant_name'              => $variant['variant_name'],
@@ -57,6 +62,7 @@ class ServiceVariantModel extends AppBaseModel
                 'price_compare'             => $variant['price_compare'],
                 'required_num_staff'        => $variant['required_num_staff'],
                 'required_resource_type_id' => $variant['required_resource_type_id'],
+                'resource_type'             => $resource_type,
                 'service_duration_minutes'  => $variant['service_duration_minutes'],
             ];
         }

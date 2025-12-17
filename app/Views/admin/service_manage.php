@@ -27,17 +27,20 @@
                                 'A' => lang('ServiceMaster.enum.is_active.A'),
                                 'I' => lang('ServiceMaster.enum.is_active.I'),
                             ]);
-                            echo build_form_input('price_active_lowest', lang('ServiceMaster.field.price_active_lowest'), [
-                                'type'     => 'text',
-                                'readonly' => 'readonly',
-                                'data-explanation' => lang('ServiceMaster.explanation.price_active_lowest')
-                            ], @$service['price_active_lowest']);
-                            echo build_form_input('price_compare_lowest', lang('ServiceMaster.field.price_compare_lowest'), [
-                                'type'     => 'text',
-                                'readonly' => 'readonly',
-                                'data-explanation' => lang('ServiceMaster.explanation.price_compare_lowest')
-                            ], @$service['price_compare_lowest']);
+//                            echo build_form_input('price_active_lowest', lang('ServiceMaster.field.price_active_lowest'), [
+//                                'type'     => 'text',
+//                                'readonly' => 'readonly',
+//                                'data-explanation' => lang('ServiceMaster.explanation.price_active_lowest')
+//                            ], @$service['price_active_lowest']);
+//                            echo build_form_input('price_compare_lowest', lang('ServiceMaster.field.price_compare_lowest'), [
+//                                'type'     => 'text',
+//                                'readonly' => 'readonly',
+//                                'data-explanation' => lang('ServiceMaster.explanation.price_compare_lowest')
+//                            ], @$service['price_compare_lowest']);
                             ?>
+                            <div class="text-end">
+                                <button class="btn btn-primary" id="btn-save-master"><?= lang('System.buttons.save') ?></button>
+                            </div>
                         </div>
                     </div>
                     <?php if ('edit' == $mode) : ?>
@@ -53,6 +56,11 @@
                                 <th><?= lang('ServiceVariant.field.variant_name') ?></th>
                                 <th><?= lang('ServiceVariant.field.is_active') ?></th>
                                 <th><?= lang('ServiceVariant.field.schedule_type') ?></th>
+                                <th><?= lang('ServiceVariant.field.price_active') ?></th>
+                                <th><?= lang('ServiceVariant.field.price_compare') ?></th>
+                                <th><?= lang('ServiceVariant.field.required_num_staff') ?></th>
+                                <th><?= lang('ServiceVariant.field.service_duration_minutes') ?></th>
+                                <th><?= lang('ServiceVariant.field.required_resource_type_id') ?></th>
                                 <th></th>
                             </tr>
                             </thead>
@@ -63,12 +71,19 @@
                                 <td><?= ($variant['variant_local_names'][$session->lang] ?? $variant['variant_name']) ?></td>
                                 <td><?= lang('ServiceVariant.enum.is_active.' . $variant['is_active']) ?></td>
                                 <td><?= lang('ServiceVariant.enum.schedule_type.' . $variant['schedule_type']) ?></td>
+                                <td><?= format_price($variant['price_active'], $session->business['currency_code']) ?></td>
+                                <td><?= format_price($variant['price_compare'], $session->business['currency_code']) ?></td>
+                                <td><?= lang('Service.num-staff', [$variant['required_num_staff']]) ?></td>
+                                <td><?= lang('Service.duration-minutes', [$variant['service_duration_minutes']]) ?></td>
+                                <td><?= $variant['resource_type'] ?></td>
                                 <td><a class="btn btn-primary btn-sm float-end" href="<?= base_url('service/variant/' . ($variant['id'] * ID_MASKED_PRIME)) ?>"><?= lang('System.buttons.edit') ?></a></td>
                             </tr>
                             <?php endforeach; ?>
                             </tbody>
                         </table>
                     </div>
+                    <h2><?= lang('Service.service-staff') ?></h2>
+
                     <?php endif; ?>
                 </div>
             </div>

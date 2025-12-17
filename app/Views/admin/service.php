@@ -18,8 +18,6 @@
                                 <th><?= lang('ServiceMaster.field.service_slug') ?></th>
                                 <th><?= lang('ServiceMaster.field.service_name') ?></th>
                                 <th><?= lang('ServiceMaster.field.is_active') ?></th>
-                                <th class="text-end"><?= lang('ServiceMaster.field.price_active_lowest') ?></th>
-                                <th class="text-end"><?= lang('ServiceMaster.field.price_compare_lowest') ?></th>
                                 <th></th>
                             </tr>
                             </thead>

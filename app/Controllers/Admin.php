@@ -1032,8 +1032,6 @@ class Admin extends BaseController
                 $service['service_slug'],
                 $service['service_local_name'][$session->lang] ?? $service['service_name'],
                 lang('ServiceMaster.enum.is_active.' . $service['is_active']),
-                format_price($service['price_active_lowest'], $session->business['currency_code']),
-                format_price($service['price_compare_lowest'], $session->business['currency_code']),
                 '<a class="btn btn-primary btn-sm float-end" href="' . base_url('admin/service/' . ($service['id'] * ID_MASKED_PRIME)) . '"> ' . lang('System.buttons.edit') . '</a>'
             ];
         }

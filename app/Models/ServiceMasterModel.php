@@ -46,8 +46,8 @@ class ServiceMasterModel extends AppBaseModel
                 'service_name'         => $service['service_name'],
                 'service_local_name'   => json_decode($service['service_local_names'], true),
                 'is_active'            => $service['is_active'],
-                'price_active_lowest'  => $service['price_active_lowest'],
-                'price_compare_lowest' => $service['price_compare_lowest'],
+//                'price_active_lowest'  => $service['price_active_lowest'],
+//                'price_compare_lowest' => $service['price_compare_lowest'],
             ];
         }
         $cache->save($cacheKey, $final, self::HOURS_IN_SEC);
