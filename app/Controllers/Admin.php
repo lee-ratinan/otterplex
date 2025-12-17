@@ -13,6 +13,7 @@ use App\Models\BusinessMasterModel;
 use App\Models\BusinessTypeModel;
 use App\Models\BusinessUserModel;
 use App\Models\OtternautPackageModel;
+use App\Models\ProductCategoryModel;
 use App\Models\ResourceMasterModel;
 use App\Models\ResourceTypeModel;
 use App\Models\ServiceMasterModel;
@@ -1156,6 +1157,10 @@ class Admin extends BaseController
      */
     public function product(): string
     {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('string');
+        }
         $data = [
             'slug'           => 'product',
             'lang'           => $this->request->getLocale(),
@@ -1164,16 +1169,99 @@ class Admin extends BaseController
     }
 
     /**
+     * Manage product
+     * @return ResponseInterface
+     */
+    public function product_post(): ResponseInterface
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('ResponseInterface');
+        }
+        $serviceModel = new ProductMasterModel();
+        $raw          = $serviceModel->getServicesForBusiness($session->business['business_id']);
+        $final        = [];
+        foreach ($raw as $service) {
+            $final[] = [
+                $service['service_slug'],
+                $service['service_local_name'][$session->lang] ?? $service['service_name'],
+                lang('ServiceMaster.enum.is_active.' . $service['is_active']),
+                '<a class="btn btn-primary btn-sm float-end" href="' . base_url('admin/service/' . ($service['id'] * ID_MASKED_PRIME)) . '"> ' . lang('System.buttons.edit') . '</a>'
+            ];
+        }
+        return $this->response->setJSON([
+            'data' => $final
+        ]);
+    }
+
+    /**
      * Manage product category
      * @return string
      */
     public function product_category(): string
     {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('string');
+        }
         $data = [
             'slug'           => 'product-category',
             'lang'           => $this->request->getLocale(),
         ];
         return view('admin/product_category', $data);
+    }
+
+    /**
+     * Manage product
+     * @return ResponseInterface
+     */
+    public function product_category_post(): ResponseInterface
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('ResponseInterface');
+        }
+        $categoryModel = new ProductCategoryModel();
+        return $this->response->setJSON([
+            'data' => $categoryModel->getDataTable($session->business['business_id'])
+        ]);
+    }
+
+    /**
+     * @param int $categoryId
+     * @return string
+     */
+    public function product_category_manage(int $categoryId): string
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('string');
+        }
+        $categoryId    = $categoryId / ID_MASKED_PRIME;
+        $categoryModel = new ProductCategoryModel();
+        $category      = [];
+        $mode          = 'new';
+        if (0 < $categoryId) {
+            $mode     = 'edit';
+            $category = $categoryModel->findRow($categoryId);
+            if (empty($category)) {
+                throw PageNotFoundException::forPageNotFound();
+            }
+            $category['category_local_names'] = json_decode($category['category_local_names'], true);
+        }
+        $data = [
+            'slug'       => 'product-category-manage',
+            'lang'       => $this->request->getLocale(),
+            'breadcrumb' => [
+                [
+                    'url'        => base_url('admin/product/category'),
+                    'page_title' => lang('Admin.pages.product-category'),
+                ]
+            ],
+            'mode'       => $mode,
+            'category'   => $category,
+        ];
+        return view('admin/product_category_manage', $data);
     }
 
     /**

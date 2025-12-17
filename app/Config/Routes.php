@@ -64,7 +64,11 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->get('service/variant/manage', 'Admin::service_variant_manage_post');
     // PRODUCT
     $routes->get('product', 'Admin::product');
+    $routes->post('product', 'Admin::product_post');
     $routes->get('product/category', 'Admin::product_category');
+    $routes->post('product/category', 'Admin::product_category_post');
+    $routes->get('product/category/(:num)', 'Admin::product_category_manage/$1');
+    $routes->post('product/category/manage', 'Admin::product_category_manage_post');
     // REVIEW
     $routes->get('review', 'Admin::review');
     // ALLOCATION
