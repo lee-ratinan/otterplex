@@ -1352,6 +1352,20 @@ class Admin extends BaseController
         return view('admin/product_variant_inventory', $data);
     }
 
+    public function product_variant_inventory_post(int $productId, int $variantId): ResponseInterface
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('DataTable');
+        }
+        return $this->response->setJSON([
+            'draw'  => $this->request->getPost('draw'),
+            'recordsTotal' => 0,
+            'recordsFiltered' => 0,
+            'data' => []
+        ]);
+    }
+
     /**
      * Manage product category
      * @return string
