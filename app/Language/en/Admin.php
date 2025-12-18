@@ -2,6 +2,7 @@
 return [
     'site-name'     => 'OtterNova',
     'pages'         => [
+        'not-found'                 => 'Page Not Found',
         'dashboard'                 => 'Dashboard',
         'search'                    => 'Search',
         'profile'                   => 'Profile',
@@ -133,5 +134,9 @@ And if it’s something technical, your admin can forward it to your OtterNova s
 No chaos. No guessing. No dictatorship of messy spreadsheets.<br>
 Just a clean system that works — so you can focus on running your business.'
         ]
+    ],
+    '404'           => [
+        'got-lost'         => 'Looks like our otter got lost and couldn’t recognize your destination.',
+        'return-to-safety' => 'Return to safety 🚀',
     ]
 ];

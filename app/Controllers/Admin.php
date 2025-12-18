@@ -62,6 +62,28 @@ class Admin extends BaseController
         ]);
     }
 
+    public function show404(): string|ResponseInterface
+    {
+        $method = $this->request->getMethod();
+        $method = strtolower($method);
+        if ('get' == $method) {
+            $session      = session();
+            $lang         = $this->request->getLocale();
+            $businessName = '';
+            if (isset($session->business)) {
+                $businessName = $session->business['business_local_names'][$lang] ?? $session->business['business_name'];
+            }
+            $data    = [
+                'slug'         => 'not-found',
+                'lang'         => $lang,
+                'businessName' => $businessName
+            ];
+            return view('_404', $data);
+        }
+        return $this->response->setStatusCode(ResponseInterface::HTTP_NOT_FOUND)
+            ->setJSON(['success' => STATUS_RESPONSE_ERR]);
+    }
+
     /**
      * Dashboard page
      * @return string

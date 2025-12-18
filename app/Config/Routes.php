@@ -95,3 +95,5 @@ $routes->group('helper', function ($routes) {
     $routes->post('format-phone-number', 'Helper::format_phone_number');
     $routes->post('generate-slug', 'Helper::generate_slug');
 });
+
+$routes->set404Override('App\Controllers\Admin::show404');
