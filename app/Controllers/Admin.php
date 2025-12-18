@@ -15,6 +15,7 @@ use App\Models\BusinessUserModel;
 use App\Models\OtternautPackageModel;
 use App\Models\ProductCategoryModel;
 use App\Models\ProductMasterModel;
+use App\Models\ProductVariantInventoryModel;
 use App\Models\ProductVariantModel;
 use App\Models\ResourceMasterModel;
 use App\Models\ResourceTypeModel;
@@ -1326,9 +1327,12 @@ class Admin extends BaseController
         if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
             return $this->forbiddenResponse('string');
         }
-        $productLink = base_url('admin/product/' . $productId);
-        $productId   = $productId / ID_MASKED_PRIME;
-        $variantId   = $variantId / ID_MASKED_PRIME;
+        $productLink    = base_url('admin/product/' . $productId);
+        $variantId      = $variantId / ID_MASKED_PRIME;
+        $variantModel   = new ProductVariantModel();
+        $variant        = $variantModel->getVariantInformation($variantId);
+        $productName    = ($variant['product_local_names'][$session->lang] ?? $variant['product_name']);
+        $variantName    = ($variant['variant_local_names'][$session->lang] ?? $variant['variant_name']);
         $data = [
             'slug'       => 'product-variant-inventory',
             'lang'       => $this->request->getLocale(),
@@ -1342,6 +1346,8 @@ class Admin extends BaseController
                     'page_title' => lang('Admin.pages.product-manage'),
                 ]
             ],
+            'itemTitle'  => "$productName / $variantName",
+            'variant'    => $variant,
         ];
         return view('admin/product_variant_inventory', $data);
     }

@@ -55,6 +55,11 @@ return [
     'generic-term'       => [
         'no-data' => 'No data'
     ],
+    'generic-field'      => [
+        'created_by' => 'Created By',
+        'created_at' => 'Created At',
+        'updated_at' => 'Updated At',
+    ],
     'login'              => [
         'title'             => 'Login',
         'instruction'       => 'Please login to your account.',
