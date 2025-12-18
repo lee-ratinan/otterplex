@@ -6,6 +6,6 @@ return [
     'product-variant'        => 'ตัวเลือกสินค้า',
     'inventory'              => 'สต็อกสินค้า',
     'inventory-count'        => 'จำนวนสินค้าในสต็อก: {0}',
-    'inventory-filter-start' => '',
-    'inventory-filter-end'   => '',
+    'inventory-filter-start' => 'วันที่เริ่มต้น',
+    'inventory-filter-end'   => 'วันที่สิ้นสุด',
 ];

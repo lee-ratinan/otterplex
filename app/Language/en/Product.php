@@ -6,6 +6,6 @@ return [
     'product-variant'        => 'Product Variant',
     'inventory'              => 'Inventory',
     'inventory-count'        => 'Current Inventory Count: {0}',
-    'inventory-filter-start' => '',
-    'inventory-filter-end'   => '',
+    'inventory-filter-start' => 'Start Date',
+    'inventory-filter-end'   => 'End Date',
 ];
