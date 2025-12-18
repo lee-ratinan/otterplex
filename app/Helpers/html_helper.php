@@ -100,7 +100,7 @@ if (!function_exists('format_date')) {
      */
     function format_date(string $date): string
     {
-        $lang = get_session_field('lang');
+        $lang        = get_session_field('lang');
         $month_array = [
             'en' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
             'th' => ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.']

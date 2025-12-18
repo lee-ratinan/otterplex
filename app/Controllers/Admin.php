@@ -1358,11 +1358,18 @@ class Admin extends BaseController
         if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
             return $this->forbiddenResponse('DataTable');
         }
+        $variantId      = $variantId / ID_MASKED_PRIME;
+        $inventoryModel = new ProductVariantInventoryModel();
+        $start          = (int) $this->request->getPost('start');
+        $length         = (int) $this->request->getPost('length');
+        $startDate      = $this->request->getPost('start_date');
+        $endDate        = $this->request->getPost('end_date');
+        $data           = $inventoryModel->getDataTable($variantId, $start, $length, $startDate, $endDate);
         return $this->response->setJSON([
-            'draw'  => $this->request->getPost('draw'),
-            'recordsTotal' => 0,
-            'recordsFiltered' => 0,
-            'data' => []
+            'draw'            => $this->request->getPost('draw'),
+            'recordsTotal'    => $data['recordsTotal'],
+            'recordsFiltered' => $data['recordsFiltered'],
+            'data'            => $data['data']
         ]);
     }
 
