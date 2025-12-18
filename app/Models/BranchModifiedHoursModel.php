@@ -2,8 +2,6 @@
 
 namespace App\Models;
 
-use CodeIgniter\Model;
-
 class BranchModifiedHoursModel extends AppBaseModel
 {
     protected $table = 'branch_modified_hours';

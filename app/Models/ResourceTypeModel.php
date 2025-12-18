@@ -2,8 +2,6 @@
 
 namespace App\Models;
 
-use App\Models\AppBaseModel;
-
 class ResourceTypeModel extends AppBaseModel
 {
     protected $table = 'resource_type';

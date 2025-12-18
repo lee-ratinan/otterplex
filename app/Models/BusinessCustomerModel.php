@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Models\AppBaseModel;
 use libphonenumber\PhoneNumberFormat;
 use libphonenumber\PhoneNumberUtil;
 

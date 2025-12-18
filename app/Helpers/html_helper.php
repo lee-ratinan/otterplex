@@ -100,7 +100,7 @@ if (!function_exists('format_date')) {
      */
     function format_date(string $date): string
     {
-        $lang = get_session_field('lang');
+        $lang        = get_session_field('lang');
         $month_array = [
             'en' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
             'th' => ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.']
@@ -190,7 +190,7 @@ if (!function_exists('build_form_input')) {
         }
         if ('select' == $attributes['type']) {
             $attr_str   = implode(' ', $attr);
-            $select_tag = "<select {$attr_str}>";
+            $select_tag = "<select {$attr_str}><option value=''></option>";
             foreach ($options as $key => $value) {
                 $select_tag .= "<option value='{$key}' " . ($current_value == $key ? 'selected' : '') . ">{$value}</option>";
             }

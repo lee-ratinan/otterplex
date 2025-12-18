@@ -13,8 +13,15 @@ use App\Models\BusinessMasterModel;
 use App\Models\BusinessTypeModel;
 use App\Models\BusinessUserModel;
 use App\Models\OtternautPackageModel;
+use App\Models\ProductCategoryModel;
+use App\Models\ProductMasterModel;
+use App\Models\ProductVariantInventoryModel;
+use App\Models\ProductVariantModel;
 use App\Models\ResourceMasterModel;
 use App\Models\ResourceTypeModel;
+use App\Models\ServiceMasterModel;
+use App\Models\ServiceStaffModel;
+use App\Models\ServiceVariantModel;
 use App\Models\UserMasterModel;
 use CodeIgniter\Exceptions\PageNotFoundException;
 use CodeIgniter\HTTP\RedirectResponse;
@@ -61,9 +68,61 @@ class Admin extends BaseController
      */
     public function index(): string
     {
+        $session   = session();
+        $dashboard = [];
+        if ('OWNER' == $session->user_role) {
+            $businessId   = $session->business['business_id'];
+            $branchModel  = new BranchMasterModel;
+            $serviceModel = new ServiceMasterModel;
+            $productModel = new ProductMasterModel;
+            $staffModel   = new BranchUserModel;
+            $branches     = $branchModel->where('business_id', $businessId)->findAll();
+            $service_raw  = $serviceModel->select('service_master.id AS service_id, service_variant.variant_name, service_variant.variant_local_names, service_master.service_name, service_master.service_local_names')
+                ->join('service_variant', 'service_master.id = service_variant.service_id', 'left outer')
+                ->where('service_master.business_id', $businessId)->findAll();
+            $services     = [];
+            $product_raw  = $productModel->select('product_master.id AS product_id, product_variant.variant_name, product_variant.variant_local_names, product_master.product_name, product_master.product_local_names')
+                ->join('product_variant', 'product_variant.product_id = product_master.id', 'left outer')
+                ->where('product_master.business_id', $businessId)->findAll();
+            $products     = [];
+            foreach ($service_raw as $service) {
+                $service_names                 = json_decode($service['service_local_names'], true);
+                $service_name                  = $service_names[$session->lang] ?? $service['service_name'];
+                $id                            = $service['service_id'] * ID_MASKED_PRIME;
+                $services[$id]['service_name'] = $service_name;
+                $services[$id]['variants']     = [];
+                if (!empty($service['variant_name'])) {
+                    $variant_names               = json_decode($service['variant_local_names'], true);
+                    $variant_name                = $variant_names[$session->lang] ?? $service['variant_name'];
+                    $services[$id]['variants'][] = $variant_name;
+                }
+            }
+            foreach ($product_raw as $product) {
+                $product_names                 = json_decode($product['product_local_names'], true);
+                $product_name                  = $product_names[$session->lang] ?? $product['product_name'];
+                $id                            = $product['product_id'] * ID_MASKED_PRIME;
+                $products[$id]['product_name'] = $product_name;
+                $products[$id]['variants']     = [];
+                if (!empty($product['variant_name'])) {
+                    $variant_names               = json_decode($product['variant_local_names'], true);
+                    $variant_name                = $variant_names[$session->lang] ?? $product['variant_name'];
+                    $products[$id]['variants'][] = $variant_name;
+                }
+            }
+            $staff        = $staffModel->getUsersByBusinessId($businessId);
+            $dashboard    = [
+                'setup' => [
+                    'branches' => $branches,
+                    'services' => $services,
+                    'products' => $products,
+                    'staff'    => $staff,
+                ]
+            ];
+        }
         $data    = [
-            'slug'         => 'dashboard',
-            'lang'         => $this->request->getLocale(),
+            'slug'      => 'dashboard',
+            'lang'      => $this->request->getLocale(),
+            'dashboard' => $dashboard,
         ];
         return view('admin/dashboard', $data);
     }
@@ -1001,11 +1060,150 @@ class Admin extends BaseController
      */
     public function service(): string
     {
-        $data = [
-            'slug'           => 'service',
-            'lang'           => $this->request->getLocale(),
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('string');
+        }
+        $data         = [
+            'slug'     => 'service',
+            'lang'     => $this->request->getLocale()
         ];
         return view('admin/service', $data);
+    }
+
+    /**
+     * Manage service
+     * @return ResponseInterface
+     */
+    public function service_post(): ResponseInterface
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('ResponseInterface');
+        }
+        $serviceModel = new ServiceMasterModel();
+        $raw          = $serviceModel->getServicesForBusiness($session->business['business_id']);
+        $final        = [];
+        foreach ($raw as $service) {
+            $final[] = [
+                $service['service_slug'],
+                $service['service_local_names'][$session->lang] ?? $service['service_name'],
+                lang('ServiceMaster.enum.is_active.' . $service['is_active']),
+                '<a class="btn btn-primary btn-sm float-end" href="' . base_url('admin/service/' . ($service['id'] * ID_MASKED_PRIME)) . '"> ' . lang('System.buttons.edit') . '</a>'
+            ];
+        }
+        return $this->response->setJSON([
+            'data' => $final
+        ]);
+    }
+
+    /**
+     * @param int $serviceId
+     * @return string
+     */
+    public function service_manage(int $serviceId): string
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('string');
+        }
+        $serviceId       = $serviceId / ID_MASKED_PRIME;
+        $serviceModel    = new ServiceMasterModel();
+        $variantModel    = new ServiceVariantModel();
+        $staffModel      = new ServiceStaffModel();
+        $branchModel     = new BranchUserModel();
+        $service         = [];
+        $variants        = [];
+        $staff           = [];
+        $staffFinalList  = [];
+        $mode            = 'new';
+        if (0 < $serviceId) {
+            $service                        = $serviceModel->findRow($serviceId);
+            $service['service_local_names'] = json_decode($service['service_local_names'], true);
+            $variants                       = $variantModel->getVariantsForService($serviceId);
+            $staff                          = $staffModel->getStaffByServiceId($serviceId);
+            $mode                           = 'edit';
+            $staffList                      = $branchModel->getUsersByBusinessId($session->business['business_id']);
+            foreach ($staffList as $row) {
+                $row['branch_local_names']  = json_decode($row['branch_local_names'], true);
+                $branch_name                = $row['branch_local_names'][$session->lang] ?? $row['branch_name'];
+                $staffFinalList[$row['id']] = $row['user_name_first'] . ' ' . $row['user_name_last'] . ' - ' . $branch_name;
+            }
+        }
+        $data         = [
+            'slug'       => 'service-manage',
+            'lang'       => $this->request->getLocale(),
+            'breadcrumb' => [
+                [
+                    'url'        => base_url('admin/service'),
+                    'page_title' => lang('Admin.pages.service'),
+                ]
+            ],
+            'mode'       => $mode,
+            'service'    => $service,
+            'variants'   => $variants,
+            'staff'      => $staff,
+            'staffList'  => $staffFinalList,
+        ];
+        return view('admin/service_manage', $data);
+    }
+
+    /**
+     * @param int $serviceId
+     * @param int $serviceVariantId
+     * @return string
+     */
+    public function service_variant_manage(int $serviceId, int $serviceVariantId): string
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('string');
+        }
+        $serviceId        = $serviceId / ID_MASKED_PRIME;
+        $serviceVariantId = $serviceVariantId / ID_MASKED_PRIME;
+        $serviceModel     = new ServiceMasterModel();
+        $variantModel     = new ServiceVariantModel();
+        $resourceModel    = new ResourceTypeModel();
+        $service          = $serviceModel->findRow($serviceId);
+        if (empty($service)) {
+            throw PageNotFoundException::forPageNotFound();
+        }
+        $service['service_local_names'] = json_decode($service['service_local_names'], true);
+        $resourceTypesRaw               = $resourceModel->where('business_id', $session->business['business_id'])->findAll();
+        $resourceTypes                  = [];
+        foreach ($resourceTypesRaw as $row) {
+            $row['resource_local_names'] = json_decode($row['resource_local_names'], true);
+            $resourceTypes[$row['id']]   = $row['resource_local_names'][$session->lang] ?? $row['resource_name'];
+        }
+        $variant                        = [];
+        $mode                           = 'new';
+        if (0 < $serviceVariantId) {
+            $mode    = 'edit';
+            $variant = $variantModel->findRow($serviceVariantId);
+            if (empty($variant)) {
+                throw PageNotFoundException::forPageNotFound();
+            }
+            $variant['variant_local_names'] = json_decode($variant['variant_local_names'], true);
+        }
+        $data         = [
+            'slug'          => 'service-variant-manage',
+            'lang'          => $this->request->getLocale(),
+            'breadcrumb'    => [
+                [
+                    'url'        => base_url('admin/service'),
+                    'page_title' => lang('Admin.pages.service'),
+                ],
+                [
+                    'url'        => base_url('admin/service/' . ($serviceId * ID_MASKED_PRIME)),
+                    'page_title' => lang('Admin.pages.service-manage'),
+                ]
+            ],
+            'mode'          => $mode,
+            'service'       => $service,
+            'variant'       => $variant,
+            'resourceTypes' => $resourceTypes,
+        ];
+        return view('admin/service_variant', $data);
     }
 
     /**
@@ -1014,6 +1212,10 @@ class Admin extends BaseController
      */
     public function product(): string
     {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('string');
+        }
         $data = [
             'slug'           => 'product',
             'lang'           => $this->request->getLocale(),
@@ -1022,16 +1224,223 @@ class Admin extends BaseController
     }
 
     /**
+     * Manage product
+     * @return ResponseInterface
+     */
+    public function product_post(): ResponseInterface
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('ResponseInterface');
+        }
+        $productModel = new ProductMasterModel();
+        return $this->response->setJSON([
+            'data' => $productModel->getDataTable($session->business['business_id'])
+        ]);
+    }
+
+    public function product_manage(int $productId): string
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('string');
+        }
+        $productId     = $productId / ID_MASKED_PRIME;
+        $productModel  = new ProductMasterModel();
+        $categoryModel = new ProductCategoryModel();
+        $variantModel  = new ProductVariantModel();
+        $product       = [];
+        $cateRaw       = $categoryModel->where('business_id', $session->business['business_id'])->findAll();
+        $categories    = [];
+        $variants      = [];
+        foreach ($cateRaw as $row) {
+            $local_names            = json_decode($row['category_local_names'], true);
+            $categories[$row['id']] = $local_names[$session->lang] ?? $row['category_name'];
+        }
+        $mode          = 'new';
+        if (0 < $productId) {
+            $mode    = 'edit';
+            $product = $productModel->findRow($productId);
+            if (empty($product)) {
+                throw PageNotFoundException::forPageNotFound();
+            }
+            $product['product_local_names'] = json_decode($product['product_local_names'], true);
+            $variants                       = $variantModel->where('product_id', $productId)->findAll();
+        }
+        $data = [
+            'slug'       => 'product-manage',
+            'lang'       => $this->request->getLocale(),
+            'breadcrumb' => [
+                [
+                    'url'        => base_url('admin/product'),
+                    'page_title' => lang('Admin.pages.product'),
+                ]
+            ],
+            'product'    => $product,
+            'categories' => $categories,
+            'variants'   => $variants,
+            'mode'       => $mode,
+        ];
+        return view('admin/product_manage', $data);
+    }
+
+    public function product_variant_manage(int $productId, int $variantId): string
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('string');
+        }
+        $productLink  = base_url('admin/product/' . $productId);
+        $variantId    = $variantId / ID_MASKED_PRIME;
+        $variantModel = new ProductVariantModel();
+        $variant      = [];
+        $mode         = 'new';
+        if (0 < $variantId) {
+            $variant = $variantModel->getVariantInformation($variantId);
+            if (empty($variant)) {
+                throw PageNotFoundException::forPageNotFound();
+            }
+            $mode    = 'edit';
+        }
+        $data = [
+            'slug'       => 'product-variant-manage',
+            'lang'       => $this->request->getLocale(),
+            'breadcrumb' => [
+                [
+                    'url'        => base_url('admin/product'),
+                    'page_title' => lang('Admin.pages.product'),
+                ],
+                [
+                    'url'        => $productLink,
+                    'page_title' => lang('Admin.pages.product-manage'),
+                ]
+            ],
+            'variant'    => $variant,
+            'mode'       => $mode,
+        ];
+        return view('admin/product_variant', $data);
+    }
+
+    public function product_variant_inventory(int $productId, int $variantId): string
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('string');
+        }
+        $productLink    = base_url('admin/product/' . $productId);
+        $variantId      = $variantId / ID_MASKED_PRIME;
+        $variantModel   = new ProductVariantModel();
+        $variant        = $variantModel->getVariantInformation($variantId);
+        $productName    = ($variant['product_local_names'][$session->lang] ?? $variant['product_name']);
+        $variantName    = ($variant['variant_local_names'][$session->lang] ?? $variant['variant_name']);
+        $data = [
+            'slug'       => 'product-variant-inventory',
+            'lang'       => $this->request->getLocale(),
+            'breadcrumb' => [
+                [
+                    'url'        => base_url('admin/product'),
+                    'page_title' => lang('Admin.pages.product'),
+                ],
+                [
+                    'url'        => $productLink,
+                    'page_title' => lang('Admin.pages.product-manage'),
+                ]
+            ],
+            'itemTitle'  => "$productName / $variantName",
+            'variant'    => $variant,
+        ];
+        return view('admin/product_variant_inventory', $data);
+    }
+
+    public function product_variant_inventory_post(int $productId, int $variantId): ResponseInterface
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('DataTable');
+        }
+        $variantId      = $variantId / ID_MASKED_PRIME;
+        $inventoryModel = new ProductVariantInventoryModel();
+        $start          = (int) $this->request->getPost('start');
+        $length         = (int) $this->request->getPost('length');
+        $startDate      = $this->request->getPost('start_date');
+        $endDate        = $this->request->getPost('end_date');
+        $data           = $inventoryModel->getDataTable($variantId, $start, $length, $startDate, $endDate);
+        return $this->response->setJSON([
+            'draw'            => $this->request->getPost('draw'),
+            'recordsTotal'    => $data['recordsTotal'],
+            'recordsFiltered' => $data['recordsFiltered'],
+            'data'            => $data['data']
+        ]);
+    }
+
+    /**
      * Manage product category
      * @return string
      */
     public function product_category(): string
     {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('string');
+        }
         $data = [
             'slug'           => 'product-category',
             'lang'           => $this->request->getLocale(),
         ];
         return view('admin/product_category', $data);
+    }
+
+    /**
+     * Manage product
+     * @return ResponseInterface
+     */
+    public function product_category_post(): ResponseInterface
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('ResponseInterface');
+        }
+        $categoryModel = new ProductCategoryModel();
+        return $this->response->setJSON([
+            'data' => $categoryModel->getDataTable($session->business['business_id'])
+        ]);
+    }
+
+    /**
+     * @param int $categoryId
+     * @return string
+     */
+    public function product_category_manage(int $categoryId): string
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('string');
+        }
+        $categoryId    = $categoryId / ID_MASKED_PRIME;
+        $categoryModel = new ProductCategoryModel();
+        $category      = [];
+        $mode          = 'new';
+        if (0 < $categoryId) {
+            $mode     = 'edit';
+            $category = $categoryModel->findRow($categoryId);
+            if (empty($category)) {
+                throw PageNotFoundException::forPageNotFound();
+            }
+            $category['category_local_names'] = json_decode($category['category_local_names'], true);
+        }
+        $data = [
+            'slug'       => 'product-category-manage',
+            'lang'       => $this->request->getLocale(),
+            'breadcrumb' => [
+                [
+                    'url'        => base_url('admin/product/category'),
+                    'page_title' => lang('Admin.pages.product-category'),
+                ]
+            ],
+            'mode'       => $mode,
+            'category'   => $category,
+        ];
+        return view('admin/product_category_manage', $data);
     }
 
     /**
