@@ -427,10 +427,11 @@ class Admin extends BaseController
                 $data['business_local_names'] = json_encode($business_local_names_values);
                 // Save
                 if ($businessMasterModel->update($businessId, $data)) {
-                    // Reset business
-                    $business                         = $businessMasterModel->find($businessId);
-                    $business['business_local_names'] = json_decode($business['business_local_names'], true);
-                    $session->set('business', $business);
+                    // Reset business session
+                    $businessUserModel = new BusinessUserModel();
+                    $businesses        = $businessUserModel->getBusinessesByUserId($session->user_id, true, $data['business_slug']);
+                    $currentBusiness   = $businesses[0];
+                    $session->set('business', $currentBusiness);
                     return $this->response->setJSON([
                         'status'  => STATUS_RESPONSE_OK,
                         'message' => lang('System.response-msg.success.data-saved')
