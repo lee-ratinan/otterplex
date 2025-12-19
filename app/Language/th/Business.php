@@ -59,11 +59,12 @@ return [
         'link-to-business' => 'สถานะของผู้ใช้ในธุรกิจ',
         'link-to-branches' => 'สถานะของผู้ใช้ในสาขา'
     ],
-    'customer-management'       => [
+    'customer-management'      => [
         'privacy-policy' => 'ข้อมูลลูกค้าเป็นข้อมูลส่วนบุคคล ลูกค้ามีสิทธิที่จะแก้ไขหรือลบข้อมูลได้ทุกเมื่อ',
     ],
     'resource-management'      => [
-        'new-resource'         => 'ทรัพยากรใหม่',
-        'new-resource-type'    => 'ประเภททรัพยากรใหม่',
+        'new-resource'            => 'ทรัพยากรใหม่',
+        'new-resource-type'       => 'ประเภททรัพยากรใหม่',
+        'add-resource-type-first' => 'กรุณาสร้างประเภททรัพยากรก่อนเพิ่มทรัพยากร'
     ]
 ];

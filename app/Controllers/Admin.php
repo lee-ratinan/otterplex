@@ -803,18 +803,21 @@ class Admin extends BaseController
         $businessId    = $session->business['business_id'];
         $userId        = (int) $userId / ID_MASKED_PRIME;
         $userModel     = new UserMasterModel();
-        $BusinessModel = new BusinessUserModel();
-        $BranchModel   = new BranchUserModel();
+        $businessModel = new BusinessUserModel();
+        $branchModel   = new BranchMasterModel();
+        $buModel       = new BranchUserModel();
         $mode          = 'new';
         $user          = [];
         $businessUser  = [];
         $branchUser    = [];
+        $branchCount   = 0;
         if (0 < $userId) {
             $mode         = 'edit';
             $user         = $userModel->find($userId);
             if (!empty($user)) {
-                $businessUser = $BusinessModel->where('user_id', $userId)->where('business_id', $businessId)->findAll();
-                $branchUser   = $BranchModel->getUserByBusinessId($userId, $businessId);
+                $businessUser = $businessModel->where('user_id', $userId)->where('business_id', $businessId)->findAll();
+                $branchUser   = $buModel->getUserByBusinessId($userId, $businessId);
+                $branchCount  = $branchModel->where('business_id', $businessId)->countAllResults();
             } else {
                 throw new PageNotFoundException(lang('Admin.pages.page-not-found'));
             }
@@ -826,6 +829,7 @@ class Admin extends BaseController
             'user'         => $user,
             'businessUser' => $businessUser,
             'branchUser'   => $branchUser,
+            'branchCount'  => $branchCount,
             'breadcrumb'   => [
                 [
                     'url'        => base_url('admin/business/user'),
@@ -835,6 +839,7 @@ class Admin extends BaseController
         ];
         return view('admin/business_user_management', $data);
     }
+
     /**
      * Manage customer
      * @return string
@@ -953,9 +958,12 @@ class Admin extends BaseController
         if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
             return $this->forbiddenResponse('string');
         }
-        $data = [
-            'slug'           => 'resource',
-            'lang'           => $this->request->getLocale(),
+        $resourceTypeModel = new ResourceTypeModel();
+        $types             = $resourceTypeModel->where('business_id', $session->business['business_id'])->countAllResults();
+        $data              = [
+            'slug'      => 'resource',
+            'lang'      => $this->request->getLocale(),
+            'typeCount' => $types,
         ];
         return view('admin/resource', $data);
     }
@@ -1238,9 +1246,12 @@ class Admin extends BaseController
         if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
             return $this->forbiddenResponse('string');
         }
-        $data = [
+        $categoryModel = new ProductCategoryModel();
+        $count         = $categoryModel->where('business_id', $session->business_id)->countAllResults();
+        $data          = [
             'slug'           => 'product',
             'lang'           => $this->request->getLocale(),
+            'count'          => $count,
         ];
         return view('admin/product', $data);
     }
@@ -1374,6 +1385,11 @@ class Admin extends BaseController
         return view('admin/product_variant_inventory', $data);
     }
 
+    /**
+     * @param int $productId
+     * @param int $variantId
+     * @return ResponseInterface
+     */
     public function product_variant_inventory_post(int $productId, int $variantId): ResponseInterface
     {
         $session = session();

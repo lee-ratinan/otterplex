@@ -90,6 +90,7 @@
                                     <?php endforeach; ?>
                                     </tbody>
                                 </table>
+                                <?= $branchCount ?>
                             </div>
                         </div>
                     <?php endif; ?>

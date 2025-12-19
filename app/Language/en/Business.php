@@ -59,11 +59,12 @@ return [
         'link-to-business' => 'User Status in Business',
         'link-to-branches' => 'User Status in Branches'
     ],
-    'customer-management'       => [
+    'customer-management'      => [
         'privacy-policy' => 'Customer data is considered sensitive information. The customers have their rights to modify and/or delete their information at any given time.',
     ],
     'resource-management'      => [
-        'new-resource'         => 'New Resource',
-        'new-resource-type'    => 'New Resource Type',
+        'new-resource'            => 'New Resource',
+        'new-resource-type'       => 'New Resource Type',
+        'add-resource-type-first' => 'Please add a resource type before creating a new resource.',
     ]
 ];
