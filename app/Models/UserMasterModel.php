@@ -124,11 +124,7 @@ class UserMasterModel extends AppBaseModel
             self::USER_TYPE_CLIENT    => lang('UserMaster.enum.user_type.CLIENT'),
         ];
         // nationality
-        $configurations['user_nationality']['options'] = [];
-        $countries                                     = get_country_codes();
-        foreach ($countries['countries'] as $code => $fields) {
-            $configurations['user_nationality']['options'][$code] = $fields['common_name'];
-        }
+        $configurations['user_nationality']['options'] = get_country_list();
         return $configurations;
     }
 

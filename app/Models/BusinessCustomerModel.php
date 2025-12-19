@@ -80,7 +80,7 @@ class BusinessCustomerModel extends AppBaseModel
             ->orderBy($orderBy, $orderDir)
             ->limit($length, $offset)
             ->findAll();
-        $countries  = get_country_codes()['countries'];
+        $countries  = get_country_list();
         $final      = [];
         $phone_util = PhoneNumberUtil::getInstance();
         foreach ($customers as $customer) {
@@ -96,7 +96,7 @@ class BusinessCustomerModel extends AppBaseModel
                 $customer['customer_name'],
                 lang('CustomerMaster.enum.is_active.' . $customer['is_active']),
                 $customer['address_city'],
-                @$countries[$customer['country_code']]['common_name'],
+                @$countries[$customer['country_code']],
             ];
         }
         return [

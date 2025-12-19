@@ -736,7 +736,7 @@ class Admin extends BaseController
             $mode      = 'edit';
         }
         // OPTIONS
-        $subdivisions = get_country_codes()['subdivisions'][$session->business['country_code']];
+        $subdivisions = get_country_subdivisions($session->business['country_code']);
         $timezones    = get_tzdb_by_country($session->business['country_code']);
         $data         = [
             'slug'          => 'business-branch-manage',

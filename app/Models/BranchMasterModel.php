@@ -40,7 +40,7 @@ class BranchMasterModel extends AppBaseModel
         $data       = [];
         // external data
         $countryCode  = $session->business['country_code'];
-        $subdivisions = get_country_codes()['subdivisions'][$countryCode];
+        $subdivisions = get_country_subdivisions($countryCode);
         foreach ($branches as $branch) {
             $data[] = [
                 $subdivisions[$branch['subdivision_code']],

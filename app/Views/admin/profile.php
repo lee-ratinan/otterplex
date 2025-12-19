@@ -27,9 +27,7 @@
                             echo build_form_input('lang_code', lang('UserMaster.field.lang_code'), ['type' => 'select', 'required' => 'true'], $session->user['lang_code'], '', $lang_options);
                             echo build_form_input('user_gender', lang('UserMaster.field.user_gender'), ['type' => 'select'], $session->user['user_gender'], '', lang('UserMaster.enum.user_gender'));
                             echo build_form_input('user_date_of_birth', lang('UserMaster.field.user_date_of_birth'), ['type' => 'date'], $session->user['user_date_of_birth']);
-                            $country_options = array_map(function ($names) {
-                                return $names['common_name'];
-                            }, get_country_codes()['countries']);
+                            $country_options = get_country_list();
                             echo build_form_input('user_nationality', lang('UserMaster.field.user_nationality'), ['type' => 'select'], $session->user['user_nationality'], '', $country_options);
                             echo build_form_input('profile_status_msg', lang('UserMaster.field.profile_status_msg'), ['type' => 'text'], $session->user['profile_status_msg']);
                             ?>
