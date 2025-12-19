@@ -64,6 +64,7 @@
     </div>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
+            const table = $('table').DataTable();
             $('.btn-switch-biz').click(function (e) {
                 e.preventDefault();
                 let target_business_slug = $(this).data('target');

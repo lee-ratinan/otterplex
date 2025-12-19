@@ -78,13 +78,13 @@
                     <hr class="my-3" />
                     <h2><?= lang('Business.contracts') ?></h2>
                     <div class="table-responsive">
-                        <table class="table table-sm table-striped table-hover">
+                        <table id="contract-table" class="table table-sm table-striped table-hover">
                             <thead>
                             <tr>
-                                <th style="min-width:100px"><?= lang('BusinessContract.field.package_id') ?></th>
-                                <th style="min-width:150px"><?= lang('BusinessContract.field.invoice_number') ?></th>
                                 <th style="min-width:150px"><?= lang('BusinessContract.field.contract_start') ?></th>
                                 <th style="min-width:150px"><?= lang('BusinessContract.field.contract_expiry') ?></th>
+                                <th style="min-width:100px"><?= lang('BusinessContract.field.package_id') ?></th>
+                                <th style="min-width:150px"><?= lang('BusinessContract.field.invoice_number') ?></th>
                                 <th style="min-width:120px"><?= lang('BusinessContract.field.total_amount') ?></th>
                                 <th style="min-width:120px"><?= lang('BusinessContract.field.paid_amount') ?></th>
                                 <th style="min-width:150px"><?= lang('BusinessContract.field.financial_status') ?></th>
@@ -94,12 +94,12 @@
                             <tbody>
                             <?php foreach ($contracts as $contract) : ?>
                                 <tr>
+                                    <td data-sort="<?= $contract['contract_start'] ?>"><?= format_date($contract['contract_start']) ?></td>
+                                    <td data-sort="<?= $contract['contract_expiry'] ?>"><?= format_date($contract['contract_expiry']) ?></td>
                                     <td><?= $contract['package_name'] ?></td>
                                     <td><?= $contract['invoice_number'] ?></td>
-                                    <td><?= format_date($contract['contract_start']) ?></td>
-                                    <td><?= format_date($contract['contract_expiry']) ?></td>
-                                    <td class="text-end"><?= format_price($contract['total_amount'], $contract['country_code']) ?></td>
-                                    <td class="text-end"><?= format_price($contract['paid_amount'], $contract['country_code']) ?></td>
+                                    <td class="text-end" data-sort="<?= $contract['total_amount'] ?>"><?= format_price($contract['total_amount'], $contract['country_code']) ?></td>
+                                    <td class="text-end" data-sort="<?= $contract['paid_amount'] ?>"><?= format_price($contract['paid_amount'], $contract['country_code']) ?></td>
                                     <td><?= lang('BusinessContract.enum.financial_status.' . $contract['financial_status']) ?></td>
                                     <?php
                                     $payments = [];
@@ -115,7 +115,8 @@
                                         }
                                     }
                                     ?>
-                                    <td><a class="btn-modal" href="#" data-bs-toggle="modal" data-bs-target="#contract-modal"
+                                    <td>
+                                        <a class="btn-modal" href="#" data-bs-toggle="modal" data-bs-target="#contract-modal"
                                            data-package="<?= $contract['package_name'] ?>"
                                            data-invoice-number="<?= $contract['invoice_number'] ?>"
                                            data-start="<?= format_date($contract['contract_start']) ?>"
@@ -126,7 +127,8 @@
                                            data-paid-amount="<?= format_price($contract['paid_amount'], $contract['country_code']) ?>"
                                            data-status="<?= lang('BusinessContract.enum.financial_status.' . $contract['financial_status']) ?>"
                                            data-payments="<?= htmlspecialchars(json_encode($payments), ENT_QUOTES, 'UTF-8') ?>"
-                                        ><?= lang('System.buttons.view-more') ?></a></td>
+                                        ><?= lang('System.buttons.view-more') ?></a>
+                                    </td>
                                 </tr>
                             <?php endforeach; ?>
                             </tbody>
@@ -165,6 +167,7 @@
     </div>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
+            const table = $('#contract-table').DataTable();
             // MODAL
             $('.btn-modal').click(function (e) {
                 e.preventDefault();
