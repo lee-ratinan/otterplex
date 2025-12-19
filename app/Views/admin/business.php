@@ -15,14 +15,19 @@
                             ], $business['business_type_id'], '', $business_types);
                             echo build_form_input('business_name', lang('BusinessMaster.field.business_name'), [
                                 'type' => 'text',
+                                'data-explanation' => lang('BusinessMaster.explanation.business_name'),
                             ], $business['business_name']);
+                            echo '<button class="btn btn-outline-danger btn-sm mb-3" id="btn-update-slug">' . lang('Business.btn-update-slug') . '</button>';
+                            echo '<button class="btn btn-danger btn-sm mb-3 d-none" id="btn-update-slug-confirm">' . lang('Business.btn-update-slug-confirm') . '</button>';
                             echo build_form_input('business_slug', lang('BusinessMaster.field.business_slug'), [
                                 'type'             => 'text',
-                                'data-explanation' => lang('BusinessMaster.explanation.business_slug')
+                                'readonly'         => 'readonly'
                             ], $business['business_slug']);
+                            $marketplace_url = getenv('marketplace_site') . '@' . $business['business_slug'];
+                            echo '<div class="alert alert-info mb-3"><i class="fa-solid fa-info-circle"></i> ' . lang('Business.marketplace-url', [$marketplace_url]) . '</div>';
                             foreach ($all_languages as $lang_code => $language_name) {
                                 echo build_form_input('business_local_names_' . $lang_code, lang('BusinessMaster.field.business_local_names') . ' (' . $language_name . ')', [
-                                    'type' => 'text',
+                                    'type' => 'text'
                                 ], $business['business_local_names'][$lang_code]);
                             }
                             // country code is not updatable
@@ -134,7 +139,7 @@
                             </tbody>
                         </table>
                     </div>
-                    <div class="text-end"><a class="btn btn-primary" href="<?= base_url('admin/business/contract-renewal') ?>"><?= lang('Business.contract-renew') ?></a></div>
+                    <div class="text-end mt-3"><a class="btn btn-primary" href="<?= base_url('admin/business/contract-renewal') ?>"><?= lang('Business.contract-renew') ?></a></div>
                     <div class="modal fade" id="contract-modal" tabindex="-1" aria-labelledby="contract-modal-label" aria-hidden="true">
                         <div class="modal-dialog">
                             <div class="modal-content">
@@ -203,9 +208,14 @@
                     $('#modal-payment-records').html(payment_lines);
                 }
             });
-            // ON KEYUP
-            $('#business_name').keyup(function () {
-                let business_name = $(this).val();
+            // SLUG
+            $('#btn-update-slug').click(function () {
+                $(this).addClass('d-none');
+                $('#btn-update-slug-confirm').removeClass('d-none');
+            });
+            $('#btn-update-slug-confirm').click(function () {
+                let business_name = $('#business_name').val();
+                $('#btn-update-slug-confirm').prop('disabled', true);
                 $.post(
                     "<?= base_url('helper/generate-slug') ?>",
                     {name: business_name},
@@ -215,6 +225,8 @@
                         } else {
                             toastr.error(response.message);
                         }
+                        $('#btn-update-slug').removeClass('d-none');
+                        $('#btn-update-slug-confirm').prop('disabled', false).addClass('d-none');
                     },
                     "json"
                 ).fail(function (response) {
