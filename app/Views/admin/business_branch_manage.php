@@ -18,7 +18,7 @@
                             ], @$branch['branch_name']);
                             echo build_form_input('branch_slug', lang('BranchMaster.field.branch_slug'), [
                                 'type'             => 'text',
-                                'data-explanation' => lang('BranchMaster.explanation.branch_slug')
+//                                'data-explanation' => lang('BranchMaster.explanation.branch_slug')
                             ], @$branch['branch_slug']);
                             foreach ($all_languages as $lang_code => $language_name) {
                                 echo build_form_input('branch_local_names_' . $lang_code, lang('BranchMaster.field.branch_local_names') . ' (' . $language_name . ')', [
@@ -68,8 +68,8 @@
                                     <?php foreach ($hours as $d => $hour) : ?>
                                         <tr>
                                             <td><?= lang('Business.branch-management.days.' . $d) ?></td>
-                                            <td><label><input class="form-control branch-opening-hours-<?= $d ?>" name="branch-opening-hours-<?= $d ?>[]" data-id="<?= $hour[0] ?>" data-day="<?= $d ?>" value="<?= $hour[1] ?>"/></label></td>
-                                            <td><label><input class="form-control branch-opening-hours-<?= $d ?>" name="branch-opening-hours-<?= $d ?>[]" data-id="<?= $hour[0] ?>" data-day="<?= $d ?>" value="<?= $hour[2] ?>"/></label></td>
+                                            <td><label><input type="time" class="form-control branch-opening-hours-<?= $d ?>" name="branch-opening-hours-<?= $d ?>[]" data-id="<?= $hour[0] ?>" data-day="<?= $d ?>" value="<?= $hour[1] ?>"/></label></td>
+                                            <td><label><input type="time" class="form-control branch-opening-hours-<?= $d ?>" name="branch-opening-hours-<?= $d ?>[]" data-id="<?= $hour[0] ?>" data-day="<?= $d ?>" value="<?= $hour[2] ?>"/></label></td>
                                             <td class="text-end"><button class="btn btn-primary btn-sm" data-target="branch-opening-hours-<?= $d ?>" id="btn-save-hours"><?= lang('System.buttons.save') ?></button></td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -137,39 +137,51 @@
                         <?php endif; ?>
                     </div>
                 </div>
+                <input type="hidden" id="id" name="id" />
+                <input type="hidden" id="action_table" name="action_table" />
+                <input type="hidden" id="action_perform" name="action_perform" />
             </div>
         </div>
     </div>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            // ON KEYUP
-            $('#branch_name').keyup(function () {
-                let branch_name = $(this).val();
+            $('#branch_slug').change(function () {
+                let slug = $(this).val();
+                slug = slug.toLowerCase();
+                slug = slug.replace(/[^a-z-]/g, '');
+                $(this).val(slug);
+            });
+            // SAVE
+            $('#btn-save-master').click(function (e) {
+                e.preventDefault();
+                <?php
+                $fields = ['subdivision_code', 'branch_name', 'branch_slug', 'timezone_code', 'branch_type', 'branch_address', 'branch_postal_code', 'branch_status'];
+                foreach ($all_languages as $language_code => $language_name) {
+                    $fields[] = 'branch_local_names_' . $language_code;
+                }
+                gen_js_fields_checker($fields);
+                ?>
+                $('#btn-save-master').prop('disabled', true);
+                $('#id').val(<?= $branch['id'] ?? 0 ?>);
+                $('#action_table').val('branch_master');
                 $.post(
-                    "<?= base_url('helper/generate-slug') ?>",
-                    {name: branch_name},
-                    function (response) {
+                    "<?= base_url('admin/business/branch-manage') ?>",
+                    <?php $fields[] = 'action_table'; $fields[] = 'id'; gen_json_fields_to_fields($fields) ?>,
+                    function (response, status) {
+                        $('#btn-save').prop('disabled', false);
                         if (response.status === "<?= STATUS_RESPONSE_OK ?>") {
-                            let slug = response.slug;
-                            if ('new-branch' === slug) {
-                                slug += 'x';
-                            }
-                            $('#branch_slug').val(slug);
+                            toastr.success(response.message);
+                            setTimeout(function() { location.reload(); }, 3000);
                         } else {
                             toastr.error(response.message);
                         }
                     },
                     "json"
                 ).fail(function (response) {
+                    $('#btn-save').prop('disabled', false);
                     let message = response.responseJSON.message ?? '<?= lang('System.response-msg.error.generic') ?>';
                     toastr.error(message);
                 });
-            });
-            $('#branch_slug').change(function () {
-                let slug = $(this).val();
-                slug = slug.toLowerCase();
-                slug = slug.replace(/[^a-z-]/g, '');
-                $(this).val(slug);
             });
         });
     </script>
