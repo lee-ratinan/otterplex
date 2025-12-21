@@ -765,56 +765,92 @@ class Admin extends BaseController
         if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
             return $this->forbiddenResponse('ResponseInterface');
         }
-        $businessId = $session->business['business_id'];
-        $table      = $this->request->getPost('action_table');
-        $data       = [];
-        if ('branch_master' == $table) {
-            $bmModel = new BranchMasterModel();
-            $fields  = ['id', 'subdivision_code', 'branch_name', 'branch_slug', 'timezone_code', 'branch_type', 'branch_address', 'branch_postal_code', 'branch_status'];
-            foreach ($fields as $field) {
-                $data[$field] = $this->request->getPost($field);
-            }
-            $locales  = get_available_locales();
-            $raw_data = [];
-            foreach ($locales as $locale_code => $locale_name) {
-                $field = 'branch_local_names_' . $locale_code;
-                $raw_data[$locale_code] = $this->request->getPost($field);
-            }
-            $data['branch_local_names'] = json_encode($raw_data);
-            $data['business_id']        = $businessId;
-            $branchId                   = $data['id'];
-            unset($data['id']);
-            // insert or update
-            if (0 < $branchId) {
-                if ($bmModel->update($branchId, $data)) {
-                    return $this->response->setJSON([
-                        'status'  => STATUS_RESPONSE_OK,
-                        'message' => lang('System.response-msg.success.data-saved'),
-                    ]);
+        try {
+            $businessId = $session->business['business_id'];
+            $table = $this->request->getPost('action_table');
+            $data = [];
+            if ('branch_master' == $table) {
+                $bmModel = new BranchMasterModel();
+                $fields = [
+                    'id', 'subdivision_code', 'branch_name', 'branch_slug', 'timezone_code', 'branch_type',
+                    'branch_address', 'branch_postal_code', 'branch_status'
+                ];
+                foreach ($fields as $field) {
+                    $data[$field] = $this->request->getPost($field);
                 }
-            } else {
-                if ($bmModel->insert($data)) {
-                    return $this->response->setJSON([
-                        'status'  => STATUS_RESPONSE_OK,
-                        'message' => lang('System.response-msg.success.data-saved'),
-                    ]);
+                $locales = get_available_locales();
+                $raw_data = [];
+                foreach ($locales as $locale_code => $locale_name) {
+                    $field = 'branch_local_names_' . $locale_code;
+                    $raw_data[$locale_code] = $this->request->getPost($field);
+                }
+                $data['branch_local_names'] = json_encode($raw_data);
+                $data['business_id'] = $businessId;
+                $branchId = $data['id'];
+                unset($data['id']);
+                // insert or update
+                if (0 < $branchId) {
+                    if ($bmModel->update($branchId, $data)) {
+                        return $this->response->setJSON([
+                            'status'  => STATUS_RESPONSE_OK,
+                            'message' => lang('System.response-msg.success.data-saved'),
+                        ]);
+                    }
+                } else {
+                    if ($bmModel->insert($data)) {
+                        return $this->response->setJSON([
+                            'status'  => STATUS_RESPONSE_OK,
+                            'message' => lang('System.response-msg.success.data-saved'),
+                        ]);
+                    }
+                }
+                return $this->response->setJSON([
+                    'status'  => STATUS_RESPONSE_ERR,
+                    'message' => lang('System.response-msg.error.db-issue')
+                ]);
+            } else if ('branch_opening_hours' == $table) {
+                $hoursModel = new BranchOpeningHoursModel();
+                $fields = ['branch_opening_hours_id', 'branch_id', 'day_of_the_week', 'opening_hours', 'closing_hours'];
+                foreach ($fields as $field) {
+                    $data[$field] = $this->request->getPost($field);
+                }
+                $id = $data['branch_opening_hours_id'];
+                unset($data['branch_opening_hours_id']);
+                // insert or update
+                if (0 < $id) {
+                    if ($hoursModel->update($id, $data)) {
+                        return $this->response->setJSON([
+                            'status'  => STATUS_RESPONSE_OK,
+                            'message' => lang('System.response-msg.success.data-saved'),
+                        ]);
+                    }
+                } else {
+                    if ($hoursModel->insert($data)) {
+                        return $this->response->setJSON([
+                            'status'  => STATUS_RESPONSE_OK,
+                            'message' => lang('System.response-msg.success.data-saved'),
+                        ]);
+                    }
+                }
+                return $this->response->setJSON([
+                    'status'  => STATUS_RESPONSE_ERR,
+                    'message' => lang('System.response-msg.error.db-issue')
+                ]);
+            } else if ('branch_modified_hours' == $table) {
+                $action = $this->request->getPost('action_perform');
+                if ('delete' == $action) {
+                    // delete
+                } else {
+                    // add
                 }
             }
+            return $this->response->setJSON($data);
+        } catch (\Exception $e) {
             return $this->response->setJSON([
                 'status'  => STATUS_RESPONSE_ERR,
-                'message' => lang('System.response-msg.error.db-issue')
-            ]);
-        } else if ('branch_opening_hours' == $table) {
-            // insert or update
-        } else if ('branch_modified_hours' == $table) {
-            $action = $this->request->getPost('action_perform');
-            if ('delete' == $action) {
-                // delete
-            } else {
-                // add
-            }
+                'message' => $e->getMessage(),
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
         }
-        return $this->response->setJSON($data);
     }
     /**
      * Manage staff

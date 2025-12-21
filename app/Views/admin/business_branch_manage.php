@@ -68,9 +68,9 @@
                                     <?php foreach ($hours as $d => $hour) : ?>
                                         <tr>
                                             <td><?= lang('Business.branch-management.days.' . $d) ?></td>
-                                            <td><label><input type="time" class="form-control branch-opening-hours-<?= $d ?>" name="branch-opening-hours-<?= $d ?>[]" data-id="<?= $hour[0] ?>" data-day="<?= $d ?>" value="<?= $hour[1] ?>"/></label></td>
-                                            <td><label><input type="time" class="form-control branch-opening-hours-<?= $d ?>" name="branch-opening-hours-<?= $d ?>[]" data-id="<?= $hour[0] ?>" data-day="<?= $d ?>" value="<?= $hour[2] ?>"/></label></td>
-                                            <td class="text-end"><button class="btn btn-primary btn-sm" data-target="branch-opening-hours-<?= $d ?>" id="btn-save-hours"><?= lang('System.buttons.save') ?></button></td>
+                                            <td><label><input type="time" class="form-control branch-opening-hours-<?= $d ?>" name="branch-opening-hours-<?= $d ?>-opn" id="branch-opening-hours-<?= $d ?>-opn" data-id="<?= $hour[0] ?>" data-day="<?= $d ?>" value="<?= $hour[1] ?>"/></label></td>
+                                            <td><label><input type="time" class="form-control branch-opening-hours-<?= $d ?>" name="branch-opening-hours-<?= $d ?>-cls" id="branch-opening-hours-<?= $d ?>-cls" data-id="<?= $hour[0] ?>" data-day="<?= $d ?>" value="<?= $hour[2] ?>"/></label></td>
+                                            <td class="text-end"><button class="btn btn-primary btn-sm btn-save-hours" data-target="branch-opening-hours-<?= $d ?>" id="btn-save-hours-<?= $d ?>" data-id="<?= $hour[0] ?>" data-dow="<?= $d ?>"><?= lang('System.buttons.save') ?></button></td>
                                         </tr>
                                     <?php endforeach; ?>
                                     </tbody>
@@ -138,8 +138,13 @@
                     </div>
                 </div>
                 <input type="hidden" id="id" name="id" />
+                <input type="hidden" id="branch_id" name="branch_id" value="<?= $branch['id'] ?? 0 ?>" />
+                <input type="hidden" id="branch_opening_hours_id" name="branch_opening_hours_id" />
                 <input type="hidden" id="action_table" name="action_table" />
                 <input type="hidden" id="action_perform" name="action_perform" />
+                <input type="hidden" id="day_of_the_week" name="day_of_the_week" />
+                <input type="hidden" id="opening_hours" name="opening_hours" />
+                <input type="hidden" id="closing_hours" name="closing_hours" />
             </div>
         </div>
     </div>
@@ -167,6 +172,42 @@
                 $.post(
                     "<?= base_url('admin/business/branch-manage') ?>",
                     <?php $fields[] = 'action_table'; $fields[] = 'id'; gen_json_fields_to_fields($fields) ?>,
+                    function (response, status) {
+                        $('#btn-save').prop('disabled', false);
+                        if (response.status === "<?= STATUS_RESPONSE_OK ?>") {
+                            toastr.success(response.message);
+                            setTimeout(function() { location.reload(); }, 3000);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    "json"
+                ).fail(function (response) {
+                    $('#btn-save').prop('disabled', false);
+                    let message = response.responseJSON.message ?? '<?= lang('System.response-msg.error.generic') ?>';
+                    toastr.error(message);
+                });
+            });
+            $('.btn-save-hours').click(function (e) {
+                e.preventDefault();
+                let dow = $(this).data('dow');
+                $('#branch_opening_hours_id').val($(this).data('id'));
+                $('#day_of_the_week').val(dow);
+                if ('' == $('#branch-opening-hours-'+dow+'-opn').val()) {
+                    $('#branch-opening-hours-'+dow+'-opn').focus();
+                    return false;
+                }
+                if ('' == $('#branch-opening-hours-'+dow+'-cls').val()) {
+                    $('#branch-opening-hours-'+dow+'-cls').focus();
+                    return false;
+                }
+                $('#opening_hours').val($('#branch-opening-hours-'+dow+'-opn').val());
+                $('#closing_hours').val($('#branch-opening-hours-'+dow+'-cls').val());
+                $('#action_table').val('branch_opening_hours');
+                <?php $fields = ['action_table', 'branch_opening_hours_id', 'branch_id', 'day_of_the_week', 'opening_hours', 'closing_hours']; ?>
+                $.post(
+                    "<?= base_url('admin/business/branch-manage') ?>",
+                    <?php gen_json_fields_to_fields($fields) ?>,
                     function (response, status) {
                         $('#btn-save').prop('disabled', false);
                         if (response.status === "<?= STATUS_RESPONSE_OK ?>") {
