@@ -77,6 +77,7 @@
                                     <tbody>
                                     <?php foreach ($branchUser as $row) : ?>
                                         <?php $branch_local_names = json_decode($row['branch_local_names'], true); ?>
+                                        <?php unset($branches[$row['branch_id']]); ?>
                                         <tr>
                                             <td><?= $branch_local_names[$lang] ?? $row['branch_name'] ?></td>
                                             <td>
@@ -90,15 +91,33 @@
                                                 ]);
                                                 ?>
                                             </td>
-                                            <td>
-                                                <button class="btn btn-primary btn-sm float-end"><?= lang('System.buttons.save') ?></button>
+                                            <td class="text-end">
+                                                <button class="btn btn-primary btn-sm btn-update-branch-user" id="btn-update-branch-user-<?= $row['id'] ?>" data-id="<?= $row['id'] ?>" data-target="user_role-<?= $row['id'] ?>"><?= lang('System.buttons.save') ?></button>
+                                                <button class="btn btn-outline-danger btn-sm btn-delete-branch-user" id="btn-delete-branch-user-<?= $row['id'] ?>" data-id="<?= $row['id'] ?>"><?= lang('System.buttons.remove') ?></button>
+                                                <button class="btn btn-outline-danger btn-sm btn-delete-branch-user-confirm d-none" id="btn-delete-branch-user-<?= $row['id'] ?>-confirm" data-id="<?= $row['id'] ?>"><?= lang('System.buttons.remove-confirm') ?></button>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
                                     </tbody>
                                 </table>
-                                <?= $branchCount ?>
                             </div>
+                            <?php if (!empty($branches)) : ?>
+                                <h3><?= lang('Business.user-management.link-to-new-branch') ?></h3>
+                                <?php
+                                echo build_form_input('branch_id', lang('BranchUser.field.branch_id'), [
+                                    'type' => 'select',
+                                ], '', '', $branches);
+                                echo build_form_input('branch_user_role', lang('BusinessUser.field.user_role'), [
+                                    'type' => 'select',
+                                ], '', '', [
+                                    'STAFF'   => lang('BranchUser.enum.user_role.STAFF'),
+                                    'MANAGER' => lang('BranchUser.enum.user_role.MANAGER')
+                                ])
+                                ?>
+                                <div class="text-end">
+                                    <button class="btn btn-primary" id="btn-save-branch-user"><?= lang('System.buttons.save') ?></button>
+                                </div>
+                            <?php endif; ?>
                         </div>
                     <?php endif; ?>
                 </div>
@@ -164,6 +183,93 @@
                     "json"
                 ).fail(function (response) {
                     $('#btn-save-business-user').prop('disabled', false);
+                    let message = response.responseJSON.message ?? '<?= lang('System.response-msg.error.generic') ?>';
+                    toastr.error(message);
+                });
+            });
+            $('#btn-save-branch-user').click(function (e) {
+                e.preventDefault();
+                <?php
+                $fields = ['branch_user_role', 'branch_id'];
+                gen_js_fields_checker($fields);
+                ?>
+                $('#btn-save-branch-user').prop('disabled', true);
+                $('#action').val('branch_user_add');
+                $.post(
+                    "<?= base_url('admin/business/user-manage') ?>",
+                    <?php $fields[] = 'id'; $fields[] = 'action'; gen_json_fields_to_fields($fields) ?>,
+                    function (response, status) {
+                        $('#btn-save-branch-user').prop('disabled', false);
+                        if (response.status === "<?= STATUS_RESPONSE_OK ?>") {
+                            toastr.success(response.message);
+                            setTimeout(function() { location.reload(); }, 3000);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    "json"
+                ).fail(function (response) {
+                    $('#btn-save-branch-user').prop('disabled', false);
+                    let message = response.responseJSON.message ?? '<?= lang('System.response-msg.error.generic') ?>';
+                    toastr.error(message);
+                });
+            });
+            $('.btn-update-branch-user').click(function (e) {
+                e.preventDefault();
+                let id = $(this).data('id'),
+                    user_role_target = '#' + $(this).data('target'),
+                    user_role = $(user_role_target).val();
+                if ('' === user_role) {
+                    $(user_role_target).focus();
+                    return false;
+                }
+                $(this).prop('disabled', true);
+                $.post(
+                    "<?= base_url('admin/business/user-manage') ?>",
+                    {
+                        id: id,
+                        user_role: user_role,
+                        action: 'branch_user_update'
+                    },
+                    function (response, status) {
+                        if (response.status === "<?= STATUS_RESPONSE_OK ?>") {
+                            toastr.success(response.message);
+                            setTimeout(function() { location.reload(); }, 3000);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    "json"
+                ).fail(function (response) {
+                    let message = response.responseJSON.message ?? '<?= lang('System.response-msg.error.generic') ?>';
+                    toastr.error(message);
+                });
+            });
+            $('.btn-delete-branch-user').click(function (e) {
+                e.preventDefault();
+                let id = $(this).data('id');
+                $(this).addClass('d-none');
+                $('#btn-delete-branch-user-'+id+'-confirm').removeClass('d-none');
+            });
+            $('.btn-delete-branch-user-confirm').click(function (e) {
+                e.preventDefault();
+                let id = $(this).data('id');
+                $.post(
+                    "<?= base_url('admin/business/user-manage') ?>",
+                    {
+                        id: id,
+                        action: 'branch_user_delete'
+                    },
+                    function (response, status) {
+                        if (response.status === "<?= STATUS_RESPONSE_OK ?>") {
+                            toastr.success(response.message);
+                            setTimeout(function() { location.reload(); }, 3000);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    "json"
+                ).fail(function (response) {
                     let message = response.responseJSON.message ?? '<?= lang('System.response-msg.error.generic') ?>';
                     toastr.error(message);
                 });

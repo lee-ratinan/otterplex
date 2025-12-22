@@ -935,14 +935,18 @@ class Admin extends BaseController
         $user          = [];
         $businessUser  = [];
         $branchUser    = [];
-        $branchCount   = 0;
+        $branches      = [];
         if (0 < $userId) {
             $mode         = 'edit';
             $user         = $userModel->find($userId);
             if (!empty($user)) {
                 $businessUser = $businessModel->where('user_id', $userId)->where('business_id', $businessId)->first();
                 $branchUser   = $buModel->getUserByBusinessId($userId, $businessId);
-                $branchCount  = $branchModel->where('business_id', $businessId)->countAllResults();
+                $branchesRaw  = $branchModel->where('business_id', $businessId)->findAll();
+                foreach ($branchesRaw as $branch) {
+                    $local_names             = json_decode($branch['branch_local_names'], true);
+                    $branches[$branch['id']] = $local_names[$session->lang] ?? $branch['branch_name'];
+                }
             } else {
                 throw new PageNotFoundException(lang('Admin.pages.page-not-found'));
             }
@@ -954,7 +958,7 @@ class Admin extends BaseController
             'user'         => $user,
             'businessUser' => $businessUser,
             'branchUser'   => $branchUser,
-            'branchCount'  => $branchCount,
+            'branches'     => $branches,
             'breadcrumb'   => [
                 [
                     'url'        => base_url('admin/business/user'),
@@ -1054,6 +1058,42 @@ class Admin extends BaseController
                     return $this->response->setJSON([
                         'status'  => STATUS_RESPONSE_OK,
                         'message' => lang('System.response-msg.success.data-saved'),
+                    ]);
+                }
+            } else if ('branch_user_add' == $action) {
+                $bruModel  = new BranchUserModel();
+                $fields    = ['id', 'branch_user_role', 'branch_id'];
+                $data      = [];
+                foreach ($fields as $field) {
+                    $data[$field] = $this->request->getPost($field);
+                }
+                $data['user_id']   = $data['id'];
+                $data['user_role'] = $data['branch_user_role'];
+                unset($data['id']);
+                unset($data['branch_user_role']);
+                if ($bruModel->insert($data)) {
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_OK,
+                        'message' => lang('System.response-msg.success.data-saved'),
+                    ]);
+                }
+            } else if ('branch_user_update' == $action) {
+                $bruModel          = new BranchUserModel();
+                $data['user_role'] = $this->request->getPost('user_role');
+                $id                = $this->request->getPost('id');
+                if ($bruModel->update($id, $data)) {
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_OK,
+                        'message' => lang('System.response-msg.success.data-saved'),
+                    ]);
+                }
+            } else if ('branch_user_delete' == $action) {
+                $bruModel  = new BranchUserModel();
+                $id        = $this->request->getPost('id');
+                if ($bruModel->delete($id)) {
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_OK,
+                        'message' => lang('System.response-msg.success.data-deleted'),
                     ]);
                 }
             }
