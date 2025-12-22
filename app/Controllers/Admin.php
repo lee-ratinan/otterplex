@@ -168,6 +168,7 @@ class Admin extends BaseController
      */
     public function profile_post(): ResponseInterface
     {
+        $error_message = lang('System.response-msg.error.generic');
         try {
             $session         = session();
             $userMasterModel = new UserMasterModel();
@@ -289,11 +290,12 @@ class Admin extends BaseController
                 'message' => $error_msg
             ]);
         } catch (\Exception $e) {
-            return $this->response->setJSON([
-                'status'  => STATUS_RESPONSE_ERR,
-                'message' => $e->getMessage(),
-            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+            $error_message = $e->getMessage();
         }
+        return $this->response->setJSON([
+            'status'  => STATUS_RESPONSE_ERR,
+            'message' => $error_message,
+        ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -1097,13 +1099,16 @@ class Admin extends BaseController
                     ]);
                 }
             }
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => lang('System.response-msg.error.db-issue'),
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
         } catch (\Exception $e) {
-            $message = $e->getMessage();
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => $e->getMessage(),
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
         }
-        return $this->response->setJSON([
-            'status'  => STATUS_RESPONSE_ERR,
-            'message' => $message ?? '',
-        ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -1207,11 +1212,55 @@ class Admin extends BaseController
             'breadcrumb'   => [
                 [
                     'url'        => base_url('admin/resource/type'),
-                    'page_title' => lang('Admin.pages.resource-type'),
+                    'page_title' => lang('Admin.pages.business-resource-type'),
                 ]
             ]
         ];
         return view('admin/resource_type_manage', $data);
+    }
+
+    public function resource_type_manage_post(): ResponseInterface
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('ResponseInterface');
+        }
+        try {
+            $resourceTypeModel     = new ResourceTypeModel();
+            $id                    = $this->request->getPost('id');
+            $data['resource_type'] = $this->request->getPost('resource_type');
+            $languages             = get_available_locales('short');
+            $names                 = [];
+            foreach ($languages as $code => $name) {
+                $names[$code] = $this->request->getPost('resource_local_names_' . $code);
+            }
+            $data['resource_local_names'] = json_encode($names);
+            if (0 < $id) {
+                if ($resourceTypeModel->update($id, $data)) {
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_OK,
+                        'message' => lang('System.response-msg.success.data-saved'),
+                    ]);
+                }
+            } else {
+                $data['business_id'] = $session->business['business_id'];
+                if ($resourceTypeModel->insert($data)) {
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_OK,
+                        'message' => lang('System.response-msg.success.data-saved'),
+                    ]);
+                }
+            }
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => lang('System.response-msg.error.db-issue'),
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => $e->getMessage(),
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
@@ -1304,13 +1353,54 @@ class Admin extends BaseController
             'breadcrumb' => [
                 [
                     'url'        => base_url('admin/resource'),
-                    'page_title' => lang('Admin.pages.resource'),
+                    'page_title' => lang('Admin.pages.business-resource'),
                 ]
             ]
         ];
         return view('admin/resource_manage', $data);
     }
 
+    public function resource_manage_post(): ResponseInterface
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('ResponseInterface');
+        }
+        try {
+            $resourceModel = new ResourceMasterModel();
+            $fields        = ['branch_id', 'resource_type_id', 'resource_name', 'resource_description', 'is_active'];
+            $id            = $this->request->getPost('id');
+            $data          = [];
+            foreach ($fields as $field) {
+                $data[$field] = $this->request->getPost($field);
+            }
+            if (0 < $id) {
+                if ($resourceModel->update($id, $data)) {
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_OK,
+                        'message' => lang('System.response-msg.success.data-saved'),
+                    ]);
+                }
+            } else {
+                $data['business_id'] = $session->business['business_id'];
+                if ($resourceModel->insert($data)) {
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_OK,
+                        'message' => lang('System.response-msg.success.data-saved'),
+                    ]);
+                }
+            }
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => lang('System.response-msg.error.db-issue'),
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => $e->getMessage(),
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
     /**
      * Manage order
      * @return string
