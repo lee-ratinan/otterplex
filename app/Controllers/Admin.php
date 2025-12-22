@@ -940,7 +940,7 @@ class Admin extends BaseController
             $mode         = 'edit';
             $user         = $userModel->find($userId);
             if (!empty($user)) {
-                $businessUser = $businessModel->where('user_id', $userId)->where('business_id', $businessId)->findAll();
+                $businessUser = $businessModel->where('user_id', $userId)->where('business_id', $businessId)->first();
                 $branchUser   = $buModel->getUserByBusinessId($userId, $businessId);
                 $branchCount  = $branchModel->where('business_id', $businessId)->countAllResults();
             } else {
