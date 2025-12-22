@@ -53,7 +53,8 @@ return [
             'F'  => 'Friday',
             'S'  => 'Saturday',
             'SU' => 'Sunday',
-        ]
+        ],
+        'close-shop'          => 'Close Shop'
     ],
     'user-management'          => [
         'new-user'         => 'New User',

@@ -70,7 +70,10 @@
                                             <td><?= lang('Business.branch-management.days.' . $d) ?></td>
                                             <td><label><input type="time" class="form-control branch-opening-hours-<?= $d ?>" name="branch-opening-hours-<?= $d ?>-opn" id="branch-opening-hours-<?= $d ?>-opn" data-id="<?= $hour[0] ?>" data-day="<?= $d ?>" value="<?= $hour[1] ?>"/></label></td>
                                             <td><label><input type="time" class="form-control branch-opening-hours-<?= $d ?>" name="branch-opening-hours-<?= $d ?>-cls" id="branch-opening-hours-<?= $d ?>-cls" data-id="<?= $hour[0] ?>" data-day="<?= $d ?>" value="<?= $hour[2] ?>"/></label></td>
-                                            <td class="text-end"><button class="btn btn-primary btn-sm btn-save-hours" data-target="branch-opening-hours-<?= $d ?>" id="btn-save-hours-<?= $d ?>" data-id="<?= $hour[0] ?>" data-dow="<?= $d ?>"><?= lang('System.buttons.save') ?></button></td>
+                                            <td class="text-end">
+                                                <button class="btn btn-primary btn-sm btn-save-hours" data-target="branch-opening-hours-<?= $d ?>" id="btn-save-hours-<?= $d ?>" data-id="<?= $hour[0] ?>" data-dow="<?= $d ?>"><?= lang('System.buttons.save') ?></button>
+                                                <button class="btn btn-outline-danger btn-sm btn-close-day" data-dow="<?= $d ?>"><?= lang('Business.branch-management.close-shop') ?></button>
+                                            </td>
                                         </tr>
                                     <?php endforeach; ?>
                                     </tbody>
@@ -102,7 +105,10 @@
                                                 <td><?= lang('BranchModifiedHours.enum.modified_type.' . $row['modified_type']) ?></td>
                                                 <td><?= empty($row['updated_opening_hours']) ? '' : format_time($row['updated_opening_hours']) ?></td>
                                                 <td><?= empty($row['updated_closing_hours']) ? '' : format_time($row['updated_closing_hours']) ?></td>
-                                                <td class="text-end"><button class="btn btn-primary btn-sm"><?= lang('System.buttons.remove') ?></button></td>
+                                                <td class="text-end">
+                                                    <button class="btn btn-outline-danger btn-sm btn-remove-modified-hours" id="btn-remove-modified-hours-<?= $row['id'] ?>" data-id="<?= $row['id'] ?>"><?= lang('System.buttons.remove') ?></button>
+                                                    <button class="btn btn-outline-danger btn-sm btn-remove-modified-hours-confirm d-none" id="btn-remove-modified-hours-confirm-<?= $row['id'] ?>" data-id="<?= $row['id'] ?>"><?= lang('System.buttons.remove-confirm') ?></button>
+                                                </td>
                                             </tr>
                                         <?php endforeach; ?>
                                     <?php endif; ?>
@@ -131,7 +137,7 @@
                             ], null);
                             ?>
                             <div class="text-end">
-                                <button class="btn btn-primary" id="btn-save-master"><?= lang('System.buttons.save') ?></button>
+                                <button class="btn btn-primary" id="btn-save-modified"><?= lang('System.buttons.save') ?></button>
                             </div>
                         </div>
                         <?php endif; ?>
@@ -156,6 +162,24 @@
                 slug = slug.replace(/[^a-z-]/g, '');
                 $(this).val(slug);
             });
+            $('#branch_name').change(function () {
+                let branch_name = $(this).val();
+                $.post(
+                    "<?= base_url('helper/generate-slug') ?>",
+                    {name: branch_name},
+                    function (response) {
+                        if (response.status === "<?= STATUS_RESPONSE_OK ?>") {
+                            $('#branch_slug').val(response.slug);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    "json"
+                ).fail(function (response) {
+                    let message = response.responseJSON.message ?? '<?= lang('System.response-msg.error.generic') ?>';
+                    toastr.error(message);
+                });
+            });
             // SAVE
             $('#btn-save-master').click(function (e) {
                 e.preventDefault();
@@ -173,17 +197,17 @@
                     "<?= base_url('admin/business/branch-manage') ?>",
                     <?php $fields[] = 'action_table'; $fields[] = 'id'; gen_json_fields_to_fields($fields) ?>,
                     function (response, status) {
-                        $('#btn-save').prop('disabled', false);
+                        $('#btn-save-master').prop('disabled', false);
                         if (response.status === "<?= STATUS_RESPONSE_OK ?>") {
                             toastr.success(response.message);
-                            setTimeout(function() { location.reload(); }, 3000);
+                            setTimeout(function() { location.href='<?= base_url('admin/business/branch/') ?>'+branch_slug; }, 3000);
                         } else {
                             toastr.error(response.message);
                         }
                     },
                     "json"
                 ).fail(function (response) {
-                    $('#btn-save').prop('disabled', false);
+                    $('#btn-save-master').prop('disabled', false);
                     let message = response.responseJSON.message ?? '<?= lang('System.response-msg.error.generic') ?>';
                     toastr.error(message);
                 });
@@ -209,7 +233,7 @@
                     "<?= base_url('admin/business/branch-manage') ?>",
                     <?php gen_json_fields_to_fields($fields) ?>,
                     function (response, status) {
-                        $('#btn-save').prop('disabled', false);
+                        $('.btn-save-hours').prop('disabled', false);
                         if (response.status === "<?= STATUS_RESPONSE_OK ?>") {
                             toastr.success(response.message);
                             setTimeout(function() { location.reload(); }, 3000);
@@ -219,8 +243,91 @@
                     },
                     "json"
                 ).fail(function (response) {
-                    $('#btn-save').prop('disabled', false);
+                    $('.btn-save-hours').prop('disabled', false);
                     let message = response.responseJSON.message ?? '<?= lang('System.response-msg.error.generic') ?>';
+                    toastr.error(message);
+                });
+            })
+            $('.btn-close-day').click(function () {
+                let dow = $(this).data('dow');
+                $('#branch-opening-hours-'+dow+'-opn').val('00:00');
+                $('#branch-opening-hours-'+dow+'-cls').val('00:00');
+            });
+            $('#modified_type').change(function () {
+                let modified_type = $(this).val();
+                if ('CLOSED' === modified_type) {
+                    $('#updated_opening_hours').val('00:00').prop('disabled', true);
+                    $('#updated_closing_hours').val('00:00').prop('disabled', true);
+                } else {
+                    $('#updated_opening_hours').val('').prop('disabled', false);
+                    $('#updated_closing_hours').val('').prop('disabled', false);
+                }
+            });
+            $('#btn-save-modified').click(function (e) {
+                e.preventDefault();
+                <?php
+                $fields = ['modified_hours_date', 'modified_reason', 'modified_type', 'updated_opening_hours', 'updated_closing_hours'];
+                foreach ($all_languages as $language_code => $language_name) {
+                    $fields[] = 'branch_local_names_' . $language_code;
+                }
+                gen_js_fields_checker($fields);
+                ?>
+                $('#btn-save-modified').prop('disabled', true);
+                $('#id').val('0');
+                $('#action_table').val('branch_modified_hours');
+                $('#action_perform').val('add');
+                $.post(
+                    "<?= base_url('admin/business/branch-manage') ?>",
+                    <?php $fields[] = 'action_table'; $fields[] = 'action_perform'; $fields[] = 'branch_id'; gen_json_fields_to_fields($fields) ?>,
+                    function (response, status) {
+                        $('#btn-save-modified').prop('disabled', false);
+                        if (response.status === "<?= STATUS_RESPONSE_OK ?>") {
+                            toastr.success(response.message);
+                            setTimeout(function() { location.reload(); }, 3000);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    "json"
+                ).fail(function (response) {
+                    $('#btn-save-modified').prop('disabled', false);
+                    let message = response.responseJSON.message ?? '<?= lang('System.response-msg.error.generic') ?>';
+                    toastr.error(message);
+                });
+            });
+            $('.btn-remove-modified-hours').click(function (e) {
+                e.preventDefault();
+                let id = $(this).data('id');
+                $('#btn-remove-modified-hours-confirm-'+id).removeClass('d-none');
+                $('#btn-remove-modified-hours-'+id).addClass('d-none');
+            });
+            $('.btn-remove-modified-hours-confirm').click(function (e) {
+                e.preventDefault();
+                let id = $(this).data('id');
+                $('#action_table').val('branch_modified_hours');
+                $('#action_perform').val('delete');
+                $('#id').val(id);
+                $('#btn-remove-modified-hours-confirm-'+id).prop('disabled', true);
+                $.post(
+                    "<?= base_url('admin/business/branch-manage') ?>",
+                    <?php $fields = ['action_table', 'action_perform', 'id']; gen_json_fields_to_fields($fields) ?>,
+                    function (response, status) {
+                        let id = $(this).data('id');
+                        $('#btn-remove-modified-hours-confirm-'+id).prop('disabled', false).addClass('d-none');
+                        $('#btn-remove-modified-hours-'+id).prop('disabled', false).removeClass('d-none');
+                        if (response.status === "<?= STATUS_RESPONSE_OK ?>") {
+                            toastr.success(response.message);
+                            setTimeout(function() { location.reload(); }, 3000);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    "json"
+                ).fail(function (response) {
+                    let id = $(this).data('id');
+                    let message = response.responseJSON.message ?? '<?= lang('System.response-msg.error.generic') ?>';
+                    $('#btn-remove-modified-hours-confirm-'+id).prop('disabled', false).addClass('d-none');
+                    $('#btn-remove-modified-hours-'+id).prop('disabled', false).removeClass('d-none');
                     toastr.error(message);
                 });
             });

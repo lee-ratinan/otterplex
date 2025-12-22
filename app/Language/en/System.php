@@ -32,6 +32,7 @@ return [
         'success' => [
             'business-switched'     => 'You have successfully switched your business.',
             'data-saved'            => 'Your data has been saved.',
+            'data-deleted'          => 'Your data has been deleted.',
             'password-changed'      => 'Your password has been changed.',
             'uploaded'              => 'Your file has been uploaded.',
             'removed'               => 'Your file has been removed.',

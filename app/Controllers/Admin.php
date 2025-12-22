@@ -731,7 +731,7 @@ class Admin extends BaseController
                 ->where('modified_hours_date >=', $yesterday)
                 ->orderBy('modified_hours_date', 'ASC')->findAll();
             foreach ($hour_raw as $hour) {
-                $hours[$hour['day_of_the_week']] = [$hour['id'], $hour['opening_hours'], $hour['closing_hours']];
+                $hours[$hour['day_of_the_week']] = [$hour['id'], substr($hour['opening_hours'], 0, 5), substr($hour['closing_hours'], 0, 5)];
             }
             // FIX MODE
             $mode      = 'edit';
@@ -818,7 +818,14 @@ class Admin extends BaseController
                 unset($data['branch_opening_hours_id']);
                 // insert or update
                 if (0 < $id) {
-                    if ($hoursModel->update($id, $data)) {
+                    if ($data['opening_hours'] == '00:00' && $data['closing_hours'] == '00:00') {
+                        if ($hoursModel->delete($id)) {
+                            return $this->response->setJSON([
+                                'status'  => STATUS_RESPONSE_OK,
+                                'message' => lang('System.response-msg.success.data-deleted'),
+                            ]);
+                        }
+                    } else if ($hoursModel->update($id, $data)) {
                         return $this->response->setJSON([
                             'status'  => STATUS_RESPONSE_OK,
                             'message' => lang('System.response-msg.success.data-saved'),
@@ -837,11 +844,35 @@ class Admin extends BaseController
                     'message' => lang('System.response-msg.error.db-issue')
                 ]);
             } else if ('branch_modified_hours' == $table) {
-                $action = $this->request->getPost('action_perform');
+                $action     = $this->request->getPost('action_perform');
+                $hoursModel = new BranchModifiedHoursModel();
                 if ('delete' == $action) {
-                    // delete
+                    $id     = $this->request->getPost('id');
+                    if ($hoursModel->delete($id)) {
+                        return $this->response->setJSON([
+                            'status'  => STATUS_RESPONSE_OK,
+                            'message' => lang('System.response-msg.success.data-deleted'),
+                        ]);
+                    }
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_ERR,
+                        'message' => lang('System.response-msg.error.db-issue')
+                    ]);
                 } else {
-                    // add
+                    $fields     = ['branch_id', 'modified_hours_date', 'modified_reason', 'modified_type', 'updated_opening_hours', 'updated_closing_hours'];
+                    foreach ($fields as $field) {
+                        $data[$field] = $this->request->getPost($field);
+                    }
+                    if ($hoursModel->insert($data)) {
+                        return $this->response->setJSON([
+                            'status'  => STATUS_RESPONSE_OK,
+                            'message' => lang('System.response-msg.success.data-saved'),
+                        ]);
+                    }
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_ERR,
+                        'message' => lang('System.response-msg.error.db-issue')
+                    ]);
                 }
             }
             return $this->response->setJSON($data);
