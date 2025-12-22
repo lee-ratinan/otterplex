@@ -1041,14 +1041,31 @@ class Admin extends BaseController
                         'message' => lang('System.response-msg.success.data-saved'),
                     ]);
                 }
+            } else if ('business_user' == $action) {
+                $buModel  = new BusinessUserModel();
+                $fields = ['business_user_id', 'user_role', 'role_status'];
+                $data   = [];
+                foreach ($fields as $field) {
+                    $data[$field] = $this->request->getPost($field);
+                }
+                $id = $data['business_user_id'];
+                unset($data['business_user_id']);
+                if ($buModel->update($id, $data)) {
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_OK,
+                        'message' => lang('System.response-msg.success.data-saved'),
+                    ]);
+                }
             }
         } catch (\Exception $e) {
-            return $this->response->setJSON([
-                'status'  => STATUS_RESPONSE_ERR,
-                'message' => $e->getMessage(),
-            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+            $message = $e->getMessage();
         }
+        return $this->response->setJSON([
+            'status'  => STATUS_RESPONSE_ERR,
+            'message' => $message ?? '',
+        ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
     }
+
     /**
      * Manage customer
      * @return string

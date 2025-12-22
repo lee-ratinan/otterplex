@@ -105,6 +105,7 @@
             </div>
         </div>
         <input type="hidden" name="id" id="id" value="<?= $user['id'] ?? 0 ?>" />
+        <input type="hidden" name="business_user_id" id="business_user_id" value="<?= $businessUser['id'] ?? 0 ?>" />
         <input type="hidden" name="action" id="action" value="" />
     </div>
     <script>
@@ -136,6 +137,33 @@
                     "json"
                 ).fail(function (response) {
                     $('#btn-save-master').prop('disabled', false);
+                    let message = response.responseJSON.message ?? '<?= lang('System.response-msg.error.generic') ?>';
+                    toastr.error(message);
+                });
+            });
+            $('#btn-save-business-user').click(function (e) {
+                e.preventDefault();
+                <?php
+                $fields = ['user_role', 'role_status'];
+                gen_js_fields_checker($fields);
+                ?>
+                $('#btn-save-business-user').prop('disabled', true);
+                $('#action').val('business_user');
+                $.post(
+                    "<?= base_url('admin/business/user-manage') ?>",
+                    <?php $fields[] = 'business_user_id'; $fields[] = 'action'; gen_json_fields_to_fields($fields) ?>,
+                    function (response, status) {
+                        $('#btn-save-business-user').prop('disabled', false);
+                        if (response.status === "<?= STATUS_RESPONSE_OK ?>") {
+                            toastr.success(response.message);
+                            setTimeout(function() { location.reload(); }, 3000);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    "json"
+                ).fail(function (response) {
+                    $('#btn-save-business-user').prop('disabled', false);
                     let message = response.responseJSON.message ?? '<?= lang('System.response-msg.error.generic') ?>';
                     toastr.error(message);
                 });
