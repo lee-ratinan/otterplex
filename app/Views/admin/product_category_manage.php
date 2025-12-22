@@ -22,10 +22,44 @@
                             <div class="text-end">
                                 <button class="btn btn-primary" id="btn-save"><?= lang('System.buttons.save') ?></button>
                             </div>
+                            <input type="hidden" id="id" name="id" value="<?= $category['id'] ?? 0 ?>">
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            $('#btn-save').click(function (e) {
+                e.preventDefault();
+                <?php
+                $fields = ['category_name'];
+                foreach ($locales as $code => $language_name) {
+                    $fields[] = 'category_local_names_' . $code;
+                }
+                gen_js_fields_checker($fields);
+                ?>
+                $('#btn-save').prop('disabled', true);
+                $.post(
+                    "<?= base_url('admin/product/category/manage') ?>",
+                    <?php $fields[] = 'id'; gen_json_fields_to_fields($fields) ?>,
+                    function (response, status) {
+                        $('#btn-save').prop('disabled', false);
+                        if (response.status === "<?= STATUS_RESPONSE_OK ?>") {
+                            toastr.success(response.message);
+                            setTimeout(function() { location.href='<?= base_url('admin/product/category') ?>'; }, 3000);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    "json"
+                ).fail(function (response) {
+                    $('#btn-save').prop('disabled', false);
+                    let message = response.responseJSON.message ?? '<?= lang('System.response-msg.error.generic') ?>';
+                    toastr.error(message);
+                });
+            });
+        });
+    </script>
 <?php $this->endSection() ?>

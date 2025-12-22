@@ -1837,6 +1837,50 @@ class Admin extends BaseController
         return view('admin/product_category_manage', $data);
     }
 
+    public function product_category_manage_post(): ResponseInterface
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('ResponseInterface');
+        }
+        try {
+            $categoryModel         = new ProductCategoryModel();
+            $id                    = $this->request->getPost('id');
+            $data['category_name'] = $this->request->getPost('category_name');
+            $languages             = get_available_locales('short');
+            $names                 = [];
+            foreach ($languages as $code => $name) {
+                $names[$code] = $this->request->getPost('category_local_names_' . $code);
+            }
+            $data['category_local_names'] = json_encode($names);
+            if (0 < $id) {
+                if ($categoryModel->update($id, $data)) {
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_OK,
+                        'message' => lang('System.response-msg.success.data-saved'),
+                    ]);
+                }
+            } else {
+                $data['business_id'] = $session->business['business_id'];
+                if ($categoryModel->insert($data)) {
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_OK,
+                        'message' => lang('System.response-msg.success.data-saved'),
+                    ]);
+                }
+            }
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => lang('System.response-msg.error.db-issue'),
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => $e->getMessage(),
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
     /**
      * Manage review
      * @return string

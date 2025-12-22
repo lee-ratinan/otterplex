@@ -70,7 +70,8 @@ class AppBaseModel extends Model
         $result            = parent::insert($row, $returnID);
         if ($result) {
             // Log
-            $id = $this->getInsertID();
+            $id  = $this->getInsertID();
+            $row = parent::find($id);
             foreach ($this->masked_fields as $field) {
                 if (isset($row[$field])) {
                     $row[$field] = '******';
