@@ -23,14 +23,21 @@
                             'type' => 'text',
                         ], @$user['user_name_last']);
                         echo '</div></div>';
-                        echo build_form_input('account_status', lang('UserMaster.field.account_status'), [
-                            'type' => 'select',
-                        ], @$user['account_status'], '', [
+                        $account_status_attr['type'] = 'select';
+                        $account_status_options      = [
                             'A' => lang('UserMaster.enum.account_status.A'),
                             'P' => lang('UserMaster.enum.account_status.P'),
                             'B' => lang('UserMaster.enum.account_status.B'),
                             'S' => lang('UserMaster.enum.account_status.S'),
-                        ]);
+                        ];
+                        if ('edit' != $mode) {
+                            $account_status_attr['readonly'] = 'true';
+                            $user['account_status']          = 'P';
+                            $account_status_options          = [
+                                'P' => lang('UserMaster.enum.account_status.P')
+                            ];
+                        }
+                        echo build_form_input('account_status', lang('UserMaster.field.account_status'), $account_status_attr, @$user['account_status'], '', $account_status_options);
                         ?>
                         <div class="text-end">
                             <button class="btn btn-primary" id="btn-save-master"><?= lang('System.buttons.save') ?></button>
@@ -97,5 +104,42 @@
                 </div>
             </div>
         </div>
+        <input type="hidden" name="id" id="id" value="<?= $user['id'] ?? 0 ?>" />
+        <input type="hidden" name="action" id="action" value="" />
     </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            $('#btn-save-master').click(function (e) {
+                e.preventDefault();
+                <?php
+                $fields = ['email_address', 'user_name_first', 'user_name_last', 'account_status'];
+                gen_js_fields_checker($fields);
+                ?>
+                $('#btn-save-master').prop('disabled', true);
+                $('#action').val('user_master');
+                $.post(
+                    "<?= base_url('admin/business/user-manage') ?>",
+                    <?php $fields[] = 'id'; $fields[] = 'action'; gen_json_fields_to_fields($fields) ?>,
+                    function (response, status) {
+                        $('#btn-save-master').prop('disabled', false);
+                        if (response.status === "<?= STATUS_RESPONSE_OK ?>") {
+                            toastr.success(response.message);
+                            let user_id = '';
+                            if (response.id) {
+                                user_id = response.id * <?= ID_MASKED_PRIME ?>;
+                            }
+                            setTimeout(function() { location.href='<?= base_url('admin/business/user/') ?>' + user_id; }, 3000);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    "json"
+                ).fail(function (response) {
+                    $('#btn-save-master').prop('disabled', false);
+                    let message = response.responseJSON.message ?? '<?= lang('System.response-msg.error.generic') ?>';
+                    toastr.error(message);
+                });
+            });
+        });
+    </script>
 <?php $this->endSection() ?>

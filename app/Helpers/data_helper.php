@@ -1,4 +1,7 @@
 <?php
+
+use Random\RandomException;
+
 if (!function_exists('get_setting_limitation')) {
     /**
      * Get the limitation of the creation of data according to the package
@@ -5059,5 +5062,28 @@ if (!function_exists('calculate_invoice_number')) {
         $hash        = substr(strtoupper(md5($slug)), 0, 4);
         $rand        = rand(10, 99);
         return "{$year}{$date}{$month}{$hash}{$rand}";
+    }
+}
+if (!function_exists('generate_secure_password')) {
+    /**
+     * Generates a secure random password.
+     *
+     * @param int $length The length of the password.
+     * @param bool $includeSpecial Whether to include special characters.
+     * @return string The generated password.
+     * @throws RandomException
+     */
+    function generate_secure_password(int $length = 16, bool $includeSpecial = true): string
+    {
+        $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        if ($includeSpecial) {
+            $chars .= '!@#$%^&*()-_=+[]{}<>?';
+        }
+        $password = '';
+        $max      = strlen($chars) - 1;
+        for ($i = 0; $i < $length; $i++) {
+            $password .= $chars[random_int(0, $max)];
+        }
+        return $password;
     }
 }

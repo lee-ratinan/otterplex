@@ -965,6 +965,90 @@ class Admin extends BaseController
         return view('admin/business_user_management', $data);
     }
 
+    public function business_user_manage_post(): ResponseInterface
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('ResponseInterface');
+        }
+        try {
+            $action = $this->request->getPost('action');
+            $id     = $this->request->getPost('id');
+            if ('user_master' === $action) {
+                $uModel  = new UserMasterModel();
+                $buModel = new BusinessUserModel();
+                $fields  = ['email_address', 'user_name_first', 'user_name_last', 'account_status'];
+                $data    = [];
+                foreach ($fields as $field) {
+                    $data[$field] = $this->request->getPost($field);
+                }
+                if (0 < $id) {
+                    if ($uModel->update($id, $data)) {
+                        return $this->response->setJSON([
+                            'status'  => STATUS_RESPONSE_OK,
+                            'message' => lang('System.response-msg.success.data-saved'),
+                        ]);
+                    }
+                } else {
+                    $db = \Config\Database::connect();
+                    $db->transBegin(); // <<< START TRANSACTION
+                    $data['account_status']  = 'P';
+                    $data['user_gender']     = 'U';
+                    $data['user_type']       = 'CLIENT';
+                    $data['lang_code']       = $session->lang;
+                    $password                = generate_secure_password(16, true);
+                    $data['password_hash']   = $uModel->hash_password($password);
+                    $data['password_expiry'] = date(DATE_FORMAT_DB, strtotime('-1 day'));
+                    $uModel->insert($data);
+                    $userId  = $uModel->getInsertID();
+                    $bu_data = [
+                        'business_id'         => $session->business['business_id'],
+                        'user_id'             => $userId,
+                        'user_role'           => 'STAFF',
+                        'role_status'         => 'ACTIVE',
+                        'my_default_business' => 'Y'
+                    ];
+                    $buModel->insert($bu_data);
+                    if ($db->transStatus() === false) {
+                        $db->transRollback(); // <<< ROLLBACK (Undoes changes from all Models)
+                        return $this->response->setJSON([
+                            'status'  => STATUS_RESPONSE_ERR,
+                            'message' => lang('System.response-msg.error.db-issue') . ' [DBI]'
+                        ]);
+                    }
+                    // EMAIL
+                    $exp       = dechex(strtotime('+20 minutes')*11);
+                    $userTkn   = dechex($userId*37);
+                    $hash      = substr(hash('sha256', $data['email_address']), 0, 15);
+                    $token     = "$exp-$userTkn-$hash";
+                    $tknLnk    = base_url('account-activation?hl=' . $session->lang . '&token=' . $token);
+                    $subject   = lang('System.email.new-user.subject');
+                    $message   = lang('System.email.new-user.message', [$tknLnk, $data['email_address'], $password]);
+                    $preheader = substr($message, 0, 50);
+                    $reply_to  = getenv('SUPPORT_EMAIL');
+                    log_message('debug', 'EMAIL: SUBJECT: ' . $subject);
+                    log_message('debug', 'EMAIL: MESSAGE: ' . $message);
+                    if (!send_system_email($data['email_address'], $subject, $preheader, $message, $reply_to)) {
+                        $db->transRollback(); // <<< ROLLBACK (Undoes changes from all Models)
+                        return $this->response->setJSON([
+                            'status'  => STATUS_RESPONSE_ERR,
+                            'message' => lang('System.response-msg.error.account-created-issue') . ' [EMF]'
+                        ]);
+                    }
+                    $db->transCommit();
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_OK,
+                        'message' => lang('System.response-msg.success.data-saved'),
+                    ]);
+                }
+            }
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => $e->getMessage(),
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
     /**
      * Manage customer
      * @return string

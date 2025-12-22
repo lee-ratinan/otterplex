@@ -134,7 +134,11 @@ return [
         'footer-terms'       => 'Terms & Conditions',
         'account-activation' => [
             'subject' => 'OtterNova Account Activation',
-            'message' => 'Welcome to OtterNova! We are so delighted to serve you.<br><br>To continue setting up, please activate your OtterNova account by clicking: <a href="{0}" target="_blank">here</a> or use the following link:<br><br>{1}.',
+            'message' => 'Welcome to OtterNova! We are so delighted to serve you.<br><br>To continue setting up, please activate your OtterNova account by clicking: <a href="{0}" target="_blank">here</a> or use the following link:<br><br>{1}',
+        ],
+        'new-user'           => [
+            'subject' => 'Welcome to OtterNova - Your account has been created.',
+            'message' => 'Welcome! Your OtterNova account has been created, and you can activate your account by clicking the link below, then, login using the following username and password.<br><br>Activation Link: <a href="{0}" target="_blank">{0}</a><br><br>Username: <b>{1}</b><br><br>Password: <b>{2}</b>',
         ]
     ]
 ];
