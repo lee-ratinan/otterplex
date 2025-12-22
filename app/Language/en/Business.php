@@ -57,11 +57,13 @@ return [
         'close-shop'          => 'Close Shop'
     ],
     'user-management'          => [
-        'new-user'         => 'New User',
-        'new-user-info'    => 'New User Information',
-        'generic-info'     => 'Generic Information',
-        'link-to-business' => 'User Status in Business',
-        'link-to-branches' => 'User Status in Branches'
+        'new-user'           => 'New User',
+        'new-user-info'      => 'New User Information',
+        'generic-info'       => 'Generic Information',
+        'link-to-business'   => 'User Status in Business',
+        'link-to-branches'   => 'User Status in Branches',
+        'no-branches'        => 'The user is not linked to any branches, please add a new branch.',
+        'link-to-new-branch' => 'Add New Branch'
     ],
     'customer-management'      => [
         'privacy-policy' => 'Customer data is considered sensitive information. The customers have their rights to modify and/or delete their information at any given time.',

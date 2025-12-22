@@ -75,6 +75,11 @@
                                     </tr>
                                     </thead>
                                     <tbody>
+                                    <?php if (empty($branchUser)) : ?>
+                                    <tr>
+                                        <td colspan="3"><?= lang('Business.user-management.no-branches') ?></td>
+                                    </tr>
+                                    <?php else : ?>
                                     <?php foreach ($branchUser as $row) : ?>
                                         <?php $branch_local_names = json_decode($row['branch_local_names'], true); ?>
                                         <?php unset($branches[$row['branch_id']]); ?>
@@ -98,6 +103,7 @@
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
+                                    <?php endif; ?>
                                     </tbody>
                                 </table>
                             </div>
