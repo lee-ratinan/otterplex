@@ -1099,7 +1099,7 @@ class Admin extends BaseController
             return $this->forbiddenResponse('string');
         }
         $data = [
-            'slug'           => 'resource-type',
+            'slug'           => 'business-resource-type',
             'lang'           => $this->request->getLocale(),
         ];
         return view('admin/resource_type', $data);
@@ -1144,7 +1144,7 @@ class Admin extends BaseController
             $resourceType['resource_local_names'] = json_decode($resourceType['resource_local_names'], true);
         }
         $data           = [
-            'slug'         => 'resource-type-manage',
+            'slug'         => 'business-resource-type-manage',
             'lang'         => $this->request->getLocale(),
             'resourceType' => $resourceType,
             'breadcrumb'   => [
@@ -1170,7 +1170,7 @@ class Admin extends BaseController
         $resourceTypeModel = new ResourceTypeModel();
         $types             = $resourceTypeModel->where('business_id', $session->business['business_id'])->countAllResults();
         $data              = [
-            'slug'      => 'resource',
+            'slug'      => 'business-resource',
             'lang'      => $this->request->getLocale(),
             'typeCount' => $types,
         ];
@@ -1239,7 +1239,7 @@ class Admin extends BaseController
             throw new PageNotFoundException(lang('Admin.pages.page-not-found'));
         }
         $data     = [
-            'slug'       => 'resource-manage',
+            'slug'       => 'business-resource-manage',
             'lang'       => $this->request->getLocale(),
             'resource'   => $resource,
             'types'      => $types,
