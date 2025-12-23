@@ -95,12 +95,12 @@
                         <div class="row">
                             <div class="col col-md-6">
                                 <?php
-                                echo build_form_input('service_staff_id', lang('UserMaster.field.user_full_name'), [
+                                echo build_form_input('branch_user_id', lang('UserMaster.field.user_full_name'), [
                                     'type' => 'select',
                                 ], null, '', $staffList);
                                 ?>
                                 <div class="text-end">
-                                    <button class="btn btn-primary" id="btn-save-master"><?= lang('System.buttons.save') ?></button>
+                                    <button class="btn btn-primary" id="btn-save-staff"><?= lang('System.buttons.save') ?></button>
                                 </div>
                             </div>
                         </div>
@@ -139,6 +139,35 @@
                     "json"
                 ).fail(function (response) {
                     $('#btn-save-master').prop('disabled', false);
+                    let message = response.responseJSON.message ?? '<?= lang('System.response-msg.error.generic') ?>';
+                    toastr.error(message);
+                });
+            });
+            $('#btn-save-staff').click(function (e) {
+                e.preventDefault();
+                let branch_user_id = $('#branch_user_id').val();
+                if ('' === branch_user_id) {
+                    $('#branch_user_id').focus();
+                    return false;
+                }
+                let service_id = <?= $service['id'] ?? 0 ?>,
+                    action = 'add';
+                $('#btn-save-staff').prop('disabled', true);
+                $.post(
+                    "<?= base_url('admin/service/user/manage') ?>",
+                    {branch_user_id: branch_user_id, service_id: service_id, action: action},
+                    function (response, status) {
+                        $('#btn-save-staff').prop('disabled', false);
+                        if (response.status === "<?= STATUS_RESPONSE_OK ?>") {
+                            toastr.success(response.message);
+                            setTimeout(function() { location.reload(); }, 3000);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    "json"
+                ).fail(function (response) {
+                    $('#btn-save-staff').prop('disabled', false);
                     let message = response.responseJSON.message ?? '<?= lang('System.response-msg.error.generic') ?>';
                     toastr.error(message);
                 });

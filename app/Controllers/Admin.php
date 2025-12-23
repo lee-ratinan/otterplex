@@ -1587,6 +1587,48 @@ class Admin extends BaseController
         }
     }
 
+    public function service_user_manage_post(): ResponseInterface
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('ResponseInterface');
+        }
+        try {
+            $action     = $this->request->getPost('action');
+            $staffModel = new ServiceStaffModel();
+            if ('add' === $action) {
+                $fields = ['branch_user_id', 'service_id', 'action'];
+                $data   = [];
+                foreach ($fields as $field) {
+                    $data[$field] = $this->request->getPost($field);
+                }
+                if ($staffModel->insert($data)) {
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_OK,
+                        'message' => lang('System.response-msg.success.data-saved'),
+                    ]);
+                }
+            } else if ('remove' == $action) {
+                $id = $this->request->getPost('id');
+                if ($staffModel->delete($id)) {
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_OK,
+                        'message' => lang('System.response-msg.success.data-removed'),
+                    ]);
+                }
+            }
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => lang('System.response-msg.error.db-issue'),
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => $e->getMessage(),
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
     /**
      * @param int $serviceId
      * @param int $serviceVariantId
