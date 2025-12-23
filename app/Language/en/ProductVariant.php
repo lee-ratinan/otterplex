@@ -1,6 +1,6 @@
 <?php
 return [
-    'field' => [
+    'field'   => [
         'id'                  => 'ID',
         'product_id'          => 'Product',
         'variant_slug'        => 'Variant Slug',
@@ -12,10 +12,13 @@ return [
         'price_active'        => 'Price',
         'price_compare'       => 'Compare Price',
     ],
-    'enum'  => [
+    'enum'    => [
         'is_active' => [
             'A' => 'Active',
             'I' => 'Inactive',
         ],
+    ],
+    'default' => [
+        'variant_name' => 'Default Variant',
     ]
 ];

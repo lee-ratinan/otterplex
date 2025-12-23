@@ -124,6 +124,7 @@ if (!function_exists('send_system_email')) {
         $email->setSubject("[OtterNova] {$subject}");
         $email->setMessage($html);
         $email->setMailType('html');
+        log_message('debug', $html);
         return $email->send();
     }
 }

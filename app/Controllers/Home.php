@@ -305,7 +305,7 @@ class Home extends BaseController
             $userTkn = dechex($userId*37);
             $hash    = substr(hash('sha256', $user_master['email_address']), 0, 15);
             $token   = "$exp-$userTkn-$hash";
-            $tknLnk  = base_url('account-activation?token=' . $token);
+            $tknLnk  = base_url('account-activation?hl=' . $user_master['lang_code'] . '&token=' . $token);
             $subject = lang('System.email.account-activation.subject');
             $message = lang('System.email.account-activation.message', [$tknLnk, $tknLnk]);
             $preheader = substr($message, 0, 50);

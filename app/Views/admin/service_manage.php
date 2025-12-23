@@ -12,11 +12,6 @@
                             echo build_form_input('service_name', lang('ServiceMaster.field.service_name'), [
                                 'type' => 'text',
                             ], @$service['service_name']);
-                            echo build_form_input('service_slug', lang('ServiceMaster.field.service_slug'), [
-                                'type'             => 'text',
-                                'readonly'         => 'readonly',
-                                'data-explanation' => lang('System.system-generated')
-                            ], @$service['service_slug']);
                             $locales = get_available_locales('long');
                             foreach ($locales as $locale_code => $locale_name) {
                                 echo build_form_input('service_local_names_' . $locale_code, lang('ServiceMaster.field.service_local_names') . ' (' . $locale_name . ')', [
@@ -33,6 +28,7 @@
                             <div class="text-end">
                                 <button class="btn btn-primary" id="btn-save-master"><?= lang('System.buttons.save') ?></button>
                             </div>
+                            <input type="hidden" name="service_id" id="service_id" value="<?= $service['id'] ?? 0 ?>" />
                         </div>
                     </div>
                     <?php if ('edit' == $mode) : ?>
@@ -44,7 +40,6 @@
                             <table class="table table-sm table-hover table-striped">
                                 <thead>
                                 <tr>
-                                    <th><?= lang('ServiceVariant.field.variant_slug') ?></th>
                                     <th><?= lang('ServiceVariant.field.variant_name') ?></th>
                                     <th><?= lang('ServiceVariant.field.is_active') ?></th>
                                     <th><?= lang('ServiceVariant.field.schedule_type') ?></th>
@@ -59,7 +54,6 @@
                                 <tbody>
                                 <?php foreach ($variants as $variant): ?>
                                     <tr>
-                                        <td><?= $variant['variant_slug'] ?></td>
                                         <td><?= ($variant['variant_local_names'][$session->lang] ?? $variant['variant_name']) ?></td>
                                         <td><?= lang('ServiceVariant.enum.is_active.' . $variant['is_active']) ?></td>
                                         <td><?= lang('ServiceVariant.enum.schedule_type.' . $variant['schedule_type']) ?></td>
@@ -91,25 +85,31 @@
                                         <td><?= $row['branch_local_names'][$session->lang] ?? $row['branch_name'] ?></td>
                                         <td><?= $row['user_name_first'] . ' ' . $row['user_name_last'] ?></td>
                                         <td><?= lang('BranchUser.enum.user_role.' . $row['user_role']) ?></td>
-                                        <td><a class="btn btn-primary btn-sm float-end" href="#"><?= lang('System.buttons.remove') ?></a></td>
+                                        <td class="text-end">
+                                            <button class="btn btn-outline-danger btn-sm btn-staff-remove" id="btn-staff-remove-<?= $row['id'] ?>" data-id="<?= $row['id'] ?>"><?= lang('System.buttons.remove') ?></button>
+                                            <button class="btn btn-outline-danger btn-sm btn-staff-remove-confirm d-none" id="btn-staff-remove-confirm-<?= $row['id'] ?>" data-id="<?= $row['id'] ?>"><?= lang('System.buttons.remove-confirm') ?></button>
+                                        </td>
                                     </tr>
+                                    <?php unset($staffList[$row['branch_user_id']]); ?>
                                 <?php endforeach; ?>
                                 </tbody>
                             </table>
                         </div>
-                        <h2><?= lang('Service.add-service-staff') ?></h2>
-                        <div class="row">
-                            <div class="col col-md-6">
-                                <?php
-                                echo build_form_input('service_staff_id', lang('UserMaster.field.user_full_name'), [
-                                    'type' => 'select',
-                                ], null, '', $staffList);
-                                ?>
-                                <div class="text-end">
-                                    <button class="btn btn-primary" id="btn-save-master"><?= lang('System.buttons.save') ?></button>
+                        <?php if (!empty($staffList)) : ?>
+                            <h2><?= lang('Service.add-service-staff') ?></h2>
+                            <div class="row">
+                                <div class="col col-md-6">
+                                    <?php
+                                    echo build_form_input('branch_user_id', lang('UserMaster.field.user_full_name'), [
+                                        'type' => 'select'
+                                    ], null, '', $staffList);
+                                    ?>
+                                    <div class="text-end">
+                                        <button class="btn btn-primary" id="btn-save-staff"><?= lang('System.buttons.save') ?></button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        <?php endif; ?>
                     <?php endif; ?>
                 </div>
             </div>
@@ -118,6 +118,90 @@
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const table = $('table').DataTable();
+            // SAVE
+            $('#btn-save-master').click(function (e) {
+                e.preventDefault();
+                <?php
+                $fields = ['service_name', 'is_active'];
+                foreach ($locales as $code => $language_name) {
+                    $fields[] = 'service_local_names_' . $code;
+                }
+                gen_js_fields_checker($fields);
+                ?>
+                $('#btn-save-master').prop('disabled', true);
+                $.post(
+                    "<?= base_url('admin/service/manage') ?>",
+                    <?php $fields[] = 'service_id'; gen_json_fields_to_fields($fields) ?>,
+                    function (response, status) {
+                        $('#btn-save-master').prop('disabled', false);
+                        if (response.status === "<?= STATUS_RESPONSE_OK ?>") {
+                            toastr.success(response.message);
+                            let id = response.id * <?= ID_MASKED_PRIME ?>;
+                            setTimeout(function() { location.href='<?= base_url('admin/service/') ?>' + id; }, 3000);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    "json"
+                ).fail(function (response) {
+                    $('#btn-save-master').prop('disabled', false);
+                    let message = response.responseJSON.message ?? '<?= lang('System.response-msg.error.generic') ?>';
+                    toastr.error(message);
+                });
+            });
+            $('#btn-save-staff').click(function (e) {
+                e.preventDefault();
+                let branch_user_id = $('#branch_user_id').val();
+                if ('' === branch_user_id) {
+                    $('#branch_user_id').focus();
+                    return false;
+                }
+                let service_id = <?= $service['id'] ?? 0 ?>;
+                $('#btn-save-staff').prop('disabled', true);
+                $.post(
+                    "<?= base_url('admin/service/user/manage') ?>",
+                    {branch_user_id: branch_user_id, service_id: service_id, action: 'add'},
+                    function (response, status) {
+                        $('#btn-save-staff').prop('disabled', false);
+                        if (response.status === "<?= STATUS_RESPONSE_OK ?>") {
+                            toastr.success(response.message);
+                            setTimeout(function() { location.reload(); }, 3000);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    "json"
+                ).fail(function (response) {
+                    $('#btn-save-staff').prop('disabled', false);
+                    let message = response.responseJSON.message ?? '<?= lang('System.response-msg.error.generic') ?>';
+                    toastr.error(message);
+                });
+            });
+            $('.btn-staff-remove').click(function () {
+                let id = $(this).data('id');
+                $('#btn-staff-remove-confirm-'+id).removeClass('d-none');
+                $(this).addClass('d-none');
+            });
+            $('.btn-staff-remove-confirm').click(function () {
+                let id = $(this).data('id');
+                $(this).prop('disabled', true);
+                $.post(
+                    "<?= base_url('admin/service/user/manage') ?>",
+                    {id: id, action: 'remove'},
+                    function (response, status) {
+                        if (response.status === "<?= STATUS_RESPONSE_OK ?>") {
+                            toastr.success(response.message);
+                            setTimeout(function() { location.reload(); }, 3000);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    "json"
+                ).fail(function (response) {
+                    let message = response.responseJSON.message ?? '<?= lang('System.response-msg.error.generic') ?>';
+                    toastr.error(message);
+                });
+            });
         });
     </script>
 <?php $this->endSection() ?>

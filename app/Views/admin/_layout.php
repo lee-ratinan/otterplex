@@ -172,8 +172,8 @@ if (!empty($session->business)) {
                     'business-customer' => [
                         base_url('/admin/business/customer'), lang('Admin.pages.business-customer')
                     ],
-                    'resource-type'     => [base_url('/admin/resource/type'), lang('Admin.pages.resource-type')],
-                    'resource'          => [base_url('/admin/resource'), lang('Admin.pages.resource')],
+                    'business-resource-type' => [base_url('/admin/resource/type'), lang('Admin.pages.business-resource-type')],
+                    'business-resource'      => [base_url('/admin/resource'), lang('Admin.pages.business-resource')],
                 ]
             ];
         } elseif ('MANAGER' == $session->user_role) {
@@ -192,11 +192,10 @@ if (!empty($session->business)) {
         }
         // RENDER MENU
         foreach ($sidebar_menu as $group_key => $item) {
-            $in_group = array_keys($item['links']);
             echo '<li class="nav-item">
-                <a class="nav-link ' . (in_array($slug, $in_group) ? '' : 'collapsed' ) . '" data-bs-target="#' . $group_key . '-nav" data-bs-toggle="collapse" href="#">
+                <a class="nav-link ' . (str_starts_with($slug, $group_key) ? '' : 'collapsed' ) . '" data-bs-target="#' . $group_key . '-nav" data-bs-toggle="collapse" href="#">
                     ' . $item['title'] . '<i class="fa-solid fa-chevron-down ms-auto"></i>
-                </a><ul id="' . $group_key . '-nav" class="nav-content collapse ' . (in_array($slug, $in_group) ? 'show' : '' ) . '" data-bs-parent="#sidebar-nav" style="">';
+                </a><ul id="' . $group_key . '-nav" class="nav-content collapse ' . (str_starts_with($slug, $group_key) ? 'show' : '' ) . '" data-bs-parent="#sidebar-nav" style="">';
             foreach ($item['links'] as $link_slug => $link) {
                 echo '<li><a class="' . ($link_slug == $slug ? 'active' : '' ) . '" href="' . $link[0] . '"><i class="fa-solid fa-circle ms-3"></i><span>' . $link[1] . '</span></a></li>';
             }

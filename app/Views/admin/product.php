@@ -8,15 +8,18 @@
                     <div class="row">
                         <div class="col">
                             <div class="text-end">
+                                <?php if (0 < $count) : ?>
                                 <a class="btn btn-primary" href="<?= base_url('admin/product/0') ?>">
                                     <i class="fa-solid fa-circle-plus"></i> <?= lang('Product.new-product') ?>
                                 </a>
+                                <?php else : ?>
+                                    <i class="fa-solid fa-info-circle"></i> <?= lang('Product.add-product-category-first') ?>
+                                <?php endif; ?>
                             </div>
                             <div class="table-responsive">
                                 <table class="table table-sm table-hover table-striped">
                                     <thead>
                                     <tr>
-                                        <th><?= lang('ProductMaster.field.product_slug') ?></th>
                                         <th><?= lang('ProductMaster.field.product_category_id') ?></th>
                                         <th><?= lang('ProductMaster.field.product_name') ?></th>
                                         <th><?= lang('ProductMaster.field.product_type') ?></th>

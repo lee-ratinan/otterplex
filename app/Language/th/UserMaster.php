@@ -11,7 +11,7 @@ return [
         'telephone_number'   => 'หมายเลขโทรศัพท์',
         'lang_code'          => 'ภาษา',
         'account_status'     => 'สถานะบัญชี',
-        'user_name_first'    => 'ชื่จริง',
+        'user_name_first'    => 'ชื่อจริง',
         'user_name_last'     => 'นามสกุล',
         'user_full_name'     => 'ชื่อเต็ม',
         'user_gender'        => 'เพศ',

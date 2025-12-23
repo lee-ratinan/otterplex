@@ -6,6 +6,9 @@ return [
         'tax-information'     => 'Tax Information',
         'mart-decoration'     => 'Your Marketplace Decoration',
     ],
+    'btn-update-slug'          => 'Update Slug',
+    'btn-update-slug-confirm'  => 'Confirm Update',
+    'marketplace-url'          => 'The URL to your marketplace is <a href="{0}" target="_blank">{0}</a>. If you have changed the slug, the URL will be changed once you clicked “Save” below.',
     'logo'                     => 'Logo',
     'upload-logo'              => 'Upload Your Business Logo',
     'upload-explanation'       => 'The system only accepts <code>png</code> and <code>jpg</code> files under 600kb. If the file is larger than 1280px (width), 960px (height), it will be cropped accordingly.',
@@ -50,20 +53,24 @@ return [
             'F'  => 'Friday',
             'S'  => 'Saturday',
             'SU' => 'Sunday',
-        ]
+        ],
+        'close-shop'          => 'Close Shop'
     ],
     'user-management'          => [
-        'new-user'         => 'New User',
-        'new-user-info'    => 'New User Information',
-        'generic-info'     => 'Generic Information',
-        'link-to-business' => 'User Status in Business',
-        'link-to-branches' => 'User Status in Branches'
+        'new-user'           => 'New User',
+        'new-user-info'      => 'New User Information',
+        'generic-info'       => 'Generic Information',
+        'link-to-business'   => 'User Status in Business',
+        'link-to-branches'   => 'User Status in Branches',
+        'no-branches'        => 'The user is not linked to any branches, please add a new branch.',
+        'link-to-new-branch' => 'Add New Branch'
     ],
-    'customer-management'       => [
+    'customer-management'      => [
         'privacy-policy' => 'Customer data is considered sensitive information. The customers have their rights to modify and/or delete their information at any given time.',
     ],
     'resource-management'      => [
-        'new-resource'         => 'New Resource',
-        'new-resource-type'    => 'New Resource Type',
+        'new-resource'            => 'New Resource',
+        'new-resource-type'       => 'New Resource Type',
+        'add-resource-type-first' => 'Please add a resource type before creating a new resource.',
     ]
 ];

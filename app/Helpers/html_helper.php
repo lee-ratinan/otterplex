@@ -206,7 +206,7 @@ if (!function_exists('build_form_input')) {
             $ta_tag    = "<textarea {$attr_str}>{$current_value}</textarea>}";
             return str_replace('###FORM###' , $ta_tag, $structure);
         }
-        if (!empty($current_value)) {
+        if (!is_null($current_value)) {
             $attr[] = "value='{$current_value}'";
         }
         $attr_str  = implode(' ', $attr);

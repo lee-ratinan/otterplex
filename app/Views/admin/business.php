@@ -15,14 +15,19 @@
                             ], $business['business_type_id'], '', $business_types);
                             echo build_form_input('business_name', lang('BusinessMaster.field.business_name'), [
                                 'type' => 'text',
+                                'data-explanation' => lang('BusinessMaster.explanation.business_name'),
                             ], $business['business_name']);
+                            echo '<button class="btn btn-outline-danger btn-sm mb-3" id="btn-update-slug">' . lang('Business.btn-update-slug') . '</button>';
+                            echo '<button class="btn btn-danger btn-sm mb-3 d-none" id="btn-update-slug-confirm">' . lang('Business.btn-update-slug-confirm') . '</button>';
                             echo build_form_input('business_slug', lang('BusinessMaster.field.business_slug'), [
                                 'type'             => 'text',
-                                'data-explanation' => lang('BusinessMaster.explanation.business_slug')
+                                'readonly'         => 'readonly'
                             ], $business['business_slug']);
+                            $marketplace_url = getenv('marketplace_site') . '@' . $business['business_slug'];
+                            echo '<div class="alert alert-info mb-3"><i class="fa-solid fa-info-circle"></i> ' . lang('Business.marketplace-url', [$marketplace_url]) . '</div>';
                             foreach ($all_languages as $lang_code => $language_name) {
                                 echo build_form_input('business_local_names_' . $lang_code, lang('BusinessMaster.field.business_local_names') . ' (' . $language_name . ')', [
-                                    'type' => 'text',
+                                    'type' => 'text'
                                 ], $business['business_local_names'][$lang_code]);
                             }
                             // country code is not updatable
@@ -78,13 +83,13 @@
                     <hr class="my-3" />
                     <h2><?= lang('Business.contracts') ?></h2>
                     <div class="table-responsive">
-                        <table class="table table-sm table-striped table-hover">
+                        <table id="contract-table" class="table table-sm table-striped table-hover">
                             <thead>
                             <tr>
-                                <th style="min-width:100px"><?= lang('BusinessContract.field.package_id') ?></th>
-                                <th style="min-width:150px"><?= lang('BusinessContract.field.invoice_number') ?></th>
                                 <th style="min-width:150px"><?= lang('BusinessContract.field.contract_start') ?></th>
                                 <th style="min-width:150px"><?= lang('BusinessContract.field.contract_expiry') ?></th>
+                                <th style="min-width:100px"><?= lang('BusinessContract.field.package_id') ?></th>
+                                <th style="min-width:150px"><?= lang('BusinessContract.field.invoice_number') ?></th>
                                 <th style="min-width:120px"><?= lang('BusinessContract.field.total_amount') ?></th>
                                 <th style="min-width:120px"><?= lang('BusinessContract.field.paid_amount') ?></th>
                                 <th style="min-width:150px"><?= lang('BusinessContract.field.financial_status') ?></th>
@@ -94,12 +99,12 @@
                             <tbody>
                             <?php foreach ($contracts as $contract) : ?>
                                 <tr>
+                                    <td data-sort="<?= $contract['contract_start'] ?>"><?= format_date($contract['contract_start']) ?></td>
+                                    <td data-sort="<?= $contract['contract_expiry'] ?>"><?= format_date($contract['contract_expiry']) ?></td>
                                     <td><?= $contract['package_name'] ?></td>
                                     <td><?= $contract['invoice_number'] ?></td>
-                                    <td><?= format_date($contract['contract_start']) ?></td>
-                                    <td><?= format_date($contract['contract_expiry']) ?></td>
-                                    <td class="text-end"><?= format_price($contract['total_amount'], $contract['country_code']) ?></td>
-                                    <td class="text-end"><?= format_price($contract['paid_amount'], $contract['country_code']) ?></td>
+                                    <td class="text-end" data-sort="<?= $contract['total_amount'] ?>"><?= format_price($contract['total_amount'], $contract['country_code']) ?></td>
+                                    <td class="text-end" data-sort="<?= $contract['paid_amount'] ?>"><?= format_price($contract['paid_amount'], $contract['country_code']) ?></td>
                                     <td><?= lang('BusinessContract.enum.financial_status.' . $contract['financial_status']) ?></td>
                                     <?php
                                     $payments = [];
@@ -115,7 +120,8 @@
                                         }
                                     }
                                     ?>
-                                    <td><a class="btn-modal" href="#" data-bs-toggle="modal" data-bs-target="#contract-modal"
+                                    <td>
+                                        <a class="btn-modal" href="#" data-bs-toggle="modal" data-bs-target="#contract-modal"
                                            data-package="<?= $contract['package_name'] ?>"
                                            data-invoice-number="<?= $contract['invoice_number'] ?>"
                                            data-start="<?= format_date($contract['contract_start']) ?>"
@@ -126,13 +132,14 @@
                                            data-paid-amount="<?= format_price($contract['paid_amount'], $contract['country_code']) ?>"
                                            data-status="<?= lang('BusinessContract.enum.financial_status.' . $contract['financial_status']) ?>"
                                            data-payments="<?= htmlspecialchars(json_encode($payments), ENT_QUOTES, 'UTF-8') ?>"
-                                        ><?= lang('System.buttons.view-more') ?></a></td>
+                                        ><?= lang('System.buttons.view-more') ?></a>
+                                    </td>
                                 </tr>
                             <?php endforeach; ?>
                             </tbody>
                         </table>
                     </div>
-                    <div class="text-end"><a class="btn btn-primary" href="<?= base_url('admin/business/contract-renewal') ?>"><?= lang('Business.contract-renew') ?></a></div>
+                    <div class="text-end mt-3"><a class="btn btn-primary" href="<?= base_url('admin/business/contract-renewal') ?>"><?= lang('Business.contract-renew') ?></a></div>
                     <div class="modal fade" id="contract-modal" tabindex="-1" aria-labelledby="contract-modal-label" aria-hidden="true">
                         <div class="modal-dialog">
                             <div class="modal-content">
@@ -165,6 +172,7 @@
     </div>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
+            const table = $('#contract-table').DataTable();
             // MODAL
             $('.btn-modal').click(function (e) {
                 e.preventDefault();
@@ -200,9 +208,14 @@
                     $('#modal-payment-records').html(payment_lines);
                 }
             });
-            // ON KEYUP
-            $('#business_name').keyup(function () {
-                let business_name = $(this).val();
+            // SLUG
+            $('#btn-update-slug').click(function () {
+                $(this).addClass('d-none');
+                $('#btn-update-slug-confirm').removeClass('d-none');
+            });
+            $('#btn-update-slug-confirm').click(function () {
+                let business_name = $('#business_name').val();
+                $('#btn-update-slug-confirm').prop('disabled', true);
                 $.post(
                     "<?= base_url('helper/generate-slug') ?>",
                     {name: business_name},
@@ -212,6 +225,8 @@
                         } else {
                             toastr.error(response.message);
                         }
+                        $('#btn-update-slug').removeClass('d-none');
+                        $('#btn-update-slug-confirm').prop('disabled', false).addClass('d-none');
                     },
                     "json"
                 ).fail(function (response) {

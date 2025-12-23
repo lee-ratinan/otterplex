@@ -17,11 +17,6 @@
                                     echo build_form_input('product_name', lang('ProductMaster.field.product_name'), [
                                         'type' => 'text'
                                     ], @$product['product_name']);
-                                    echo build_form_input('product_slug', lang('ProductMaster.field.product_slug'), [
-                                        'type' => 'text',
-                                        'readonly' => 'readonly',
-                                        'data-explanation' => lang('System.system-generated')
-                                    ], @$product['product_slug']);
                                     $locales = get_available_locales('long');
                                     foreach ($locales as $locale_code => $locale_name) {
                                         echo build_form_input('product_local_names_' . $locale_code, lang('ProductMaster.field.product_local_names') . ' (' . $locale_name . ')', [
@@ -52,6 +47,7 @@
                                     <div class="text-end">
                                         <button class="btn btn-primary" id="btn-save-master"><?= lang('System.buttons.save') ?></button>
                                     </div>
+                                    <input type="hidden" name="product_id" id="product_id" value="<?= $product['id'] ?? 0 ?>" />
                                 </div>
                             </div>
                             <?php if ('edit' == $mode) : ?>
@@ -63,7 +59,6 @@
                                     <table class="table table-striped table-hover">
                                         <thead>
                                         <tr>
-                                            <th><?= lang('ProductVariant.field.variant_slug') ?></th>
                                             <th><?= lang('ProductVariant.field.variant_sku') ?></th>
                                             <th><?= lang('ProductVariant.field.variant_name') ?></th>
                                             <th><?= lang('ProductVariant.field.is_active') ?></th>
@@ -76,7 +71,6 @@
                                         <tbody>
                                         <?php foreach ($variants as $variant) : ?>
                                         <tr>
-                                            <td><?= $variant['variant_slug'] ?></td>
                                             <td><?= $variant['variant_sku'] ?></td>
                                             <td><?= $variant['variant_local_names'][$session->lang] ?? $variant['variant_name'] ?></td>
                                             <td><?= lang('ProductVariant.enum.is_active.' . $variant['is_active']) ?></td>
@@ -92,7 +86,6 @@
                                         </tbody>
                                     </table>
                                 </div>
-<!--                                <pre>--><?php //print_r($variants) ?><!--</pre>-->
                             <?php endif; ?>
                         </div>
                     </div>
@@ -103,6 +96,37 @@
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const table = $('table').DataTable();
+            // SAVE
+            $('#btn-save-master').click(function (e) {
+                e.preventDefault();
+                <?php
+                $fields = ['product_category_id', 'product_name', 'product_tag', 'product_type', 'is_active'];
+                foreach ($locales as $code => $language_name) {
+                    $fields[] = 'product_local_names_' . $code;
+                }
+                gen_js_fields_checker($fields);
+                ?>
+                $('#btn-save-master').prop('disabled', true);
+                $.post(
+                    "<?= base_url('admin/product/manage') ?>",
+                    <?php $fields[] = 'product_id'; gen_json_fields_to_fields($fields) ?>,
+                    function (response, status) {
+                        $('#btn-save-master').prop('disabled', false);
+                        if (response.status === "<?= STATUS_RESPONSE_OK ?>") {
+                            toastr.success(response.message);
+                            let id = response.id * <?= ID_MASKED_PRIME ?>;
+                            setTimeout(function() { location.href='<?= base_url('admin/product/') ?>' + id; }, 3000);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    "json"
+                ).fail(function (response) {
+                    $('#btn-save-master').prop('disabled', false);
+                    let message = response.responseJSON.message ?? '<?= lang('System.response-msg.error.generic') ?>';
+                    toastr.error(message);
+                });
+            });
         });
     </script>
 <?php $this->endSection() ?>

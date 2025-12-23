@@ -6,9 +6,13 @@
             <div class="card">
                 <div class="card-body p-3">
                     <div class="text-end">
-                        <a class="btn btn-primary" href="<?= base_url('admin/resource/0') ?>">
-                            <i class="fa-solid fa-circle-plus"></i> <?= lang('Business.resource-management.new-resource') ?>
-                        </a>
+                        <?php if (0 < $typeCount) : ?>
+                            <a class="btn btn-primary" href="<?= base_url('admin/resource/0') ?>">
+                                <i class="fa-solid fa-circle-plus"></i> <?= lang('Business.resource-management.new-resource') ?>
+                            </a>
+                        <?php else : ?>
+                            <i class="fa-solid fa-info-circle"></i> <?= lang('Business.resource-management.add-resource-type-first') ?>
+                        <?php endif; ?>
                     </div>
                     <div class="table-responsive">
                         <table class="table table-sm table-hover table-striped">

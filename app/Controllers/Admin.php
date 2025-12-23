@@ -26,6 +26,7 @@ use App\Models\UserMasterModel;
 use CodeIgniter\Exceptions\PageNotFoundException;
 use CodeIgniter\HTTP\RedirectResponse;
 use CodeIgniter\HTTP\ResponseInterface;
+use Config\Services;
 use DateMalformedStringException;
 use DateTime;
 use function PHPUnit\Framework\throwException;
@@ -60,6 +61,28 @@ class Admin extends BaseController
             'data'            => [],
             'error'           => lang('System.response-msg.error.no-permission')
         ]);
+    }
+
+    public function show404(): string|ResponseInterface
+    {
+        $method = $this->request->getMethod();
+        $method = strtolower($method);
+        if ('get' == $method) {
+            $session      = session();
+            $lang         = $this->request->getLocale();
+            $businessName = '';
+            if (isset($session->business)) {
+                $businessName = $session->business['business_local_names'][$lang] ?? $session->business['business_name'];
+            }
+            $data    = [
+                'slug'         => 'not-found',
+                'lang'         => $lang,
+                'businessName' => $businessName
+            ];
+            return view('_404', $data);
+        }
+        return $this->response->setStatusCode(ResponseInterface::HTTP_NOT_FOUND)
+            ->setJSON(['success' => STATUS_RESPONSE_ERR]);
     }
 
     /**
@@ -146,6 +169,7 @@ class Admin extends BaseController
      */
     public function profile_post(): ResponseInterface
     {
+        $error_message = lang('System.response-msg.error.generic');
         try {
             $session         = session();
             $userMasterModel = new UserMasterModel();
@@ -267,11 +291,12 @@ class Admin extends BaseController
                 'message' => $error_msg
             ]);
         } catch (\Exception $e) {
-            return $this->response->setJSON([
-                'status'  => STATUS_RESPONSE_ERR,
-                'message' => $e->getMessage(),
-            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+            $error_message = $e->getMessage();
         }
+        return $this->response->setJSON([
+            'status'  => STATUS_RESPONSE_ERR,
+            'message' => $error_message,
+        ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -405,10 +430,11 @@ class Admin extends BaseController
                 $data['business_local_names'] = json_encode($business_local_names_values);
                 // Save
                 if ($businessMasterModel->update($businessId, $data)) {
-                    // Reset business
-                    $business                         = $businessMasterModel->find($businessId);
-                    $business['business_local_names'] = json_decode($business['business_local_names'], true);
-                    $session->set('business', $business);
+                    // Reset business session
+                    $businessUserModel = new BusinessUserModel();
+                    $businesses        = $businessUserModel->getBusinessesByUserId($session->user_id, true, $data['business_slug']);
+                    $currentBusiness   = $businesses[0];
+                    $session->set('business', $currentBusiness);
                     return $this->response->setJSON([
                         'status'  => STATUS_RESPONSE_OK,
                         'message' => lang('System.response-msg.success.data-saved')
@@ -708,13 +734,13 @@ class Admin extends BaseController
                 ->where('modified_hours_date >=', $yesterday)
                 ->orderBy('modified_hours_date', 'ASC')->findAll();
             foreach ($hour_raw as $hour) {
-                $hours[$hour['day_of_the_week']] = [$hour['id'], $hour['opening_hours'], $hour['closing_hours']];
+                $hours[$hour['day_of_the_week']] = [$hour['id'], substr($hour['opening_hours'], 0, 5), substr($hour['closing_hours'], 0, 5)];
             }
             // FIX MODE
             $mode      = 'edit';
         }
         // OPTIONS
-        $subdivisions = get_country_codes()['subdivisions'][$session->business['country_code']];
+        $subdivisions = get_country_subdivisions($session->business['country_code']);
         $timezones    = get_tzdb_by_country($session->business['country_code']);
         $data         = [
             'slug'          => 'business-branch-manage',
@@ -736,6 +762,130 @@ class Admin extends BaseController
         return view('admin/business_branch_manage', $data);
     }
 
+    public function business_branch_manage_post(): ResponseInterface
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('ResponseInterface');
+        }
+        try {
+            $businessId = $session->business['business_id'];
+            $table = $this->request->getPost('action_table');
+            $data = [];
+            if ('branch_master' == $table) {
+                $bmModel = new BranchMasterModel();
+                $fields = [
+                    'id', 'subdivision_code', 'branch_name', 'branch_slug', 'timezone_code', 'branch_type',
+                    'branch_address', 'branch_postal_code', 'branch_status'
+                ];
+                foreach ($fields as $field) {
+                    $data[$field] = $this->request->getPost($field);
+                }
+                $locales = get_available_locales();
+                $raw_data = [];
+                foreach ($locales as $locale_code => $locale_name) {
+                    $field = 'branch_local_names_' . $locale_code;
+                    $raw_data[$locale_code] = $this->request->getPost($field);
+                }
+                $data['branch_local_names'] = json_encode($raw_data);
+                $data['business_id'] = $businessId;
+                $branchId = $data['id'];
+                unset($data['id']);
+                // insert or update
+                if (0 < $branchId) {
+                    if ($bmModel->update($branchId, $data)) {
+                        return $this->response->setJSON([
+                            'status'  => STATUS_RESPONSE_OK,
+                            'message' => lang('System.response-msg.success.data-saved'),
+                        ]);
+                    }
+                } else {
+                    if ($bmModel->insert($data)) {
+                        return $this->response->setJSON([
+                            'status'  => STATUS_RESPONSE_OK,
+                            'message' => lang('System.response-msg.success.data-saved'),
+                        ]);
+                    }
+                }
+                return $this->response->setJSON([
+                    'status'  => STATUS_RESPONSE_ERR,
+                    'message' => lang('System.response-msg.error.db-issue')
+                ]);
+            } else if ('branch_opening_hours' == $table) {
+                $hoursModel = new BranchOpeningHoursModel();
+                $fields = ['branch_opening_hours_id', 'branch_id', 'day_of_the_week', 'opening_hours', 'closing_hours'];
+                foreach ($fields as $field) {
+                    $data[$field] = $this->request->getPost($field);
+                }
+                $id = $data['branch_opening_hours_id'];
+                unset($data['branch_opening_hours_id']);
+                // insert or update
+                if (0 < $id) {
+                    if ($data['opening_hours'] == '00:00' && $data['closing_hours'] == '00:00') {
+                        if ($hoursModel->delete($id)) {
+                            return $this->response->setJSON([
+                                'status'  => STATUS_RESPONSE_OK,
+                                'message' => lang('System.response-msg.success.data-deleted'),
+                            ]);
+                        }
+                    } else if ($hoursModel->update($id, $data)) {
+                        return $this->response->setJSON([
+                            'status'  => STATUS_RESPONSE_OK,
+                            'message' => lang('System.response-msg.success.data-saved'),
+                        ]);
+                    }
+                } else {
+                    if ($hoursModel->insert($data)) {
+                        return $this->response->setJSON([
+                            'status'  => STATUS_RESPONSE_OK,
+                            'message' => lang('System.response-msg.success.data-saved'),
+                        ]);
+                    }
+                }
+                return $this->response->setJSON([
+                    'status'  => STATUS_RESPONSE_ERR,
+                    'message' => lang('System.response-msg.error.db-issue')
+                ]);
+            } else if ('branch_modified_hours' == $table) {
+                $action     = $this->request->getPost('action_perform');
+                $hoursModel = new BranchModifiedHoursModel();
+                if ('delete' == $action) {
+                    $id     = $this->request->getPost('id');
+                    if ($hoursModel->delete($id)) {
+                        return $this->response->setJSON([
+                            'status'  => STATUS_RESPONSE_OK,
+                            'message' => lang('System.response-msg.success.data-deleted'),
+                        ]);
+                    }
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_ERR,
+                        'message' => lang('System.response-msg.error.db-issue')
+                    ]);
+                } else {
+                    $fields     = ['branch_id', 'modified_hours_date', 'modified_reason', 'modified_type', 'updated_opening_hours', 'updated_closing_hours'];
+                    foreach ($fields as $field) {
+                        $data[$field] = $this->request->getPost($field);
+                    }
+                    if ($hoursModel->insert($data)) {
+                        return $this->response->setJSON([
+                            'status'  => STATUS_RESPONSE_OK,
+                            'message' => lang('System.response-msg.success.data-saved'),
+                        ]);
+                    }
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_ERR,
+                        'message' => lang('System.response-msg.error.db-issue')
+                    ]);
+                }
+            }
+            return $this->response->setJSON($data);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => $e->getMessage(),
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
     /**
      * Manage staff
      * @return string
@@ -781,18 +931,25 @@ class Admin extends BaseController
         $businessId    = $session->business['business_id'];
         $userId        = (int) $userId / ID_MASKED_PRIME;
         $userModel     = new UserMasterModel();
-        $BusinessModel = new BusinessUserModel();
-        $BranchModel   = new BranchUserModel();
+        $businessModel = new BusinessUserModel();
+        $branchModel   = new BranchMasterModel();
+        $buModel       = new BranchUserModel();
         $mode          = 'new';
         $user          = [];
         $businessUser  = [];
         $branchUser    = [];
+        $branches      = [];
         if (0 < $userId) {
             $mode         = 'edit';
             $user         = $userModel->find($userId);
             if (!empty($user)) {
-                $businessUser = $BusinessModel->where('user_id', $userId)->where('business_id', $businessId)->findAll();
-                $branchUser   = $BranchModel->getUserByBusinessId($userId, $businessId);
+                $businessUser = $businessModel->where('user_id', $userId)->where('business_id', $businessId)->first();
+                $branchUser   = $buModel->getUserByBusinessId($userId, $businessId);
+                $branchesRaw  = $branchModel->where('business_id', $businessId)->findAll();
+                foreach ($branchesRaw as $branch) {
+                    $local_names             = json_decode($branch['branch_local_names'], true);
+                    $branches[$branch['id']] = $local_names[$session->lang] ?? $branch['branch_name'];
+                }
             } else {
                 throw new PageNotFoundException(lang('Admin.pages.page-not-found'));
             }
@@ -804,6 +961,7 @@ class Admin extends BaseController
             'user'         => $user,
             'businessUser' => $businessUser,
             'branchUser'   => $branchUser,
+            'branches'     => $branches,
             'breadcrumb'   => [
                 [
                     'url'        => base_url('admin/business/user'),
@@ -813,6 +971,147 @@ class Admin extends BaseController
         ];
         return view('admin/business_user_management', $data);
     }
+
+    public function business_user_manage_post(): ResponseInterface
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('ResponseInterface');
+        }
+        try {
+            $action = $this->request->getPost('action');
+            $id     = $this->request->getPost('id');
+            if ('user_master' === $action) {
+                $uModel  = new UserMasterModel();
+                $buModel = new BusinessUserModel();
+                $fields  = ['email_address', 'user_name_first', 'user_name_last', 'account_status'];
+                $data    = [];
+                foreach ($fields as $field) {
+                    $data[$field] = $this->request->getPost($field);
+                }
+                if (0 < $id) {
+                    if ($uModel->update($id, $data)) {
+                        return $this->response->setJSON([
+                            'status'  => STATUS_RESPONSE_OK,
+                            'message' => lang('System.response-msg.success.data-saved'),
+                        ]);
+                    }
+                } else {
+                    $db = \Config\Database::connect();
+                    $db->transBegin(); // <<< START TRANSACTION
+                    $data['account_status']  = 'P';
+                    $data['user_gender']     = 'U';
+                    $data['user_type']       = 'CLIENT';
+                    $data['lang_code']       = $session->lang;
+                    $password                = generate_secure_password(16, true);
+                    $data['password_hash']   = $uModel->hash_password($password);
+                    $data['password_expiry'] = date(DATE_FORMAT_DB, strtotime('-1 day'));
+                    $uModel->insert($data);
+                    $userId  = $uModel->getInsertID();
+                    $bu_data = [
+                        'business_id'         => $session->business['business_id'],
+                        'user_id'             => $userId,
+                        'user_role'           => 'STAFF',
+                        'role_status'         => 'ACTIVE',
+                        'my_default_business' => 'Y'
+                    ];
+                    $buModel->insert($bu_data);
+                    if ($db->transStatus() === false) {
+                        $db->transRollback(); // <<< ROLLBACK (Undoes changes from all Models)
+                        return $this->response->setJSON([
+                            'status'  => STATUS_RESPONSE_ERR,
+                            'message' => lang('System.response-msg.error.db-issue') . ' [DBI]'
+                        ]);
+                    }
+                    // EMAIL
+                    $exp       = dechex(strtotime('+20 minutes')*11);
+                    $userTkn   = dechex($userId*37);
+                    $hash      = substr(hash('sha256', $data['email_address']), 0, 15);
+                    $token     = "$exp-$userTkn-$hash";
+                    $tknLnk    = base_url('account-activation?hl=' . $session->lang . '&token=' . $token);
+                    $subject   = lang('System.email.new-user.subject');
+                    $message   = lang('System.email.new-user.message', [$tknLnk, $data['email_address'], $password]);
+                    $preheader = substr($message, 0, 50);
+                    $reply_to  = getenv('SUPPORT_EMAIL');
+                    log_message('debug', 'EMAIL: SUBJECT: ' . $subject);
+                    log_message('debug', 'EMAIL: MESSAGE: ' . $message);
+                    if (!send_system_email($data['email_address'], $subject, $preheader, $message, $reply_to)) {
+                        $db->transRollback(); // <<< ROLLBACK (Undoes changes from all Models)
+                        return $this->response->setJSON([
+                            'status'  => STATUS_RESPONSE_ERR,
+                            'message' => lang('System.response-msg.error.account-created-issue') . ' [EMF]'
+                        ]);
+                    }
+                    $db->transCommit();
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_OK,
+                        'message' => lang('System.response-msg.success.data-saved'),
+                    ]);
+                }
+            } else if ('business_user' == $action) {
+                $buModel  = new BusinessUserModel();
+                $fields = ['business_user_id', 'user_role', 'role_status'];
+                $data   = [];
+                foreach ($fields as $field) {
+                    $data[$field] = $this->request->getPost($field);
+                }
+                $id = $data['business_user_id'];
+                unset($data['business_user_id']);
+                if ($buModel->update($id, $data)) {
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_OK,
+                        'message' => lang('System.response-msg.success.data-saved'),
+                    ]);
+                }
+            } else if ('branch_user_add' == $action) {
+                $bruModel  = new BranchUserModel();
+                $fields    = ['id', 'branch_user_role', 'branch_id'];
+                $data      = [];
+                foreach ($fields as $field) {
+                    $data[$field] = $this->request->getPost($field);
+                }
+                $data['user_id']   = $data['id'];
+                $data['user_role'] = $data['branch_user_role'];
+                unset($data['id']);
+                unset($data['branch_user_role']);
+                if ($bruModel->insert($data)) {
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_OK,
+                        'message' => lang('System.response-msg.success.data-saved'),
+                    ]);
+                }
+            } else if ('branch_user_update' == $action) {
+                $bruModel          = new BranchUserModel();
+                $data['user_role'] = $this->request->getPost('user_role');
+                $id                = $this->request->getPost('id');
+                if ($bruModel->update($id, $data)) {
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_OK,
+                        'message' => lang('System.response-msg.success.data-saved'),
+                    ]);
+                }
+            } else if ('branch_user_delete' == $action) {
+                $bruModel  = new BranchUserModel();
+                $id        = $this->request->getPost('id');
+                if ($bruModel->delete($id)) {
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_OK,
+                        'message' => lang('System.response-msg.success.data-deleted'),
+                    ]);
+                }
+            }
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => lang('System.response-msg.error.db-issue'),
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => $e->getMessage(),
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
     /**
      * Manage customer
      * @return string
@@ -863,7 +1162,7 @@ class Admin extends BaseController
             return $this->forbiddenResponse('string');
         }
         $data = [
-            'slug'           => 'resource-type',
+            'slug'           => 'business-resource-type',
             'lang'           => $this->request->getLocale(),
         ];
         return view('admin/resource_type', $data);
@@ -908,17 +1207,61 @@ class Admin extends BaseController
             $resourceType['resource_local_names'] = json_decode($resourceType['resource_local_names'], true);
         }
         $data           = [
-            'slug'         => 'resource-type-manage',
+            'slug'         => 'business-resource-type-manage',
             'lang'         => $this->request->getLocale(),
             'resourceType' => $resourceType,
             'breadcrumb'   => [
                 [
                     'url'        => base_url('admin/resource/type'),
-                    'page_title' => lang('Admin.pages.resource-type'),
+                    'page_title' => lang('Admin.pages.business-resource-type'),
                 ]
             ]
         ];
         return view('admin/resource_type_manage', $data);
+    }
+
+    public function resource_type_manage_post(): ResponseInterface
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('ResponseInterface');
+        }
+        try {
+            $resourceTypeModel     = new ResourceTypeModel();
+            $id                    = $this->request->getPost('id');
+            $data['resource_type'] = $this->request->getPost('resource_type');
+            $languages             = get_available_locales('short');
+            $names                 = [];
+            foreach ($languages as $code => $name) {
+                $names[$code] = $this->request->getPost('resource_local_names_' . $code);
+            }
+            $data['resource_local_names'] = json_encode($names);
+            if (0 < $id) {
+                if ($resourceTypeModel->update($id, $data)) {
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_OK,
+                        'message' => lang('System.response-msg.success.data-saved'),
+                    ]);
+                }
+            } else {
+                $data['business_id'] = $session->business['business_id'];
+                if ($resourceTypeModel->insert($data)) {
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_OK,
+                        'message' => lang('System.response-msg.success.data-saved'),
+                    ]);
+                }
+            }
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => lang('System.response-msg.error.db-issue'),
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => $e->getMessage(),
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
@@ -931,9 +1274,12 @@ class Admin extends BaseController
         if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
             return $this->forbiddenResponse('string');
         }
-        $data = [
-            'slug'           => 'resource',
-            'lang'           => $this->request->getLocale(),
+        $resourceTypeModel = new ResourceTypeModel();
+        $types             = $resourceTypeModel->where('business_id', $session->business['business_id'])->countAllResults();
+        $data              = [
+            'slug'      => 'business-resource',
+            'lang'      => $this->request->getLocale(),
+            'typeCount' => $types,
         ];
         return view('admin/resource', $data);
     }
@@ -1000,7 +1346,7 @@ class Admin extends BaseController
             throw new PageNotFoundException(lang('Admin.pages.page-not-found'));
         }
         $data     = [
-            'slug'       => 'resource-manage',
+            'slug'       => 'business-resource-manage',
             'lang'       => $this->request->getLocale(),
             'resource'   => $resource,
             'types'      => $types,
@@ -1008,13 +1354,54 @@ class Admin extends BaseController
             'breadcrumb' => [
                 [
                     'url'        => base_url('admin/resource'),
-                    'page_title' => lang('Admin.pages.resource'),
+                    'page_title' => lang('Admin.pages.business-resource'),
                 ]
             ]
         ];
         return view('admin/resource_manage', $data);
     }
 
+    public function resource_manage_post(): ResponseInterface
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('ResponseInterface');
+        }
+        try {
+            $resourceModel = new ResourceMasterModel();
+            $fields        = ['branch_id', 'resource_type_id', 'resource_name', 'resource_description', 'is_active'];
+            $id            = $this->request->getPost('id');
+            $data          = [];
+            foreach ($fields as $field) {
+                $data[$field] = $this->request->getPost($field);
+            }
+            if (0 < $id) {
+                if ($resourceModel->update($id, $data)) {
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_OK,
+                        'message' => lang('System.response-msg.success.data-saved'),
+                    ]);
+                }
+            } else {
+                $data['business_id'] = $session->business['business_id'];
+                if ($resourceModel->insert($data)) {
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_OK,
+                        'message' => lang('System.response-msg.success.data-saved'),
+                    ]);
+                }
+            }
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => lang('System.response-msg.error.db-issue'),
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => $e->getMessage(),
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
     /**
      * Manage order
      * @return string
@@ -1086,7 +1473,6 @@ class Admin extends BaseController
         $final        = [];
         foreach ($raw as $service) {
             $final[] = [
-                $service['service_slug'],
                 $service['service_local_names'][$session->lang] ?? $service['service_name'],
                 lang('ServiceMaster.enum.is_active.' . $service['is_active']),
                 '<a class="btn btn-primary btn-sm float-end" href="' . base_url('admin/service/' . ($service['id'] * ID_MASKED_PRIME)) . '"> ' . lang('System.buttons.edit') . '</a>'
@@ -1148,6 +1534,101 @@ class Admin extends BaseController
         return view('admin/service_manage', $data);
     }
 
+    public function service_manage_post(): ResponseInterface
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('ResponseInterface');
+        }
+        try {
+            $serviceModel = new ServiceMasterModel();
+            $locales      = get_available_locales();
+            $id           = $this->request->getPost('service_id');
+            $data         = [];
+            $names        = [];
+            $fields       = ['service_name', 'is_active'];
+            foreach ($fields as $field) {
+                $data[$field] = $this->request->getPost($field);
+            }
+            foreach ($locales as $code => $language_name) {
+                $names[$code] = $this->request->getPost('service_local_names_' . $code);
+            }
+            $data['service_local_names'] = json_encode($names);
+            if (0 < $id) {
+                if ($serviceModel->update($id, $data)) {
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_OK,
+                        'id'      => $id,
+                        'message' => lang('System.response-msg.success.data-saved'),
+                    ]);
+                }
+            } else {
+                $data['business_id']          = $session->business['business_id'];
+                $data['service_slug']         = generate_slug($data['service_name']);
+                $data['price_active_lowest']  = 0;
+                $data['price_compare_lowest'] = 0;
+                if ($serviceModel->insert($data)) {
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_OK,
+                        'id'      => $serviceModel->getInsertID(),
+                        'message' => lang('System.response-msg.success.data-saved'),
+                    ]);
+                }
+            }
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => lang('System.response-msg.error.db-issue'),
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => $e->getMessage(),
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function service_user_manage_post(): ResponseInterface
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('ResponseInterface');
+        }
+        try {
+            $action     = $this->request->getPost('action');
+            $staffModel = new ServiceStaffModel();
+            if ('add' === $action) {
+                $fields = ['branch_user_id', 'service_id', 'action'];
+                $data   = [];
+                foreach ($fields as $field) {
+                    $data[$field] = $this->request->getPost($field);
+                }
+                if ($staffModel->insert($data)) {
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_OK,
+                        'message' => lang('System.response-msg.success.data-saved'),
+                    ]);
+                }
+            } else if ('remove' == $action) {
+                $id = $this->request->getPost('id');
+                if ($staffModel->delete($id)) {
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_OK,
+                        'message' => lang('System.response-msg.success.data-deleted'),
+                    ]);
+                }
+            }
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => lang('System.response-msg.error.db-issue'),
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => $e->getMessage(),
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
     /**
      * @param int $serviceId
      * @param int $serviceVariantId
@@ -1206,6 +1687,79 @@ class Admin extends BaseController
         return view('admin/service_variant', $data);
     }
 
+    public function service_variant_manage_post(): ResponseInterface
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('ResponseInterface');
+        }
+        try {
+            $serviceModel = new ServiceMasterModel();
+            $variantModel = new ServiceVariantModel();
+            $cache        = \CodeIgniter\Config\Services::cache();
+            $locales      = get_available_locales();
+            $id           = $this->request->getPost('id');
+            $serviceId    = $this->request->getPost('service_id');
+            $cacheKey     = 'variants_for_service_id-' . $serviceId;
+            $data         = [];
+            $names        = [];
+            $fields       = ['variant_name', 'is_active', 'schedule_type', 'variant_capacity', 'required_num_staff', 'service_duration_minutes', 'required_resource_type_id', 'price_active', 'price_compare'];
+            foreach ($fields as $field) {
+                $data[$field] = $this->request->getPost($field);
+            }
+            foreach ($locales as $code => $language_name) {
+                $names[$code] = $this->request->getPost('variant_local_names_' . $code);
+            }
+            $data['variant_local_names'] = json_encode($names);
+            $db = \Config\Database::connect();
+            $db->transBegin(); // <<< START TRANSACTION
+            if (0 < $id) {
+                $variantModel->update($id, $data);
+                $serviceModel->updateLowestPrices($serviceId);
+                if ($cache->get($cacheKey)) {
+                    $cache->delete($cacheKey);
+                }
+                if ($db->transStatus() === false) {
+                    $db->transRollback(); // <<< ROLLBACK (Undoes changes from all Models)
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_ERR,
+                        'message' => lang('System.response-msg.error.db-issue')
+                    ]);
+                }
+                $db->transCommit();
+                return $this->response->setJSON([
+                    'status'  => STATUS_RESPONSE_OK,
+                    'message' => lang('System.response-msg.success.data-saved'),
+                ]);
+            } else {
+                $data['service_id']   = $serviceId;
+                $data['variant_slug'] = generate_slug($data['variant_name']);
+                $variantModel->insert($data);
+                $serviceModel->updateLowestPrices($serviceId);
+                if ($cache->get($cacheKey)) {
+                    $cache->delete($cacheKey);
+                }
+                if ($db->transStatus() === false) {
+                    $db->transRollback(); // <<< ROLLBACK (Undoes changes from all Models)
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_ERR,
+                        'message' => lang('System.response-msg.error.db-issue')
+                    ]);
+                }
+                $db->transCommit();
+                return $this->response->setJSON([
+                    'status'  => STATUS_RESPONSE_OK,
+                    'message' => lang('System.response-msg.success.data-saved'),
+                ]);
+            }
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => $e->getMessage(),
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
     /**
      * Manage product
      * @return string
@@ -1216,9 +1770,12 @@ class Admin extends BaseController
         if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
             return $this->forbiddenResponse('string');
         }
-        $data = [
+        $categoryModel = new ProductCategoryModel();
+        $count         = $categoryModel->where('business_id', $session->business['business_id'])->countAllResults();
+        $data          = [
             'slug'           => 'product',
             'lang'           => $this->request->getLocale(),
+            'count'          => $count,
         ];
         return view('admin/product', $data);
     }
@@ -1284,6 +1841,59 @@ class Admin extends BaseController
         return view('admin/product_manage', $data);
     }
 
+    public function product_manage_post(): ResponseInterface
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('ResponseInterface');
+        }
+        try {
+            $productModel = new ProductMasterModel();
+            $locales      = get_available_locales();
+            $id           = $this->request->getPost('product_id');
+            $data         = [];
+            $names        = [];
+            $fields       = ['product_category_id', 'product_name', 'product_tag', 'product_type', 'is_active'];
+            foreach ($fields as $field) {
+                $data[$field] = $this->request->getPost($field);
+            }
+            foreach ($locales as $code => $language_name) {
+                $names[$code] = $this->request->getPost('product_local_names_' . $code);
+            }
+            $data['product_local_names'] = json_encode($names);
+            if (0 < $id) {
+                if ($productModel->update($id, $data)) {
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_OK,
+                        'id'      => $id,
+                        'message' => lang('System.response-msg.success.data-saved'),
+                    ]);
+                }
+            } else {
+                $data['business_id']          = $session->business['business_id'];
+                $data['product_slug']         = generate_slug($data['product_name']);
+                $data['price_active_lowest']  = 0;
+                $data['price_compare_lowest'] = 0;
+                if ($productModel->insert($data)) {
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_OK,
+                        'id'      => $productModel->getInsertID(),
+                        'message' => lang('System.response-msg.success.data-saved'),
+                    ]);
+                }
+            }
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => lang('System.response-msg.error.db-issue'),
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => $e->getMessage(),
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
     public function product_variant_manage(int $productId, int $variantId): string
     {
         $session = session();
@@ -1315,12 +1925,116 @@ class Admin extends BaseController
                     'page_title' => lang('Admin.pages.product-manage'),
                 ]
             ],
+            'pIdPrime'   => $productId,
+            'productId'  => $productId / ID_MASKED_PRIME,
             'variant'    => $variant,
             'mode'       => $mode,
         ];
         return view('admin/product_variant', $data);
     }
 
+    public function product_variant_manage_post(): ResponseInterface
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('ResponseInterface');
+        }
+        try {
+            $productModel   = new ProductMasterModel();
+            $variantModel   = new ProductVariantModel();
+            $inventoryModel = new ProductVariantInventoryModel();
+            $locales        = get_available_locales();
+            $id             = $this->request->getPost('variant_id');
+            $data           = [];
+            $names          = [];
+            $fields         = ['product_id', 'variant_name', 'variant_sku', 'is_active', 'inventory_count', 'price_active', 'price_compare'];
+            foreach ($fields as $field) {
+                $data[$field] = $this->request->getPost($field);
+            }
+            foreach ($locales as $code => $language_name) {
+                $names[$code] = $this->request->getPost('variant_local_names_' . $code);
+            }
+            $data['variant_local_names'] = json_encode($names);
+            $db             = \Config\Database::connect();
+            if (0 < $id) {
+                $db->transBegin(); // <<< START TRANSACTION
+                $currentVariant = $variantModel->where('id', $id)->first(); // Get the latest one before the update
+                // update data
+                log_message('debug', json_encode($data));
+                $variantModel->update($id, $data);
+                // check for updated stock
+                log_message('debug', 'inventory: new ' . $data['inventory_count'] . ' VS current ' . $currentVariant['inventory_count']);
+                if ($data['inventory_count'] != $currentVariant['inventory_count']) {
+                    $change    = $data['inventory_count'] - $currentVariant['inventory_count'];
+                    $inventory = [
+                        'variant_id'      => $id,
+                        'activity_key'    => 'update',
+                        'quantity_change' => $change,
+                        'new_inventory'   => $data['inventory_count'],
+                    ];
+                    log_message('debug', json_encode($inventory));
+                    $inventoryModel->insert($inventory);
+                }
+                $productModel->updateLowestPrices($data['product_id']);
+                log_message('debug', 'done');
+                if ($db->transStatus() === false) {
+                    $db->transRollback(); // <<< ROLLBACK (Undoes changes from all Models)
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_ERR,
+                        'message' => lang('System.response-msg.error.db-issue')
+                    ]);
+                }
+                $db->transCommit();
+                // Also remove cache product_variant_info-##
+                $cache    = Services::cache();
+                $cacheKey = 'product_variant_info-' . $id;
+                if ($cache->get($cacheKey)) {
+                    $cache->delete($cacheKey);
+                }
+                log_message('debug', 'updated cache');
+                return $this->response->setJSON([
+                    'status'  => STATUS_RESPONSE_OK,
+                    'id'      => $id,
+                    'message' => lang('System.response-msg.success.data-saved'),
+                ]);
+            } else {
+                $db->transBegin(); // <<< START TRANSACTION
+                $data['variant_slug'] = generate_slug($data['variant_name']);
+                log_message('debug', json_encode($data));
+                $variantModel->insert($data);
+                $id                   = $variantModel->getInsertID();
+                $inventory            = [
+                    'variant_id'      => $id,
+                    'activity_key'    => 'update',
+                    'quantity_change' => $data['inventory_count'],
+                    'new_inventory'   => $data['inventory_count'],
+                ];
+                log_message('debug', json_encode($inventory));
+                $inventoryModel->insert($inventory);
+                $productModel->updateLowestPrices($data['product_id']);
+                log_message('debug', 'done updating');
+                if ($db->transStatus() === false) {
+                    $db->transRollback(); // <<< ROLLBACK (Undoes changes from all Models)
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_ERR,
+                        'message' => lang('System.response-msg.error.db-issue')
+                    ]);
+                }
+                log_message('debug', 'committing');
+                $db->transCommit();
+                return $this->response->setJSON([
+                    'status'  => STATUS_RESPONSE_OK,
+                    'id'      => $variantModel->getInsertID(),
+                    'message' => lang('System.response-msg.success.data-saved'),
+                ]);
+            }
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => $e->getMessage(),
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
     public function product_variant_inventory(int $productId, int $variantId): string
     {
         $session = session();
@@ -1352,6 +2066,11 @@ class Admin extends BaseController
         return view('admin/product_variant_inventory', $data);
     }
 
+    /**
+     * @param int $productId
+     * @param int $variantId
+     * @return ResponseInterface
+     */
     public function product_variant_inventory_post(int $productId, int $variantId): ResponseInterface
     {
         $session = session();
@@ -1441,6 +2160,50 @@ class Admin extends BaseController
             'category'   => $category,
         ];
         return view('admin/product_category_manage', $data);
+    }
+
+    public function product_category_manage_post(): ResponseInterface
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('ResponseInterface');
+        }
+        try {
+            $categoryModel         = new ProductCategoryModel();
+            $id                    = $this->request->getPost('id');
+            $data['category_name'] = $this->request->getPost('category_name');
+            $languages             = get_available_locales('short');
+            $names                 = [];
+            foreach ($languages as $code => $name) {
+                $names[$code] = $this->request->getPost('category_local_names_' . $code);
+            }
+            $data['category_local_names'] = json_encode($names);
+            if (0 < $id) {
+                if ($categoryModel->update($id, $data)) {
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_OK,
+                        'message' => lang('System.response-msg.success.data-saved'),
+                    ]);
+                }
+            } else {
+                $data['business_id'] = $session->business['business_id'];
+                if ($categoryModel->insert($data)) {
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_OK,
+                        'message' => lang('System.response-msg.success.data-saved'),
+                    ]);
+                }
+            }
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => lang('System.response-msg.error.db-issue'),
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => $e->getMessage(),
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**

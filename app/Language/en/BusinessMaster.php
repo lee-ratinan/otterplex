@@ -28,7 +28,7 @@ return [
         ]
     ],
     'explanation' => [
-        'business_slug' => 'The slug is used to create your marketplace URL. It’s auto-generated, but you can override it using only <b>a–z</b>, <b>0–9</b>, and <b>dashes</b>; all other characters will be removed automatically.',
+        'business_name' => 'By clicking “Update Slug” button below, the system will generate slug based on your business name. The slug is used to generate a link to your marketplace page.<br><b class="text-danger"><i class="fa-solid fa-exclamation-triangle"></i> CAUTION!</b> Your marketplace URL will be changed when you save this business. Please ensure you have updated the URL accordingly.',
         'tax_inclusive' => 'Choose how tax is handled: <b>Inclusive</b> (tax is already inside the price), <b>Exclusive</b> (tax is added on top), or <b>Not Applicable</b> (your business is not required to charge tax).'
     ]
 ];

@@ -70,7 +70,8 @@ class AppBaseModel extends Model
         $result            = parent::insert($row, $returnID);
         if ($result) {
             // Log
-            $id = $this->getInsertID();
+            $id  = $this->getInsertID();
+            $row = parent::find($id);
             foreach ($this->masked_fields as $field) {
                 if (isset($row[$field])) {
                     $row[$field] = '******';
@@ -104,6 +105,7 @@ class AppBaseModel extends Model
             }
             $this->logAction($id, $row, LogActivityModel::ACTIVITY_KEY_UPDATE);
             // Update cache
+            $row       = parent::find($id);
             $cache     = Services::cache();
             $cache_key = $this->table . '-' . $id;
             $cache->delete($cache_key);
