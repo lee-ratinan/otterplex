@@ -1687,6 +1687,64 @@ class Admin extends BaseController
         return view('admin/service_variant', $data);
     }
 
+    public function service_variant_manage_post(): ResponseInterface
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('ResponseInterface');
+        }
+        try {
+            $variantModel = new ServiceVariantModel();
+            $cache        = \CodeIgniter\Config\Services::cache();
+            $locales      = get_available_locales();
+            $id           = $this->request->getPost('id');
+            $serviceId    = $this->request->getPost('service_id');
+            $cacheKey     = 'variants_for_service_id-' . $serviceId;
+            $data         = [];
+            $names        = [];
+            $fields       = ['variant_name', 'is_active', 'schedule_type', 'variant_capacity', 'required_num_staff', 'service_duration_minutes', 'required_resource_type_id', 'price_active', 'price_compare'];
+            foreach ($fields as $field) {
+                $data[$field] = $this->request->getPost($field);
+            }
+            foreach ($locales as $code => $language_name) {
+                $names[$code] = $this->request->getPost('variant_local_names_' . $code);
+            }
+            $data['variant_local_names'] = json_encode($names);
+            if (0 < $id) {
+                if ($variantModel->update($id, $data)) {
+                    if ($cache->get($cacheKey)) {
+                        $cache->delete($cacheKey);
+                    }
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_OK,
+                        'message' => lang('System.response-msg.success.data-saved'),
+                    ]);
+                }
+            } else {
+                $data['service_id']   = $serviceId;
+                $data['variant_slug'] = generate_slug($data['variant_name']);
+                if ($variantModel->insert($data)) {
+                    if ($cache->get($cacheKey)) {
+                        $cache->delete($cacheKey);
+                    }
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_OK,
+                        'message' => lang('System.response-msg.success.data-saved'),
+                    ]);
+                }
+            }
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => lang('System.response-msg.error.db-issue'),
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => $e->getMessage(),
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
     /**
      * Manage product
      * @return string
