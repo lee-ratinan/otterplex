@@ -44,7 +44,6 @@ class ProductMasterModel extends AppBaseModel
             $category_name  = $category_local[$session->lang] ?? $row['category_name'];
             $product_name   = $product_local[$session->lang] ?? $row['product_name'];
             $final[]  = [
-                $row['product_slug'],
                 $category_name,
                 $product_name,
                 lang('ProductMaster.enum.product_type.' . $row['product_type']),

@@ -20,7 +20,6 @@
                                 <table class="table table-sm table-hover table-striped">
                                     <thead>
                                     <tr>
-                                        <th><?= lang('ProductMaster.field.product_slug') ?></th>
                                         <th><?= lang('ProductMaster.field.product_category_id') ?></th>
                                         <th><?= lang('ProductMaster.field.product_name') ?></th>
                                         <th><?= lang('ProductMaster.field.product_type') ?></th>

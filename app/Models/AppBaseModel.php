@@ -105,6 +105,7 @@ class AppBaseModel extends Model
             }
             $this->logAction($id, $row, LogActivityModel::ACTIVITY_KEY_UPDATE);
             // Update cache
+            $row       = parent::find($id);
             $cache     = Services::cache();
             $cache_key = $this->table . '-' . $id;
             $cache->delete($cache_key);

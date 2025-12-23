@@ -5087,3 +5087,19 @@ if (!function_exists('generate_secure_password')) {
         return $password;
     }
 }
+if (!function_exists('generate_slug')) {
+    /**
+     * Generate slug
+     * @param string $string
+     * @return string
+     */
+    function generate_slug(string $string): string
+    {
+        $char_arr = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+        $year     = $char_arr[date('y')-25];
+        $month    = $char_arr[date('n')-1];
+        $date     = date('d');
+        $hash     = substr(strtoupper(md5($string)), 0, 5);
+        return $year . $month . $date . $hash;
+    }
+}

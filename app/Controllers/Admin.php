@@ -1603,7 +1603,7 @@ class Admin extends BaseController
             return $this->forbiddenResponse('string');
         }
         $categoryModel = new ProductCategoryModel();
-        $count         = $categoryModel->where('business_id', $session->business_id)->countAllResults();
+        $count         = $categoryModel->where('business_id', $session->business['business_id'])->countAllResults();
         $data          = [
             'slug'           => 'product',
             'lang'           => $this->request->getLocale(),
@@ -1671,6 +1671,59 @@ class Admin extends BaseController
             'mode'       => $mode,
         ];
         return view('admin/product_manage', $data);
+    }
+
+    public function product_manage_post(): ResponseInterface
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('ResponseInterface');
+        }
+        try {
+            $productModel = new ProductMasterModel();
+            $locales      = get_available_locales();
+            $id           = $this->request->getPost('product_id');
+            $data         = [];
+            $names        = [];
+            $fields       = ['product_category_id', 'product_name', 'product_tag', 'product_type', 'is_active'];
+            foreach ($fields as $field) {
+                $data[$field] = $this->request->getPost($field);
+            }
+            foreach ($locales as $code => $language_name) {
+                $names[$code] = $this->request->getPost('product_local_names_' . $code);
+            }
+            $data['product_local_names'] = json_encode($names);
+            if (0 < $id) {
+                if ($productModel->update($id, $data)) {
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_OK,
+                        'id'      => $id,
+                        'message' => lang('System.response-msg.success.data-saved'),
+                    ]);
+                }
+            } else {
+                $data['business_id']          = $session->business['business_id'];
+                $data['product_slug']         = generate_slug($data['product_name']);
+                $data['price_active_lowest']  = 0;
+                $data['price_compare_lowest'] = 0;
+                if ($productModel->insert($data)) {
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_OK,
+                        'id'      => $productModel->getInsertID(),
+                        'message' => lang('System.response-msg.success.data-saved'),
+                    ]);
+                }
+            }
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => lang('System.response-msg.error.db-issue'),
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => $e->getMessage(),
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     public function product_variant_manage(int $productId, int $variantId): string
