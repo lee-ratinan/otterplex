@@ -15,7 +15,6 @@
                         <table class="table table-sm table-hover table-striped">
                             <thead>
                             <tr>
-                                <th><?= lang('ServiceMaster.field.service_slug') ?></th>
                                 <th><?= lang('ServiceMaster.field.service_name') ?></th>
                                 <th><?= lang('ServiceMaster.field.is_active') ?></th>
                                 <th></th>

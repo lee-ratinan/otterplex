@@ -40,7 +40,6 @@
                             <table class="table table-sm table-hover table-striped">
                                 <thead>
                                 <tr>
-                                    <th><?= lang('ServiceVariant.field.variant_slug') ?></th>
                                     <th><?= lang('ServiceVariant.field.variant_name') ?></th>
                                     <th><?= lang('ServiceVariant.field.is_active') ?></th>
                                     <th><?= lang('ServiceVariant.field.schedule_type') ?></th>
@@ -55,7 +54,6 @@
                                 <tbody>
                                 <?php foreach ($variants as $variant): ?>
                                     <tr>
-                                        <td><?= $variant['variant_slug'] ?></td>
                                         <td><?= ($variant['variant_local_names'][$session->lang] ?? $variant['variant_name']) ?></td>
                                         <td><?= lang('ServiceVariant.enum.is_active.' . $variant['is_active']) ?></td>
                                         <td><?= lang('ServiceVariant.enum.schedule_type.' . $variant['schedule_type']) ?></td>

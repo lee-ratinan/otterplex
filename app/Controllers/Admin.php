@@ -1473,7 +1473,6 @@ class Admin extends BaseController
         $final        = [];
         foreach ($raw as $service) {
             $final[] = [
-                $service['service_slug'],
                 $service['service_local_names'][$session->lang] ?? $service['service_name'],
                 lang('ServiceMaster.enum.is_active.' . $service['is_active']),
                 '<a class="btn btn-primary btn-sm float-end" href="' . base_url('admin/service/' . ($service['id'] * ID_MASKED_PRIME)) . '"> ' . lang('System.buttons.edit') . '</a>'
