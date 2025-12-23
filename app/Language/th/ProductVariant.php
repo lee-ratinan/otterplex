@@ -1,6 +1,6 @@
 <?php
 return [
-    'field' => [
+    'field'   => [
         'id'                  => 'ไอดี',
         'product_id'          => 'สินค้า',
         'variant_slug'        => 'รหัสตัวเลือกสินค้า',
@@ -12,10 +12,13 @@ return [
         'price_active'        => 'ราคา',
         'price_compare'       => 'ราคาเปรียบเทียบ',
     ],
-    'enum'  => [
+    'enum'    => [
         'is_active' => [
             'A' => 'ปกติ',
             'I' => 'สินค้าหมด',
         ],
+    ],
+    'default' => [
+        'variant_name' => 'ตัวเลือกสินค้าเริ่มต้น',
     ]
 ];

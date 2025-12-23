@@ -59,7 +59,6 @@
                                     <table class="table table-striped table-hover">
                                         <thead>
                                         <tr>
-                                            <th><?= lang('ProductVariant.field.variant_slug') ?></th>
                                             <th><?= lang('ProductVariant.field.variant_sku') ?></th>
                                             <th><?= lang('ProductVariant.field.variant_name') ?></th>
                                             <th><?= lang('ProductVariant.field.is_active') ?></th>
@@ -72,7 +71,6 @@
                                         <tbody>
                                         <?php foreach ($variants as $variant) : ?>
                                         <tr>
-                                            <td><?= $variant['variant_slug'] ?></td>
                                             <td><?= $variant['variant_sku'] ?></td>
                                             <td><?= $variant['variant_local_names'][$session->lang] ?? $variant['variant_name'] ?></td>
                                             <td><?= lang('ProductVariant.enum.is_active.' . $variant['is_active']) ?></td>

@@ -26,6 +26,7 @@ use App\Models\UserMasterModel;
 use CodeIgniter\Exceptions\PageNotFoundException;
 use CodeIgniter\HTTP\RedirectResponse;
 use CodeIgniter\HTTP\ResponseInterface;
+use Config\Services;
 use DateMalformedStringException;
 use DateTime;
 use function PHPUnit\Framework\throwException;
@@ -1757,12 +1758,116 @@ class Admin extends BaseController
                     'page_title' => lang('Admin.pages.product-manage'),
                 ]
             ],
+            'pIdPrime'   => $productId,
+            'productId'  => $productId / ID_MASKED_PRIME,
             'variant'    => $variant,
             'mode'       => $mode,
         ];
         return view('admin/product_variant', $data);
     }
 
+    public function product_variant_manage_post(): ResponseInterface
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('ResponseInterface');
+        }
+        try {
+            $productModel   = new ProductMasterModel();
+            $variantModel   = new ProductVariantModel();
+            $inventoryModel = new ProductVariantInventoryModel();
+            $locales        = get_available_locales();
+            $id             = $this->request->getPost('variant_id');
+            $data           = [];
+            $names          = [];
+            $fields         = ['product_id', 'variant_name', 'variant_sku', 'is_active', 'inventory_count', 'price_active', 'price_compare'];
+            foreach ($fields as $field) {
+                $data[$field] = $this->request->getPost($field);
+            }
+            foreach ($locales as $code => $language_name) {
+                $names[$code] = $this->request->getPost('variant_local_names_' . $code);
+            }
+            $data['variant_local_names'] = json_encode($names);
+            $db             = \Config\Database::connect();
+            if (0 < $id) {
+                $db->transBegin(); // <<< START TRANSACTION
+                $currentVariant = $variantModel->where('id', $id)->first(); // Get the latest one before the update
+                // update data
+                log_message('debug', json_encode($data));
+                $variantModel->update($id, $data);
+                // check for updated stock
+                log_message('debug', 'inventory: new ' . $data['inventory_count'] . ' VS current ' . $currentVariant['inventory_count']);
+                if ($data['inventory_count'] != $currentVariant['inventory_count']) {
+                    $change    = $data['inventory_count'] - $currentVariant['inventory_count'];
+                    $inventory = [
+                        'variant_id'      => $id,
+                        'activity_key'    => 'update',
+                        'quantity_change' => $change,
+                        'new_inventory'   => $data['inventory_count'],
+                    ];
+                    log_message('debug', json_encode($inventory));
+                    $inventoryModel->insert($inventory);
+                }
+                $productModel->updateLowestPrices($data['product_id']);
+                log_message('debug', 'done');
+                if ($db->transStatus() === false) {
+                    $db->transRollback(); // <<< ROLLBACK (Undoes changes from all Models)
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_ERR,
+                        'message' => lang('System.response-msg.error.db-issue')
+                    ]);
+                }
+                $db->transCommit();
+                // Also remove cache product_variant_info-##
+                $cache    = Services::cache();
+                $cacheKey = 'product_variant_info-' . $id;
+                if ($cache->get($cacheKey)) {
+                    $cache->delete($cacheKey);
+                }
+                log_message('debug', 'updated cache');
+                return $this->response->setJSON([
+                    'status'  => STATUS_RESPONSE_OK,
+                    'id'      => $id,
+                    'message' => lang('System.response-msg.success.data-saved'),
+                ]);
+            } else {
+                $db->transBegin(); // <<< START TRANSACTION
+                $data['variant_slug'] = generate_slug($data['variant_name']);
+                log_message('debug', json_encode($data));
+                $variantModel->insert($data);
+                $id                   = $variantModel->getInsertID();
+                $inventory            = [
+                    'variant_id'      => $id,
+                    'activity_key'    => 'update',
+                    'quantity_change' => $data['inventory_count'],
+                    'new_inventory'   => $data['inventory_count'],
+                ];
+                log_message('debug', json_encode($inventory));
+                $inventoryModel->insert($inventory);
+                $productModel->updateLowestPrices($data['product_id']);
+                log_message('debug', 'done updating');
+                if ($db->transStatus() === false) {
+                    $db->transRollback(); // <<< ROLLBACK (Undoes changes from all Models)
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_ERR,
+                        'message' => lang('System.response-msg.error.db-issue')
+                    ]);
+                }
+                log_message('debug', 'committing');
+                $db->transCommit();
+                return $this->response->setJSON([
+                    'status'  => STATUS_RESPONSE_OK,
+                    'id'      => $variantModel->getInsertID(),
+                    'message' => lang('System.response-msg.success.data-saved'),
+                ]);
+            }
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => $e->getMessage(),
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
     public function product_variant_inventory(int $productId, int $variantId): string
     {
         $session = session();

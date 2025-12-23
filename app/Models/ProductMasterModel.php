@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use ReflectionException;
+
 class ProductMasterModel extends AppBaseModel
 {
     protected $table = 'product_master';
@@ -52,5 +54,33 @@ class ProductMasterModel extends AppBaseModel
             ];
         }
         return $final;
+    }
+
+    /**
+     * @param int $productId
+     * @return bool
+     * @throws ReflectionException
+     */
+    public function updateLowestPrices(int $productId): bool
+    {
+        $variantModel  = new ProductVariantModel();
+        $variants      = $variantModel->where('product_id', $productId)->findAll();
+        $actualPrices  = [];
+        $comparePrices = [];
+        foreach ($variants as $variant) {
+            $actualPrices[]  = $variant['price_active'];
+            $comparePrices[] = $variant['price_compare'];
+        }
+        log_message('debug', 'Find lowest prices: ' . $productId);
+        log_message('debug', json_encode($actualPrices));
+        log_message('debug', json_encode($comparePrices));
+        $lowestActual  = min($actualPrices);
+        $lowestCompare = min($comparePrices);
+        log_message('debug', 'Lowest actual: ' . $lowestActual);
+        log_message('debug', 'Lowest compare: ' . $lowestCompare);
+        return $this->update($productId, [
+            'price_active_lowest'  => $lowestActual,
+            'price_compare_lowest' => $lowestCompare
+        ]);
     }
 }

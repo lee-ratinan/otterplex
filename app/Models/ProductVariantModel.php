@@ -38,6 +38,9 @@ class ProductVariantModel extends AppBaseModel
         $variant = $this->select('product_variant.*, product_master.product_name, product_master.product_local_names')
             ->join('product_master', 'product_variant.product_id = product_master.id')
             ->where('product_variant.id', $variantId)->first();
+        if (empty($variant)) {
+            return [];
+        }
         $variant['product_local_names'] = json_decode($variant['product_local_names'], true);
         $variant['variant_local_names'] = json_decode($variant['variant_local_names'], true);
         $cache->save($cacheKey, $variant, self::HOURS_IN_SEC);
