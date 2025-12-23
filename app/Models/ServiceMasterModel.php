@@ -13,7 +13,7 @@ class ServiceMasterModel extends AppBaseModel
         'business_id',
         'service_slug',
         'service_name',
-        'service_local_name',
+        'service_local_names',
         'is_active',
         'price_active_lowest',
         'price_compare_lowest',

@@ -12,11 +12,6 @@
                             echo build_form_input('service_name', lang('ServiceMaster.field.service_name'), [
                                 'type' => 'text',
                             ], @$service['service_name']);
-                            echo build_form_input('service_slug', lang('ServiceMaster.field.service_slug'), [
-                                'type'             => 'text',
-                                'readonly'         => 'readonly',
-                                'data-explanation' => lang('System.system-generated')
-                            ], @$service['service_slug']);
                             $locales = get_available_locales('long');
                             foreach ($locales as $locale_code => $locale_name) {
                                 echo build_form_input('service_local_names_' . $locale_code, lang('ServiceMaster.field.service_local_names') . ' (' . $locale_name . ')', [
@@ -33,6 +28,7 @@
                             <div class="text-end">
                                 <button class="btn btn-primary" id="btn-save-master"><?= lang('System.buttons.save') ?></button>
                             </div>
+                            <input type="hidden" name="service_id" id="service_id" value="<?= $service['id'] ?? 0 ?>" />
                         </div>
                     </div>
                     <?php if ('edit' == $mode) : ?>
@@ -118,6 +114,37 @@
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const table = $('table').DataTable();
+            // SAVE
+            $('#btn-save-master').click(function (e) {
+                e.preventDefault();
+                <?php
+                $fields = ['service_name', 'is_active'];
+                foreach ($locales as $code => $language_name) {
+                    $fields[] = 'service_local_names_' . $code;
+                }
+                gen_js_fields_checker($fields);
+                ?>
+                $('#btn-save-master').prop('disabled', true);
+                $.post(
+                    "<?= base_url('admin/service/manage') ?>",
+                    <?php $fields[] = 'service_id'; gen_json_fields_to_fields($fields) ?>,
+                    function (response, status) {
+                        $('#btn-save-master').prop('disabled', false);
+                        if (response.status === "<?= STATUS_RESPONSE_OK ?>") {
+                            toastr.success(response.message);
+                            let id = response.id * <?= ID_MASKED_PRIME ?>;
+                            setTimeout(function() { location.href='<?= base_url('admin/service/') ?>' + id; }, 3000);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    "json"
+                ).fail(function (response) {
+                    $('#btn-save-master').prop('disabled', false);
+                    let message = response.responseJSON.message ?? '<?= lang('System.response-msg.error.generic') ?>';
+                    toastr.error(message);
+                });
+            });
         });
     </script>
 <?php $this->endSection() ?>

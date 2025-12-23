@@ -1535,6 +1535,59 @@ class Admin extends BaseController
         return view('admin/service_manage', $data);
     }
 
+    public function service_manage_post(): ResponseInterface
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('ResponseInterface');
+        }
+        try {
+            $serviceModel = new ServiceMasterModel();
+            $locales      = get_available_locales();
+            $id           = $this->request->getPost('service_id');
+            $data         = [];
+            $names        = [];
+            $fields       = ['service_name', 'is_active'];
+            foreach ($fields as $field) {
+                $data[$field] = $this->request->getPost($field);
+            }
+            foreach ($locales as $code => $language_name) {
+                $names[$code] = $this->request->getPost('service_local_names_' . $code);
+            }
+            $data['service_local_names'] = json_encode($names);
+            if (0 < $id) {
+                if ($serviceModel->update($id, $data)) {
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_OK,
+                        'id'      => $id,
+                        'message' => lang('System.response-msg.success.data-saved'),
+                    ]);
+                }
+            } else {
+                $data['business_id']          = $session->business['business_id'];
+                $data['service_slug']         = generate_slug($data['service_name']);
+                $data['price_active_lowest']  = 0;
+                $data['price_compare_lowest'] = 0;
+                if ($serviceModel->insert($data)) {
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_OK,
+                        'id'      => $serviceModel->getInsertID(),
+                        'message' => lang('System.response-msg.success.data-saved'),
+                    ]);
+                }
+            }
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => lang('System.response-msg.error.db-issue'),
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => $e->getMessage(),
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
     /**
      * @param int $serviceId
      * @param int $serviceVariantId
