@@ -1694,6 +1694,7 @@ class Admin extends BaseController
             return $this->forbiddenResponse('ResponseInterface');
         }
         try {
+            $serviceModel = new ServiceMasterModel();
             $variantModel = new ServiceVariantModel();
             $cache        = \CodeIgniter\Config\Services::cache();
             $locales      = get_available_locales();
@@ -1710,33 +1711,47 @@ class Admin extends BaseController
                 $names[$code] = $this->request->getPost('variant_local_names_' . $code);
             }
             $data['variant_local_names'] = json_encode($names);
+            $db = \Config\Database::connect();
+            $db->transBegin(); // <<< START TRANSACTION
             if (0 < $id) {
-                if ($variantModel->update($id, $data)) {
-                    if ($cache->get($cacheKey)) {
-                        $cache->delete($cacheKey);
-                    }
+                $variantModel->update($id, $data);
+                $serviceModel->updateLowestPrices($serviceId);
+                if ($cache->get($cacheKey)) {
+                    $cache->delete($cacheKey);
+                }
+                if ($db->transStatus() === false) {
+                    $db->transRollback(); // <<< ROLLBACK (Undoes changes from all Models)
                     return $this->response->setJSON([
-                        'status'  => STATUS_RESPONSE_OK,
-                        'message' => lang('System.response-msg.success.data-saved'),
+                        'status'  => STATUS_RESPONSE_ERR,
+                        'message' => lang('System.response-msg.error.db-issue')
                     ]);
                 }
+                $db->transCommit();
+                return $this->response->setJSON([
+                    'status'  => STATUS_RESPONSE_OK,
+                    'message' => lang('System.response-msg.success.data-saved'),
+                ]);
             } else {
                 $data['service_id']   = $serviceId;
                 $data['variant_slug'] = generate_slug($data['variant_name']);
-                if ($variantModel->insert($data)) {
-                    if ($cache->get($cacheKey)) {
-                        $cache->delete($cacheKey);
-                    }
+                $variantModel->insert($data);
+                $serviceModel->updateLowestPrices($serviceId);
+                if ($cache->get($cacheKey)) {
+                    $cache->delete($cacheKey);
+                }
+                if ($db->transStatus() === false) {
+                    $db->transRollback(); // <<< ROLLBACK (Undoes changes from all Models)
                     return $this->response->setJSON([
-                        'status'  => STATUS_RESPONSE_OK,
-                        'message' => lang('System.response-msg.success.data-saved'),
+                        'status'  => STATUS_RESPONSE_ERR,
+                        'message' => lang('System.response-msg.error.db-issue')
                     ]);
                 }
+                $db->transCommit();
+                return $this->response->setJSON([
+                    'status'  => STATUS_RESPONSE_OK,
+                    'message' => lang('System.response-msg.success.data-saved'),
+                ]);
             }
-            return $this->response->setJSON([
-                'status'  => STATUS_RESPONSE_ERR,
-                'message' => lang('System.response-msg.error.db-issue'),
-            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
         } catch (\Exception $e) {
             return $this->response->setJSON([
                 'status'  => STATUS_RESPONSE_ERR,
