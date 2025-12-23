@@ -1613,7 +1613,7 @@ class Admin extends BaseController
                 if ($staffModel->delete($id)) {
                     return $this->response->setJSON([
                         'status'  => STATUS_RESPONSE_OK,
-                        'message' => lang('System.response-msg.success.data-removed'),
+                        'message' => lang('System.response-msg.success.data-deleted'),
                     ]);
                 }
             }

@@ -85,25 +85,31 @@
                                         <td><?= $row['branch_local_names'][$session->lang] ?? $row['branch_name'] ?></td>
                                         <td><?= $row['user_name_first'] . ' ' . $row['user_name_last'] ?></td>
                                         <td><?= lang('BranchUser.enum.user_role.' . $row['user_role']) ?></td>
-                                        <td><a class="btn btn-primary btn-sm float-end" href="#"><?= lang('System.buttons.remove') ?></a></td>
+                                        <td class="text-end">
+                                            <button class="btn btn-outline-danger btn-sm btn-staff-remove" id="btn-staff-remove-<?= $row['id'] ?>" data-id="<?= $row['id'] ?>"><?= lang('System.buttons.remove') ?></button>
+                                            <button class="btn btn-outline-danger btn-sm btn-staff-remove-confirm d-none" id="btn-staff-remove-confirm-<?= $row['id'] ?>" data-id="<?= $row['id'] ?>"><?= lang('System.buttons.remove-confirm') ?></button>
+                                        </td>
                                     </tr>
+                                    <?php unset($staffList[$row['branch_user_id']]); ?>
                                 <?php endforeach; ?>
                                 </tbody>
                             </table>
                         </div>
-                        <h2><?= lang('Service.add-service-staff') ?></h2>
-                        <div class="row">
-                            <div class="col col-md-6">
-                                <?php
-                                echo build_form_input('branch_user_id', lang('UserMaster.field.user_full_name'), [
-                                    'type' => 'select',
-                                ], null, '', $staffList);
-                                ?>
-                                <div class="text-end">
-                                    <button class="btn btn-primary" id="btn-save-staff"><?= lang('System.buttons.save') ?></button>
+                        <?php if (!empty($staffList)) : ?>
+                            <h2><?= lang('Service.add-service-staff') ?></h2>
+                            <div class="row">
+                                <div class="col col-md-6">
+                                    <?php
+                                    echo build_form_input('branch_user_id', lang('UserMaster.field.user_full_name'), [
+                                        'type' => 'select'
+                                    ], null, '', $staffList);
+                                    ?>
+                                    <div class="text-end">
+                                        <button class="btn btn-primary" id="btn-save-staff"><?= lang('System.buttons.save') ?></button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        <?php endif; ?>
                     <?php endif; ?>
                 </div>
             </div>
@@ -150,12 +156,11 @@
                     $('#branch_user_id').focus();
                     return false;
                 }
-                let service_id = <?= $service['id'] ?? 0 ?>,
-                    action = 'add';
+                let service_id = <?= $service['id'] ?? 0 ?>;
                 $('#btn-save-staff').prop('disabled', true);
                 $.post(
                     "<?= base_url('admin/service/user/manage') ?>",
-                    {branch_user_id: branch_user_id, service_id: service_id, action: action},
+                    {branch_user_id: branch_user_id, service_id: service_id, action: 'add'},
                     function (response, status) {
                         $('#btn-save-staff').prop('disabled', false);
                         if (response.status === "<?= STATUS_RESPONSE_OK ?>") {
@@ -168,6 +173,31 @@
                     "json"
                 ).fail(function (response) {
                     $('#btn-save-staff').prop('disabled', false);
+                    let message = response.responseJSON.message ?? '<?= lang('System.response-msg.error.generic') ?>';
+                    toastr.error(message);
+                });
+            });
+            $('.btn-staff-remove').click(function () {
+                let id = $(this).data('id');
+                $('#btn-staff-remove-confirm-'+id).removeClass('d-none');
+                $(this).addClass('d-none');
+            });
+            $('.btn-staff-remove-confirm').click(function () {
+                let id = $(this).data('id');
+                $(this).prop('disabled', true);
+                $.post(
+                    "<?= base_url('admin/service/user/manage') ?>",
+                    {id: id, action: 'remove'},
+                    function (response, status) {
+                        if (response.status === "<?= STATUS_RESPONSE_OK ?>") {
+                            toastr.success(response.message);
+                            setTimeout(function() { location.reload(); }, 3000);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    "json"
+                ).fail(function (response) {
                     let message = response.responseJSON.message ?? '<?= lang('System.response-msg.error.generic') ?>';
                     toastr.error(message);
                 });
