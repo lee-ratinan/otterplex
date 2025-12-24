@@ -55,6 +55,15 @@
                             echo build_form_input('mart_background_color', lang('BusinessMaster.field.mart_background_color'), [
                                 'type' => 'color',
                             ], '#' . $business['mart_background_color'], 'mart-reset-color');
+                            echo build_form_input('mart_meta_description', lang('BusinessMaster.field.mart_meta_description'), [
+                                'type' => 'text',
+                            ], $business['mart_meta_description']);
+                            echo build_form_input('mart_meta_keywords', lang('BusinessMaster.field.mart_meta_keywords'), [
+                                'type' => 'text',
+                            ], $business['mart_meta_keywords']);
+                            echo build_form_input('mart_store_intro_paragraph', lang('BusinessMaster.field.mart_store_intro_paragraph'), [
+                                'type' => 'text',
+                            ], $business['mart_store_intro_paragraph']);
                             ?>
                             <div class="row">
                                 <div class="col p-5 m-3" id="example-mart-background">

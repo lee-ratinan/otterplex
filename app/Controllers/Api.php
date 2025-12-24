@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Models\BranchMasterModel;
 use App\Models\BusinessMasterModel;
 use CodeIgniter\HTTP\ResponseInterface;
 
@@ -41,6 +42,54 @@ class Api extends BaseController
         return $this->response->setJSON([
             'query' => $query,
             'results' => $results
+        ]);
+    }
+
+    public function business_retrieve(string $languageCode, string $countryCode): ResponseInterface
+    {
+        $this->request->setLocale($languageCode);
+        $session       = session();
+        $session->set('lang', $languageCode);
+        $query         = $this->request->getGet('business-slug');
+        $businessModel = new BusinessMasterModel();
+        $branchModel   = new BranchMasterModel();
+        // BUSINESS
+        $business      = $businessModel
+            ->select('business_master.*, business_type.type_name, business_type.type_local_names')
+            ->join('business_type', 'business_type.id = business_master.business_type_id')
+            ->where('business_slug', $query)
+            ->where('country_code', $countryCode)
+            ->first();
+        if (empty($business)) {
+            return $this->response->setJSON([
+                'query'   => $query,
+                'results' => []
+            ])->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
+        }
+        $local_names               = json_decode($business['business_local_names'], true);
+        $business['business_name'] = $local_names[$languageCode] ?? $business['business_name'];
+        $type_names                = json_decode($business['type_local_names'], true);
+        $business['type_name']     = $type_names[$languageCode] ?? $business['type_name'];
+        unset($business['business_local_names']);
+        unset($business['type_local_names']);
+        if (!empty($business['business_logo'])) {
+            $business['business_logo'] = base_url('/file/business_' . $business['business_logo']);
+        }
+        // BRANCHES
+        $branches = $branchModel
+            ->where('business_id', $business['id'])
+            ->findAll();
+        foreach ($branches as $i => $branch) {
+            $local_names                 = json_decode($branch['branch_local_names'], true);
+            $branches[$i]['branch_name'] = $local_names[$languageCode] ?? $branch['branch_name'];
+            unset($branches[$i]['branch_local_names']);
+            $branches[$i]['subdivision'] = get_country_subdivisions($business['country_code'], $branch['subdivision_code']);
+            unset($branches[$i]['subdivision_code']);
+        }
+        $business['branches'] = $branches;
+        return $this->response->setJSON([
+            'query'    => $query,
+            'business' => $business
         ]);
     }
 }
