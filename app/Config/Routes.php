@@ -90,7 +90,8 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
 });
 // Booking APIs
 $routes->group('api/v1.0', function ($routes) {
-
+    $routes->get('(:segment)/(:segment)/business/search', 'Api::business_search/$1/$2');
+    $routes->get('(:segment)/(:segment)/business/retrieve', 'Api::business_retrieve');
 });
 // Helper
 $routes->group('helper', function ($routes) {
