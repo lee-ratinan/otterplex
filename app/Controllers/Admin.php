@@ -427,7 +427,7 @@ class Admin extends BaseController
                 foreach ($available_lang as $code => $language_name) {
                     $business_local_names_values[$code] = $data['business_local_names_' . $code];
                 }
-                $data['business_local_names'] = json_encode($business_local_names_values);
+                $data['business_local_names'] = json_encode($business_local_names_values, JSON_UNESCAPED_UNICODE);
                 // Save
                 if ($businessMasterModel->update($businessId, $data)) {
                     // Reset business session
@@ -787,7 +787,7 @@ class Admin extends BaseController
                     $field = 'branch_local_names_' . $locale_code;
                     $raw_data[$locale_code] = $this->request->getPost($field);
                 }
-                $data['branch_local_names'] = json_encode($raw_data);
+                $data['branch_local_names'] = json_encode($raw_data, JSON_UNESCAPED_UNICODE);
                 $data['business_id'] = $businessId;
                 $branchId = $data['id'];
                 unset($data['id']);
@@ -1235,7 +1235,7 @@ class Admin extends BaseController
             foreach ($languages as $code => $name) {
                 $names[$code] = $this->request->getPost('resource_local_names_' . $code);
             }
-            $data['resource_local_names'] = json_encode($names);
+            $data['resource_local_names'] = json_encode($names, JSON_UNESCAPED_UNICODE);
             if (0 < $id) {
                 if ($resourceTypeModel->update($id, $data)) {
                     return $this->response->setJSON([
@@ -1553,7 +1553,7 @@ class Admin extends BaseController
             foreach ($locales as $code => $language_name) {
                 $names[$code] = $this->request->getPost('service_local_names_' . $code);
             }
-            $data['service_local_names'] = json_encode($names);
+            $data['service_local_names'] = json_encode($names, JSON_UNESCAPED_UNICODE);
             if (0 < $id) {
                 if ($serviceModel->update($id, $data)) {
                     return $this->response->setJSON([
@@ -1710,7 +1710,7 @@ class Admin extends BaseController
             foreach ($locales as $code => $language_name) {
                 $names[$code] = $this->request->getPost('variant_local_names_' . $code);
             }
-            $data['variant_local_names'] = json_encode($names);
+            $data['variant_local_names'] = json_encode($names, JSON_UNESCAPED_UNICODE);
             $db = \Config\Database::connect();
             $db->transBegin(); // <<< START TRANSACTION
             if (0 < $id) {
@@ -1860,7 +1860,7 @@ class Admin extends BaseController
             foreach ($locales as $code => $language_name) {
                 $names[$code] = $this->request->getPost('product_local_names_' . $code);
             }
-            $data['product_local_names'] = json_encode($names);
+            $data['product_local_names'] = json_encode($names, JSON_UNESCAPED_UNICODE);
             if (0 < $id) {
                 if ($productModel->update($id, $data)) {
                     return $this->response->setJSON([
@@ -1954,7 +1954,7 @@ class Admin extends BaseController
             foreach ($locales as $code => $language_name) {
                 $names[$code] = $this->request->getPost('variant_local_names_' . $code);
             }
-            $data['variant_local_names'] = json_encode($names);
+            $data['variant_local_names'] = json_encode($names, JSON_UNESCAPED_UNICODE);
             $db             = \Config\Database::connect();
             if (0 < $id) {
                 $db->transBegin(); // <<< START TRANSACTION
@@ -2177,7 +2177,7 @@ class Admin extends BaseController
             foreach ($languages as $code => $name) {
                 $names[$code] = $this->request->getPost('category_local_names_' . $code);
             }
-            $data['category_local_names'] = json_encode($names);
+            $data['category_local_names'] = json_encode($names, JSON_UNESCAPED_UNICODE);
             if (0 < $id) {
                 if ($categoryModel->update($id, $data)) {
                     return $this->response->setJSON([

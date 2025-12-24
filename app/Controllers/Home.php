@@ -268,7 +268,7 @@ class Home extends BaseController
             // DATA
             $business_master['business_type_id']      = 1; // DEFAULT
             $business_master['business_slug']         = $slug;
-            $business_master['business_local_names']  = json_encode($local_names);
+            $business_master['business_local_names']  = json_encode($local_names, JSON_UNESCAPED_UNICODE);
             $business_master['currency_code']         = $available_currencies[0];
             $business_master['tax_percentage']        = $tax_default_settings['tax_percentage'];
             $business_master['tax_inclusive']         = $tax_default_settings['tax_inclusive'];
