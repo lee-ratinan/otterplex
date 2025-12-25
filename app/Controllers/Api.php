@@ -62,8 +62,8 @@ class Api extends BaseController
             ->first();
         if (empty($business)) {
             return $this->response->setJSON([
-                'query'   => $query,
-                'results' => []
+                'query'    => $query,
+                'business' => []
             ])->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
         }
         $local_names               = json_decode($business['business_local_names'], true);
