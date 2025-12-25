@@ -70,6 +70,7 @@ class Api extends BaseController
         $business['business_name'] = $local_names[$languageCode] ?? $business['business_name'];
         $type_names                = json_decode($business['type_local_names'], true);
         $business['type_name']     = $type_names[$languageCode] ?? $business['type_name'];
+        $business['mart_store_intro_paragraph'] = nl2br($business['mart_store_intro_paragraph']);
         unset($business['business_local_names']);
         unset($business['type_local_names']);
         if (!empty($business['business_logo'])) {
