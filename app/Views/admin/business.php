@@ -28,7 +28,7 @@
                             foreach ($all_languages as $lang_code => $language_name) {
                                 echo build_form_input('business_local_names_' . $lang_code, lang('BusinessMaster.field.business_local_names') . ' (' . $language_name . ')', [
                                     'type' => 'text'
-                                ], $business['business_local_names'][$lang_code]);
+                                ], @$business['business_local_names'][$lang_code]);
                             }
                             // country code is not updatable
                             echo '<h3>' . lang('Business.subtitle.tax-information') . '</h3>';
@@ -55,15 +55,21 @@
                             echo build_form_input('mart_background_color', lang('BusinessMaster.field.mart_background_color'), [
                                 'type' => 'color',
                             ], '#' . $business['mart_background_color'], 'mart-reset-color');
-                            echo build_form_input('mart_meta_description', lang('BusinessMaster.field.mart_meta_description'), [
-                                'type' => 'text',
-                            ], $business['mart_meta_description']);
-                            echo build_form_input('mart_meta_keywords', lang('BusinessMaster.field.mart_meta_keywords'), [
-                                'type' => 'text',
-                            ], $business['mart_meta_keywords']);
-                            echo build_form_input('mart_store_intro_paragraph', lang('BusinessMaster.field.mart_store_intro_paragraph'), [
-                                'type' => 'text',
-                            ], $business['mart_store_intro_paragraph']);
+                            foreach ($all_languages as $lang_code => $language_name) {
+                                echo build_form_input('mart_store_intro_paragraph_' . $lang_code, lang('BusinessMaster.field.mart_store_intro_paragraph') . ' (' . $language_name . ')', [
+                                    'type' => 'textarea',
+                                ], @$business['mart_store_intro_paragraph'][$lang_code]);
+                            }
+                            echo '<h3>' . lang('Business.subtitle.mart-seo') . '</h3>';
+                            foreach ($all_languages as $lang_code => $language_name) {
+                                echo '<h4>' . $language_name . '</h4>';
+                                echo build_form_input('mart_meta_description_' . $lang_code, lang('BusinessMaster.field.mart_meta_description'), [
+                                    'type' => 'text',
+                                ], @$business['mart_meta_description'][$lang_code]);
+                                echo build_form_input('mart_meta_keywords_' . $lang_code, lang('BusinessMaster.field.mart_meta_keywords'), [
+                                    'type' => 'text',
+                                ], @$business['mart_meta_keywords'][$lang_code]);
+                            }
                             ?>
                             <div class="row">
                                 <div class="col p-5 m-3" id="example-mart-background">
@@ -257,6 +263,9 @@
                 $all_fields = ['business_type_id', 'business_name', 'business_slug', 'tax_percentage', 'tax_inclusive', 'mart_primary_color', 'mart_text_color', 'mart_background_color'];
                 foreach ($all_languages as $lang_code => $language_name) {
                     $all_fields[] = 'business_local_names_' . $lang_code;
+                    $all_fields[] = 'mart_meta_description_' . $lang_code;
+                    $all_fields[] = 'mart_meta_keywords_' . $lang_code;
+                    $all_fields[] = 'mart_store_intro_paragraph_' . $lang_code;
                 }
                 gen_js_fields_checker($all_fields);
                 $all_fields[] = 'script_action';

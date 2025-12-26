@@ -5,6 +5,7 @@ return [
         'generic-information' => 'ข้อมูลทั่วไป',
         'tax-information'     => 'ข้อมูลด้านภาษี',
         'mart-decoration'     => 'การตกแต่งมาร์เก็ตเพลสของคุณ',
+        'mart-seo'            => 'ข้อมูลส่งเสริม SEO ของคุณ',
     ],
     'btn-update-slug'          => 'อัปเดทรหัสธุรกิจ',
     'btn-update-slug-confirm'  => 'ยืนยันอัปเดทรหัสธุรกิจ',

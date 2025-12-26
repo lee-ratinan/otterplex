@@ -203,7 +203,7 @@ if (!function_exists('build_form_input')) {
         $attr[]    = "placeholder='{$label}'";
         if ('textarea' == $attributes['type']) {
             $attr_str  = implode(' ', $attr);
-            $ta_tag    = "<textarea {$attr_str}>{$current_value}</textarea>}";
+            $ta_tag    = "<textarea {$attr_str}>{$current_value}</textarea>";
             return str_replace('###FORM###' , $ta_tag, $structure);
         }
         if (!is_null($current_value)) {

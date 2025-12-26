@@ -5,6 +5,7 @@ return [
         'generic-information' => 'Generic Information',
         'tax-information'     => 'Tax Information',
         'mart-decoration'     => 'Your Marketplace Decoration',
+        'mart-seo'            => 'SEO Information',
     ],
     'btn-update-slug'          => 'Update Slug',
     'btn-update-slug-confirm'  => 'Confirm Update',
