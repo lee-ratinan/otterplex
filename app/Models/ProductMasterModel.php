@@ -20,6 +20,7 @@ class ProductMasterModel extends AppBaseModel
         'is_active',
         'price_active_lowest',
         'price_compare_lowest',
+        'product_image',
         'created_by',
         'created_at',
         'updated_at'

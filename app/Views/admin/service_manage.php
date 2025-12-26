@@ -32,6 +32,23 @@
                         </div>
                     </div>
                     <?php if ('edit' == $mode) : ?>
+                        <!-- UPLOAD SERVICE IMAGE -->
+                        <div class="row">
+                            <div class="col-12 col-md-6">
+                                <h3><?= lang('Service.upload-image') ?></h3>
+                                <form id="form-upload-image" action="<?= base_url('/admin/service/manage') ?>" method="post" enctype="multipart/form-data">
+                                    <input type="hidden" name="script_action" value="upload_image"/>
+                                    <input type="file" id="service_image" name="service_image" class="form-control my-3"/>
+                                    <p class="small"><?= lang('Service.upload-explanation') ?></p>
+                                    <div class="text-end">
+                                        <button id="btn-upload-image" type="submit" class="btn btn-primary"><?= lang('System.buttons.upload') ?></button>
+                                        <button id="btn-remove-image" type="button" class="btn btn-outline-danger"><?= lang('System.buttons.remove') ?></button>
+                                        <button id="btn-remove-image-confirm" type="button" class="btn btn-outline-danger" style="display:none"><?= lang('System.buttons.remove-confirm') ?></button>
+                                    </div>
+                                </form>
+                                <hr/>
+                            </div>
+                        </div>
                         <h2><?= lang('Service.service-variant') ?></h2>
                         <div class="text-end">
                             <a class="btn btn-primary" href="<?= base_url('admin/service/variant/' . ($service['id'] * ID_MASKED_PRIME) . '/0') ?>"><i class="fa-solid fa-plus-circle"></i> <?= lang('Service.new-variant') ?></a>
@@ -200,6 +217,73 @@
                 ).fail(function (response) {
                     let message = response.responseJSON.message ?? '<?= lang('System.response-msg.error.generic') ?>';
                     toastr.error(message);
+                });
+            });
+            // IMAGE
+            $('#btn-upload-image').on('click', function (e) {
+                e.preventDefault();
+                // check if the file is selected
+                if ($('#service_image').val() === '') {
+                    toastr.warning('<?= lang('System.response-msg.error.please-check-empty-field') ?>');
+                    $('#service_image').focus();
+                    return;
+                }
+                $('#btn-upload-image').prop('disabled', true);
+                // submit #form-upload-avatar form in AJAX
+                $.ajax({
+                    url: '<?= base_url('/admin/service/manage') ?>',
+                    type: 'POST',
+                    data: new FormData($('#form-upload-image')[0]),
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+                    success: function (response) {
+                        $('#btn-upload-image').prop('disabled', false);
+                        if (response.status === "<?= STATUS_RESPONSE_OK ?>") {
+                            toastr.success(response.message);
+                            setTimeout(function() { location.reload(); }, 3000);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        $('#btn-upload-image').prop('disabled', false);
+                        let response = JSON.parse(xhr.responseText);
+                        let message = response.message ?? '<?= lang('System.response-msg.error.generic') ?>';
+                        toastr.error(message);
+                    }
+                });
+            });
+            $('#btn-remove-image').on('click', function (e) {
+                e.preventDefault();
+                $('#btn-remove-image').hide();
+                $('#btn-remove-image-confirm').show();
+            });
+            $('#btn-remove-image-confirm').on('click', function (e) {
+                e.preventDefault();
+                $('#btn-remove-image-confirm').prop('disabled', true);
+                $.ajax({
+                    url: '<?= base_url('/admin/service/manage') ?>',
+                    type: 'POST',
+                    data: {
+                        script_action: 'remove_image',
+                        service_image: '<?= @$service['service_image'] ?>'
+                    },
+                    success: function (response) {
+                        $('#btn-remove-image-confirm').prop('disabled', false);
+                        if (response.status === "<?= STATUS_RESPONSE_OK ?>") {
+                            toastr.success(response.message);
+                            setTimeout(function() { location.reload(); }, 3000);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        $('#btn-remove-image-confirm').prop('disabled', false);
+                        let response = JSON.parse(xhr.responseText);
+                        let message = response.message ?? '<?= lang('System.response-msg.error.generic') ?>';
+                        toastr.error(message);
+                    }
                 });
             });
         });

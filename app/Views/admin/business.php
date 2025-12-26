@@ -88,7 +88,7 @@
                             <div class="text-end">
                                 <button class="btn btn-primary" id="btn-save"><?= lang('System.buttons.save') ?></button>
                             </div>
-                            <!-- UPLOAD AVATAR -->
+                            <!-- UPLOAD LOGO -->
                             <h3><?= lang('Business.upload-logo') ?></h3>
                             <form id="form-upload-logo" action="<?= base_url('/admin/business') ?>" method="post" enctype="multipart/form-data">
                                 <input type="hidden" name="script_action" value="upload_logo"/>
