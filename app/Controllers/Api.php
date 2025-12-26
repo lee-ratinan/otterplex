@@ -109,17 +109,23 @@ class Api extends BaseController
             $local_names              = json_decode($service['service_local_names'], true);
             $service['service_name']  = $local_names[$languageCode] ?? $service['service_name'];
             unset($service['service_local_names']);
+            if (!empty($service['service_image'])) {
+                $service['service_image'] = base_url('file/' . $service['service_image']);
+            }
             $services[$service['id']] = $service;
             $sId[]                    = $service['id'];
         }
-        $sVariantRaw  = $svModel->whereIn('service_id', $sId)->findAll();
-        foreach ($sVariantRaw as $sv) {
-            $local_names         = json_decode($sv['variant_local_names'], true);
-            $sv['variant_name']  = $local_names[$languageCode] ?? $sv['variant_name'];
-            unset($sv['variant_local_names']);
-            $services[$sv['service_id']]['variants'][] = $sv;
+        $business['services'] = [];
+        if (!empty($sId)) {
+            $sVariantRaw = $svModel->whereIn('service_id', $sId)->findAll();
+            foreach ($sVariantRaw as $sv) {
+                $local_names = json_decode($sv['variant_local_names'], true);
+                $sv['variant_name'] = $local_names[$languageCode] ?? $sv['variant_name'];
+                unset($sv['variant_local_names']);
+                $services[$sv['service_id']]['variants'][] = $sv;
+            }
+            $business['services'] = $services;
         }
-        $business['services'] = $services;
         // PRODUCTS
         $productModel = new ProductMasterModel();
         $pvModel      = new ProductVariantModel();
@@ -130,17 +136,23 @@ class Api extends BaseController
             $local_names              = json_decode($product['product_local_names'], true);
             $product['product_name']  = $local_names[$languageCode] ?? $product['product_name'];
             unset($product['product_local_names']);
+            if (!empty($product['product_image'])) {
+                $product['product_image'] = base_url('file/' . $product['product_image']);
+            }
             $products[$product['id']] = $product;
             $pId[]                    = $product['id'];
         }
-        $pVariantRaw  = $pvModel->whereIn('product_id', $pId)->findAll();
-        foreach ($pVariantRaw as $pv) {
-            $local_names         = json_decode($pv['variant_local_names'], true);
-            $pv['variant_name']  = $local_names[$languageCode] ?? $pv['variant_name'];
-            unset($pv['variant_local_names']);
-            $products[$pv['product_id']]['variants'][] = $pv;
+        $business['products'] = [];
+        if (!empty($pId)) {
+            $pVariantRaw = $pvModel->whereIn('product_id', $pId)->findAll();
+            foreach ($pVariantRaw as $pv) {
+                $local_names = json_decode($pv['variant_local_names'], true);
+                $pv['variant_name'] = $local_names[$languageCode] ?? $pv['variant_name'];
+                unset($pv['variant_local_names']);
+                $products[$pv['product_id']]['variants'][] = $pv;
+            }
+            $business['products'] = $products;
         }
-        $business['products'] = $products;
         return $this->response->setJSON([
             'query'    => $query,
             'business' => $business
