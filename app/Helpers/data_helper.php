@@ -3739,6 +3739,17 @@ if (!function_exists('get_available_locales')) {
         ];
     }
 }
+if (!function_exists('get_social_media')) {
+    function get_social_media(): array
+    {
+        return [
+            'facebook'  => 'Facebook',
+            'line'      => 'LINE',
+            'instagram' => 'Instagram',
+            'youtube'   => 'Youtube',
+        ];
+    }
+}
 if (!function_exists('get_default_tax_settings_by_country')) {
     /**
      * @param string $country

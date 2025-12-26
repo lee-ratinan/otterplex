@@ -66,11 +66,18 @@ class Api extends BaseController
                 'business' => []
             ])->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
         }
-        $local_names               = json_decode($business['business_local_names'], true);
-        $business['business_name'] = $local_names[$languageCode] ?? $business['business_name'];
-        $type_names                = json_decode($business['type_local_names'], true);
-        $business['type_name']     = $type_names[$languageCode] ?? $business['type_name'];
-        $business['mart_store_intro_paragraph'] = nl2br($business['mart_store_intro_paragraph']);
+        $local_names                            = json_decode($business['business_local_names'], true);
+        $type_names                             = json_decode($business['type_local_names'], true);
+        $mart_meta_descriptions                 = json_decode($business['mart_meta_description'], true);
+        $mart_meta_keywords_array               = json_decode($business['mart_meta_keywords'], true);
+        $mart_store_intro_paragraphs            = json_decode($business['mart_store_intro_paragraph'], true);
+        $business['social_media']               = json_decode($business['social_media'], true);
+        $business['country']                    = get_country_list($business['country_code']);
+        $business['business_name']              = $local_names[$languageCode] ?? $business['business_name'];
+        $business['type_name']                  = $type_names[$languageCode] ?? $business['type_name'];
+        $business['mart_meta_description']      = $mart_meta_descriptions[$languageCode] ?? '';
+        $business['mart_meta_keywords']         = $mart_meta_keywords_array[$languageCode] ?? '';
+        $business['mart_store_intro_paragraph'] = $mart_store_intro_paragraphs[$languageCode] ?? '';
         unset($business['business_local_names']);
         unset($business['type_local_names']);
         if (!empty($business['business_logo'])) {

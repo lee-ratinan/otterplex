@@ -382,6 +382,7 @@ class Admin extends BaseController
         $business['mart_meta_description']      = json_decode($business['mart_meta_description'], true);
         $business['mart_meta_keywords']         = json_decode($business['mart_meta_keywords'], true);
         $business['mart_store_intro_paragraph'] = json_decode($business['mart_store_intro_paragraph'], true);
+        $business['social_media']               = json_decode($business['social_media'], true);
         $data = [
             'slug'           => 'business',
             'lang'           => $this->request->getLocale(),
@@ -412,6 +413,7 @@ class Admin extends BaseController
             $businessMasterModel = new BusinessMasterModel();
             $script_action       = $this->request->getPost('script_action');
             $available_lang      = get_available_locales();
+            $social_media        = get_social_media();
             $error_msg           = lang('System.response-msg.error.generic');
             if ('save_business' == $script_action) {
                 $fields      = ['business_type_id', 'business_name', 'business_slug', 'tax_percentage', 'tax_inclusive', 'mart_primary_color', 'mart_text_color', 'mart_background_color'];
@@ -421,6 +423,9 @@ class Admin extends BaseController
                     $fields[] = 'mart_meta_description_' . $code;
                     $fields[] = 'mart_meta_keywords_' . $code;
                     $fields[] = 'mart_store_intro_paragraph_' . $code;
+                }
+                foreach ($social_media as $code => $social_name) {
+                    $fields[] = 'social_media_' . $code;
                 }
                 foreach ($fields as $field) {
                     $data[$field]     = $this->request->getPost($field);
@@ -433,16 +438,26 @@ class Admin extends BaseController
                 $mart_meta_description_values      = [];
                 $mart_meta_keywords_values         = [];
                 $mart_store_intro_paragraph_values = [];
+                $social_medias_values              = [];
                 foreach ($available_lang as $code => $language_name) {
                     $business_local_names_values[$code]       = $data['business_local_names_' . $code];
                     $mart_meta_description_values[$code]      = $data['mart_meta_description_' . $code];
                     $mart_meta_keywords_values[$code]         = $data['mart_meta_keywords_' . $code];
                     $mart_store_intro_paragraph_values[$code] = $data['mart_store_intro_paragraph_' . $code];
+                    unset($data['business_local_names_' . $code]);
+                    unset($data['mart_meta_description_' . $code]);
+                    unset($data['mart_meta_keywords_' . $code]);
+                    unset($data['mart_store_intro_paragraph_' . $code]);
+                }
+                foreach ($social_media as $code => $social_name) {
+                    $social_medias_values[$code] = $data['social_media_' . $code];
+                    unset($data['social_media_' . $code]);
                 }
                 $data['business_local_names']       = json_encode($business_local_names_values, JSON_UNESCAPED_UNICODE);
                 $data['mart_meta_description']      = json_encode($mart_meta_description_values, JSON_UNESCAPED_UNICODE);
                 $data['mart_meta_keywords']         = json_encode($mart_meta_keywords_values, JSON_UNESCAPED_UNICODE);
                 $data['mart_store_intro_paragraph'] = json_encode($mart_store_intro_paragraph_values, JSON_UNESCAPED_UNICODE);
+                $data['social_media']               = json_encode($social_medias_values, JSON_UNESCAPED_UNICODE);
                 // Save
                 if ($businessMasterModel->update($businessId, $data)) {
                     // Reset business session

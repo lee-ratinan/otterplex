@@ -16,6 +16,7 @@ return [
         'mart_meta_description'      => 'คำอธิบายธุรกิจ (สำหรับ SEO)',
         'mart_meta_keywords'         => 'คำค้นหา/คีย์เวิร์ด (สำหรับ SEO)',
         'mart_store_intro_paragraph' => 'คำอธิบายธุรกิจ (บนหน้าเว็บ)',
+        'social_media'               => 'สื่อสังคม',
         'contract_expiry'            => 'วันหมดอายุสัญญา',
         'business_status'            => 'สถานะธุรกิจ', // Not a real field
     ],

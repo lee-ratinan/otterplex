@@ -16,6 +16,7 @@ return [
         'mart_meta_description'      => 'Meta Description (SEO Field)',
         'mart_meta_keywords'         => 'Search Keywords (SEO Field)',
         'mart_store_intro_paragraph' => 'Business’s Description (on the website)',
+        'social_media'               => 'Social Media',
         'contract_expiry'            => 'Contract Expiry Date',
         'business_status'            => 'Business Status', // Not a real field
     ],

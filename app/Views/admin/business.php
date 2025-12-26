@@ -60,6 +60,13 @@
                                     'type' => 'textarea',
                                 ], @$business['mart_store_intro_paragraph'][$lang_code]);
                             }
+                            echo '<h3>' . lang('BusinessMaster.field.social_media') . '</h3>';
+                            $social_medias = get_social_media();
+                            foreach ($social_medias as $code => $social_name) {
+                                echo build_form_input('social_media_' . $code, $social_name, [
+                                    'type' => 'url',
+                                ], @$business['social_media'][$code]);
+                            }
                             echo '<h3>' . lang('Business.subtitle.mart-seo') . '</h3>';
                             foreach ($all_languages as $lang_code => $language_name) {
                                 echo '<h4>' . $language_name . '</h4>';
@@ -261,13 +268,16 @@
                 // business_local_names_en
                 <?php
                 $all_fields = ['business_type_id', 'business_name', 'business_slug', 'tax_percentage', 'tax_inclusive', 'mart_primary_color', 'mart_text_color', 'mart_background_color'];
+                gen_js_fields_checker($all_fields);
                 foreach ($all_languages as $lang_code => $language_name) {
                     $all_fields[] = 'business_local_names_' . $lang_code;
                     $all_fields[] = 'mart_meta_description_' . $lang_code;
                     $all_fields[] = 'mart_meta_keywords_' . $lang_code;
                     $all_fields[] = 'mart_store_intro_paragraph_' . $lang_code;
                 }
-                gen_js_fields_checker($all_fields);
+                foreach ($social_medias as $code => $social_name) {
+                    $all_fields[] = 'social_media_' . $code;
+                }
                 $all_fields[] = 'script_action';
                 ?>
                 $('#btn-save').prop('disabled', true);

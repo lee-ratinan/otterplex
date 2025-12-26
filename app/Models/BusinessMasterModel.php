@@ -22,6 +22,7 @@ class BusinessMasterModel extends AppBaseModel
         'mart_meta_description',
         'mart_meta_keywords',
         'mart_store_intro_paragraph',
+        'social_media',
         'business_logo',
         'contract_anchor_day',
         'contract_expiry',
