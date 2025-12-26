@@ -4,6 +4,10 @@ namespace App\Controllers;
 
 use App\Models\BranchMasterModel;
 use App\Models\BusinessMasterModel;
+use App\Models\ProductMasterModel;
+use App\Models\ProductVariantModel;
+use App\Models\ServiceMasterModel;
+use App\Models\ServiceVariantModel;
 use CodeIgniter\HTTP\ResponseInterface;
 
 class Api extends BaseController
@@ -52,7 +56,6 @@ class Api extends BaseController
         $session->set('lang', $languageCode);
         $query         = $this->request->getGet('business-slug');
         $businessModel = new BusinessMasterModel();
-        $branchModel   = new BranchMasterModel();
         // BUSINESS
         $business      = $businessModel
             ->select('business_master.*, business_type.type_name, business_type.type_local_names')
@@ -84,7 +87,8 @@ class Api extends BaseController
             $business['business_logo'] = base_url('/file/business_' . $business['business_logo']);
         }
         // BRANCHES
-        $branches = $branchModel
+        $branchModel = new BranchMasterModel();
+        $branches    = $branchModel
             ->where('business_id', $business['id'])
             ->findAll();
         foreach ($branches as $i => $branch) {
@@ -95,6 +99,48 @@ class Api extends BaseController
             unset($branches[$i]['subdivision_code']);
         }
         $business['branches'] = $branches;
+        // SERVICES
+        $serviceModel = new ServiceMasterModel();
+        $svModel      = new ServiceVariantModel();
+        $servicesRaw  = $serviceModel->where('business_id', $business['id'])->findAll();
+        $services     = [];
+        $sId          = [];
+        foreach ($servicesRaw as $service) {
+            $local_names              = json_decode($service['service_local_names'], true);
+            $service['service_name']  = $local_names[$languageCode] ?? $service['service_name'];
+            unset($service['service_local_names']);
+            $services[$service['id']] = $service;
+            $sId[]                    = $service['id'];
+        }
+        $sVariantRaw  = $svModel->whereIn('service_id', $sId)->findAll();
+        foreach ($sVariantRaw as $sv) {
+            $local_names         = json_decode($sv['variant_local_names'], true);
+            $sv['variant_name']  = $local_names[$languageCode] ?? $sv['variant_name'];
+            unset($sv['variant_local_names']);
+            $services[$sv['service_id']]['variants'][] = $sv;
+        }
+        $business['services'] = $services;
+        // PRODUCTS
+        $productModel = new ProductMasterModel();
+        $pvModel      = new ProductVariantModel();
+        $productRaw   = $productModel->where('business_id', $business['id'])->findAll();
+        $products     = [];
+        $pId          = [];
+        foreach ($productRaw as $product) {
+            $local_names              = json_decode($product['product_local_names'], true);
+            $product['product_name']  = $local_names[$languageCode] ?? $product['product_name'];
+            unset($product['product_local_names']);
+            $products[$product['id']] = $product;
+            $pId[]                    = $product['id'];
+        }
+        $pVariantRaw  = $pvModel->whereIn('product_id', $pId)->findAll();
+        foreach ($pVariantRaw as $pv) {
+            $local_names         = json_decode($pv['variant_local_names'], true);
+            $pv['variant_name']  = $local_names[$languageCode] ?? $pv['variant_name'];
+            unset($pv['variant_local_names']);
+            $products[$pv['product_id']]['variants'][] = $pv;
+        }
+        $business['products'] = $products;
         return $this->response->setJSON([
             'query'    => $query,
             'business' => $business
