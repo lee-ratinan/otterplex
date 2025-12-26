@@ -52,12 +52,15 @@
                             </div>
                             <?php if ('edit' == $mode) : ?>
                                 <!-- UPLOAD PRODUCT IMAGE -->
+                                <hr />
                                 <div class="row">
                                     <div class="col-12 col-md-6">
                                         <h3><?= lang('Product.upload-image') ?></h3>
                                         <form id="form-upload-image" action="<?= base_url('/admin/product/manage') ?>" method="post" enctype="multipart/form-data">
                                             <input type="hidden" name="script_action" value="upload_image"/>
                                             <input type="file" id="product_image" name="product_image" class="form-control my-3"/>
+                                            <input type="hidden" id="slug_for_image" name="slug_for_image" value="<?= $product['product_slug'] ?>"/>
+                                            <input type="hidden" id="id_for_image" name="id_for_image" value="<?= $product['id'] ?>"/>
                                             <p class="small"><?= lang('Product.upload-explanation') ?></p>
                                             <div class="text-end">
                                                 <button id="btn-upload-image" type="submit" class="btn btn-primary"><?= lang('System.buttons.upload') ?></button>
@@ -65,9 +68,14 @@
                                                 <button id="btn-remove-image-confirm" type="button" class="btn btn-outline-danger" style="display:none"><?= lang('System.buttons.remove-confirm') ?></button>
                                             </div>
                                         </form>
-                                        <hr/>
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <?php if (!empty($product['product_image'])) : ?>
+                                            <img src="<?= base_url('file/' . $product['product_image']) ?>" class="img-fluid" />
+                                        <?php endif; ?>
                                     </div>
                                 </div>
+                                <hr />
                                 <h2><?= lang('Product.product-variant') ?></h2>
                                 <div class="text-end">
                                     <a class="btn btn-primary" href="<?= base_url('admin/product/variant/' . ($product['id'] * ID_MASKED_PRIME) . '/0') ?>"><?= lang('Product.new-product-variant') ?></a>
@@ -192,7 +200,8 @@
                     type: 'POST',
                     data: {
                         script_action: 'remove_image',
-                        product_image: '<?= @$product['product_image'] ?>'
+                        product_image: '<?= @$product['product_image'] ?>',
+                        id_for_image: '<?= @$product['id'] ?>'
                     },
                     success: function (response) {
                         $('#btn-remove-image-confirm').prop('disabled', false);

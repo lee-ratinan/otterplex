@@ -1571,7 +1571,98 @@ class Admin extends BaseController
             return $this->forbiddenResponse('ResponseInterface');
         }
         try {
-            $serviceModel = new ServiceMasterModel();
+            $serviceModel  = new ServiceMasterModel();
+            $script_action = $this->request->getPost('script_action');
+            if ('upload_image' == $script_action) {
+                helper(['form']);
+                $validationRule = [
+                    'service_image' => [
+                        'label' => lang('Service.upload-image'),
+                        'rules' => [
+                            'uploaded[service_image]',
+                            'is_image[service_image]',
+                            'mime_in[service_image,image/jpg,image/jpeg,image/png]',
+                            'max_size[service_image,800]',
+                            'max_dims[service_image,1280,960]',
+                        ],
+                    ],
+                ];
+                if (!$this->validateData([], $validationRule)) {
+                    $errors = $this->validator->getErrors();
+                    $toast  = lang('System.response-msg.error.upload-failed');
+                    foreach ($errors as $error) {
+                        $toast .= '<br>- ' . $error;
+                    }
+                    return $this->response->setJSON([
+                        'success' => STATUS_RESPONSE_ERR,
+                        'message' => $toast
+                    ]);
+                }
+                $slug                 = $this->request->getPost('slug_for_image');
+                $serviceId            = $this->request->getPost('id_for_image');
+                $img                  = $this->request->getFile('service_image');
+                list($width, $height) = getimagesize($img->getPathname());
+                $file_type            = $img->getClientMimeType();
+                $file_name            = 'service_image_' . $slug . '.jpg';
+                if ($file_type === 'image/png') {
+                    $source = imagecreatefrompng($img->getPathname());
+                } else {
+                    $source = imagecreatefromjpeg($img->getPathname());
+                }
+                // --- Target dimensions ---
+                $targetW     = 1280;
+                $targetH     = 960;
+                $targetRatio = $targetW / $targetH;
+                // --- Step 1: scale the image proportionally so that it is >= target size ---
+                $srcRatio    = $width / $height;
+                // If image is wider relative to height → height is limiting
+                if ($srcRatio > $targetRatio) {
+                    // Height determines scale
+                    $scaledH = $targetH;
+                    $scaledW = intval($targetH * $srcRatio);
+                } else {
+                    // Width determines scale
+                    $scaledW = $targetW;
+                    $scaledH = intval($targetW / $srcRatio);
+                }
+                $scaled = imagecreatetruecolor($scaledW, $scaledH);
+                imagecopyresampled($scaled, $source, 0, 0, 0, 0, $scaledW, $scaledH, $width, $height);
+                // --- Step 2: crop the center to 1280 × 960 ---
+                $cropX = intval(($scaledW - $targetW) / 2);
+                $cropY = intval(($scaledH - $targetH) / 2);
+                $final = imagecreatetruecolor($targetW, $targetH);
+                imagecopyresampled($final, $scaled, 0, 0, $cropX, $cropY, $targetW, $targetH, $targetW, $targetH);
+                imagejpeg($final, WRITEPATH . 'uploads/' . $file_name, 90);
+                // Update database & session
+                $serviceModel->update($serviceId, ['service_image' => $file_name]);
+                // --- Cleanup ---
+                imagedestroy($source);
+                imagedestroy($scaled);
+                imagedestroy($final);
+                return $this->response->setJSON([
+                    'status'  => STATUS_RESPONSE_OK,
+                    'message' => lang('System.response-msg.success.uploaded')
+                ]);
+            } else if ('remove_image' == $script_action) {
+                $file_name     = $this->request->getPost('service_image');
+                $file_path     = WRITEPATH . 'uploads/' . $file_name;
+                if (!empty($file_name) && file_exists($file_path)) {
+                    if (unlink($file_path)) {
+                        // Update database & session
+                        $serviceId = $this->request->getPost('id_for_image');
+                        $serviceModel->update($serviceId, ['service_image' => null]);
+                        return $this->response->setJSON([
+                            'status'  => STATUS_RESPONSE_OK,
+                            'message' => lang('System.response-msg.success.removed')
+                        ]);
+                    }
+                }
+                return $this->response->setJSON([
+                    'status'  => STATUS_RESPONSE_ERR,
+                    'message' => lang('System.response-msg.error.removed'),
+                ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+            }
+            // SAVE OTHER DATA
             $locales      = get_available_locales();
             $id           = $this->request->getPost('service_id');
             $data         = [];
@@ -1879,6 +1970,97 @@ class Admin extends BaseController
         }
         try {
             $productModel = new ProductMasterModel();
+            $script_action = $this->request->getPost('script_action');
+            if ('upload_image' == $script_action) {
+                helper(['form']);
+                $validationRule = [
+                    'product_image' => [
+                        'label' => lang('Product.upload-image'),
+                        'rules' => [
+                            'uploaded[product_image]',
+                            'is_image[product_image]',
+                            'mime_in[product_image,image/jpg,image/jpeg,image/png]',
+                            'max_size[product_image,800]',
+                            'max_dims[product_image,1280,960]',
+                        ],
+                    ],
+                ];
+                if (!$this->validateData([], $validationRule)) {
+                    $errors = $this->validator->getErrors();
+                    $toast  = lang('System.response-msg.error.upload-failed');
+                    foreach ($errors as $error) {
+                        $toast .= '<br>- ' . $error;
+                    }
+                    return $this->response->setJSON([
+                        'success' => STATUS_RESPONSE_ERR,
+                        'message' => $toast
+                    ]);
+                }
+                $slug                 = $this->request->getPost('slug_for_image');
+                $serviceId            = $this->request->getPost('id_for_image');
+                $img                  = $this->request->getFile('product_image');
+                list($width, $height) = getimagesize($img->getPathname());
+                $file_type            = $img->getClientMimeType();
+                $file_name            = 'product_image_' . $slug . '.jpg';
+                if ($file_type === 'image/png') {
+                    $source = imagecreatefrompng($img->getPathname());
+                } else {
+                    $source = imagecreatefromjpeg($img->getPathname());
+                }
+                // --- Target dimensions ---
+                $targetW     = 1280;
+                $targetH     = 960;
+                $targetRatio = $targetW / $targetH;
+                // --- Step 1: scale the image proportionally so that it is >= target size ---
+                $srcRatio    = $width / $height;
+                // If image is wider relative to height → height is limiting
+                if ($srcRatio > $targetRatio) {
+                    // Height determines scale
+                    $scaledH = $targetH;
+                    $scaledW = intval($targetH * $srcRatio);
+                } else {
+                    // Width determines scale
+                    $scaledW = $targetW;
+                    $scaledH = intval($targetW / $srcRatio);
+                }
+                $scaled = imagecreatetruecolor($scaledW, $scaledH);
+                imagecopyresampled($scaled, $source, 0, 0, 0, 0, $scaledW, $scaledH, $width, $height);
+                // --- Step 2: crop the center to 1280 × 960 ---
+                $cropX = intval(($scaledW - $targetW) / 2);
+                $cropY = intval(($scaledH - $targetH) / 2);
+                $final = imagecreatetruecolor($targetW, $targetH);
+                imagecopyresampled($final, $scaled, 0, 0, $cropX, $cropY, $targetW, $targetH, $targetW, $targetH);
+                imagejpeg($final, WRITEPATH . 'uploads/' . $file_name, 90);
+                // Update database & session
+                $productModel->update($serviceId, ['product_image' => $file_name]);
+                // --- Cleanup ---
+                imagedestroy($source);
+                imagedestroy($scaled);
+                imagedestroy($final);
+                return $this->response->setJSON([
+                    'status'  => STATUS_RESPONSE_OK,
+                    'message' => lang('System.response-msg.success.uploaded')
+                ]);
+            } else if ('remove_image' == $script_action) {
+                $file_name     = $this->request->getPost('product_image');
+                $file_path     = WRITEPATH . 'uploads/' . $file_name;
+                if (!empty($file_name) && file_exists($file_path)) {
+                    if (unlink($file_path)) {
+                        // Update database & session
+                        $productId = $this->request->getPost('id_for_image');
+                        $productModel->update($productId, ['product_image' => null]);
+                        return $this->response->setJSON([
+                            'status'  => STATUS_RESPONSE_OK,
+                            'message' => lang('System.response-msg.success.removed')
+                        ]);
+                    }
+                }
+                return $this->response->setJSON([
+                    'status'  => STATUS_RESPONSE_ERR,
+                    'message' => lang('System.response-msg.error.removed'),
+                ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+            }
+            // SAVE OTHER DATA
             $locales      = get_available_locales();
             $id           = $this->request->getPost('product_id');
             $data         = [];

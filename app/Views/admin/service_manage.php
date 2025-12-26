@@ -33,12 +33,15 @@
                     </div>
                     <?php if ('edit' == $mode) : ?>
                         <!-- UPLOAD SERVICE IMAGE -->
+                        <hr />
                         <div class="row">
                             <div class="col-12 col-md-6">
                                 <h3><?= lang('Service.upload-image') ?></h3>
                                 <form id="form-upload-image" action="<?= base_url('/admin/service/manage') ?>" method="post" enctype="multipart/form-data">
                                     <input type="hidden" name="script_action" value="upload_image"/>
                                     <input type="file" id="service_image" name="service_image" class="form-control my-3"/>
+                                    <input type="hidden" id="slug_for_image" name="slug_for_image" value="<?= $service['service_slug'] ?>"/>
+                                    <input type="hidden" id="id_for_image" name="id_for_image" value="<?= $service['id'] ?>"/>
                                     <p class="small"><?= lang('Service.upload-explanation') ?></p>
                                     <div class="text-end">
                                         <button id="btn-upload-image" type="submit" class="btn btn-primary"><?= lang('System.buttons.upload') ?></button>
@@ -46,9 +49,14 @@
                                         <button id="btn-remove-image-confirm" type="button" class="btn btn-outline-danger" style="display:none"><?= lang('System.buttons.remove-confirm') ?></button>
                                     </div>
                                 </form>
-                                <hr/>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <?php if (!empty($service['service_image'])) : ?>
+                                    <img src="<?= base_url('file/' . $service['service_image']) ?>" class="img-fluid" />
+                                <?php endif; ?>
                             </div>
                         </div>
+                        <hr/>
                         <h2><?= lang('Service.service-variant') ?></h2>
                         <div class="text-end">
                             <a class="btn btn-primary" href="<?= base_url('admin/service/variant/' . ($service['id'] * ID_MASKED_PRIME) . '/0') ?>"><i class="fa-solid fa-plus-circle"></i> <?= lang('Service.new-variant') ?></a>
@@ -267,7 +275,8 @@
                     type: 'POST',
                     data: {
                         script_action: 'remove_image',
-                        service_image: '<?= @$service['service_image'] ?>'
+                        service_image: '<?= @$service['service_image'] ?>',
+                        id_for_image: '<?= @$service['id'] ?>'
                     },
                     success: function (response) {
                         $('#btn-remove-image-confirm').prop('disabled', false);
