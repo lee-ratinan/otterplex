@@ -106,8 +106,10 @@ class Api extends BaseController
         $services     = [];
         $sId          = [];
         foreach ($servicesRaw as $service) {
-            $local_names              = json_decode($service['service_local_names'], true);
-            $service['service_name']  = $local_names[$languageCode] ?? $service['service_name'];
+            $local_names                    = json_decode($service['service_local_names'], true);
+            $descriptions                   = json_decode($service['service_description'], true);
+            $service['service_name']        = $local_names[$languageCode] ?? $service['service_name'];
+            $service['service_description'] = $descriptions[$languageCode] ?? '';
             unset($service['service_local_names']);
             if (!empty($service['service_image'])) {
                 $service['service_image'] = base_url('file/' . $service['service_image']);
@@ -119,7 +121,7 @@ class Api extends BaseController
         if (!empty($sId)) {
             $sVariantRaw = $svModel->whereIn('service_id', $sId)->findAll();
             foreach ($sVariantRaw as $sv) {
-                $local_names = json_decode($sv['variant_local_names'], true);
+                $local_names        = json_decode($sv['variant_local_names'], true);
                 $sv['variant_name'] = $local_names[$languageCode] ?? $sv['variant_name'];
                 unset($sv['variant_local_names']);
                 $services[$sv['service_id']]['variants'][] = $sv;
@@ -133,8 +135,10 @@ class Api extends BaseController
         $products     = [];
         $pId          = [];
         foreach ($productRaw as $product) {
-            $local_names              = json_decode($product['product_local_names'], true);
-            $product['product_name']  = $local_names[$languageCode] ?? $product['product_name'];
+            $local_names                    = json_decode($product['product_local_names'], true);
+            $descriptions                   = json_decode($service['product_description'], true);
+            $product['product_name']        = $local_names[$languageCode] ?? $product['product_name'];
+            $product['product_description'] = $descriptions[$languageCode] ?? '';
             unset($product['product_local_names']);
             if (!empty($product['product_image'])) {
                 $product['product_image'] = base_url('file/' . $product['product_image']);
@@ -146,7 +150,7 @@ class Api extends BaseController
         if (!empty($pId)) {
             $pVariantRaw = $pvModel->whereIn('product_id', $pId)->findAll();
             foreach ($pVariantRaw as $pv) {
-                $local_names = json_decode($pv['variant_local_names'], true);
+                $local_names        = json_decode($pv['variant_local_names'], true);
                 $pv['variant_name'] = $local_names[$languageCode] ?? $pv['variant_name'];
                 unset($pv['variant_local_names']);
                 $products[$pv['product_id']]['variants'][] = $pv;
