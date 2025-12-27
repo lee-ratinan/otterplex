@@ -9,6 +9,7 @@ return [
         'is_active'            => 'Status',
         'price_active_lowest'  => 'Starting Active Price',
         'price_compare_lowest' => 'Starting Full Price',
+        'service_description'  => 'Service Description',
     ],
     'enum'        => [
         'is_active' => [

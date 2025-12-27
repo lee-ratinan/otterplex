@@ -18,6 +18,11 @@
                                     'type' => 'text',
                                 ], @$service['service_local_names'][$locale_code]);
                             }
+                            foreach ($locales as $locale_code => $locale_name) {
+                                echo build_form_input('service_description_' . $locale_code, lang('ServiceMaster.field.service_description') . ' (' . $locale_name . ')', [
+                                    'type' => 'text',
+                                ], @$service['service_description'][$locale_code]);
+                            }
                             echo build_form_input('is_active', lang('ServiceMaster.field.is_active'), [
                                 'type' => 'select',
                             ], @$service['is_active'], '', [
@@ -152,6 +157,9 @@
                     $fields[] = 'service_local_names_' . $code;
                 }
                 gen_js_fields_checker($fields);
+                foreach ($locales as $code => $language_name) {
+                    $fields[] = 'service_description_' . $code;
+                }
                 ?>
                 $('#btn-save-master').prop('disabled', true);
                 $.post(

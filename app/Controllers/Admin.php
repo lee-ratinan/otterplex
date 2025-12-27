@@ -1536,6 +1536,7 @@ class Admin extends BaseController
         if (0 < $serviceId) {
             $service                        = $serviceModel->findRow($serviceId);
             $service['service_local_names'] = json_decode($service['service_local_names'], true);
+            $service['service_description'] = json_decode($service['service_description'], true);
             $variants                       = $variantModel->getVariantsForService($serviceId);
             $staff                          = $staffModel->getStaffByServiceId($serviceId);
             $mode                           = 'edit';
@@ -1667,14 +1668,17 @@ class Admin extends BaseController
             $id           = $this->request->getPost('service_id');
             $data         = [];
             $names        = [];
+            $descriptions = [];
             $fields       = ['service_name', 'is_active'];
             foreach ($fields as $field) {
                 $data[$field] = $this->request->getPost($field);
             }
             foreach ($locales as $code => $language_name) {
-                $names[$code] = $this->request->getPost('service_local_names_' . $code);
+                $names[$code]        = $this->request->getPost('service_local_names_' . $code);
+                $descriptions[$code] = $this->request->getPost('service_description_' . $code);
             }
             $data['service_local_names'] = json_encode($names, JSON_UNESCAPED_UNICODE);
+            $data['service_description'] = json_encode($descriptions, JSON_UNESCAPED_UNICODE);
             if (0 < $id) {
                 if ($serviceModel->update($id, $data)) {
                     return $this->response->setJSON([
@@ -1943,6 +1947,7 @@ class Admin extends BaseController
                 throw PageNotFoundException::forPageNotFound();
             }
             $product['product_local_names'] = json_decode($product['product_local_names'], true);
+            $product['product_description'] = json_decode($product['product_description'], true);
             $variants                       = $variantModel->where('product_id', $productId)->findAll();
         }
         $data = [
@@ -2065,14 +2070,17 @@ class Admin extends BaseController
             $id           = $this->request->getPost('product_id');
             $data         = [];
             $names        = [];
+            $descriptions = [];
             $fields       = ['product_category_id', 'product_name', 'product_tag', 'product_type', 'is_active'];
             foreach ($fields as $field) {
                 $data[$field] = $this->request->getPost($field);
             }
             foreach ($locales as $code => $language_name) {
-                $names[$code] = $this->request->getPost('product_local_names_' . $code);
+                $names[$code]        = $this->request->getPost('product_local_names_' . $code);
+                $descriptions[$code] = $this->request->getPost('product_description_' . $code);
             }
             $data['product_local_names'] = json_encode($names, JSON_UNESCAPED_UNICODE);
+            $data['product_description'] = json_encode($descriptions, JSON_UNESCAPED_UNICODE);
             if (0 < $id) {
                 if ($productModel->update($id, $data)) {
                     return $this->response->setJSON([

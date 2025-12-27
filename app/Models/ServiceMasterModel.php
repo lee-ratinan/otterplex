@@ -19,6 +19,7 @@ class ServiceMasterModel extends AppBaseModel
         'price_active_lowest',
         'price_compare_lowest',
         'service_image',
+        'service_description',
         'created_by',
         'created_at',
         'updated_at'

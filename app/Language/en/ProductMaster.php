@@ -12,6 +12,7 @@ return [
         'is_active'            => 'Status',
         'price_active_lowest'  => 'Active Price',
         'price_compare_lowest' => 'Compare Price',
+        'product_description'  => 'Product Description',
     ],
     'enum'  => [
         'product_tag'  => [

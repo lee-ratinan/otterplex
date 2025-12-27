@@ -23,6 +23,11 @@
                                             'type' => 'text',
                                         ], @$product['product_local_names'][$locale_code]);
                                     }
+                                    foreach ($locales as $locale_code => $locale_name) {
+                                        echo build_form_input('product_description_' . $locale_code, lang('ProductMaster.field.product_description') . ' (' . $locale_name . ')', [
+                                            'type' => 'text',
+                                        ], @$product['product_description'][$locale_code]);
+                                    }
                                     echo build_form_input('product_tag', lang('ProductMaster.field.product_tag'), [
                                         'type' => 'select'
                                     ], @$product['product_tag'], '', [
@@ -130,6 +135,9 @@
                     $fields[] = 'product_local_names_' . $code;
                 }
                 gen_js_fields_checker($fields);
+                foreach ($locales as $code => $language_name) {
+                    $fields[] = 'product_description_' . $code;
+                }
                 ?>
                 $('#btn-save-master').prop('disabled', true);
                 $.post(

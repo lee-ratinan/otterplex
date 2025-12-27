@@ -11,7 +11,8 @@ return [
         'product_type'         => 'ลักษณะสินค้า',
         'is_active'            => 'สถานะ',
         'price_active_lowest'  => 'ราคาขาย',
-        'price_compare_lowest' => 'ราคาเปรียบเทียบ'
+        'price_compare_lowest' => 'ราคาเปรียบเทียบ',
+        'product_description'  => 'คำอธิบายสินค้า'
     ],
     'enum'  => [
         'product_tag'  => [
