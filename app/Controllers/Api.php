@@ -136,7 +136,7 @@ class Api extends BaseController
         $pId          = [];
         foreach ($productRaw as $product) {
             $local_names                    = json_decode($product['product_local_names'], true);
-            $descriptions                   = json_decode($service['product_description'], true);
+            $descriptions                   = json_decode($product['product_description'], true);
             $product['product_name']        = $local_names[$languageCode] ?? $product['product_name'];
             $product['product_description'] = $descriptions[$languageCode] ?? '';
             unset($product['product_local_names']);
