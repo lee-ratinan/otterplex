@@ -3,6 +3,8 @@
 namespace App\Controllers;
 
 use App\Models\BranchMasterModel;
+use App\Models\BranchModifiedHoursModel;
+use App\Models\BranchOpeningHoursModel;
 use App\Models\BusinessMasterModel;
 use App\Models\ProductMasterModel;
 use App\Models\ProductVariantModel;
@@ -88,15 +90,46 @@ class Api extends BaseController
         }
         // BRANCHES
         $branchModel = new BranchMasterModel();
-        $branches    = $branchModel
+        $branchRaw   = $branchModel
             ->where('business_id', $business['id'])
             ->findAll();
-        foreach ($branches as $i => $branch) {
-            $local_names                 = json_decode($branch['branch_local_names'], true);
-            $branches[$i]['branch_name'] = $local_names[$languageCode] ?? $branch['branch_name'];
-            unset($branches[$i]['branch_local_names']);
-            $branches[$i]['subdivision'] = get_country_subdivisions($business['country_code'], $branch['subdivision_code']);
-            unset($branches[$i]['subdivision_code']);
+        $bIds        = [];
+        $branches    = [];
+        foreach ($branchRaw as $branch) {
+            $local_names              = json_decode($branch['branch_local_names'], true);
+            $branch['branch_name']    = $local_names[$languageCode] ?? $branch['branch_name'];
+            $branch['subdivision']    = get_country_subdivisions($business['country_code'], $branch['subdivision_code']);
+            unset($branch['branch_local_names']);
+            unset($branch['subdivision_code']);
+            $bIds[]                   = $branch['id'];
+            $branch['hours']          = [];
+            $branch['modified_hours'] = [];
+            $branches[$branch['id']]  = $branch;
+        }
+        // HOURS
+        $hoursModel   = new BranchOpeningHoursModel();
+        $mhModel      = new BranchModifiedHoursModel();
+        $yesterday    = date('Y-m-d', strtotime('yesterday'));
+        $hoursRaw     = $hoursModel->whereIn('branch_id', $bIds)->findAll();
+        $modifiedRaw  = $mhModel->whereIn('branch_id', $bIds)->where('modified_hours_date >=', $yesterday)->findAll();
+        foreach ($hoursRaw as $row) {
+            $branches[$row['branch_id']]['hours'][$row['day_of_the_week']] = [
+                'opening_hours' => $row['opening_hours'],
+                'closing_hours' => $row['closing_hours'],
+            ];
+        }
+        foreach ($modifiedRaw as $row) {
+            $open  = null;
+            $close = null;
+            if ('CLOSED' != $row['modified_type']) {
+                $open  = $row['updated_opening_hours'];
+                $close = $row['updated_closing_hours'];
+            }
+            $branches[$row['branch_id']]['modified_hours'][] = [
+                'date'          => $row['modified_hours_date'],
+                'opening_hours' => $open,
+                'closing_hours' => $close,
+            ];
         }
         $business['branches'] = $branches;
         // SERVICES
