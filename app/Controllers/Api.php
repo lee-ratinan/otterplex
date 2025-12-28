@@ -77,7 +77,7 @@ class Api extends BaseController
         $mart_meta_keywords_array               = json_decode($business['mart_meta_keywords'], true);
         $mart_store_intro_paragraphs            = json_decode($business['mart_store_intro_paragraph'], true);
         $business['social_media']               = json_decode($business['social_media'], true);
-        $business['country']                    = get_country_list($business['country_code']);
+        $business['country']                    = get_country_name_single_language($business['country_code'], $languageCode);
         $business['business_name']              = $local_names[$languageCode] ?? $business['business_name'];
         $business['type_name']                  = $type_names[$languageCode] ?? $business['type_name'];
         $business['mart_meta_description']      = $mart_meta_descriptions[$languageCode] ?? '';

@@ -248,15 +248,15 @@ class Home extends BaseController
             }
             // SLUG
             $transliterator = Transliterator::create('Any-Latin; Latin-ASCII; Lower()');
-            $slug = $transliterator->transliterate($business_master['business_name']);
-            $slug = strtolower($slug);
-            $slug = preg_replace('/[^a-z0-9]+/', '-', $slug);
-            $slug = preg_replace('/-+/', '-', $slug);
-            $slug = trim($slug, '-');
+            $slug           = $transliterator->transliterate($business_master['business_name']);
+            $slug           = strtolower($slug);
+            $slug           = preg_replace('/[^a-z0-9]+/', '-', $slug);
+            $slug           = preg_replace('/-+/', '-', $slug);
+            $slug           = trim($slug, '-');
             // LOCALES
             $available_language_codes = get_available_locales();
             $available_language_codes = array_keys($available_language_codes);
-            $local_names = [];
+            $local_names              = [];
             foreach ($available_language_codes as $code) {
                 $local_names[$code] = $business_master['business_name'];
             }

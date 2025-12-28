@@ -1413,7 +1413,6 @@ if (!function_exists('get_country_codes')) {
         ];
     }
 }
-
 if (!function_exists('get_country_list')) {
     function get_country_list($country_code = ''): array|string|null
     {
@@ -1594,6 +1593,21 @@ if (!function_exists('get_country_list')) {
             return $codes;
         }
         return $codes[$country_code] ?? null;
+    }
+}
+if (!function_exists('get_country_name_single_language')) {
+    function get_country_name_single_language(string $country_code, string $locale): string
+    {
+        $data = [
+            'TH' => [
+                'en' => 'Thailand',
+                'th' => 'ประเทศไทย'
+            ]
+        ];
+        if (isset($data[$country_code])) {
+            return $data[$country_code][$locale] ?? $data[$country_code]['en'];
+        }
+        return $country_code;
     }
 }
 if (!function_exists('get_country_subdivisions')) {
@@ -1791,6 +1805,7 @@ if (!function_exists('get_available_countries')) {
 }
 if (!function_exists('get_currency_codes')) {
     /**
+     * @deprecated
      * Get ISO4217 currency codes
      * @return array
      */
@@ -2439,19 +2454,31 @@ if (!function_exists('get_currency_codes')) {
 if (!function_exists('get_currency_common_name')) {
     /**
      * @param string $currency_code
+     * @param string $locale
      * @return string
      */
-    function get_currency_common_name(string $currency_code): string
+    function get_currency_common_name(string $currency_code, string $locale): string
     {
-        $currencies = get_currency_codes();
-        return $currencies[$currency_code]['currency_name'] ?? $currency_code;
+        $currencies = [
+            'THB' => [
+                'th' => 'THB: ไทยบาท',
+                'en' => 'THB: Thai baht'
+            ],
+            'USD' => [
+                'en' => 'USD: US Dollar',
+            ]
+        ];
+        if (isset($currencies[$currency_code])) {
+            return $currencies[$currency_code][$locale] ?? $currencies[$currency_code]['en'];
+        }
+        return $currency_code;
     }
 }
 if (!function_exists('get_available_currency_codes')) {
     function get_available_currency_code_by_country(string $country_code): array
     {
         $codes = [
-            'TH' => ['THB']
+            'TH' => ['THB', 'USD']
         ];
         return $codes[$country_code] ?? [];
     }

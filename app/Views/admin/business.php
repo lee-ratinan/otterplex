@@ -10,6 +10,7 @@
                         <div class="col-12 col-lg-6">
                             <?php
                             echo '<h3>' . lang('Business.subtitle.generic-information') . '</h3>';
+                            echo lang('BusinessMaster.field.country_code') . ': ' . get_country_name_single_language($business['country_code'], $session->lang);
                             echo build_form_input('business_type_id', lang('BusinessMaster.field.business_type_id'), [
                                 'type' => 'select',
                             ], $business['business_type_id'], '', $business_types);
@@ -45,6 +46,14 @@
                                 'E' => lang('BusinessMaster.enum.tax_inclusive.E'),
                                 'X' => lang('BusinessMaster.enum.tax_inclusive.X')
                             ]);
+                            $currencies_for_this_country = get_available_currency_code_by_country($business['country_code']);
+                            $currency_list               = [];
+                            foreach ($currencies_for_this_country as $cd) {
+                                $currency_list[$cd] = get_currency_common_name($cd, $session->lang);
+                            }
+                            echo build_form_input('currency_code', lang('BusinessMaster.field.currency_code'), [
+                                'type' => 'select',
+                            ], $business['currency_code'], '', $currency_list);
                             echo '<h3>' . lang('Business.subtitle.mart-decoration') . '</h3>';
                             echo build_form_input('mart_primary_color', lang('BusinessMaster.field.mart_primary_color'), [
                                 'type' => 'color',
@@ -267,7 +276,7 @@
                 e.preventDefault();
                 // business_local_names_en
                 <?php
-                $all_fields = ['business_type_id', 'business_name', 'business_slug', 'tax_percentage', 'tax_inclusive', 'mart_primary_color', 'mart_text_color', 'mart_background_color'];
+                $all_fields = ['business_type_id', 'business_name', 'business_slug', 'tax_percentage', 'tax_inclusive', 'mart_primary_color', 'mart_text_color', 'mart_background_color', 'currency_code'];
                 gen_js_fields_checker($all_fields);
                 foreach ($all_languages as $lang_code => $language_name) {
                     $all_fields[] = 'business_local_names_' . $lang_code;
