@@ -26,6 +26,7 @@ class BusinessMasterModel extends AppBaseModel
         'business_logo',
         'contract_anchor_day',
         'contract_expiry',
+        'allow_advance_booking',
         'created_by',
         'created_at',
         'updated_at'

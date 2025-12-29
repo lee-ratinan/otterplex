@@ -19,6 +19,7 @@ return [
         'social_media'               => 'สื่อสังคม',
         'contract_expiry'            => 'วันหมดอายุสัญญา',
         'business_status'            => 'สถานะธุรกิจ', // Not a real field
+        'allow_advance_booking'      => 'จำนวนวันที่อนุญาตให้จองล่วงหน้าได้ (สำหรับบริการจองล่วงหน้าเท่านั้น)',
     ],
     'enum'        => [
         'tax_inclusive'   => [

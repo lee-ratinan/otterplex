@@ -31,6 +31,9 @@
                                     'type' => 'text'
                                 ], @$business['business_local_names'][$lang_code]);
                             }
+                            echo build_form_input('allow_advance_booking', lang('BusinessMaster.field.allow_advance_booking'), [
+                                'type' => 'number'
+                            ], $business['allow_advance_booking']);
                             // country code is not updatable
                             echo '<h3>' . lang('Business.subtitle.tax-information') . '</h3>';
                             echo build_form_input('tax_percentage', lang('BusinessMaster.field.tax_percentage'), [
@@ -282,7 +285,7 @@
                 e.preventDefault();
                 // business_local_names_en
                 <?php
-                $all_fields = ['business_type_id', 'business_name', 'business_slug', 'tax_percentage', 'tax_inclusive', 'mart_primary_color', 'mart_text_color', 'mart_background_color', 'currency_code'];
+                $all_fields = ['business_type_id', 'business_name', 'business_slug', 'allow_advance_booking', 'tax_percentage', 'tax_inclusive', 'mart_primary_color', 'mart_text_color', 'mart_background_color', 'currency_code'];
                 gen_js_fields_checker($all_fields);
                 foreach ($all_languages as $lang_code => $language_name) {
                     $all_fields[] = 'business_local_names_' . $lang_code;
