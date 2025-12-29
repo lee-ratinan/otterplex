@@ -109,6 +109,12 @@
                                     <button id="btn-remove-logo-confirm" type="button" class="btn btn-outline-danger" style="display:none"><?= lang('System.buttons.remove-confirm') ?></button>
                                 </div>
                             </form>
+                            <!-- CLEAR CACHE -->
+                            <p class="mt-3"><?= lang('Business.clear-cache') ?></p>
+                            <div class="text-end">
+                                <button id="btn-clear-cache" type="button" class="btn btn-primary"><?= lang('Business.btn-clear-cache') ?></button>
+                            </div>
+                            <div id="clear-cache-status"></div>
                         </div>
                     </div>
                     <hr class="my-3" />
@@ -383,6 +389,34 @@
                     },
                     error: function (xhr, status, error) {
                         $('#btn-remove-logo-confirm').prop('disabled', false);
+                        let response = JSON.parse(xhr.responseText);
+                        let message = response.message ?? '<?= lang('System.response-msg.error.generic') ?>';
+                        toastr.error(message);
+                    }
+                });
+            });
+            $('#btn-clear-cache').click(function (e) {
+                e.preventDefault();
+                $('#clear-cache-status').html('');
+                $(this).prop('disabled', true);
+                $.ajax({
+                    url: '<?= getenv('marketplace_site') ?>@<?= $business['business_slug'] ?>/clear-cache',
+                    type: 'GET',
+                    success: function (response) {
+                        $('#btn-clear-cache').prop('disabled', false);
+                        if (response.statuses) {
+                            let msg = '<code>processing</code><br>';
+                            $.each(response.statuses, function(i, data) {
+                                msg += '<code>' + data + '</code><br>';
+                            });
+                            msg += '<code>done</code><br>';
+                            $('#clear-cache-status').html(msg);
+                        } else {
+                            toastr.error('<?= lang('System.response-msg.error.generic') ?>');
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        $('#btn-clear-cache').prop('disabled', false);
                         let response = JSON.parse(xhr.responseText);
                         let message = response.message ?? '<?= lang('System.response-msg.error.generic') ?>';
                         toastr.error(message);
