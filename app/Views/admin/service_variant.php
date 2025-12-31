@@ -31,12 +31,16 @@
                                 'A' => lang('ServiceVariant.enum.is_active.A'),
                                 'I' => lang('ServiceVariant.enum.is_active.I'),
                             ]);
-                            echo build_form_input('schedule_type', lang('ServiceVariant.field.schedule_type'), [
-                                'type' => 'select',
-                            ], @$variant['schedule_type'], '', [
-                                'A' => lang('ServiceVariant.enum.schedule_type.A'),
-                                'S' => lang('ServiceVariant.enum.schedule_type.S'),
-                            ]);
+                            if (!isset($variant['id'])) {
+                                echo build_form_input('schedule_type', lang('ServiceVariant.field.schedule_type'), [
+                                    'type' => 'select',
+                                ], @$variant['schedule_type'], '', [
+                                    'A' => lang('ServiceVariant.enum.schedule_type.A'),
+                                    'S' => lang('ServiceVariant.enum.schedule_type.S'),
+                                ]);
+                            } else {
+                                echo '<div class="mb-3"><label for="schedule_type" class="form-label ">' . lang('ServiceVariant.field.schedule_type') . '</label><input id="schedule_type" class="form-control" type="text" readonly="readonly" value="' . lang('ServiceVariant.enum.schedule_type.' . $variant['schedule_type']) . '" /></div>';
+                            }
                             echo build_form_input('variant_capacity', lang('ServiceVariant.field.variant_capacity'), [
                                 'type' => 'number',
                                 'min'  => 1
@@ -66,6 +70,11 @@
                             </div>
                             <input type="hidden" name="id" id="id" value="<?= $variant['id'] ?? 0 ?>" />
                             <input type="hidden" name="service_id" id="service_id" value="<?= $service['id'] ?? 0 ?>" />
+                            <hr />
+                            <?php if (isset($variant['schedule_type']) && 'S' == $variant['schedule_type']) : ?>
+                                <h3><?= lang('Service.sessions.title') ?></h3>
+                                <a class="btn btn-primary" href="#"><?= lang('Service.sessions.new') ?></a>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>

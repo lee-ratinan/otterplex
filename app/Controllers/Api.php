@@ -10,6 +10,7 @@ use App\Models\ProductMasterModel;
 use App\Models\ProductVariantModel;
 use App\Models\ServiceMasterModel;
 use App\Models\ServiceVariantModel;
+use App\Models\SessionMasterModel;
 use CodeIgniter\HTTP\ResponseInterface;
 
 class Api extends BaseController
@@ -193,6 +194,35 @@ class Api extends BaseController
         return $this->response->setJSON([
             'query'    => $query,
             'business' => $business
+        ]);
+    }
+
+    public function get_sessions(string $languageCode, string $countryCode, string $variantSlug): ResponseInterface
+    {
+        $svModel = new ServiceVariantModel();
+        $variant = $svModel->where('variant_slug', $variantSlug)->first();
+        if (empty($variant) || 'A' != $variant['is_active']) {
+            return $this->response->setJSON([]);
+        }
+        $localNames              = json_decode($variant['variant_local_names'], true);
+        $variant['variant_name'] = $localNames[$languageCode] ?? $variant['variant_name'];
+        $dateFrom                = $this->request->getGet('date_from') ?? '';
+        $dateTo                  = $this->request->getGet('date_to') ?? '';
+        $branchId                = (int) $this->request->getGet('branch_id') ?? 0;
+        if (0 < $branchId) {
+            $branchId = intval($branchId / ID_MASKED_PRIME);
+        }
+        $sessionModel            = new SessionMasterModel();
+        $sessions                = $sessionModel->getAvailableSessions($variantSlug, $languageCode, $dateFrom, $dateTo, $branchId);
+        return $this->response->setJSON([
+            'variant_slug'             => $variant['variant_slug'],
+            'variant_name'             => $variant['variant_name'],
+            'schedule_type'            => $variant['schedule_type'],
+            'variant_capacity'         => $variant['variant_capacity'],
+            'price_active'             => $variant['price_active'],
+            'price_compare'            => $variant['price_compare'],
+            'service_duration_minutes' => $variant['service_duration_minutes'],
+            'sessions'                 => $sessions
         ]);
     }
 }

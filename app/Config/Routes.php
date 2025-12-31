@@ -92,6 +92,7 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
 $routes->group('api/v1.0', function ($routes) {
     $routes->get('(:segment)/(:segment)/business/search', 'Api::business_search/$1/$2');
     $routes->get('(:segment)/(:segment)/business/retrieve', 'Api::business_retrieve/$1/$2');
+    $routes->get('(:segment)/(:segment)/service/session-retrieve/(:segment)', 'Api::get_sessions/$1/$2/$3');
 });
 // Helper
 $routes->group('helper', function ($routes) {
