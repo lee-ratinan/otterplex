@@ -158,7 +158,7 @@ class Api extends BaseController
                 $local_names        = json_decode($sv['variant_local_names'], true);
                 $sv['variant_name'] = $local_names[$languageCode] ?? $sv['variant_name'];
                 unset($sv['variant_local_names']);
-                $services[$sv['service_id']]['variants'][] = $sv;
+                $services[$sv['service_id']]['variants'][$sv['id']] = $sv;
             }
             $business['services'] = $services;
         }

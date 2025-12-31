@@ -71,8 +71,7 @@
                                     <p><?= lang('Dashboard.setup.services-you-have', [count($dashboard['setup']['services'])]) ?></p>
                                     <?php
                                     foreach ($dashboard['setup']['services'] as $id => $info) {
-                                        $count = count($info['variants']);
-                                        echo '<a class="btn btn-outline-' . (0 == $count ? 'danger' : 'primary') . ' btn-sm m-1" href="' . base_url('admin/service/' . $id) . '">' . $info['service_name'] . ': ' . lang('Dashboard.setup.variant_count', [$count]) . '</a> ';
+                                        echo '<a class="btn btn-outline-' . (0 == $info['variant_count'] ? 'danger' : 'primary') . ' btn-sm m-1" href="' . base_url('admin/service/' . $id) . '">' . $info['service_name'] . ': ' . lang('Dashboard.setup.variant_count', [$info['variant_count']]) . '</a> ';
                                     }
                                     ?>
                                 <?php else: ?>
@@ -88,8 +87,7 @@
                                     <p><?= lang('Dashboard.setup.products-you-have', [count($dashboard['setup']['products'])]) ?></p>
                                     <?php
                                     foreach ($dashboard['setup']['products'] as $id => $info) {
-                                        $count = count($info['variants']);
-                                        echo '<a class="btn btn-outline-' . (0 == $count ? 'danger' : 'primary') . ' btn-sm m-1" href="' . base_url('admin/product/' . $id) . '">' . $info['product_name'] . ': ' . lang('Dashboard.setup.variant_count', [$count]) . '</a> ';
+                                        echo '<a class="btn btn-outline-' . (0 == $info['variant_count'] ? 'danger' : 'primary') . ' btn-sm m-1" href="' . base_url('admin/product/' . $id) . '">' . $info['product_name'] . ': ' . lang('Dashboard.setup.variant_count', [$info['variant_count']]) . '</a> ';
                                     }
                                     ?>
                                 <?php else: ?>
