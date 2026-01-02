@@ -50,13 +50,14 @@ class SessionMasterModel extends AppBaseModel
             $sIds[] = $session['id'];
         }
         $sbdModel = new SessionBreakDownModel();
-        $times    = $sbdModel->getSessions($sIds);
+        $times    = $sbdModel->getSessions($sIds, $languageCode);
         $final    = [];
         foreach ($sessions as $session) {
             $branchNames            = json_decode($session['branch_local_names'], true);
             $session['branch_name'] = $branchNames[$languageCode] ?? $session['branch_name'];
+            $session['link_id']     = $session['id'] * ID_MASKED_PRIME;
             unset($session['branch_local_names']);
-            $final[$session['id']]  = $session;
+            $final[$session['id']]             = $session;
             $final[$session['id']]['sessions'] = $times[$session['id']];
         }
         return $final;

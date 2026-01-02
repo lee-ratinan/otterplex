@@ -96,11 +96,14 @@ if (!function_exists('format_date')) {
     /**
      * Format date
      * @param string $date Date in YYYY-MM-DD (MySQL) format
+     * @param string $lang
      * @return string
      */
-    function format_date(string $date): string
+    function format_date(string $date, string $lang): string
     {
-        $lang        = get_session_field('lang');
+        if (empty($lang)) {
+            $lang = get_session_field('lang');
+        }
         $month_array = [
             'en' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
             'th' => ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.']
@@ -119,11 +122,14 @@ if (!function_exists('format_time')) {
     /**
      * Format time
      * @param string $time Time in HH:II:SS (MySQL) format
+     * @param string $lang
      * @return string
      */
-    function format_time(string $time): string
+    function format_time(string $time, string $lang): string
     {
-        $lang = get_session_field('lang');
+        if (empty($lang)) {
+            $lang = get_session_field('lang');
+        }
         if ('th' == $lang) {
             return substr($time, 0, 5) . 'น.';
         }
@@ -148,12 +154,13 @@ if (!function_exists('format_date_time')) {
     /**
      * Format date-time
      * @param string $date Date-time in YYYY-MM-DD HH:II:SS (MySQL) format
+     * @param string $languageCode
      * @return string
      */
-    function format_date_time(string $date): string
+    function format_date_time(string $date, string $languageCode): string
     {
         $pieces = explode(' ', $date);
-        return format_date($pieces[0]) . ' ' . format_time($pieces[1]);
+        return format_date($pieces[0], $languageCode) . ' ' . format_time($pieces[1], $languageCode);
     }
 }
 if (!function_exists('build_form_input')) {

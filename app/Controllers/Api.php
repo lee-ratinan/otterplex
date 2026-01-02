@@ -222,7 +222,7 @@ class Api extends BaseController
             'price_active'             => $variant['price_active'],
             'price_compare'            => $variant['price_compare'],
             'service_duration_minutes' => $variant['service_duration_minutes'],
-            'sessions'                 => $sessions
+            'sessions'                 => (empty($sessions) ? null : $sessions)
         ]);
     }
 }
