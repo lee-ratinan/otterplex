@@ -99,7 +99,7 @@ if (!function_exists('format_date')) {
      * @param string $lang
      * @return string
      */
-    function format_date(string $date, string $lang): string
+    function format_date(string $date, string $lang = ''): string
     {
         if (empty($lang)) {
             $lang = get_session_field('lang');
@@ -125,7 +125,7 @@ if (!function_exists('format_time')) {
      * @param string $lang
      * @return string
      */
-    function format_time(string $time, string $lang): string
+    function format_time(string $time, string $lang = ''): string
     {
         if (empty($lang)) {
             $lang = get_session_field('lang');
@@ -157,7 +157,7 @@ if (!function_exists('format_date_time')) {
      * @param string $languageCode
      * @return string
      */
-    function format_date_time(string $date, string $languageCode): string
+    function format_date_time(string $date, string $languageCode = ''): string
     {
         $pieces = explode(' ', $date);
         return format_date($pieces[0], $languageCode) . ' ' . format_time($pieces[1], $languageCode);

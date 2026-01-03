@@ -225,4 +225,30 @@ class Api extends BaseController
             'sessions'                 => (empty($sessions) ? null : $sessions)
         ]);
     }
+
+    public function get_slots(string $languageCode, string $countryCode, string $variantSlug): ResponseInterface
+    {
+        $svModel = new ServiceVariantModel();
+        $variant = $svModel->where('variant_slug', $variantSlug)->first();
+        if (empty($variant) || 'A' != $variant['is_active']) {
+            return $this->response->setJSON([]);
+        }
+        $localNames              = json_decode($variant['variant_local_names'], true);
+        $variant['variant_name'] = $localNames[$languageCode] ?? $variant['variant_name'];
+        $selectedDate            = $this->request->getGet('selected_date') ?? '';
+        $branchId                = (int) $this->request->getGet('branch_id') ?? 0;
+        if (0 < $branchId) {
+            $branchId = intval($branchId / ID_MASKED_PRIME);
+        }
+        // query
+        return $this->response->setJSON([
+            'variant_slug'             => $variant['variant_slug'],
+            'variant_name'             => $variant['variant_name'],
+            'schedule_type'            => $variant['schedule_type'],
+            'price_active'             => $variant['price_active'],
+            'price_compare'            => $variant['price_compare'],
+            'service_duration_minutes' => $variant['service_duration_minutes'],
+            'slots'                    => (empty($slots) ? null : $slots)
+        ]);
+    }
 }
