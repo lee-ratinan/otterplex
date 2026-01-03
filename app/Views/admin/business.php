@@ -72,6 +72,19 @@
                                     'type' => 'textarea',
                                 ], @$business['mart_store_intro_paragraph'][$lang_code]);
                             }
+                            echo '<h3>' . lang('BusinessMaster.field.contact') . '</h3>';
+                            echo build_form_input('contact_email_address', lang('BusinessMaster.field.contact_email_address'), [
+                                'type'      => 'email',
+                                'maxlength' => 64
+                            ], $business['contact_email_address']);
+                            echo build_form_input('contact_phone_number', lang('BusinessMaster.field.contact_phone_number'), [
+                                'type'      => 'tel',
+                                'maxlength' => 24
+                            ], $business['contact_phone_number']);
+                            echo build_form_input('contact_website', lang('BusinessMaster.field.contact_website'), [
+                                'type'      => 'url',
+                                'maxlength' => 36
+                            ], $business['contact_website']);
                             echo '<h3>' . lang('BusinessMaster.field.social_media') . '</h3>';
                             $social_medias = get_social_media();
                             foreach ($social_medias as $code => $social_name) {
@@ -280,12 +293,31 @@
                 slug = slug.replace(/[^a-z-]/g, '');
                 $(this).val(slug);
             });
+            $('#contact_phone_number').on('change', function () {
+                let phone_number = $(this).val(),
+                    country_code = '<?= $business['country_code'] ?>';
+                $.post(
+                    "<?= base_url('helper/format-phone-number') ?>",
+                    {phone_number: phone_number, country_code: country_code},
+                    function (response, status) {
+                        if (response.status === "OK") {
+                            $('#contact_phone_number').val(response.e164);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    "json"
+                ).fail(function (response) {
+                    let message = response.responseJSON.message ?? '<?= lang('System.response-msg.error.generic') ?>';
+                    toastr.error(message);
+                });
+            });
             // SAVE
             $('#btn-save').on('click', function (e) {
                 e.preventDefault();
                 // business_local_names_en
                 <?php
-                $all_fields = ['business_type_id', 'business_name', 'business_slug', 'allow_advance_booking', 'tax_percentage', 'tax_inclusive', 'mart_primary_color', 'mart_text_color', 'mart_background_color', 'currency_code'];
+                $all_fields = ['business_type_id', 'business_name', 'business_slug', 'allow_advance_booking', 'tax_percentage', 'tax_inclusive', 'mart_primary_color', 'mart_text_color', 'mart_background_color', 'currency_code', 'contact_email_address', 'contact_phone_number', 'contact_website',];
                 gen_js_fields_checker($all_fields);
                 foreach ($all_languages as $lang_code => $language_name) {
                     $all_fields[] = 'business_local_names_' . $lang_code;

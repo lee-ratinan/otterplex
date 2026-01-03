@@ -20,6 +20,10 @@ return [
         'contract_expiry'            => 'วันหมดอายุสัญญา',
         'business_status'            => 'สถานะธุรกิจ', // Not a real field
         'allow_advance_booking'      => 'จำนวนวันที่อนุญาตให้จองล่วงหน้าได้ (สำหรับบริการจองล่วงหน้าเท่านั้น)',
+        'contact'                    => 'ข้อมูลติดต่อ',
+        'contact_email_address'      => 'อีเมล',
+        'contact_phone_number'       => 'หมายเลขโทรศัพท์',
+        'contact_website'            => 'เว็บไซต์',
     ],
     'enum'        => [
         'tax_inclusive'   => [

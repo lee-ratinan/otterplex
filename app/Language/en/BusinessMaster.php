@@ -20,6 +20,10 @@ return [
         'contract_expiry'            => 'Contract Expiry Date',
         'business_status'            => 'Business Status', // Not a real field
         'allow_advance_booking'      => 'Days allowed for advance booking (for services with advance booking)',
+        'contact'                    => 'Contact Information',
+        'contact_email_address'      => 'Email Address',
+        'contact_phone_number'       => 'Phone Number',
+        'contact_website'            => 'Website',
     ],
     'enum'        => [
         'tax_inclusive'   => [
