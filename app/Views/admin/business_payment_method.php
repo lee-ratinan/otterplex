@@ -77,6 +77,7 @@
                         </div>
                     <?php endforeach; ?>
                 </div>
+                <input type="hidden" id="payment_method" name="payment_method" value="" />
             </div>
         </div>
     </div>
@@ -86,7 +87,9 @@
             $('#btn-save-<?= $method ?>').click(function (e) {
                 e.preventDefault();
                 <?php
-                $fields = [];
+                $fields   = [];
+                $fields[] = $method . '_business_id';
+                $fields[] = $method . '_payment_method';
                 if ('cash' === $method) {
                     foreach ($availableLocales as $languageCode => $languageName) {
                         $fields[] = $method . '_payment_instruction_instruction_' . $languageCode;
@@ -106,13 +109,12 @@
                 }
                 gen_js_fields_checker($fields);
                 $fields[] = $method . '_id';
-                $fields[] = $method . '_business_id';
-                $fields[] = $method . '_payment_method';
                 ?>
                 $('#btn-save-<?= $method ?>').prop('disabled', true);
+                $('#payment_method').val(<?= $method ?>_payment_method);
                 $.post(
                     "<?= base_url('/admin/business/payment-method') ?>",
-                    <?php gen_json_fields_to_fields($fields) ?>,
+                    <?php $fields[] = 'payment_method'; gen_json_fields_to_fields($fields) ?>,
                     function (response, status) {
                         $('#btn-save-<?= $method ?>').prop('disabled', false);
                         if (response.status === "<?= STATUS_RESPONSE_OK ?>") {

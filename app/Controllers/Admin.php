@@ -1176,6 +1176,10 @@ class Admin extends BaseController
 
     public function business_payment_method(): string
     {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER'])) {
+            return $this->forbiddenResponse('string');
+        }
         $paymentModel    = new BusinessPaymentMethodModel();
         $results         = $paymentModel->get_methods_for_business();
         $session         = session();
@@ -1199,9 +1203,47 @@ class Admin extends BaseController
         return view('admin/business_payment_method', $data);
     }
 
-    public function business_payment_method_edit(): string
+    public function business_payment_method_post(): ResponseInterface
     {
-        return view('admin/business_payment_method_edit');
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER'])) {
+            return $this->forbiddenResponse('ResponseInterface');
+        }
+        $paymentModel   = new BusinessPaymentMethodModel();
+        $payment_method = $this->request->getPost('payment_method');
+        if ('cash' == $payment_method) {
+            $data   = [];
+            $availableLocale = get_available_locales();
+            $fields = ['cash_id', 'cash_business_id'];
+            foreach ($fields as $field) {
+                $data[str_replace('cash_', '', $field)] = $this->request->getPost($field);
+            }
+            foreach ($availableLocale as $key => $dummy) {
+                $data['payment_instruction'][$key] = $this->request->getPost('cash_payment_instruction_instruction_' . $key);
+            }
+            $data['payment_method']      = 'cash';
+            $data['payment_instruction'] = json_encode($data['payment_instruction']);
+            if (0 < $data['id']) {
+                if ($paymentModel->update($data['id'], $data)) {
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_OK,
+                        'message' => lang('System.response-msg.success.data-saved'),
+                    ]);
+                }
+            } else {
+                if ($paymentModel->insert($data)) {
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_OK,
+                        'message' => lang('System.response-msg.success.data-saved'),
+                    ]);
+                }
+            }
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => lang('System.response-msg.error.db-issue')
+            ]);
+        }
+        return $this->response->setJSON([]);
     }
 
     /**
