@@ -12,10 +12,9 @@ return [
             'account_number' => 'Account Number',
             'type'           => 'Type',
             'id_types'       => [
-                'phone'  => 'Phone',
-                'id_num' => 'ID Number'
+                'phone'  => 'Mobile Phone Number'
             ],
-            'target_value'   => 'Phone Number / ID Number',
+            'target_value'   => 'Mobile Phone Number',
             'title'          => 'Channel'
         ]
     ],

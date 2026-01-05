@@ -13,7 +13,7 @@ if (!function_exists('gen_js_fields_checker')) {
         }
         echo 'let ' . implode(',', $assigned_vals) . ";\n";
         foreach ($fields as $field) {
-            echo "if ('' === {$field}) { $('#{$field}').focus(); return false; }";
+            echo "if ('' === {$field}) { $('#{$field}').focus(); console.log('{$field} is empty'); return false; }\n";
         }
     }
 }
