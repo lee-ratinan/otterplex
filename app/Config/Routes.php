@@ -45,6 +45,9 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->post('business/user-manage', 'Admin::business_user_manage_post');
     $routes->get('business/customer', 'Admin::business_customer');
     $routes->post('business/customer', 'Admin::business_customer_post');
+    // PAYMENT
+    $routes->get('business/payment-method', 'Admin::business_payment_method');
+    $routes->post('business/payment-method', 'Admin::business_payment_method_post');
     // RESOURCE
     $routes->get('resource/type', 'Admin::resource_type');
     $routes->post('resource/type', 'Admin::resource_type_post');

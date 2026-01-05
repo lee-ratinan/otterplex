@@ -5141,3 +5141,26 @@ if (!function_exists('generate_slug')) {
         return $year . $month . $date . $hash;
     }
 }
+if (!function_exists('retrieve_bank_list')) {
+    function retrieve_bank_list($countryCode): array
+    {
+        $list = [
+            'TH' => [
+                'BKKBTHBK' => 'ธนาคารกรุงเทพ, Bangkok Bank',
+                'KRTHTHBK' => 'ธนาคารกรุงไทย, Krungthai Bank (KTB)',
+                'AYUDTHBK' => 'ธนาคารกรุงศรีอยุธยา, Bank of Ayudhya (Krungsri)',
+                'KASITHBK' => 'ธนาคารกสิกรไทย, Kasikorn Bank (KBank)',
+                'TMBKTHBK' => 'ธนาคารทหารไทยธนชาต, TMBThanachart Bank (TTB)',
+                'SICOTHBK' => 'ธนาคารไทยพาณิชย์, Siam Commercial Bank (SCB)',
+                'GSBATHBK' => 'ธนาคารออมสิน, Government Savings Bank (GSB)',
+                'UBOBTHBK' => 'CIMB Thai Bank',
+                'CITITHBX' => 'Citibank N.A.',
+                'HSBCTHBK' => 'HSBC Thai',
+                'SCBLTHBX' => 'Standard Chartered',
+                'TFPCTHB1' => 'TISCO Bank',
+                'UOVBTHBK' => 'United Overseas Bank (UOB)',
+            ]
+        ];
+        return $list[$countryCode] ?? [];
+    }
+}

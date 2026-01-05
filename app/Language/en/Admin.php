@@ -36,7 +36,8 @@ return [
         'business-branch-manage'        => 'Branch Manager',
         'business-user'                 => 'Staff',
         'business-user-manage'          => 'Staff Manager',
-        'business-customer'             => 'Customer'
+        'business-customer'             => 'Customer',
+        'business-payment-method'       => 'Payment Method',
     ],
     'dashboard'     => [
         'no-business' => [

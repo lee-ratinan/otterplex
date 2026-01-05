@@ -36,7 +36,8 @@ return [
         'business-branch-manage'        => 'การจัดการสาขา',
         'business-user'                 => 'พนักงาน',
         'business-user-manage'          => 'การจัดการพนักงาน',
-        'business-customer'             => 'ลูกค้า'
+        'business-customer'             => 'ลูกค้า',
+        'business-payment-method'       => 'วิธีการชำระเงิน',
     ],
     'dashboard'     => [
         'no-business' => [

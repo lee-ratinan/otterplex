@@ -10,6 +10,7 @@ use App\Models\BusinessContractModel;
 use App\Models\BusinessContractPaymentModel;
 use App\Models\BusinessCustomerModel;
 use App\Models\BusinessMasterModel;
+use App\Models\BusinessPaymentMethodModel;
 use App\Models\BusinessTypeModel;
 use App\Models\BusinessUserModel;
 use App\Models\OtternautPackageModel;
@@ -1171,6 +1172,36 @@ class Admin extends BaseController
         $custModel = new BusinessCustomerModel();
         $users     = $custModel->getDataTable($draw, $offset, $length, $search, $orderBy, $orderDir);
         return $this->response->setJSON($users);
+    }
+
+    public function business_payment_method(): string
+    {
+        $paymentModel    = new BusinessPaymentMethodModel();
+        $results         = $paymentModel->get_methods_for_business();
+        $session         = session();
+        $countryCode     = $session->business['country_code'];
+        $availableMethod = [];
+        if ('TH' == $countryCode) {
+            $availableMethod = [
+                'cash',
+                'bank_transfer',
+                'promptpay_static',
+                'external_online'
+            ];
+        }
+        $data         = [
+            'slug'            => 'business-payment-method',
+            'lang'            => $this->request->getLocale(),
+            'countryCode'     => $countryCode,
+            'results'         => $results,
+            'availableMethod' => $availableMethod,
+        ];
+        return view('admin/business_payment_method', $data);
+    }
+
+    public function business_payment_method_edit(): string
+    {
+        return view('admin/business_payment_method_edit');
     }
 
     /**

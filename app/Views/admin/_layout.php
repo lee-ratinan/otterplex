@@ -164,29 +164,23 @@ if (!empty($session->business)) {
             $sidebar_menu['business'] = [
                 'title' => '<i class="fa-solid fa-store me-3"></i><span>' . lang('Admin.pages.business') . '</span>',
                 'links' => [
-                    'business'          => [base_url('/admin/business'), lang('Admin.pages.business')],
-                    'business-branch'   => [
-                        base_url('/admin/business/branch'), lang('Admin.pages.business-branch')
-                    ],
-                    'business-user'     => [base_url('/admin/business/user'), lang('Admin.pages.business-user')],
-                    'business-customer' => [
-                        base_url('/admin/business/customer'), lang('Admin.pages.business-customer')
-                    ],
-                    'business-resource-type' => [base_url('/admin/resource/type'), lang('Admin.pages.business-resource-type')],
-                    'business-resource'      => [base_url('/admin/resource'), lang('Admin.pages.business-resource')],
+                    'business'                => [base_url('/admin/business'), lang('Admin.pages.business')],
+                    'business-branch'         => [base_url('/admin/business/branch'), lang('Admin.pages.business-branch')],
+                    'business-user'           => [base_url('/admin/business/user'), lang('Admin.pages.business-user')],
+                    'business-customer'       => [base_url('/admin/business/customer'), lang('Admin.pages.business-customer')],
+                    'business-payment-method' => [base_url('/admin/business/payment-method'), lang('Admin.pages.business-payment-method')],
+                    'business-resource-type'  => [base_url('/admin/resource/type'), lang('Admin.pages.business-resource-type')],
+                    'business-resource'       => [base_url('/admin/resource'), lang('Admin.pages.business-resource')],
                 ]
             ];
         } elseif ('MANAGER' == $session->user_role) {
             $sidebar_menu['business'] = [
                 'title' => '<i class="fa-solid fa-store me-3"></i><span>' . lang('Admin.pages.business') . '</span>',
                 'links' => [
-                    'business-branch'   => [
-                        base_url('/admin/business/branch'), lang('Admin.pages.business-branch')
-                    ],
+                    'business-branch'   => [base_url('/admin/business/branch'), lang('Admin.pages.business-branch')],
                     'business-user'     => [base_url('/admin/business/user'), lang('Admin.pages.business-user')],
-                    'business-customer' => [
-                        base_url('/admin/business/customer'), lang('Admin.pages.business-customer')
-                    ],
+                    'business-customer' => [base_url('/admin/business/customer'), lang('Admin.pages.business-customer')],
+                    'business-resource' => [base_url('/admin/resource'), lang('Admin.pages.business-resource')],
                 ]
             ];
         }
