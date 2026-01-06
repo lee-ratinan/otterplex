@@ -6,12 +6,15 @@ use App\Models\BranchMasterModel;
 use App\Models\BranchModifiedHoursModel;
 use App\Models\BranchOpeningHoursModel;
 use App\Models\BusinessMasterModel;
+use App\Models\BusinessPaymentMethodModel;
 use App\Models\ProductMasterModel;
 use App\Models\ProductVariantModel;
 use App\Models\ServiceMasterModel;
 use App\Models\ServiceVariantModel;
 use App\Models\SessionMasterModel;
 use CodeIgniter\HTTP\ResponseInterface;
+use libphonenumber\PhoneNumberFormat;
+use libphonenumber\PhoneNumberUtil;
 
 class Api extends BaseController
 {
@@ -84,6 +87,13 @@ class Api extends BaseController
         $business['mart_meta_description']      = $mart_meta_descriptions[$languageCode] ?? '';
         $business['mart_meta_keywords']         = $mart_meta_keywords_array[$languageCode] ?? '';
         $business['mart_store_intro_paragraph'] = $mart_store_intro_paragraphs[$languageCode] ?? '';
+        $business['contact_phone_number_shown'] = '';
+        if (!empty($business['contact_phone_number'])) {
+            $phone_util = PhoneNumberUtil::getInstance();
+            $phone_obj  = $phone_util->parse($business['contact_phone_number'], $business['country_code']);
+            $business['contact_phone_number_shown'] = $phone_util->format($phone_obj, PhoneNumberFormat::NATIONAL);
+        }
+        $business['contact_phone_number']       = $business['contact_phone_number'] ?? '';
         unset($business['business_local_names']);
         unset($business['type_local_names']);
         if (!empty($business['business_logo'])) {
@@ -191,6 +201,18 @@ class Api extends BaseController
             }
             $business['products'] = $products;
         }
+        // PAYMENT
+        $paymentModel = new BusinessPaymentMethodModel();
+        $payments     = $paymentModel->where('business_id', $business['id'])->findAll();
+        $paymentFinal = [];
+        foreach ($payments as $payment) {
+            $paymentFinal[$payment['payment_method']] = [
+                'id'                  => $payment['id'],
+                'payment_method'      => $payment['payment_method'],
+                'payment_instruction' => json_decode($payment['payment_instruction'], true),
+            ];
+        }
+        $business['payments'] = $paymentFinal;
         return $this->response->setJSON([
             'query'    => $query,
             'business' => $business
