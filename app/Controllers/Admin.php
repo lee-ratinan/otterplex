@@ -1211,39 +1211,82 @@ class Admin extends BaseController
         }
         $paymentModel   = new BusinessPaymentMethodModel();
         $payment_method = $this->request->getPost('payment_method');
+        $data           = [];
         if ('cash' == $payment_method) {
-            $data   = [];
             $availableLocale = get_available_locales();
-            $fields = ['cash_id', 'cash_business_id'];
+            $fields = ['id', 'business_id'];
             foreach ($fields as $field) {
-                $data[str_replace('cash_', '', $field)] = $this->request->getPost($field);
+                $data[$field] = $this->request->getPost('cash_' . $field);
             }
             foreach ($availableLocale as $key => $dummy) {
                 $data['payment_instruction'][$key] = $this->request->getPost('cash_payment_instruction_instruction_' . $key);
             }
             $data['payment_method']      = 'cash';
-            $data['payment_instruction'] = json_encode($data['payment_instruction']);
-            if (0 < $data['id']) {
-                if ($paymentModel->update($data['id'], $data)) {
-                    return $this->response->setJSON([
-                        'status'  => STATUS_RESPONSE_OK,
-                        'message' => lang('System.response-msg.success.data-saved'),
-                    ]);
-                }
-            } else {
-                if ($paymentModel->insert($data)) {
-                    return $this->response->setJSON([
-                        'status'  => STATUS_RESPONSE_OK,
-                        'message' => lang('System.response-msg.success.data-saved'),
-                    ]);
-                }
+            $data['payment_instruction'] = json_encode($data['payment_instruction'], JSON_UNESCAPED_UNICODE);
+        } else if ('bank_transfer' == $payment_method) {
+            $fields = ['id', 'business_id'];
+            foreach ($fields as $field) {
+                $data[$field] = $this->request->getPost('bank_transfer_' . $field);
+            }
+            $instruction_fields = ['swift_code', 'account_name', 'account_number'];
+            $instructions       = [];
+            foreach ($instruction_fields as $field) {
+                $instructions[$field] = $this->request->getPost('bank_transfer_payment_instruction_' . $field);
+            }
+            $data['payment_instruction'] = json_encode($instructions, JSON_UNESCAPED_UNICODE);
+            $data['payment_method']      = 'bank_transfer';
+        } else if ('promptpay_static' == $payment_method) {
+            $fields = ['id', 'business_id'];
+            foreach ($fields as $field) {
+                $data[$field] = $this->request->getPost('promptpay_static_' . $field);
+            }
+            $instruction_fields = ['type', 'target_value'];
+            $instructions       = [];
+            foreach ($instruction_fields as $field) {
+                $instructions[$field] = $this->request->getPost('promptpay_static_payment_instruction_' . $field);
+            }
+            $data['payment_instruction'] = json_encode($instructions, JSON_UNESCAPED_UNICODE);
+            $data['payment_method']      = 'promptpay_static';
+        }
+        if (!isset($data['business_id'])) {
+            $fields = ['id', 'business_id'];
+            foreach ($fields as $field) {
+                $data[$field] = $this->request->getPost('promptpay_static_' . $field);
+            }
+            $availableLocale    = get_available_locales();
+            $instruction_fields = ['type', 'target_value'];
+            $instructions       = [];
+            foreach ($instruction_fields as $field) {
+                $instructions[$field] = $this->request->getPost('promptpay_static_payment_instruction_' . $field);
             }
             return $this->response->setJSON([
                 'status'  => STATUS_RESPONSE_ERR,
                 'message' => lang('System.response-msg.error.db-issue')
             ]);
         }
-        return $this->response->setJSON([]);
+        $cache_key = 'business_payment_methods-for-' . $data['business_id'];
+        $cache     = \CodeIgniter\Config\Services::cache();
+        if (0 < $data['id']) {
+            $cache->delete($cache_key);
+            if ($paymentModel->update($data['id'], $data)) {
+                return $this->response->setJSON([
+                    'status'  => STATUS_RESPONSE_OK,
+                    'message' => lang('System.response-msg.success.data-saved'),
+                ]);
+            }
+        } else {
+            $cache->delete($cache_key);
+            if ($paymentModel->insert($data)) {
+                return $this->response->setJSON([
+                    'status'  => STATUS_RESPONSE_OK,
+                    'message' => lang('System.response-msg.success.data-saved'),
+                ]);
+            }
+        }
+        return $this->response->setJSON([
+            'status'  => STATUS_RESPONSE_ERR,
+            'message' => lang('System.response-msg.error.db-issue')
+        ]);
     }
 
     /**

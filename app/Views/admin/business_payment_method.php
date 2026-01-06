@@ -29,17 +29,17 @@
                                     foreach ($availableLocales as $languageCode => $languageName) {
                                         echo build_form_input($method . '_payment_instruction_instruction_' . $languageCode, lang('BusinessPaymentMethod.field.payment_instructions.instruction') . ': ' . $languageName, [
                                             'type' => 'text',
-                                        ], @$results[$method]['payment_instruction']['instruction'][$languageCode]);
+                                        ], @$results[$method]['payment_instruction'][$languageCode]);
                                     }
                                 } else if ('bank_transfer' == $method) {
                                     $bankList = retrieve_bank_list($countryCode);
-                                    echo build_form_input($method . '-payment_instruction_swift_code', lang('BusinessPaymentMethod.field.payment_instructions.swift_code'), [
+                                    echo build_form_input($method . '_payment_instruction_swift_code', lang('BusinessPaymentMethod.field.payment_instructions.swift_code'), [
                                         'type' => 'select',
                                     ], @$results[$method]['payment_instruction']['swift_code'], '', $bankList);
-                                    echo build_form_input($method . '-payment_instruction_account_name', lang('BusinessPaymentMethod.field.payment_instructions.account_name'), [
+                                    echo build_form_input($method . '_payment_instruction_account_name', lang('BusinessPaymentMethod.field.payment_instructions.account_name'), [
                                         'type' => 'text',
                                     ], @$results[$method]['payment_instruction']['account_name']);
-                                    echo build_form_input($method . '-payment_instruction_account_number', lang('BusinessPaymentMethod.field.payment_instructions.account_number'), [
+                                    echo build_form_input($method . '_payment_instruction_account_number', lang('BusinessPaymentMethod.field.payment_instructions.account_number'), [
                                         'type' => 'text',
                                     ], @$results[$method]['payment_instruction']['account_number']);
                                 } else if ('promptpay_static' == $method) {
@@ -72,6 +72,7 @@
                                         <button class="btn btn-primary btn-save" id="btn-save-<?= $method ?>"><?= lang('System.buttons.new') ?></button>
                                     <?php endif; ?>
                                 </div>
+                                <pre><?php print_r(@$results[$method]) ?></pre>
                                 <hr/>
                             </div>
                         </div>
