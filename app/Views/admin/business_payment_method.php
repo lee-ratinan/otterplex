@@ -67,12 +67,11 @@
                                     <?php if (isset($results[$method])) : ?>
                                         <button class="btn btn-primary btn-save" id="btn-save-<?= $method ?>"><?= lang('System.buttons.save') ?></button>
                                         <button class="btn btn-outline-danger btn-remove" id="btn-remove-<?= $method ?>"><?= lang('System.buttons.remove') ?></button>
-                                        <button class="btn btn-outline-danger btn-remove d-none" id="btn-remove-confirm-<?= $method ?>" data-id="<?= $results[$method]['id'] ?>"><?= lang('System.buttons.remove-confirm') ?></button>
+                                        <button class="btn btn-outline-danger btn-remove-confirm d-none" id="btn-remove-confirm-<?= $method ?>" data-id="<?= $results[$method]['id'] ?>"><?= lang('System.buttons.remove-confirm') ?></button>
                                     <?php else: ?>
                                         <button class="btn btn-primary btn-save" id="btn-save-<?= $method ?>"><?= lang('System.buttons.new') ?></button>
                                     <?php endif; ?>
                                 </div>
-                                <pre><?php print_r(@$results[$method]) ?></pre>
                                 <hr/>
                             </div>
                         </div>
@@ -133,6 +132,55 @@
                 });
             });
             <?php endforeach; ?>
+            <?php if (in_array('promptpay_static', $availableMethod)) : ?>
+            $('#promptpay_static_payment_instruction_target_value').on('change', function () {
+                let phone_number = $(this).val(),
+                    country_code = 'TH';
+                $.post(
+                    "<?= base_url('helper/format-phone-number') ?>",
+                    {phone_number: phone_number, country_code: country_code},
+                    function (response, status) {
+                        if (response.status === "OK") {
+                            $('#promptpay_static_payment_instruction_target_value').val(response.e164);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    "json"
+                ).fail(function (response) {
+                    let message = response.responseJSON.message ?? '<?= lang('System.response-msg.error.generic') ?>';
+                    toastr.error(message);
+                });
+            });
+            <?php endif; ?>
+            // DELETE
+            $('.btn-remove').click(function (e) {
+                e.preventDefault();
+                let btn_id = $(this).attr('id'),
+                    btn_confirm_id = btn_id.replace('btn-remove', 'btn-remove-confirm');
+                $('#' + btn_id).addClass('d-none');
+                $('#' + btn_confirm_id).removeClass('d-none');
+            });
+            $('.btn-remove-confirm').click(function (e) {
+                e.preventDefault();
+                let payment_id = $(this).data('id');
+                $.post(
+                    "<?= base_url('/admin/business/payment-method') ?>",
+                    {payment_method: 'remove-payment-method', payment_id: payment_id},
+                    function (response, status) {
+                        if (response.status === "<?= STATUS_RESPONSE_OK ?>") {
+                            toastr.success(response.message);
+                            setTimeout(function() { location.reload(); }, 3000);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    "json"
+                ).fail(function (response) {
+                    let message = response.responseJSON.message ?? '<?= lang('System.response-msg.error.generic') ?>';
+                    toastr.error(message);
+                });
+            });
         });
     </script>
 <?php $this->endSection() ?>

@@ -1203,6 +1203,9 @@ class Admin extends BaseController
         return view('admin/business_payment_method', $data);
     }
 
+    /**
+     * @throws \ReflectionException
+     */
     public function business_payment_method_post(): ResponseInterface
     {
         $session = session();
@@ -1212,7 +1215,26 @@ class Admin extends BaseController
         $paymentModel   = new BusinessPaymentMethodModel();
         $payment_method = $this->request->getPost('payment_method');
         $data           = [];
-        if ('cash' == $payment_method) {
+        $cache          = \CodeIgniter\Config\Services::cache();
+        if ('remove-payment-method' == $payment_method) {
+            $payment_id  = $this->request->getPost('payment_id');
+            $business_id = $session->business['business_id'];
+            $check       = $paymentModel->where('id', $payment_id)->where('business_id', $business_id)->first();
+            if ($check) {
+                if ($paymentModel->delete($payment_id)) {
+                    $cache_key = 'business_payment_methods-for-' . $business_id;
+                    $cache->delete($cache_key);
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_OK,
+                        'message' => lang('System.response-msg.success.data-deleted'),
+                    ]);
+                }
+            }
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => lang('System.response-msg.error.db-issue')
+            ]);
+        } else if ('cash' == $payment_method) {
             $availableLocale = get_available_locales();
             $fields = ['id', 'business_id'];
             foreach ($fields as $field) {
@@ -1247,25 +1269,26 @@ class Admin extends BaseController
             }
             $data['payment_instruction'] = json_encode($instructions, JSON_UNESCAPED_UNICODE);
             $data['payment_method']      = 'promptpay_static';
-        }
-        if (!isset($data['business_id'])) {
+        } else if ('external_online' == $payment_method) {
             $fields = ['id', 'business_id'];
             foreach ($fields as $field) {
-                $data[$field] = $this->request->getPost('promptpay_static_' . $field);
+                $data[$field] = $this->request->getPost('external_online_' . $field);
             }
             $availableLocale    = get_available_locales();
-            $instruction_fields = ['type', 'target_value'];
+            $instruction_fields = ['title', 'instruction'];
             $instructions       = [];
             foreach ($instruction_fields as $field) {
-                $instructions[$field] = $this->request->getPost('promptpay_static_payment_instruction_' . $field);
+                foreach ($availableLocale as $key => $dummy) {
+                    $instructions[$field][$key] = $this->request->getPost('external_online_payment_instruction_' . $field . '_' . $key);
+                }
             }
-            return $this->response->setJSON([
-                'status'  => STATUS_RESPONSE_ERR,
-                'message' => lang('System.response-msg.error.db-issue')
-            ]);
+            $data['payment_instruction'] = json_encode($instructions, JSON_UNESCAPED_UNICODE);
+            $data['payment_method']      = 'external_online';
+        }
+        if (!isset($data['business_id'])) {
+            $data['business_id'] = $session->business['business_id'];
         }
         $cache_key = 'business_payment_methods-for-' . $data['business_id'];
-        $cache     = \CodeIgniter\Config\Services::cache();
         if (0 < $data['id']) {
             $cache->delete($cache_key);
             if ($paymentModel->update($data['id'], $data)) {
