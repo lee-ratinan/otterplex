@@ -8,9 +8,23 @@
                     <h2><?= lang('Business.title', [$business['business_local_names'][$lang] ?? $business['business_name']]) ?></h2>
                     <div class="row">
                         <div class="col-12 col-lg-6">
+                            <p>
+                                <?= lang('BusinessMaster.field.country_code') . ': ' . get_country_name_single_language($business['country_code'], $session->lang) ?>
+                                <br>
+                                <?= lang('BusinessMaster.field.contract_expiry') . ': ' . format_date($business['contract_expiry']) ?>
+                            </p>
+                            <ul>
+                                <li><a href="#generic-information"><?= lang('Business.subtitle.generic-information') ?></a></li>
+                                <li><a href="#tax-information"><?= lang('Business.subtitle.tax-information') ?></a></li>
+                                <li><a href="#decoration"><?= lang('Business.subtitle.mart-decoration') ?></a></li>
+                                <li><a href="#contact"><?= lang('BusinessMaster.field.contact') ?></a></li>
+                                <li><a href="#social-media"><?= lang('BusinessMaster.field.social_media') ?></a></li>
+                                <li><a href="#seo"><?= lang('Business.subtitle.mart-seo') ?></a></li>
+                                <li><a href="#upload-your-logo"><?= lang('Business.upload-logo') ?></a></li>
+                                <li><a href="#contract"><?= lang('Business.contracts') ?></a></li>
+                            </ul>
+                            <h3 class="mt-5" id="generic-information"><?= lang('Business.subtitle.generic-information') ?></h3>
                             <?php
-                            echo '<h3>' . lang('Business.subtitle.generic-information') . '</h3>';
-                            echo lang('BusinessMaster.field.country_code') . ': ' . get_country_name_single_language($business['country_code'], $session->lang);
                             echo build_form_input('business_type_id', lang('BusinessMaster.field.business_type_id'), [
                                 'type' => 'select',
                             ], $business['business_type_id'], '', $business_types);
@@ -35,7 +49,7 @@
                                 'type' => 'number'
                             ], $business['allow_advance_booking']);
                             // country code is not updatable
-                            echo '<h3>' . lang('Business.subtitle.tax-information') . '</h3>';
+                            echo '<h3 class="mt-5" id="tax-information">' . lang('Business.subtitle.tax-information') . '</h3>';
                             echo build_form_input('tax_percentage', lang('BusinessMaster.field.tax_percentage'), [
                                 'type' => 'number',
                                 'min'  => 0,
@@ -57,7 +71,7 @@
                             echo build_form_input('currency_code', lang('BusinessMaster.field.currency_code'), [
                                 'type' => 'select',
                             ], $business['currency_code'], '', $currency_list);
-                            echo '<h3>' . lang('Business.subtitle.mart-decoration') . '</h3>';
+                            echo '<h3 class="mt-5" id="decoration">' . lang('Business.subtitle.mart-decoration') . '</h3>';
                             echo build_form_input('mart_primary_color', lang('BusinessMaster.field.mart_primary_color'), [
                                 'type' => 'color',
                             ], '#' . $business['mart_primary_color'], 'mart-reset-color');
@@ -72,7 +86,7 @@
                                     'type' => 'textarea',
                                 ], @$business['mart_store_intro_paragraph'][$lang_code]);
                             }
-                            echo '<h3>' . lang('BusinessMaster.field.contact') . '</h3>';
+                            echo '<h3 id="contact">' . lang('BusinessMaster.field.contact') . '</h3>';
                             echo build_form_input('contact_email_address', lang('BusinessMaster.field.contact_email_address'), [
                                 'type'      => 'email',
                                 'maxlength' => 64
@@ -85,16 +99,16 @@
                                 'type'      => 'url',
                                 'maxlength' => 36
                             ], $business['contact_website']);
-                            echo '<h3>' . lang('BusinessMaster.field.social_media') . '</h3>';
+                            echo '<h3 class="mt-5" id="social-media">' . lang('BusinessMaster.field.social_media') . '</h3>';
                             $social_medias = get_social_media();
                             foreach ($social_medias as $code => $social_name) {
                                 echo build_form_input('social_media_' . $code, $social_name, [
                                     'type' => 'url',
                                 ], @$business['social_media'][$code]);
                             }
-                            echo '<h3>' . lang('Business.subtitle.mart-seo') . '</h3>';
+                            echo '<h3 class="mt-5" id="seo">' . lang('Business.subtitle.mart-seo') . '</h3>';
                             foreach ($all_languages as $lang_code => $language_name) {
-                                echo '<h4>' . $language_name . '</h4>';
+                                echo '<p><b>' . $language_name . '</b></p>';
                                 echo build_form_input('mart_meta_description_' . $lang_code, lang('BusinessMaster.field.mart_meta_description'), [
                                     'type' => 'text',
                                 ], @$business['mart_meta_description'][$lang_code]);
@@ -114,7 +128,7 @@
                                 <button class="btn btn-primary" id="btn-save"><?= lang('System.buttons.save') ?></button>
                             </div>
                             <!-- UPLOAD LOGO -->
-                            <h3><?= lang('Business.upload-logo') ?></h3>
+                            <h3 class="mt-5" id="upload-your-logo"><?= lang('Business.upload-logo') ?></h3>
                             <form id="form-upload-logo" action="<?= base_url('/admin/business') ?>" method="post" enctype="multipart/form-data">
                                 <input type="hidden" name="script_action" value="upload_logo"/>
                                 <input type="file" id="logo" name="logo" class="form-control my-3"/>
@@ -134,7 +148,7 @@
                         </div>
                     </div>
                     <hr class="my-3" />
-                    <h2><?= lang('Business.contracts') ?></h2>
+                    <h2 class="mt-5" id="contract"><?= lang('Business.contracts') ?></h2>
                     <div class="table-responsive">
                         <table id="contract-table" class="table table-sm table-striped table-hover">
                             <thead>

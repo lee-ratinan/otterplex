@@ -1,7 +1,7 @@
 <?php
 
-defined('VERSIONING_NO') || define('VERSIONING_NO', '0.1.5');
-defined('VERSIONING_DT') || define('VERSIONING_DT', '2025-12-26');
+defined('VERSIONING_NO') || define('VERSIONING_NO', '0.1.6');
+defined('VERSIONING_DT') || define('VERSIONING_DT', '2026-01-08');
 
 /**
  * 0.1.1 2025-11-07
@@ -9,6 +9,7 @@ defined('VERSIONING_DT') || define('VERSIONING_DT', '2025-12-26');
  * 0.1.3 2025-12-17
  * 0.1.4 2025-12-23
  * 0.1.5 2025-12-26
+ * 0.1.6 2026-01-08
  */
 
 /*
