@@ -8,6 +8,7 @@ class SessionMasterModel extends AppBaseModel
     protected $primaryKey = 'id';
     protected $allowedFields = [
         'id',
+        'branch_id',
         'service_variant_id',
         'session_type',
         'session_capacity',

@@ -2017,6 +2017,66 @@ class Admin extends BaseController
     }
 
     /**
+     * @param int $serviceId
+     * @param int $serviceVariantId
+     * @return string
+     */
+    public function service_variant_session(int $serviceId, int $serviceVariantId): string
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('string');
+        }
+        $sId          = $serviceId / ID_MASKED_PRIME;
+        $svId         = $serviceVariantId / ID_MASKED_PRIME;
+        $serviceModel = new ServiceMasterModel();
+        $variantModel = new ServiceVariantModel();
+        $service      = $serviceModel->findRow($sId);
+        if (empty($service)) {
+            throw PageNotFoundException::forPageNotFound();
+        }
+        $service['service_local_names'] = json_decode($service['service_local_names'], true);
+        $variant          = $variantModel->findRow($svId);
+        if (empty($variant)) {
+            throw PageNotFoundException::forPageNotFound();
+        }
+        $data         = [
+            'slug'          => 'service-variant-session',
+            'lang'          => $this->request->getLocale(),
+            'breadcrumb'    => [
+                [
+                    'url'        => base_url('admin/service'),
+                    'page_title' => lang('Admin.pages.service'),
+                ],
+                [
+                    'url'        => base_url('admin/service/' . $serviceId),
+                    'page_title' => lang('Admin.pages.service-manage'),
+                ],
+                [
+                    'url'        => base_url('admin/service/variant/' . $serviceId . '/' . $serviceVariantId),
+                    'page_title' => lang('Admin.pages.service-variant-manage'),
+                ]
+            ],
+            'serviceIdMask' => $serviceId,
+            'variantIdMask' => $serviceVariantId,
+            'service'       => $service,
+            'variant'       => $variant,
+        ];
+        return view('admin/service_variant_session', $data);
+    }
+
+    public function service_variant_session_post(): ResponseInterface
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('DataTable');
+        }
+        return $this->response->setJSON([
+            'data' => []
+        ]);
+    }
+
+    /**
      * Manage product
      * @return string
      */

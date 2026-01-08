@@ -19,6 +19,7 @@ return [
         'product'                       => 'สินค้า',
         'product-manage'                => 'การจัดการสินค้า',
         'product-variant-manage'        => 'การจัดการตัวเลือกสินค้า',
+        'service-variant-session'       => 'เซสชั่น',
         'product-variant-inventory'     => 'สต็อกสินค้า',
         'product-category'              => 'ประเภทสินค้า',
         'product-category-manage'       => 'การจัดการประเภทสินค้า',

@@ -16,6 +16,7 @@ return [
         'service'                       => 'Service',
         'service-manage'                => 'Service Management',
         'service-variant-manage'        => 'Service Variant Management',
+        'service-variant-session'       => 'Session',
         'product'                       => 'Product',
         'product-manage'                => 'Product Management',
         'product-variant-manage'        => 'Product Variant Management',

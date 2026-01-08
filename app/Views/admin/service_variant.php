@@ -15,6 +15,11 @@
                     </h2>
                     <div class="row">
                         <div class="col col-md-6">
+                            <div class="text-end">
+                                <?php if ('S' == $variant['schedule_type']) : ?>
+                                    <a class="btn btn-primary btn-sm mb-1" href="<?= base_url('admin/service/variant/session/' . ($variant['service_id'] * ID_MASKED_PRIME) . '/' . ($variant['id'] * ID_MASKED_PRIME)) ?>"><i class="fa-solid fa-eye"></i> <?= lang('Service.session.view-btn') ?></a>
+                                <?php endif; ?>
+                            </div>
                             <?php
                             echo build_form_input('variant_name', lang('ServiceVariant.field.variant_name'), [
                                 'type' => 'text',
@@ -70,11 +75,6 @@
                             </div>
                             <input type="hidden" name="id" id="id" value="<?= $variant['id'] ?? 0 ?>" />
                             <input type="hidden" name="service_id" id="service_id" value="<?= $service['id'] ?? 0 ?>" />
-                            <hr />
-                            <?php if (isset($variant['schedule_type']) && 'S' == $variant['schedule_type']) : ?>
-                                <h3><?= lang('Service.sessions.title') ?></h3>
-                                <a class="btn btn-primary" href="#"><?= lang('Service.sessions.new') ?></a>
-                            <?php endif; ?>
                         </div>
                     </div>
                 </div>

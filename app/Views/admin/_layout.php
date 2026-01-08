@@ -135,8 +135,8 @@ if (!empty($session->business)) {
             $sidebar_menu['product'] = [
                 'title' => '<i class="fa-solid fa-box-open me-3"></i> <span>' . lang('Admin.pages.product') . '</span>',
                 'links' => [
-                    'product' => [base_url('/admin/product'), lang('Admin.pages.product')],
                     'product-category' => [base_url('admin/product/category'), lang('Admin.pages.product-category')],
+                    'product'          => [base_url('/admin/product'), lang('Admin.pages.product')],
                 ]
             ];
 //            $sidebar_menu['review'] = [
