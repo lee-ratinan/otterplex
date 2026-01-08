@@ -10,7 +10,8 @@ return [
     'upload-image'       => 'Upload Service Image',
     'upload-explanation' => 'The system only accepts <code>png</code> and <code>jpg</code> files under 800kb. If the file is larger than 1280px (width), 960px (height), it will be cropped accordingly.',
     'session'            => [
-        'view-btn' => 'View Sessions',
-        'title'    => 'Sessions',
+        'view-btn'    => 'View Sessions',
+        'title'       => 'Sessions',
+        'new-session' => 'New Session',
     ]
 ];

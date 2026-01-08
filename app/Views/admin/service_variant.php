@@ -39,28 +39,31 @@
                             if (!isset($variant['id'])) {
                                 echo build_form_input('schedule_type', lang('ServiceVariant.field.schedule_type'), [
                                     'type' => 'select',
-                                ], @$variant['schedule_type'], '', [
+                                ], '', '', [
                                     'A' => lang('ServiceVariant.enum.schedule_type.A'),
                                     'S' => lang('ServiceVariant.enum.schedule_type.S'),
                                 ]);
+                                echo build_form_input('required_resource_type_id', lang('ServiceVariant.field.required_resource_type_id'), [
+                                    'type' => 'select'
+                                ], '', '', $resourceTypes);
+                                echo build_form_input('required_num_staff', lang('ServiceVariant.field.required_num_staff'), [
+                                    'type' => 'number',
+                                    'min'  => 1,
+                                ], 1);
+                                echo build_form_input('service_duration_minutes', lang('ServiceVariant.field.service_duration_minutes'), [
+                                    'type' => 'number',
+                                    'min'  => 1
+                                ], @$variant['service_duration_minutes']);
                             } else {
                                 echo '<div class="mb-3"><label for="schedule_type" class="form-label ">' . lang('ServiceVariant.field.schedule_type') . '</label><input id="schedule_type" class="form-control" type="text" readonly="readonly" value="' . lang('ServiceVariant.enum.schedule_type.' . $variant['schedule_type']) . '" /></div>';
+                                echo '<div class="mb-3"><label for="required_resource_type_id" class="form-label ">' . lang('ServiceVariant.field.required_resource_type_id') . '</label><input id="required_resource_type_id" class="form-control" type="text" readonly="readonly" value="' . $resourceTypes[$variant['required_resource_type_id']] . '" /></div>';
+                                echo '<div class="mb-3"><label for="required_num_staff" class="form-label ">' . lang('ServiceVariant.field.required_num_staff') . '</label><input id="required_num_staff" class="form-control" type="text" readonly="readonly" value="' . $variant['required_num_staff'] . '" /></div>';
+                                echo '<div class="mb-3"><label for="service_duration_minutes" class="form-label ">' . lang('ServiceVariant.field.service_duration_minutes') . '</label><input id="service_duration_minutes" class="form-control" type="text" readonly="readonly" value="' . $variant['service_duration_minutes'] . '" /></div>';
                             }
                             echo build_form_input('variant_capacity', lang('ServiceVariant.field.variant_capacity'), [
                                 'type' => 'number',
                                 'min'  => 1
                             ], @$variant['variant_capacity']);
-                            echo build_form_input('required_num_staff', lang('ServiceVariant.field.required_num_staff'), [
-                                'type' => 'number',
-                                'min'  => 1
-                            ], @$variant['required_num_staff']);
-                            echo build_form_input('service_duration_minutes', lang('ServiceVariant.field.service_duration_minutes'), [
-                                'type' => 'number',
-                                'min'  => 1
-                            ], @$variant['service_duration_minutes']);
-                            echo build_form_input('required_resource_type_id', lang('ServiceVariant.field.required_resource_type_id'), [
-                                'type' => 'select'
-                            ], @$variant['required_resource_type_id'], '', $resourceTypes);
                             echo build_form_input('price_active', lang('ServiceVariant.field.price_active'), [
                                 'type' => 'number',
                                 'min'  => 1,
