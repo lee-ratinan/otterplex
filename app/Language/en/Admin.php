@@ -13,6 +13,7 @@ return [
         'allocation'                    => 'Allocation',
         'allocation-staff'              => 'Staff Allocation',
         'allocation-resource'           => 'Resource Allocation',
+        'allocation-by-service'         => 'Allocation by Service',
         'service'                       => 'Service',
         'service-manage'                => 'Service Management',
         'service-variant-manage'        => 'Service Variant Management',

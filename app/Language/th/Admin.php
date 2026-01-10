@@ -13,6 +13,7 @@ return [
         'allocation'                    => 'ตารางเวลา',
         'allocation-staff'              => 'ตารางเวลาพนักงาน',
         'allocation-resource'           => 'ตารางเวลาทรัพยากร',
+        'allocation-by-service'         => 'ตารางเวลาตามประเภทบริการ',
         'service'                       => 'บริการ',
         'service-manage'                => 'การจัดการบริการ',
         'service-variant-manage'        => 'การจัดการตัวเลือกบริการ',
