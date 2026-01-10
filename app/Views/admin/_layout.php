@@ -120,8 +120,9 @@ if (!empty($session->business)) {
         $sidebar_menu['allocation'] = [
             'title' => '<i class="fa-solid fa-calendar-check me-3"></i> <span>' . lang('Admin.pages.allocation') . '</span>',
             'links' => [
-                'allocation-staff'    => [base_url('/admin/allocation/staff'), lang('Admin.pages.allocation-staff')],
-                'allocation-resource' => [base_url('/admin/allocation/resource'), lang('Admin.pages.allocation-resource')],
+                'allocation-staff'      => [base_url('/admin/allocation/staff'), lang('Admin.pages.allocation-staff')],
+                'allocation-resource'   => [base_url('/admin/allocation/resource'), lang('Admin.pages.allocation-resource')],
+                'allocation-by-service' => [base_url('/admin/allocation/by-service'), lang('Admin.pages.allocation-by-service')],
             ]
         ];
         // PRODUCT/SERVICE/BLOG

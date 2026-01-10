@@ -87,6 +87,7 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     // ALLOCATION
     $routes->get('allocation/staff', 'Admin::allocation_staff');
     $routes->get('allocation/resource', 'Admin::allocation_resource');
+    $routes->get('allocation/by-service', 'Admin::allocation_by_service');
     // DISCOUNT
     $routes->get('discount', 'Admin::discount');
     // BLOG

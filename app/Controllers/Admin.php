@@ -1603,6 +1603,19 @@ class Admin extends BaseController
     }
 
     /**
+     * Manage staff allocation
+     * @return string
+     */
+    public function allocation_by_service(): string
+    {
+        $data = [
+            'slug'           => 'allocation-by-service',
+            'lang'           => $this->request->getLocale(),
+        ];
+        return view('admin/allocation_by_service', $data);
+    }
+
+    /**
      * Manage service
      * @return string
      */
