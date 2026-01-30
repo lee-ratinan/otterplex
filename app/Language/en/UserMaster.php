@@ -14,6 +14,7 @@ return [
         'user_name_first'    => 'First Name',
         'user_name_last'     => 'Last Name',
         'user_full_name'     => 'Full Name',
+        'user_public_name'   => 'Public-facing Name',
         'user_gender'        => 'Gender',
         'user_date_of_birth' => 'Date Of Birth',
         'user_nationality'   => 'Nationality',
@@ -33,5 +34,8 @@ return [
             'NB' => 'Non-Binary',
             'U'  => 'Unknown'
         ]
+    ],
+    'explanation' => [
+        'user_public_name' => 'Public name to be used on the Marketplace'
     ]
 ];

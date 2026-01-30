@@ -12,7 +12,8 @@
                             </div>
                             <h2><i class="fa-solid fa-lock"></i> <?= lang('Admin.profile.controlled-account-data') ?></h2>
                             <div class="row">
-                                <div class="col-12"><p><small><?= lang('UserMaster.field.email_address') ?></small><br><?= $session->user['email_address'] ?></p></div>
+                                <div class="col-6"><p><b class="small"><?= lang('UserMaster.field.user_public_name') ?></b><br><b><?= $session->user['user_public_name'] ?></b></p></div>
+                                <div class="col-6"><p><small><?= lang('UserMaster.field.email_address') ?></small><br><?= $session->user['email_address'] ?></p></div>
                                 <div class="col-6"><p><small><?= lang('UserMaster.field.user_name_first') ?></small><br><?= $session->user['user_name_first'] ?></p></div>
                                 <div class="col-6"><p><small><?= lang('UserMaster.field.user_name_last') ?></small><br><?= $session->user['user_name_last'] ?></p></div>
                                 <div class="col-6"><p><small><?= lang('UserMaster.field.password_expiry') ?></small><br><?= format_date($session->user['password_expiry']) ?></p></div>

@@ -24,6 +24,7 @@ return [
         'contact_email_address'      => 'Email Address',
         'contact_phone_number'       => 'Phone Number',
         'contact_website'            => 'Website',
+        'live_status'                => 'Store’s Online Status'
     ],
     'enum'        => [
         'tax_inclusive'   => [
@@ -34,6 +35,10 @@ return [
         'business_status' => [
             'A' => '<i class="fa-solid fa-circle-check text-success"></i> Active',
             'E' => '<i class="fa-solid fa-circle-xmark text-danger"></i> Expired',
+        ],
+        'live_status'     => [
+            'Y' => 'Online',
+            'N' => 'Offline'
         ]
     ],
     'explanation' => [
@@ -41,5 +46,6 @@ return [
         'tax_inclusive'         => 'Choose how tax is handled: <b>Inclusive</b> (tax is already inside the price), <b>Exclusive</b> (tax is added on top), or <b>Not Applicable</b> (your business is not required to charge tax).',
         'mart_meta_description' => 'This is a short description, around 20-40 words, describing your business.',
         'mart_meta_keywords'    => 'This is a list of keywords that explains your business that your customers could use to find your business.',
+        'live_status'           => 'This field determines whether the member of public can search for and see your store on the marketplace.'
     ]
 ];

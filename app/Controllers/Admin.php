@@ -179,14 +179,24 @@ class Admin extends BaseController
                 if (empty($lang_code) || !isset($available_lang[$lang_code])) {
                     $lang_code      = 'en'; // Always the default if empty - no matter what
                 }
-                $data = [
+                if (empty($user_gender)) {
+                    $user_gender = 'U';
+                }
+                $data     = [
                     'telephone_number'   => $telephone_number,
                     'lang_code'          => $lang_code,
                     'user_gender'        => $user_gender,
                     'user_date_of_birth' => $user_date_of_birth,
                     'user_nationality'   => $user_nationality,
-                    'profile_status_msg' => $profile_status_msg,
+                    'profile_status_msg' => htmlentities($profile_status_msg),
                 ];
+                // make things null
+                $nullable = ['telephone_number', 'user_date_of_birth', 'user_nationality', 'profile_status_msg'];
+                foreach ($nullable as $field) {
+                    if ('' == $data[$field]) {
+                        $data[$field] = null;
+                    }
+                }
                 if ($userMasterModel->update($session->user_id, $data)) {
                     $user = $userMasterModel->find($session->user_id);
                     unset($user['password_hash']);
@@ -409,7 +419,7 @@ class Admin extends BaseController
             $social_media        = get_social_media();
             $error_msg           = lang('System.response-msg.error.generic');
             if ('save_business' == $script_action) {
-                $fields      = ['business_type_id', 'business_name', 'business_slug', 'allow_advance_booking', 'tax_percentage', 'tax_inclusive', 'mart_primary_color', 'mart_text_color', 'mart_background_color', 'currency_code', 'contact_email_address', 'contact_phone_number', 'contact_website'];
+                $fields      = ['business_type_id', 'business_name', 'business_slug', 'allow_advance_booking', 'tax_percentage', 'tax_inclusive', 'live_status', 'mart_primary_color', 'mart_text_color', 'mart_background_color', 'currency_code', 'contact_email_address', 'contact_phone_number', 'contact_website'];
                 $data        = [];
                 foreach ($available_lang as $code => $language_name) {
                     $fields[] = 'business_local_names_' . $code;

@@ -106,6 +106,11 @@ if (!function_exists('send_system_email')) {
     </table>
   </body>
 </html>";
+        log_message('debug', $html);
+        $environment = getenv('CI_ENVIRONMENT');
+        if ('development' == $environment) {
+            return true;
+        }
         // Send the email
         $no_reply = getenv('NO_REPLY_EMAIL');
         // Source, destination
@@ -124,7 +129,6 @@ if (!function_exists('send_system_email')) {
         $email->setSubject("[OtterNova] {$subject}");
         $email->setMessage($html);
         $email->setMailType('html');
-        log_message('debug', $html);
         return $email->send();
     }
 }

@@ -219,6 +219,7 @@ class Home extends BaseController
         foreach ($user_master_fields as $field) {
             $user_master[$field] = $this->request->getPost($field);
         }
+        $user_master['user_public_name'] = $user_master['user_name_first'];
         foreach ($business_master_fields as $field) {
             $business_master[$field] = $this->request->getPost($field);
         }

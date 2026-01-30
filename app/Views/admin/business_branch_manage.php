@@ -53,7 +53,7 @@
                         </div>
                         <?php if ('edit' == $mode) : ?>
                         <div class="col-12 col-md-8">
-                            <h3><?= lang('Business.branch-management.opening-hours') ?></h3>
+                            <h3 class="pt-5 mt-5"><?= lang('Business.branch-management.opening-hours') ?></h3>
                             <div class="table-responsive">
                                 <table class="table table-sm table-hover table-striped">
                                     <thead>
@@ -79,7 +79,7 @@
                                     </tbody>
                                 </table>
                             </div>
-                            <h3><?= lang('Business.branch-management.modified-hours') ?></h3>
+                            <h3 class="pt-5 mt-5"><?= lang('Business.branch-management.modified-hours') ?></h3>
                             <div class="table-responsive">
                                 <table class="table table-sm table-hover table-striped">
                                     <thead>
@@ -115,7 +115,7 @@
                                     </tbody>
                                 </table>
                             </div>
-                            <h3><?= lang('Business.branch-management.modified-hours-new') ?></h3>
+                            <h3 class="pt-5 mt-5"><?= lang('Business.branch-management.modified-hours-new') ?></h3>
                             <?php
                             echo build_form_input('modified_hours_date', lang('BranchModifiedHours.field.modified_hours_date'), [
                                 'type' => 'date',

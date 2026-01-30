@@ -18,6 +18,7 @@ class UserMasterModel extends AppBaseModel
         'account_status',
         'user_name_first',
         'user_name_last',
+        'user_public_name',
         'user_gender',
         'user_date_of_birth',
         'user_nationality',

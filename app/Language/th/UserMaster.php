@@ -14,6 +14,7 @@ return [
         'user_name_first'    => 'ชื่อจริง',
         'user_name_last'     => 'นามสกุล',
         'user_full_name'     => 'ชื่อเต็ม',
+        'user_public_name'   => 'ชื่อที่แสดงให้ลูกค้าเห็น',
         'user_gender'        => 'เพศ',
         'user_date_of_birth' => 'วันเกิด',
         'user_nationality'   => 'สัญชาติ',
@@ -33,5 +34,8 @@ return [
             'NB' => 'นอนไบนารี',
             'U'  => 'ไม่ระบุ'
         ]
+    ],
+    'explanation' => [
+        'user_public_name' => 'เป็นชื่อที่แสดงให้ลูกค้าเห็นบนหน้ามาร์เก็ตเพลส'
     ]
 ];
