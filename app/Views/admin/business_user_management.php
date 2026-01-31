@@ -23,6 +23,10 @@
                             'type' => 'text',
                         ], @$user['user_name_last']);
                         echo '</div></div>';
+                        echo build_form_input('user_public_name', lang('UserMaster.field.user_public_name'), [
+                            'type'             => 'text',
+                            'data-explanation' => lang('UserMaster.explanation.user_public_name')
+                        ], @$user['user_public_name']);
                         $account_status_attr['type'] = 'select';
                         $account_status_options      = [
                             'A' => lang('UserMaster.enum.account_status.A'),
@@ -45,7 +49,7 @@
                     </div>
                     <?php if ('edit' == $mode) : ?>
                         <div class="col-12 col-md-6">
-                            <h3><?= lang('Business.user-management.link-to-business') ?></h3>
+                            <h3 class="mt-5 pt-5"><?= lang('Business.user-management.link-to-business') ?></h3>
                             <?php
                             echo build_form_input('user_role', lang('BusinessUser.field.user_role'), [
                                 'type' => 'select',
@@ -64,7 +68,7 @@
                             <div class="text-end">
                                 <button class="btn btn-primary" id="btn-save-business-user"><?= lang('System.buttons.save') ?></button>
                             </div>
-                            <h3><?= lang('Business.user-management.link-to-branches') ?></h3>
+                            <h3 class="mt-5 pt-5"><?= lang('Business.user-management.link-to-branches') ?></h3>
                             <div class="table-responsive">
                                 <table class="table table-sm table-striped table-hover">
                                     <thead>
@@ -140,6 +144,7 @@
                 <?php
                 $fields = ['email_address', 'user_name_first', 'user_name_last', 'account_status'];
                 gen_js_fields_checker($fields);
+                $fields[] = 'user_public_name';
                 ?>
                 $('#btn-save-master').prop('disabled', true);
                 $('#action').val('user_master');
@@ -150,11 +155,8 @@
                         $('#btn-save-master').prop('disabled', false);
                         if (response.status === "<?= STATUS_RESPONSE_OK ?>") {
                             toastr.success(response.message);
-                            let user_id = '';
-                            if (response.id) {
-                                user_id = response.id * <?= ID_MASKED_PRIME ?>;
-                            }
-                            setTimeout(function() { location.href='<?= base_url('admin/business/user/') ?>' + user_id; }, 3000);
+                            let target_url = '<?= base_url('admin/business/user/') . ('edit' == $mode ? $userIdUrl : '') ?>';
+                            setTimeout(function() { location.href=target_url; }, 3000);
                         } else {
                             toastr.error(response.message);
                         }

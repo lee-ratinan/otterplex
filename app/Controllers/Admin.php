@@ -992,6 +992,7 @@ class Admin extends BaseController
             'lang'         => $this->request->getLocale(),
             'mode'         => $mode,
             'user'         => $user,
+            'userIdUrl'    => $userId * ID_MASKED_PRIME,
             'businessUser' => $businessUser,
             'branchUser'   => $branchUser,
             'branches'     => $branches,
@@ -1017,10 +1018,13 @@ class Admin extends BaseController
             if ('user_master' === $action) {
                 $uModel  = new UserMasterModel();
                 $buModel = new BusinessUserModel();
-                $fields  = ['email_address', 'user_name_first', 'user_name_last', 'account_status'];
+                $fields  = ['email_address', 'user_name_first', 'user_name_last', 'user_public_name', 'account_status'];
                 $data    = [];
                 foreach ($fields as $field) {
                     $data[$field] = $this->request->getPost($field);
+                }
+                if (empty($data['user_public_name'])) {
+                    $data['user_public_name'] = $data['user_name_first'];
                 }
                 if (0 < $id) {
                     if ($uModel->update($id, $data)) {

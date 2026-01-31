@@ -23,12 +23,18 @@
                                     'type' => 'text',
                                 ], @$service['service_description'][$locale_code]);
                             }
+                            $is_active_options = [
+                                'I' => lang('ServiceMaster.enum.is_active.I')
+                            ];
+                            if (!empty($variants)) {
+                                $is_active_options = [
+                                    'A' => lang('ServiceMaster.enum.is_active.A'),
+                                    'I' => lang('ServiceMaster.enum.is_active.I'),
+                                ];
+                            }
                             echo build_form_input('is_active', lang('ServiceMaster.field.is_active'), [
                                 'type' => 'select',
-                            ], @$service['is_active'], '', [
-                                'A' => lang('ServiceMaster.enum.is_active.A'),
-                                'I' => lang('ServiceMaster.enum.is_active.I'),
-                            ]);
+                            ], @$service['is_active'], '', $is_active_options);
                             ?>
                             <div class="text-end">
                                 <button class="btn btn-primary" id="btn-save-master"><?= lang('System.buttons.save') ?></button>
@@ -38,10 +44,9 @@
                     </div>
                     <?php if ('edit' == $mode) : ?>
                         <!-- UPLOAD SERVICE IMAGE -->
-                        <hr />
                         <div class="row">
                             <div class="col-12 col-md-6">
-                                <h3><?= lang('Service.upload-image') ?></h3>
+                                <h3 class="mt-5 pt-5"><?= lang('Service.upload-image') ?></h3>
                                 <form id="form-upload-image" action="<?= base_url('/admin/service/manage') ?>" method="post" enctype="multipart/form-data">
                                     <input type="hidden" name="script_action" value="upload_image"/>
                                     <input type="file" id="service_image" name="service_image" class="form-control my-3"/>
@@ -57,12 +62,11 @@
                             </div>
                             <div class="col-12 col-md-6">
                                 <?php if (!empty($service['service_image'])) : ?>
-                                    <img src="<?= base_url('file/' . $service['service_image']) ?>" class="img-fluid" />
+                                    <img src="<?= base_url('file/' . $service['service_image']) ?>" class="img-fluid" alt="<?= $service['service_name'] ?>" />
                                 <?php endif; ?>
                             </div>
                         </div>
-                        <hr/>
-                        <h2><?= lang('Service.service-variant') ?></h2>
+                        <h2 class="mt-5 pt-5"><?= lang('Service.service-variant') ?></h2>
                         <div class="text-end">
                             <a class="btn btn-primary" href="<?= base_url('admin/service/variant/' . ($service['id'] * ID_MASKED_PRIME) . '/0') ?>"><i class="fa-solid fa-plus-circle"></i> <?= lang('Service.new-variant') ?></a>
                         </div>
@@ -103,7 +107,7 @@
                                 </tbody>
                             </table>
                         </div>
-                        <h2><?= lang('Service.service-staff') ?></h2>
+                        <h2 class="mt-5 pt-5"><?= lang('Service.service-staff') ?></h2>
                         <div class="table-responsive">
                             <table class="table table-sm table-hover table-striped">
                                 <thead>
@@ -131,7 +135,7 @@
                             </table>
                         </div>
                         <?php if (!empty($staffList)) : ?>
-                            <h2><?= lang('Service.add-service-staff') ?></h2>
+                            <h3><?= lang('Service.add-service-staff') ?></h3>
                             <div class="row">
                                 <div class="col col-md-6">
                                     <?php

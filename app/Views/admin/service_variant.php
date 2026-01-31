@@ -16,7 +16,7 @@
                     <div class="row">
                         <div class="col col-md-6">
                             <div class="text-end">
-                                <?php if ('S' == $variant['schedule_type']) : ?>
+                                <?php if (!empty($variant) && 'S' == $variant['schedule_type']) : ?>
                                     <a class="btn btn-primary btn-sm mb-1" href="<?= base_url('admin/service/variant/session/' . ($variant['service_id'] * ID_MASKED_PRIME) . '/' . ($variant['id'] * ID_MASKED_PRIME)) ?>"><i class="fa-solid fa-eye"></i> <?= lang('Service.session.view-btn') ?></a>
                                 <?php endif; ?>
                             </div>

@@ -32,7 +32,10 @@
                         <!-- BUSINESS -->
                         <div class="col-12 col-lg-6">
                             <div class="bg-light rounded-3 p-3">
-                                <p><?= lang('Dashboard.setup.check-business-setup') ?></p>
+                                <p>
+                                    <?= ('Y' == $session->business['live_status'] ? '<i class="fa-solid fa-clipboard-check text-success"></i>' : '<i class="fa-solid fa-clipboard-check text-danger"></i>') ?>
+                                    <?= lang('Dashboard.setup.check-business-setup') ?>
+                                </p>
                             </div>
                         </div>
                         <!-- BRANCHES -->

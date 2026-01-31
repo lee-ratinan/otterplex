@@ -8,10 +8,24 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-body p-3">
+                    <div class="row">
+                        <div class="col-12 col-md-6">
+                            <h2><?= lang('Admin.pages.business-payment-method') ?></h2>
+                            <div class="card border-1 rounded mt-3">
+                                <div class="card-body p-3">
+                                    <ul class="mb-0">
+                                        <?php foreach ($availableMethod as $method) : ?>
+                                            <li><a href="#<?= $method ?>"><?= lang('BusinessPaymentMethod.methods.' . $method) ?></a></li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <?php foreach ($availableMethod as $method) : ?>
                         <div class="row">
                             <div class="col-12 col-md-6">
-                                <h3><?= lang('BusinessPaymentMethod.methods.' . $method) ?></h3>
+                                <h3 class="mt-5 pt-5" id="<?= $method ?>"><?= lang('BusinessPaymentMethod.methods.' . $method) ?></h3>
                                 <?php
                                 echo build_form_input($method . '_id', '', [
                                     'type'     => 'hidden',
@@ -72,7 +86,6 @@
                                         <button class="btn btn-primary btn-save" id="btn-save-<?= $method ?>"><?= lang('System.buttons.new') ?></button>
                                     <?php endif; ?>
                                 </div>
-                                <hr/>
                             </div>
                         </div>
                     <?php endforeach; ?>

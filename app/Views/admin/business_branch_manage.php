@@ -16,10 +16,12 @@
                             echo build_form_input('branch_name', lang('BranchMaster.field.branch_name'), [
                                 'type' => 'text',
                             ], @$branch['branch_name']);
+                            echo '<div class="d-none">';
                             echo build_form_input('branch_slug', lang('BranchMaster.field.branch_slug'), [
                                 'type'             => 'text',
 //                                'data-explanation' => lang('BranchMaster.explanation.branch_slug')
                             ], @$branch['branch_slug']);
+                            echo '</div>';
                             foreach ($all_languages as $lang_code => $language_name) {
                                 echo build_form_input('branch_local_names_' . $lang_code, lang('BranchMaster.field.branch_local_names') . ' (' . $language_name . ')', [
                                     'type' => 'text',
@@ -252,6 +254,7 @@
                 let dow = $(this).data('dow');
                 $('#branch-opening-hours-'+dow+'-opn').val('00:00');
                 $('#branch-opening-hours-'+dow+'-cls').val('00:00');
+                $('#btn-save-hours-'+dow).click();
             });
             $('#modified_type').change(function () {
                 let modified_type = $(this).val();

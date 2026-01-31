@@ -42,12 +42,19 @@
                                         'P' => lang('ProductMaster.enum.product_type.P'),
                                         'D' => lang('ProductMaster.enum.product_type.D'),
                                     ]);
+                                    $is_active_options = [
+                                        'I' => lang('ProductMaster.enum.is_active.I')
+                                    ];
+                                    if (!empty($variants)) {
+                                        $is_active_options = [
+                                            'A' => lang('ProductMaster.enum.is_active.A'),
+                                            'I' => lang('ProductMaster.enum.is_active.I'),
+                                        ];
+                                    }
+                                    // $variants
                                     echo build_form_input('is_active', lang('ProductMaster.field.is_active'), [
                                         'type' => 'select',
-                                    ], @$product['is_active'], '', [
-                                        'A' => lang('ProductMaster.enum.is_active.A'),
-                                        'I' => lang('ProductMaster.enum.is_active.I'),
-                                    ]);
+                                    ], @$product['is_active'], '', $is_active_options);
                                     ?>
                                     <div class="text-end">
                                         <button class="btn btn-primary" id="btn-save-master"><?= lang('System.buttons.save') ?></button>
@@ -57,10 +64,9 @@
                             </div>
                             <?php if ('edit' == $mode) : ?>
                                 <!-- UPLOAD PRODUCT IMAGE -->
-                                <hr />
                                 <div class="row">
                                     <div class="col-12 col-md-6">
-                                        <h3><?= lang('Product.upload-image') ?></h3>
+                                        <h3 class="mt-5 pt-5"><?= lang('Product.upload-image') ?></h3>
                                         <form id="form-upload-image" action="<?= base_url('/admin/product/manage') ?>" method="post" enctype="multipart/form-data">
                                             <input type="hidden" name="script_action" value="upload_image"/>
                                             <input type="file" id="product_image" name="product_image" class="form-control my-3"/>
@@ -76,12 +82,11 @@
                                     </div>
                                     <div class="col-12 col-md-6">
                                         <?php if (!empty($product['product_image'])) : ?>
-                                            <img src="<?= base_url('file/' . $product['product_image']) ?>" class="img-fluid" />
+                                            <img src="<?= base_url('file/' . $product['product_image']) ?>" class="img-fluid" alt="<?= $product['product_name'] ?>" />
                                         <?php endif; ?>
                                     </div>
                                 </div>
-                                <hr />
-                                <h2><?= lang('Product.product-variant') ?></h2>
+                                <h2 class="mt-5 pt-5"><?= lang('Product.product-variant') ?></h2>
                                 <div class="text-end">
                                     <a class="btn btn-primary" href="<?= base_url('admin/product/variant/' . ($product['id'] * ID_MASKED_PRIME) . '/0') ?>"><?= lang('Product.new-product-variant') ?></a>
                                 </div>

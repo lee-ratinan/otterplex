@@ -76,8 +76,8 @@ class ProductMasterModel extends AppBaseModel
         log_message('debug', 'Find lowest prices: ' . $productId);
         log_message('debug', json_encode($actualPrices));
         log_message('debug', json_encode($comparePrices));
-        $lowestActual  = min($actualPrices);
-        $lowestCompare = min($comparePrices);
+        $lowestActual  = (empty($actualPrices) ? 0 : min($actualPrices));
+        $lowestCompare = (empty($comparePrices) ? 0 : min($comparePrices));
         log_message('debug', 'Lowest actual: ' . $lowestActual);
         log_message('debug', 'Lowest compare: ' . $lowestCompare);
         return $this->update($productId, [
