@@ -7,11 +7,12 @@
                 <div class="card-body p-3">
                     <div class="row">
                         <div class="col">
-                            <div class="text-end">
+                            <div class="float-end">
                                 <a class="btn btn-primary" href="<?= base_url('admin/service/variant/session/' . $serviceIdMask . '/' . $variantIdMask . '/0') ?>">
                                     <i class="fa-solid fa-circle-plus"></i> <?= lang('Service.session.new-session') ?>
                                 </a>
                             </div>
+                            <h2><?= $title ?></h2>
                             <div class="table-responsive">
                                 <table class="table table-sm table-hover table-striped">
                                     <thead>
@@ -36,11 +37,11 @@
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const table = $('table').DataTable({
-                processing: false,
-                serverSide: false,
+                processing: true,
+                serverSide: true,
                 fixedHeader: true,
-                searching: true,
-                ordering: true,
+                searching: false,
+                ordering: false,
                 <?php if ('en' != $lang) : ?>
                 language: {url: '<?= base_url('/assets/vendor/DataTables/i18n/' . $lang . '.json') ?>',},
                 <?php endif; ?>

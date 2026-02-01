@@ -9,7 +9,7 @@
                         <?php if ('new' == $mode) : ?>
                             <?= lang('Service.new-variant') ?>
                         <?php else: ?>
-                            <?= $service['service_local_names'][$session->lang] ?? $service['service_name'] ?> /
+                            <?= $service['service_local_names'][$session->lang] ?? $service['service_name'] ?><br>
                             <?= $variant['variant_local_names'][$session->lang] ?? $variant['variant_name'] ?>
                         <?php endif; ?>
                     </h2>

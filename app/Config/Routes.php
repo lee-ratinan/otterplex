@@ -69,6 +69,8 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->post('service/variant/manage', 'Admin::service_variant_manage_post');
     $routes->get('service/variant/session/(:num)/(:num)', 'Admin::service_variant_session/$1/$2');
     $routes->post('service/variant/session', 'Admin::service_variant_session_post');
+    $routes->get('service/variant/session/(:num)/(:num)/(:num)', 'Admin::service_variant_session_manage/$1/$2/$3');
+    $routes->post('service/variant/session/manage', 'Admin::service_variant_session_manage_post');
     // PRODUCT
     $routes->get('product', 'Admin::product');
     $routes->post('product', 'Admin::product_post');

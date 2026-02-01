@@ -23,6 +23,7 @@ use App\Models\ResourceTypeModel;
 use App\Models\ServiceMasterModel;
 use App\Models\ServiceStaffModel;
 use App\Models\ServiceVariantModel;
+use App\Models\SessionMasterModel;
 use App\Models\UserMasterModel;
 use CodeIgniter\Exceptions\PageNotFoundException;
 use CodeIgniter\HTTP\RedirectResponse;
@@ -1846,6 +1847,11 @@ class Admin extends BaseController
                     ]);
                 }
             } else {
+                $cache    = Services::cache();
+                $cacheKey = 'services_for_business_id-' . $session->business['business_id'];
+                if ($cache->get($cacheKey)) {
+                    $cache->delete($cacheKey);
+                }
                 $data['business_id']          = $session->business['business_id'];
                 $data['service_slug']         = generate_slug($data['service_name']);
                 $data['price_active_lowest']  = 0;
@@ -2070,9 +2076,12 @@ class Admin extends BaseController
         if (empty($variant)) {
             throw PageNotFoundException::forPageNotFound();
         }
+        $lang         = $this->request->getLocale();
+        $v_locales    = json_decode($variant['variant_local_names'], true);
+        $title        = ($service['service_local_names'][$lang] ?? $service['service_name']) . '<br>' . ($v_locales[$lang] ?? $variant['variant_name']);
         $data         = [
             'slug'          => 'service-variant-session',
-            'lang'          => $this->request->getLocale(),
+            'lang'          => $lang,
             'breadcrumb'    => [
                 [
                     'url'        => base_url('admin/service'),
@@ -2087,6 +2096,7 @@ class Admin extends BaseController
                     'page_title' => lang('Admin.pages.service-variant-manage'),
                 ]
             ],
+            'title'         => $title,
             'serviceIdMask' => $serviceId,
             'variantIdMask' => $serviceVariantId,
             'service'       => $service,
@@ -2102,8 +2112,69 @@ class Admin extends BaseController
             return $this->forbiddenResponse('DataTable');
         }
         return $this->response->setJSON([
-            'data' => []
+            'draw'            => $this->request->getPost('draw'),
+            'recordsTotal'    => 0,
+            'recordsFiltered' => 0,
+            'data'            => []
         ]);
+    }
+
+    public function service_variant_session_manage(int $serviceId, int $serviceVariantId, int $sessionId): string
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('string');
+        }
+        $lang                 = $this->request->getLocale();
+        $realServiceId        = $serviceId / ID_MASKED_PRIME;
+        $realServiceVariantId = $serviceVariantId / ID_MASKED_PRIME;
+        $realSessionId        = $sessionId / ID_MASKED_PRIME;
+        $serviceModel         = new ServiceMasterModel();
+        $variantModel         = new ServiceVariantModel();
+        $sessionModel         = new SessionMasterModel();
+        $resourceModel        = new ResourceTypeModel();
+        // SERVICE
+        $service = $serviceModel->findRow($realServiceId);
+        if (empty($service)) {
+            throw PageNotFoundException::forPageNotFound();
+        }
+        $service['service_local_names'] = json_decode($service['service_local_names'], true);
+        // VARIANT
+        $variant = $variantModel->findRow($realServiceVariantId);
+        if (empty($variant)) {
+            throw PageNotFoundException::forPageNotFound();
+        }
+        if (0 < $realSessionId) {
+            $session = $sessionModel->findRow($realSessionId);
+            if (empty($session)) {
+                throw PageNotFoundException::forPageNotFound();
+            }
+            //
+        }
+        //
+        $data = [
+            'slug'          => 'service-variant-session-manage',
+            'lang'          => $lang,
+            'breadcrumb'    => [
+                [
+                    'url'        => base_url('admin/service'),
+                    'page_title' => lang('Admin.pages.service'),
+                ],
+                [
+                    'url'        => base_url('admin/service/' . $serviceId),
+                    'page_title' => lang('Admin.pages.service-manage'),
+                ],
+                [
+                    'url'        => base_url('admin/service/variant/' . $serviceId . '/' . $serviceVariantId),
+                    'page_title' => lang('Admin.pages.service-variant-manage'),
+                ],
+                [
+                    'url'        => base_url('admin/service/variant/session/' . $serviceId . '/' . $serviceVariantId),
+                    'page_title' => lang('Admin.pages.service-variant-session'),
+                ]
+            ],
+        ];
+        return view('admin/service_variant_session_manage', $data);
     }
 
     /**
