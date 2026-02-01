@@ -7,6 +7,9 @@
                 <div class="card-body p-3">
                     <h2><?= ('new' == $mode ? lang('Business.user-management.new-user-info') : $user['user_name_first'] . ' ' . $user['user_name_last']) ?></h2>
                     <div class="col-12 col-lg-6">
+                        <?php if ('edit' == $mode) : ?>
+                            <div class="float-end avatar-4x"><?= retrieve_avatars($user['email_address'], $user['user_name_first'] . ' ' . $user['user_name_last']) ?></div>
+                        <?php endif; ?>
                         <h3><?= lang('Business.user-management.generic-info') ?></h3>
                         <?php
                         $email_attr['type'] = 'email';

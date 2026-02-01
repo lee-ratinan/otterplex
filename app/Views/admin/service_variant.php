@@ -21,6 +21,7 @@
                                 <?php endif; ?>
                             </div>
                             <?php
+                            echo lang('ServiceVariant.explanation.not_editable');
                             echo build_form_input('variant_name', lang('ServiceVariant.field.variant_name'), [
                                 'type' => 'text',
                             ], @$variant['variant_name']);
@@ -38,25 +39,29 @@
                             ]);
                             if (!isset($variant['id'])) {
                                 echo build_form_input('schedule_type', lang('ServiceVariant.field.schedule_type'), [
-                                    'type' => 'select',
+                                    'type'             => 'select',
+                                    'data-explanation' => lang('ServiceVariant.explanation.not_editable')
                                 ], '', '', [
                                     'A' => lang('ServiceVariant.enum.schedule_type.A'),
                                     'S' => lang('ServiceVariant.enum.schedule_type.S'),
                                 ]);
                                 echo build_form_input('required_resource_type_id', lang('ServiceVariant.field.required_resource_type_id'), [
-                                    'type' => 'select'
+                                    'type'             => 'select',
+                                    'data-explanation' => lang('ServiceVariant.explanation.not_editable')
                                 ], '', '', $resourceTypes);
                                 echo build_form_input('required_num_staff', lang('ServiceVariant.field.required_num_staff'), [
-                                    'type' => 'number',
-                                    'min'  => 1,
+                                    'type'             => 'number',
+                                    'min'              => 1,
+                                    'data-explanation' => lang('ServiceVariant.explanation.not_editable')
                                 ], 1);
                                 echo build_form_input('service_duration_minutes', lang('ServiceVariant.field.service_duration_minutes'), [
-                                    'type' => 'number',
-                                    'min'  => 1
+                                    'type'             => 'number',
+                                    'min'              => 1,
+                                    'data-explanation' => lang('ServiceVariant.explanation.not_editable')
                                 ], @$variant['service_duration_minutes']);
                             } else {
                                 echo '<div class="mb-3"><label for="schedule_type" class="form-label ">' . lang('ServiceVariant.field.schedule_type') . '</label><input id="schedule_type" class="form-control" type="text" readonly="readonly" value="' . lang('ServiceVariant.enum.schedule_type.' . $variant['schedule_type']) . '" /></div>';
-                                echo '<div class="mb-3"><label for="required_resource_type_id" class="form-label ">' . lang('ServiceVariant.field.required_resource_type_id') . '</label><input id="required_resource_type_id" class="form-control" type="text" readonly="readonly" value="' . $resourceTypes[$variant['required_resource_type_id']] . '" /></div>';
+                                echo '<div class="mb-3"><label for="required_resource_type_id" class="form-label ">' . lang('ServiceVariant.field.required_resource_type_id') . '</label><input id="required_resource_type_id" class="form-control" type="text" readonly="readonly" value="' . @$resourceTypes[$variant['required_resource_type_id']] . '" /></div>';
                                 echo '<div class="mb-3"><label for="required_num_staff" class="form-label ">' . lang('ServiceVariant.field.required_num_staff') . '</label><input id="required_num_staff" class="form-control" type="text" readonly="readonly" value="' . $variant['required_num_staff'] . '" /></div>';
                                 echo '<div class="mb-3"><label for="service_duration_minutes" class="form-label ">' . lang('ServiceVariant.field.service_duration_minutes') . '</label><input id="service_duration_minutes" class="form-control" type="text" readonly="readonly" value="' . $variant['service_duration_minutes'] . '" /></div>';
                             }
@@ -89,11 +94,12 @@
             $('#btn-save').click(function (e) {
                 e.preventDefault();
                 <?php
-                $fields = ['variant_name', 'is_active', 'schedule_type', 'variant_capacity', 'required_num_staff', 'service_duration_minutes', 'required_resource_type_id', 'price_active', 'price_compare'];
+                $fields = ['variant_name', 'is_active', 'schedule_type', 'variant_capacity', 'required_num_staff', 'service_duration_minutes', 'price_active', 'price_compare'];
                 foreach ($locales as $code => $language_name) {
                     $fields[] = 'variant_local_names_' . $code;
                 }
                 gen_js_fields_checker($fields);
+                $fields[] = 'required_resource_type_id';
                 ?>
                 $('#btn-save').prop('disabled', true);
                 $.post(
@@ -103,7 +109,8 @@
                         $('#btn-save').prop('disabled', false);
                         if (response.status === "<?= STATUS_RESPONSE_OK ?>") {
                             toastr.success(response.message);
-                            setTimeout(function() { location.href='<?= base_url('admin/service/' . ($service['id']*ID_MASKED_PRIME)) ?>'; }, 3000);
+                            <?php $url = (!empty($variant['id']) ? base_url('admin/service/variant/' . ($service['id']*ID_MASKED_PRIME)) . '/' . (($variant['id'] ?? 0)*ID_MASKED_PRIME) : base_url('admin/service/' . ($service['id']*ID_MASKED_PRIME))); ?>
+                            setTimeout(function() { location.href='<?= $url ?>'; }, 3000);
                         } else {
                             toastr.error(response.message);
                         }

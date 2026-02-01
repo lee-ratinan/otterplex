@@ -1990,6 +1990,9 @@ class Admin extends BaseController
             foreach ($fields as $field) {
                 $data[$field] = $this->request->getPost($field);
             }
+            if (empty($data['required_resource_type_id'])) {
+                $data['required_resource_type_id'] = null;
+            }
             foreach ($locales as $code => $language_name) {
                 $names[$code] = $this->request->getPost('variant_local_names_' . $code);
             }

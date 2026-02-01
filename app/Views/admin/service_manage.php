@@ -83,6 +83,7 @@
                                     <th><?= lang('ServiceVariant.field.service_duration_minutes') ?></th>
                                     <th><?= lang('ServiceVariant.field.required_resource_type_id') ?></th>
                                     <th></th>
+                                    <th></th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -96,10 +97,12 @@
                                         <td><?= lang('Service.num-staff', [$variant['required_num_staff']]) ?></td>
                                         <td><?= lang('Service.duration-minutes', [$variant['service_duration_minutes']]) ?></td>
                                         <td><?= $variant['resource_type'] ?></td>
-                                        <td class="text-end">
+                                        <td>
                                             <?php if ('S' == $variant['schedule_type']) : ?>
                                                 <a class="btn btn-primary btn-sm mb-1" href="<?= base_url('admin/service/variant/session/' . ($variant['service_id'] * ID_MASKED_PRIME) . '/' . ($variant['id'] * ID_MASKED_PRIME)) ?>"><i class="fa-solid fa-eye"></i> <?= lang('Service.session.view-btn') ?></a>
                                             <?php endif; ?>
+                                        </td>
+                                        <td>
                                             <a class="btn btn-primary btn-sm mb-1 ms-1" href="<?= base_url('admin/service/variant/' . ($variant['service_id'] * ID_MASKED_PRIME) . '/' . ($variant['id'] * ID_MASKED_PRIME)) ?>"><?= lang('System.buttons.edit') ?></a>
                                         </td>
                                     </tr>

@@ -82,7 +82,7 @@ class BusinessUserModel extends AppBaseModel
     {
         $session    = session();
         $businessId = $session->business['business_id'];
-        $allStaff   = $this->select('business_user.*, user_master.user_name_first, user_master.user_name_last, user_master.email_address, user_master.account_status')
+        $allStaff   = $this->select('business_user.*, user_master.user_name_first, user_master.user_name_last, user_master.email_address, user_master.account_status, user_master.user_public_name')
             ->join('user_master', 'user_master.id = business_user.user_id')
             ->where('business_id', $businessId)
             ->orderBy('user_name_last', 'ASC')
@@ -104,8 +104,13 @@ class BusinessUserModel extends AppBaseModel
                     $branchList .= $branchName . '<br>';
                 }
             }
+            $full_name  = $staff['user_name_first'] . ' ' . $staff['user_name_last'];
+            $avatar     = retrieve_avatars($staff['email_address'], $full_name);
+            if ($staff['user_public_name'] != $staff['user_name_first']) {
+                $full_name .= ' (' . $staff['user_public_name'] . ')';
+            }
             $data[]     = [
-                $staff['user_name_first'] . ' ' . $staff['user_name_last'],
+                $avatar . ' ' . $full_name,
                 $staff['email_address'],
                 lang('UserMaster.enum.account_status.' . $staff['account_status']),
                 lang('BusinessUser.enum.user_role.' . $staff['user_role']),
