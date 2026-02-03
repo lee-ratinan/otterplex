@@ -12,13 +12,12 @@
                     </h2>
                     <p><?= lang('Service.session.explanation') ?></p>
                     <p><?= lang('ServiceVariant.field.service_duration_minutes') ?>: <?= generate_duration_label($variant['service_duration_minutes']) ?></p>
-                    <?php $tomorrow = date('Y-m-d', strtotime('tomorrow')); ?>
                     <input type="hidden" id="action" name="action" value="" />
                     <input type="hidden" id="session_master_id" name="session_master_id" value="<?= $session_data['id'] ?? 0 ?>" />
                     <input type="hidden" id="session_master_session_type" name="session_master_session_type" value="OPEN" />
                     <input type="hidden" id="session_master_service_variant_id" name="session_master_service_variant_id" value="<?= $variant['id'] ?>" />
-                    <input type="hidden" id="session_master_date_start" name="session_master_date_start" value="<?= $session_data['date_start'] ?? $tomorrow ?>" />
-                    <input type="hidden" id="session_master_date_end" name="session_master_date_end" value="<?= $session_data['date_end'] ?? $tomorrow ?>" />
+                    <input type="hidden" id="session_master_date_start" name="session_master_date_start" value="<?= $session_data['date_start'] ?? '' ?>" />
+                    <input type="hidden" id="session_master_date_end" name="session_master_date_end" value="<?= $session_data['date_end'] ?? '' ?>" />
                     <div class="row">
                         <div class="col-12 col-md-6">
                             <?php
@@ -48,7 +47,7 @@
                                         <th><?= lang('SessionBreakdown.field.time_start') ?></th>
                                         <th><?= lang('SessionBreakdown.field.time_end') ?></th>
                                         <th><?= lang('Service.duration') ?></th>
-                                        <th><?= $resource_type ?></th>
+                                        <th><?= (empty($resource_type) ? lang('ResourceMaster.field.resource_type_id') : $resource_type) ?></th>
                                         <th><?= lang('Service.service-staff') ?></th>
                                         <th></th>
                                     </tr>
@@ -71,8 +70,8 @@
                                             <td><?= format_date_time($start->format('Y-m-d H:i:s'), $lang) ?></td>
                                             <td><?= format_date_time($end->format('Y-m-d H:i:s'), $lang) ?></td>
                                             <td><?= generate_duration_label($minutes) ?></td>
-                                            <td><?= $resource_allocations[$row['id']] ?></td>
-                                            <td><?= $staff_allocations[$row['id']] ?></td>
+                                            <td><?= $resource_allocations[$row['id']] ?? '-' ?></td>
+                                            <td><?= $staff_allocations[$row['id']] ?? '-' ?></td>
                                             <td>
                                                 <button class="btn btn-outline-danger btn-sm float-end btn-remove-session-breakdown" id="btn-remove-breakdown-<?= $row['id'] ?>" data-id="<?= $row['id'] ?>"><?= lang('System.buttons.remove') ?></button>
                                                 <button class="btn btn-outline-danger btn-sm float-end btn-remove-session-breakdown-confirm d-none" id="btn-remove-breakdown-confirm-<?= $row['id'] ?>" data-id="<?= $row['id'] ?>"><?= lang('System.buttons.remove-confirm') ?></button>
@@ -130,8 +129,10 @@
             $('#btn-save-master').click(function (e) {
                 e.preventDefault();
                 <?php
-                $fields = ['session_master_id', 'session_master_session_type', 'session_master_service_variant_id', 'session_master_date_start', 'session_master_date_end', 'session_master_branch_id', 'session_master_session_capacity', 'session_master_short_description'];
+                $fields = ['session_master_id', 'session_master_session_type', 'session_master_service_variant_id', 'session_master_branch_id', 'session_master_session_capacity', 'session_master_short_description'];
                 gen_js_fields_checker($fields);
+                $fields[] = 'session_master_date_start';
+                $fields[] = 'session_master_date_end';
                 ?>
                 $('#action').val('session_master');
                 $('#btn-save-master').prop('disabled', true);

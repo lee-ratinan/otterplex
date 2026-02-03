@@ -2299,6 +2299,12 @@ class Admin extends BaseController
                 }
                 $row_id = $data['id'] ?? 0;
                 unset($data['id']);
+                if (empty($data['date_start'])) {
+                    $data['date_start'] = null;
+                }
+                if (empty($data['date_end'])) {
+                    $data['date_end'] = null;
+                }
                 if (0 == $row_id) {
                     if ($sessionMasterModel->insert($data)) {
                         $id = $sessionMasterModel->getInsertID();
@@ -2384,16 +2390,20 @@ class Admin extends BaseController
                 $sessionMasterModel->update($sessionMaster['id'], $masterUpdate);
                 log_message('debug', 'session master - UPDATED');
                 // allocation
-                $allocationResourceData['resource_id']          = $data['resource_master_id'];
-                $allocationResourceData['session_breakdown_id'] = $breakdownId;
-                $allocationResourceData['allocation_type']      = 'SESSION';
-                log_message('debug', 'allocationResourceData = ' . json_encode($allocationResourceData));
-                $allocationResourceModel->insert($allocationResourceData);
-                $allocationStaffData['user_id']                 = $data['staff_user_id'];
-                $allocationStaffData['session_breakdown_id']    = $breakdownId;
-                $allocationStaffData['allocation_type']         = 'SESSION';
-                log_message('debug', 'allocationStaffData = ' . json_encode($allocationStaffData));
-                $allocationStaffModel->insert($allocationStaffData);
+                if (0 < $data['resource_master_id']) {
+                    $allocationResourceData['resource_id'] = $data['resource_master_id'];
+                    $allocationResourceData['session_breakdown_id'] = $breakdownId;
+                    $allocationResourceData['allocation_type'] = 'SESSION';
+                    log_message('debug', 'allocationResourceData = ' . json_encode($allocationResourceData));
+                    $allocationResourceModel->insert($allocationResourceData);
+                }
+                if (0 < $data['staff_user_id']) {
+                    $allocationStaffData['user_id'] = $data['staff_user_id'];
+                    $allocationStaffData['session_breakdown_id'] = $breakdownId;
+                    $allocationStaffData['allocation_type'] = 'SESSION';
+                    log_message('debug', 'allocationStaffData = ' . json_encode($allocationStaffData));
+                    $allocationStaffModel->insert($allocationStaffData);
+                }
                 if ($db->transStatus() === false) {
                     $db->transRollback(); // <<< ROLLBACK (Undoes changes from all Models)
                     return $this->response->setJSON([

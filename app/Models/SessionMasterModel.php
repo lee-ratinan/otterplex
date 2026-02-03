@@ -62,8 +62,8 @@ class SessionMasterModel extends AppBaseModel
                 $branch_name,
                 $row['short_description'],
                 $row['session_capacity'],
-                $row['date_start'],
-                $row['date_end'],
+                (empty($row['date_start']) ? '-' : format_date($row['date_start'], $lang)),
+                (empty($row['date_end']) ? '-' : format_date($row['date_end'], $lang)),
                 '<a class="btn btn-primary btn-sm float-end" href="http://localhost:8100/admin/service/variant/session/' . $url_ids . '/' . ($row['id'] * ID_MASKED_PRIME) . '">' . lang('System.buttons.edit') . '</a>',
             ];
         }
