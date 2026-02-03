@@ -13,6 +13,8 @@
                     <p><?= lang('Service.session.explanation') ?></p>
                     <p><?= lang('ServiceVariant.field.service_duration_minutes') ?>: <?= generate_duration_label($variant['service_duration_minutes']) ?></p>
                     <?php $tomorrow = date('Y-m-d', strtotime('tomorrow')); ?>
+                    <input type="hidden" id="action" name="action" value="" />
+                    <input type="hidden" id="session_master_id" name="session_master_id" value="<?= $session_data['id'] ?? 0 ?>" />
                     <input type="hidden" id="session_master_session_type" name="session_master_session_type" value="OPEN" />
                     <input type="hidden" id="session_master_service_variant_id" name="session_master_service_variant_id" value="<?= $variant['id'] ?>" />
                     <input type="hidden" id="session_master_date_start" name="session_master_date_start" value="<?= $session_data['date_start'] ?? $tomorrow ?>" />
@@ -67,13 +69,14 @@
             $('#btn-save-master').click(function (e) {
                 e.preventDefault();
                 <?php
-                $fields = ['session_master_session_type', 'session_master_service_variant_id', 'session_master_date_start', 'session_master_date_end', 'session_master_branch_id', 'session_master_session_capacity', 'session_master_short_description'];
+                $fields = ['session_master_id', 'session_master_session_type', 'session_master_service_variant_id', 'session_master_date_start', 'session_master_date_end', 'session_master_branch_id', 'session_master_session_capacity', 'session_master_short_description'];
                 gen_js_fields_checker($fields);
                 ?>
+                $('#action').val('session_master');
                 $('#btn-save-master').prop('disabled', true);
                 $.post(
                     "<?= base_url('admin/service/variant/session/manage') ?>",
-                    <?php gen_json_fields_to_fields($fields) ?>,
+                    <?php $fields[] = 'action'; gen_json_fields_to_fields($fields) ?>,
                     function (response, status) {
                         $('#btn-save-master').prop('disabled', false);
                         if (response.status === "<?= STATUS_RESPONSE_OK ?>") {

@@ -2207,6 +2207,54 @@ class Admin extends BaseController
         return view('admin/service_variant_session_manage', $data);
     }
 
+    public function service_variant_session_manage_post(): ResponseInterface
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('DataTable');
+        }
+        $sessionMasterModel = new SessionMasterModel();
+        $data               = [];
+        try {
+            $action     = $this->request->getPost('action');
+            if ('session_master' == $action) {
+                $fields = ['id', 'session_type', 'service_variant_id', 'date_start', 'date_end', 'branch_id', 'session_capacity', 'short_description'];
+                foreach ($fields as $field) {
+                    $data[$field] = $this->request->getPost('session_master_' . $field);
+                }
+                $row_id = $data['id'] ?? 0;
+                unset($data['id']);
+                if (0 == $row_id) {
+                    if ($sessionMasterModel->insert($data)) {
+                        $id = $sessionMasterModel->getInsertID();
+                        return $this->response->setJSON([
+                            'status'  => STATUS_RESPONSE_OK,
+                            'message' => lang('System.response-msg.success.data-saved'),
+                            'id'      => $id
+                        ]);
+                    }
+                } else {
+                    if ($sessionMasterModel->update($row_id, $data)) {
+                        return $this->response->setJSON([
+                            'status'  => STATUS_RESPONSE_OK,
+                            'message' => lang('System.response-msg.success.data-saved'),
+                            'id'      => $row_id
+                        ]);
+                    }
+                }
+            }
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => lang('System.response-msg.error.db-issue'),
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => $e->getMessage(),
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
     /**
      * Manage product
      * @return string
