@@ -26,6 +26,10 @@ return [
         ],
     ],
     'explanation' => [
-        'not_editable' => 'This field is not editable after you saved it.'
+        'required_num_staff'        => 'The number of staff required to be booked for this service (0-1 person).',
+        'required_resource_type_id' => 'The resource that is required for this service (if any).',
+        'price_compare'             => 'The higher price that is used to compare to the actual price.',
+        'service_duration_minutes'  => 'The total length of this service (in minutes)',
+        'not_editable'              => 'This field is not editable after you saved it.'
     ]
 ];

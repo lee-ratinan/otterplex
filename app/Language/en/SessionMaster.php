@@ -1,6 +1,6 @@
 <?php
 return [
-    'field' => [
+    'field'       => [
         'id'                 => 'ID',
         'branch_id'          => 'Branch',
         'service_variant_id' => 'Service Variant',
@@ -10,10 +10,13 @@ return [
         'date_start'         => 'Start Date',
         'date_end'           => 'End Date',
     ],
-    'enum'  => [
+    'enum'        => [
         'session_type' => [
             'OPEN'     => 'Open session for anyone to register',
             'SPECIFIC' => 'Session for specific booking'
         ]
+    ],
+    'explanation' => [
+        'short_description' => 'Use this field to identify the session detail.'
     ]
 ];

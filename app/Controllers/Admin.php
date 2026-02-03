@@ -2152,6 +2152,7 @@ class Admin extends BaseController
         $sessionModel          = new SessionMasterModel();
         $sessionBreakdownModel = new SessionBreakdownModel();
         $resourceModel         = new ResourceMasterModel();
+        $resourceTypeModel     = new ResourceTypeModel();
         $staffModel            = new ServiceStaffModel();
         // SERVICE
         $service = $serviceModel->findRow($realServiceId);
@@ -2172,7 +2173,6 @@ class Admin extends BaseController
             $branchNames                  = json_decode($branch['branch_local_names'], true);
             $branchOptions[$branch['id']] = $branchNames[$lang] ?? $branch['branch_name'];
         }
-        $staff     = $staffModel->getStaffByServiceId($realSessionId);
         $resources = [];
         if (!empty($variant['required_resource_type_id']) && 0 < $variant['required_resource_type_id']) {
             $resources = $resourceModel->where('resource_type_id', $variant['required_resource_type_id']);
@@ -2181,6 +2181,9 @@ class Admin extends BaseController
         $mode             = 'new';
         $sessionData      = [];
         $sessionBreakdown = [];
+        $resourceType     = '';
+        $resourceOptions  = [];
+        $staffOptions     = [];
         if (0 < $realSessionId) {
             $mode        = 'edit';
             $sessionData = $sessionModel->findRow($realSessionId);
@@ -2188,6 +2191,22 @@ class Admin extends BaseController
                 throw PageNotFoundException::forPageNotFound();
             }
             $sessionBreakdown = $sessionBreakdownModel->where('session_id', $realSessionId)->findAll();
+            // resource
+            if (!empty($variant['required_resource_type_id'])) {
+                $resourceTypeRaw = $resourceTypeModel->where('id', $variant['required_resource_type_id'])->first();
+                $resourceTypes   = json_encode($resourceTypeRaw['resource_local_names'], true);
+                $resourceType    = $resourceTypes[$lang] ?? $resourceTypeRaw['resource_type'];
+                $resourcesRaw    = $resourceModel->where('resource_type_id', $variant['required_resource_type_id'])->findAll();
+                $resourceOptions = [];
+                foreach ($resourcesRaw as $row) {
+                    $resourceOptions[$row['id']] = $row['resource_name'];
+                }
+            }
+            // staff
+            $staffRaw        = $staffModel->getStaffByServiceId($realServiceId);
+            foreach ($staffRaw as $row) {
+                $staffOptions[$row['id']] = $row['user_name_first'] . ' ' . $row['user_name_last'];
+            }
         }
         $data = [
             'slug'              => 'service-variant-session-manage',
@@ -2215,9 +2234,12 @@ class Admin extends BaseController
             'variant'           => $variant,
             'branches'          => $branchOptions,
             'resources'         => $resources,
-            'staff'             => $staff,
+//            'staff'             => $staff,
             'session_data'      => $sessionData,
-            'session_breakdown' => $sessionBreakdown,
+            'sessions_list'     => $sessionBreakdown,
+            'resource_type'     => $resourceType,
+            'resource_options'  => $resourceOptions,
+            'staff_options'     => $staffOptions,
             'url_ids'           => $serviceId . '/' . $serviceVariantId
         ];
         return view('admin/service_variant_session_manage', $data);

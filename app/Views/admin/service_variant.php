@@ -47,17 +47,18 @@
                                 ]);
                                 echo build_form_input('required_resource_type_id', lang('ServiceVariant.field.required_resource_type_id'), [
                                     'type'             => 'select',
-                                    'data-explanation' => lang('ServiceVariant.explanation.not_editable')
+                                    'data-explanation' => lang('ServiceVariant.explanation.required_resource_type_id') . '<br>' . lang('ServiceVariant.explanation.not_editable')
                                 ], '', '', $resourceTypes);
                                 echo build_form_input('required_num_staff', lang('ServiceVariant.field.required_num_staff'), [
                                     'type'             => 'number',
-                                    'min'              => 1,
-                                    'data-explanation' => lang('ServiceVariant.explanation.not_editable')
+                                    'min'              => 0,
+                                    'max'              => 1,
+                                    'data-explanation' => lang('ServiceVariant.explanation.required_num_staff') . '<br>' . lang('ServiceVariant.explanation.not_editable')
                                 ], 1);
                                 echo build_form_input('service_duration_minutes', lang('ServiceVariant.field.service_duration_minutes'), [
                                     'type'             => 'number',
                                     'min'              => 1,
-                                    'data-explanation' => lang('ServiceVariant.explanation.not_editable')
+                                    'data-explanation' => lang('ServiceVariant.explanation.service_duration_minutes') . '<br>' . lang('ServiceVariant.explanation.not_editable')
                                 ], @$variant['service_duration_minutes']);
                             } else {
                                 echo '<div class="mb-3"><label for="schedule_type" class="form-label ">' . lang('ServiceVariant.field.schedule_type') . '</label><input id="schedule_type" class="form-control" type="text" readonly="readonly" value="' . lang('ServiceVariant.enum.schedule_type.' . $variant['schedule_type']) . '" /></div>';
@@ -74,8 +75,9 @@
                                 'min'  => 1,
                             ], @$variant['price_active']);
                             echo build_form_input('price_compare', lang('ServiceVariant.field.price_compare'), [
-                                'type' => 'number',
-                                'min'  => 1,
+                                'type'             => 'number',
+                                'min'              => 1,
+                                'data-explanation' => lang('ServiceVariant.explanation.price_compare')
                             ], @$variant['price_compare']);
                             ?>
                             <div class="text-end">
