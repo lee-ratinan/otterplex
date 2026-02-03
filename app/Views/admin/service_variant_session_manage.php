@@ -74,8 +74,8 @@
                                             <td><?= $resource_allocations[$row['id']] ?></td>
                                             <td><?= $staff_allocations[$row['id']] ?></td>
                                             <td>
-                                                <button class="btn btn-primary btn-sm float-end btn-remove-session-breakdown" id="btn-remove-breakdown-<?= $row['id'] ?>" data-id="<?= $row['id'] ?>"><?= lang('System.buttons.remove') ?></button>
-                                                <button class="btn btn-primary btn-sm float-end btn-remove-session-breakdown-confirm d-none" id="btn-remove-breakdown-confirm-<?= $row['id'] ?>" data-id="<?= $row['id'] ?>"><?= lang('System.buttons.remove-confirm') ?></button>
+                                                <button class="btn btn-outline-danger btn-sm float-end btn-remove-session-breakdown" id="btn-remove-breakdown-<?= $row['id'] ?>" data-id="<?= $row['id'] ?>"><?= lang('System.buttons.remove') ?></button>
+                                                <button class="btn btn-outline-danger btn-sm float-end btn-remove-session-breakdown-confirm d-none" id="btn-remove-breakdown-confirm-<?= $row['id'] ?>" data-id="<?= $row['id'] ?>"><?= lang('System.buttons.remove-confirm') ?></button>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -190,6 +190,36 @@
                     "json"
                 ).fail(function (response) {
                     $('#btn-add-breakdown').prop('disabled', false);
+                    let message = response.responseJSON.message ?? '<?= lang('System.response-msg.error.generic') ?>';
+                    toastr.error(message);
+                });
+            });
+            $('.btn-remove-session-breakdown').click(function (e) {
+                e.preventDefault();
+                let target_id = '#btn-remove-breakdown-confirm-' + $(this).data('id');
+                $(target_id).removeClass('d-none');
+                $(this).addClass('d-none');
+            })
+            $('.btn-remove-session-breakdown-confirm').click(function (e) {
+                e.preventDefault();
+                $(this).prop('disabled', true);
+                let session_breakdown_id = $(this).data('id');
+                $.post(
+                    "<?= base_url('admin/service/variant/session/manage') ?>",
+                    {action:'remove_session_breakdown', session_breakdown_id: session_breakdown_id},
+                    function (response, status) {
+                        $('#btn-remove-breakdown-confirm-'+session_breakdown_id).prop('disabled', false);
+                        if (response.status === "<?= STATUS_RESPONSE_OK ?>") {
+                            toastr.success(response.message);
+                            setTimeout(function() { location.reload(); }, 3000);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    "json"
+                ).fail(function (response) {
+                    $('#btn-remove-breakdown-confirm-'+session_breakdown_id).prop('disabled', false).addClass('d-none');
+                    $('#btn-remove-breakdown-'+session_breakdown_id).removeClass('d-none');
                     let message = response.responseJSON.message ?? '<?= lang('System.response-msg.error.generic') ?>';
                     toastr.error(message);
                 });

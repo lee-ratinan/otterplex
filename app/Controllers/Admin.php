@@ -2289,6 +2289,7 @@ class Admin extends BaseController
         $allocationResourceModel = new AllocationResourceModel();
         $allocationStaffModel    = new AllocationStaffModel();
         $data                    = [];
+        $db                      = \Config\Database::connect();
         try {
             $action     = $this->request->getPost('action');
             if ('session_master' == $action) {
@@ -2340,7 +2341,6 @@ class Admin extends BaseController
                     ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
                 }
                 log_message('debug', 'branch = ' . json_encode($branchMaster));
-                $db        = \Config\Database::connect();
                 $db->transBegin();
                 $srcTz     = new \DateTimeZone($branchMaster['timezone_code']);
                 $utcTz     = new \DateTimeZone('UTC');
@@ -2405,6 +2405,34 @@ class Admin extends BaseController
                 return $this->response->setJSON([
                     'status'  => STATUS_RESPONSE_OK,
                     'message' => lang('System.response-msg.success.data-saved')
+                ]);
+            } else if ('remove_session_breakdown' == $action) {
+                $session_breakdown_id = $this->request->getPost('session_breakdown_id');
+                $db->transBegin();
+                $alStaff = $allocationStaffModel->where('session_breakdown_id', $session_breakdown_id)->findAll();
+                if (!empty($alStaff)) {
+                    foreach ($alStaff as $row) {
+                        $allocationStaffModel->delete($row['id']);
+                    }
+                }
+                $alResource = $allocationResourceModel->where('session_breakdown_id', $session_breakdown_id)->findAll();
+                if (!empty($alResource)) {
+                    foreach ($alResource as $row) {
+                        $allocationResourceModel->delete($row['id']);
+                    }
+                }
+                $sessionBreakdownModel->delete($session_breakdown_id);
+                if ($db->transStatus() === false) {
+                    $db->transRollback(); // <<< ROLLBACK (Undoes changes from all Models)
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_ERR,
+                        'message' => lang('System.response-msg.error.db-issue'),
+                    ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+                }
+                $db->transCommit();
+                return $this->response->setJSON([
+                    'status'  => STATUS_RESPONSE_OK,
+                    'message' => lang('System.response-msg.success.data-deleted')
                 ]);
             }
             return $this->response->setJSON([
