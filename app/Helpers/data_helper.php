@@ -5164,3 +5164,17 @@ if (!function_exists('retrieve_bank_list')) {
         return $list[$countryCode] ?? [];
     }
 }
+if (!function_exists('generate_duration_label')) {
+    function generate_duration_label(int $minutes): string
+    {
+        if (91 > $minutes) {
+            return lang('Service.duration-minutes', [$minutes]);
+        }
+        $h = floor($minutes / 60);
+        $m = $minutes % 60;
+        if (0 == $m) {
+            return lang('Service.duration-hours', [$h]);
+        }
+        return lang('Service.duration-hm', [$h, $m]);
+    }
+}

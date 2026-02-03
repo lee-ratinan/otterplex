@@ -156,7 +156,7 @@
                             ?>
                             <div class="row">
                                 <div class="col p-5 m-3" id="example-mart-background">
-                                    <img id="example-mart-logo" src="<?= $logo_file ?>" alt="OtterNova" style="width:5em;" />
+                                    <img class="img img-thumbnail mb-3" id="example-mart-logo" src="<?= $logo_file ?>" alt="OtterNova" style="width:5em;" />
                                     <h3 id="example-mart-primary"><?= lang('Business.marketplace') ?>: <?= $business['business_local_names'][$lang] ?></h3>
                                     <p id="example-mart-text"><?= lang('Business.marketplace-example-text') ?></p>
                                 </div>

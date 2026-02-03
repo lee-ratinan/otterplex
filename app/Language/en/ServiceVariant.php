@@ -13,7 +13,7 @@ return [
         'price_compare'             => 'Compare Price',
         'required_num_staff'        => 'Staff Required',
         'required_resource_type_id' => 'Resource Type Required',
-        'service_duration_minutes'  => 'Duration (min.)',
+        'service_duration_minutes'  => 'Duration',
     ],
     'enum'        => [
         'is_active'     => [

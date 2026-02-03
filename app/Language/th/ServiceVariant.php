@@ -13,7 +13,7 @@ return [
         'price_compare'             => 'ราคาเปรียบเทียบ',
         'required_num_staff'        => 'จำนวนพนักงานที่ใช้',
         'required_resource_type_id' => 'ประเภทของทรัพยากรที่ต้องใช้',
-        'service_duration_minutes'  => 'ระยะเวลา (นาที)',
+        'service_duration_minutes'  => 'ระยะเวลา',
     ],
     'enum'        => [
         'is_active'     => [

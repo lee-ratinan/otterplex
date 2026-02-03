@@ -23,6 +23,7 @@ use App\Models\ResourceTypeModel;
 use App\Models\ServiceMasterModel;
 use App\Models\ServiceStaffModel;
 use App\Models\ServiceVariantModel;
+use App\Models\SessionBreakDownModel;
 use App\Models\SessionMasterModel;
 use App\Models\UserMasterModel;
 use CodeIgniter\Exceptions\PageNotFoundException;
@@ -2125,14 +2126,17 @@ class Admin extends BaseController
         if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
             return $this->forbiddenResponse('string');
         }
-        $lang                 = $this->request->getLocale();
-        $realServiceId        = $serviceId / ID_MASKED_PRIME;
-        $realServiceVariantId = $serviceVariantId / ID_MASKED_PRIME;
-        $realSessionId        = $sessionId / ID_MASKED_PRIME;
-        $serviceModel         = new ServiceMasterModel();
-        $variantModel         = new ServiceVariantModel();
-        $sessionModel         = new SessionMasterModel();
-        $resourceModel        = new ResourceTypeModel();
+        $lang                  = $this->request->getLocale();
+        $realServiceId         = $serviceId / ID_MASKED_PRIME;
+        $realServiceVariantId  = $serviceVariantId / ID_MASKED_PRIME;
+        $realSessionId         = $sessionId / ID_MASKED_PRIME;
+        $branchModel           = new BranchMasterModel();
+        $serviceModel          = new ServiceMasterModel();
+        $variantModel          = new ServiceVariantModel();
+        $sessionModel          = new SessionMasterModel();
+        $sessionBreakdownModel = new SessionBreakdownModel();
+        $resourceModel         = new ResourceMasterModel();
+        $staffModel            = new ServiceStaffModel();
         // SERVICE
         $service = $serviceModel->findRow($realServiceId);
         if (empty($service)) {
@@ -2144,18 +2148,35 @@ class Admin extends BaseController
         if (empty($variant)) {
             throw PageNotFoundException::forPageNotFound();
         }
+        $variant['variant_local_names'] = json_decode($variant['variant_local_names'], true);
+        // GET DATA
+        $branches      = $branchModel->where('business_id', $session->business['business_id'])->findAll();
+        $branchOptions = [];
+        foreach ($branches as $branch) {
+            $branchNames                  = json_decode($branch['branch_local_names'], true);
+            $branchOptions[$branch['id']] = $branchNames[$lang] ?? $branch['branch_name'];
+        }
+        $staff     = $staffModel->getStaffByServiceId($realSessionId);
+        $resources = [];
+        if (!empty($variant['required_resource_type_id']) && 0 < $variant['required_resource_type_id']) {
+            $resources = $resourceModel->where('resource_type_id', $variant['required_resource_type_id']);
+        }
+        // GET SESSION ITSELF, don't get if it's the new session
+        $mode             = 'new';
+        $sessionData      = [];
+        $sessionBreakdown = [];
         if (0 < $realSessionId) {
-            $session = $sessionModel->findRow($realSessionId);
+            $mode        = 'edit';
+            $sessionData = $sessionModel->findRow($realSessionId);
             if (empty($session)) {
                 throw PageNotFoundException::forPageNotFound();
             }
-            //
+            $sessionBreakdown = $sessionBreakdownModel->where('session_id', $realSessionId)->findAll();
         }
-        //
         $data = [
-            'slug'          => 'service-variant-session-manage',
-            'lang'          => $lang,
-            'breadcrumb'    => [
+            'slug'              => 'service-variant-session-manage',
+            'lang'              => $lang,
+            'breadcrumb'        => [
                 [
                     'url'        => base_url('admin/service'),
                     'page_title' => lang('Admin.pages.service'),
@@ -2173,6 +2194,15 @@ class Admin extends BaseController
                     'page_title' => lang('Admin.pages.service-variant-session'),
                 ]
             ],
+            'mode'              => $mode,
+            'service'           => $service,
+            'variant'           => $variant,
+            'branches'          => $branchOptions,
+            'resources'         => $resources,
+            'staff'             => $staff,
+            'session_data'      => $sessionData,
+            'session_breakdown' => $sessionBreakdown,
+            'url_ids'           => $serviceId . '/' . $serviceVariantId
         ];
         return view('admin/service_variant_session_manage', $data);
     }

@@ -95,7 +95,7 @@
                                         <td><?= format_price($variant['price_active'], $session->business['currency_code']) ?></td>
                                         <td><?= format_price($variant['price_compare'], $session->business['currency_code']) ?></td>
                                         <td><?= lang('Service.num-staff', [$variant['required_num_staff']]) ?></td>
-                                        <td><?= lang('Service.duration-minutes', [$variant['service_duration_minutes']]) ?></td>
+                                        <td><?= generate_duration_label($variant['service_duration_minutes']) ?></td>
                                         <td><?= $variant['resource_type'] ?></td>
                                         <td>
                                             <?php if ('S' == $variant['schedule_type']) : ?>
