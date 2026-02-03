@@ -27,6 +27,7 @@ class ServiceStaffModel extends AppBaseModel
     {
         $raw = $this->select('service_staff.*, service_master.service_name, service_master.service_local_names,
                          branch_user.user_role, branch_master.branch_name, branch_master.branch_local_names,
+                         user_master.id AS user_master_id,
                          user_master.user_name_first, user_master.user_name_last')
             ->join('service_master', 'service_master.id = service_staff.service_id')
             ->join('branch_user', 'branch_user.id = service_staff.branch_user_id')

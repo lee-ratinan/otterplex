@@ -54,12 +54,25 @@
                                     </tr>
                                     </thead>
                                     <tbody>
+                                    <?php $totalMinutes = 0; ?>
                                     <?php foreach ($sessions_list as $row) : ?>
+                                        <?php
+                                        $utcTz    = new \DateTimeZone('UTC');
+                                        $branchTz = new \DateTimeZone($branch_tz);
+                                        $start    = new \DateTime($row['time_start'], $utcTz);
+                                        $end      = new \DateTime($row['time_end'], $utcTz);
+                                        $diff     = $end->diff($start);
+                                        $minutes  = ($diff->days * 24 * 60) + ($diff->h * 60) + $diff->i;
+                                        $totalMinutes += $minutes;
+                                        $start->setTimezone($branchTz);
+                                        $end->setTimezone($branchTz);
+                                        ?>
                                         <tr>
-                                            <td><?= format_date($row['date_start'], $lang) ?></td>
-                                            <td><?= format_date($row['date_end'], $lang) ?></td>
-                                            <td>...</td>
-                                            <td>...</td>
+                                            <td><?= format_date_time($start->format('Y-m-d H:i:s'), $lang) ?></td>
+                                            <td><?= format_date_time($end->format('Y-m-d H:i:s'), $lang) ?></td>
+                                            <td><?= generate_duration_label($minutes) ?></td>
+                                            <td><?= $resource_allocations[$row['id']] ?></td>
+                                            <td><?= $staff_allocations[$row['id']] ?></td>
                                             <td>
                                                 <button class="btn btn-primary btn-sm float-end btn-remove-session-breakdown" id="btn-remove-breakdown-<?= $row['id'] ?>" data-id="<?= $row['id'] ?>"><?= lang('System.buttons.remove') ?></button>
                                                 <button class="btn btn-primary btn-sm float-end btn-remove-session-breakdown-confirm d-none" id="btn-remove-breakdown-confirm-<?= $row['id'] ?>" data-id="<?= $row['id'] ?>"><?= lang('System.buttons.remove-confirm') ?></button>
@@ -67,6 +80,13 @@
                                         </tr>
                                     <?php endforeach; ?>
                                     </tbody>
+                                    <tfoot>
+                                    <tr>
+                                        <th colspan="2"></th>
+                                        <th><?= generate_duration_label($totalMinutes) ?></th>
+                                        <th colspan="3"></th>
+                                    </tr>
+                                    </tfoot>
                                 </table>
                                 <h3 class="mt-5 pt-5"><?= lang('Service.breakdown-list-add') ?></h3>
                                 <div class="row">
@@ -83,16 +103,17 @@
                                         'type' => 'select'
                                     ], '', '', $resource_options);
                                 } else {
-                                    echo '<input type="text" id="session_breakdown_resource_master_id" name="session_breakdown_resource_master_id" value="0" />';
+                                    echo '<input type="hidden" id="session_breakdown_resource_master_id" name="session_breakdown_resource_master_id" value="0" />';
                                 }
                                 if (1 == $variant['required_num_staff']) {
                                     echo build_form_input('session_breakdown_staff_user_id', lang('Service.service-staff'), [
                                         'type' => 'select'
                                     ], '', '', $staff_options);
                                 } else {
-                                    echo '<input type="text" id="session_breakdown_staff_user_id" name="session_breakdown_staff_user_id" value="0" />';
+                                    echo '<input type="hidden" id="session_breakdown_staff_user_id" name="session_breakdown_staff_user_id" value="0" />';
                                 }
                                 ?>
+                                <input type="hidden" id="session_breakdown_session_master_id" name="session_breakdown_session_master_id" value="<?= $session_data['id'] ?>" />
                                 <div class="text-end">
                                     <button class="btn btn-primary" id="btn-add-breakdown"><?= lang('System.buttons.save') ?></button>
                                 </div>
@@ -145,6 +166,34 @@
                 let start = $(this).val();
                 $('#session_breakdown_date_end').attr('min', start).val(start);
             })
+            // SAVE
+            $('#btn-add-breakdown').click(function (e) {
+                e.preventDefault();
+                <?php
+                $fields = ['session_breakdown_date_start', 'session_breakdown_time_start', 'session_breakdown_date_end', 'session_breakdown_time_end', 'session_breakdown_resource_master_id', 'session_breakdown_staff_user_id', 'session_breakdown_session_master_id'];
+                gen_js_fields_checker($fields);
+                ?>
+                $('#action').val('session_breakdown');
+                $('#btn-add-breakdown').prop('disabled', true);
+                $.post(
+                    "<?= base_url('admin/service/variant/session/manage') ?>",
+                    <?php $fields[] = 'action'; gen_json_fields_to_fields($fields) ?>,
+                    function (response, status) {
+                        $('#btn-add-breakdown').prop('disabled', false);
+                        if (response.status === "<?= STATUS_RESPONSE_OK ?>") {
+                            toastr.success(response.message);
+                            setTimeout(function() { location.reload(); }, 3000);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    "json"
+                ).fail(function (response) {
+                    $('#btn-add-breakdown').prop('disabled', false);
+                    let message = response.responseJSON.message ?? '<?= lang('System.response-msg.error.generic') ?>';
+                    toastr.error(message);
+                });
+            });
             <?php endif; ?>
         });
     </script>

@@ -2,6 +2,8 @@
 
 namespace App\Controllers;
 
+use App\Models\AllocationResourceModel;
+use App\Models\AllocationStaffModel;
 use App\Models\BranchMasterModel;
 use App\Models\BranchModifiedHoursModel;
 use App\Models\BranchOpeningHoursModel;
@@ -2142,18 +2144,20 @@ class Admin extends BaseController
         if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
             return $this->forbiddenResponse('string');
         }
-        $lang                  = $this->request->getLocale();
-        $realServiceId         = $serviceId / ID_MASKED_PRIME;
-        $realServiceVariantId  = $serviceVariantId / ID_MASKED_PRIME;
-        $realSessionId         = $sessionId / ID_MASKED_PRIME;
-        $branchModel           = new BranchMasterModel();
-        $serviceModel          = new ServiceMasterModel();
-        $variantModel          = new ServiceVariantModel();
-        $sessionModel          = new SessionMasterModel();
-        $sessionBreakdownModel = new SessionBreakdownModel();
-        $resourceModel         = new ResourceMasterModel();
-        $resourceTypeModel     = new ResourceTypeModel();
-        $staffModel            = new ServiceStaffModel();
+        $lang                    = $this->request->getLocale();
+        $realServiceId           = $serviceId / ID_MASKED_PRIME;
+        $realServiceVariantId    = $serviceVariantId / ID_MASKED_PRIME;
+        $realSessionId           = $sessionId / ID_MASKED_PRIME;
+        $branchModel             = new BranchMasterModel();
+        $serviceModel            = new ServiceMasterModel();
+        $variantModel            = new ServiceVariantModel();
+        $sessionModel            = new SessionMasterModel();
+        $sessionBreakdownModel   = new SessionBreakdownModel();
+        $resourceModel           = new ResourceMasterModel();
+        $resourceTypeModel       = new ResourceTypeModel();
+        $staffModel              = new ServiceStaffModel();
+        $allocationResourceModel = new AllocationResourceModel();
+        $allocationStaffModel    = new AllocationStaffModel();
         // SERVICE
         $service = $serviceModel->findRow($realServiceId);
         if (empty($service)) {
@@ -2169,28 +2173,37 @@ class Admin extends BaseController
         // GET DATA
         $branches      = $branchModel->where('business_id', $session->business['business_id'])->findAll();
         $branchOptions = [];
+        $branchTzes      = [];
         foreach ($branches as $branch) {
             $branchNames                  = json_decode($branch['branch_local_names'], true);
             $branchOptions[$branch['id']] = $branchNames[$lang] ?? $branch['branch_name'];
+            $branchTzes[$branch['id']]    = $branch['timezone_code'];
         }
         $resources = [];
         if (!empty($variant['required_resource_type_id']) && 0 < $variant['required_resource_type_id']) {
             $resources = $resourceModel->where('resource_type_id', $variant['required_resource_type_id']);
         }
         // GET SESSION ITSELF, don't get if it's the new session
-        $mode             = 'new';
-        $sessionData      = [];
-        $sessionBreakdown = [];
-        $resourceType     = '';
-        $resourceOptions  = [];
-        $staffOptions     = [];
+        $mode                = 'new';
+        $sessionData         = [];
+        $sessionBreakdown    = [];
+        $resourceType        = '';
+        $resourceOptions     = [];
+        $staffOptions        = [];
+        $branchTz            = '';
+        $staffAllocations    = [];
+        $resourceAllocations = [];
         if (0 < $realSessionId) {
             $mode        = 'edit';
             $sessionData = $sessionModel->findRow($realSessionId);
             if (empty($session)) {
                 throw PageNotFoundException::forPageNotFound();
             }
-            $sessionBreakdown = $sessionBreakdownModel->where('session_id', $realSessionId)->findAll();
+            $sessionBreakdown    = $sessionBreakdownModel->where('session_id', $realSessionId)->orderBy('time_start', 'ASC')->findAll();
+            $sessionBreakdownIds = [];
+            foreach ($sessionBreakdown as $row) {
+                $sessionBreakdownIds[] = $row['id'];
+            }
             // resource
             if (!empty($variant['required_resource_type_id'])) {
                 $resourceTypeRaw = $resourceTypeModel->where('id', $variant['required_resource_type_id'])->first();
@@ -2205,13 +2218,30 @@ class Admin extends BaseController
             // staff
             $staffRaw        = $staffModel->getStaffByServiceId($realServiceId);
             foreach ($staffRaw as $row) {
-                $staffOptions[$row['id']] = $row['user_name_first'] . ' ' . $row['user_name_last'];
+                $staffOptions[$row['user_master_id']] = $row['user_name_first'] . ' ' . $row['user_name_last'];
             }
+            // allocation
+            if (!empty($sessionBreakdownIds)) {
+                $staffAllocationRaw    = $allocationStaffModel->select('allocation_staff.*, user_master.user_name_first, user_master.user_name_last')
+                    ->join('user_master', 'user_master.id = allocation_staff.user_id', 'left outer')
+                    ->whereIn('session_breakdown_id', $sessionBreakdownIds)->findAll();
+                $resourceAllocationRaw = $allocationResourceModel->select('allocation_resource.*, resource_master.resource_name')
+                    ->join('resource_master', 'resource_master.id = allocation_resource.resource_id', 'left outer')
+                    ->whereIn('session_breakdown_id', $sessionBreakdownIds)->findAll();
+                foreach ($staffAllocationRaw as $row) {
+                    $staffAllocations[$row['session_breakdown_id']] = $row['user_name_first'] . ' ' . $row['user_name_last'];
+                }
+                foreach ($resourceAllocationRaw as $row) {
+                    $resourceAllocations[$row['session_breakdown_id']] = $row['resource_name'];
+                }
+            }
+            // tz
+            $branchTz        = $branchTzes[$sessionData['branch_id']];
         }
         $data = [
-            'slug'              => 'service-variant-session-manage',
-            'lang'              => $lang,
-            'breadcrumb'        => [
+            'slug'                 => 'service-variant-session-manage',
+            'lang'                 => $lang,
+            'breadcrumb'           => [
                 [
                     'url'        => base_url('admin/service'),
                     'page_title' => lang('Admin.pages.service'),
@@ -2229,18 +2259,20 @@ class Admin extends BaseController
                     'page_title' => lang('Admin.pages.service-variant-session'),
                 ]
             ],
-            'mode'              => $mode,
-            'service'           => $service,
-            'variant'           => $variant,
-            'branches'          => $branchOptions,
-            'resources'         => $resources,
-//            'staff'             => $staff,
-            'session_data'      => $sessionData,
-            'sessions_list'     => $sessionBreakdown,
-            'resource_type'     => $resourceType,
-            'resource_options'  => $resourceOptions,
-            'staff_options'     => $staffOptions,
-            'url_ids'           => $serviceId . '/' . $serviceVariantId
+            'mode'                 => $mode,
+            'service'              => $service,
+            'variant'              => $variant,
+            'branches'             => $branchOptions,
+            'branch_tz'            => $branchTz,
+            'resources'            => $resources,
+            'session_data'         => $sessionData,
+            'sessions_list'        => $sessionBreakdown,
+            'resource_type'        => $resourceType,
+            'resource_options'     => $resourceOptions,
+            'staff_options'        => $staffOptions,
+            'staff_allocations'    => $staffAllocations,
+            'resource_allocations' => $resourceAllocations,
+            'url_ids'              => $serviceId . '/' . $serviceVariantId
         ];
         return view('admin/service_variant_session_manage', $data);
     }
@@ -2251,8 +2283,12 @@ class Admin extends BaseController
         if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
             return $this->forbiddenResponse('DataTable');
         }
-        $sessionMasterModel = new SessionMasterModel();
-        $data               = [];
+        $sessionMasterModel      = new SessionMasterModel();
+        $sessionBreakdownModel   = new SessionBreakdownModel();
+        $branchMasterModel       = new BranchMasterModel();
+        $allocationResourceModel = new AllocationResourceModel();
+        $allocationStaffModel    = new AllocationStaffModel();
+        $data                    = [];
         try {
             $action     = $this->request->getPost('action');
             if ('session_master' == $action) {
@@ -2280,6 +2316,96 @@ class Admin extends BaseController
                         ]);
                     }
                 }
+            } else if ('session_breakdown' == $action) {
+                $fields           = ['date_start', 'time_start', 'date_end', 'time_end', 'resource_master_id', 'staff_user_id', 'session_master_id'];
+                $sessionBreakdown = [];
+                $data             = [];
+                foreach ($fields as $field) {
+                    $data[$field] = $this->request->getPost('session_breakdown_' . $field);
+                }
+                $sessionMaster = $sessionMasterModel->where('id', $data['session_master_id'])->first();
+                if (empty($sessionMaster)) {
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_ERR,
+                        'message' => lang('System.response-msg.error.db-issue'),
+                    ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+                }
+                log_message('debug', 'session master = ' . json_encode($sessionMaster));
+                $branchId     = $sessionMaster['branch_id'];
+                $branchMaster = $branchMasterModel->where('id', $branchId)->first();
+                if (empty($branchMaster)) {
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_ERR,
+                        'message' => lang('System.response-msg.error.db-issue'),
+                    ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+                }
+                log_message('debug', 'branch = ' . json_encode($branchMaster));
+                $db        = \Config\Database::connect();
+                $db->transBegin();
+                $srcTz     = new \DateTimeZone($branchMaster['timezone_code']);
+                $utcTz     = new \DateTimeZone('UTC');
+                // session_breakdown
+                $sessionBreakdown['session_id'] = $sessionMaster['id'];
+                $timeStart                      = $data['date_start'] . ' ' . $data['time_start'] . ':00';
+                $startObj                       = new DateTime($timeStart, $srcTz);
+                $startObj->setTimezone($utcTz);
+                $sessionBreakdown['time_start'] = $startObj->format('Y-m-d H:i:s');
+                $timeEnd                        = $data['date_end'] . ' ' . $data['time_end'] . ':00';
+                $endObj                         = new DateTime($timeEnd, $srcTz);
+                $endObj->setTimezone($utcTz);
+                $sessionBreakdown['time_end']   = $endObj->format('Y-m-d H:i:s');
+                log_message('debug', 'session breakdown - INSERTING = ' . json_encode($sessionBreakdown));
+                $sessionBreakdownModel->insert($sessionBreakdown);
+                log_message('debug', 'session breakdown - INSERTED');
+                $breakdownId                    = $sessionBreakdownModel->getInsertID();
+                // update session_master
+                $existingBreakdown          = $sessionBreakdownModel->where('session_id', $sessionMaster['id'])->findAll();
+                $masterUpdate               = [];
+                $masterUpdate['date_start'] = $data['date_start'];
+                $masterUpdate['date_end']   = $data['date_end'];
+                log_message('debug', 'masterUpdate = ' . json_encode($masterUpdate));
+                if (!empty($existingBreakdown)) {
+                    foreach ($existingBreakdown as $row) {
+                        $objStart = new DateTime($row['time_start'], $utcTz);
+                        $objStart->setTimezone($srcTz);
+                        $dtStart  = $objStart->format('Y-m-d');
+                        $objEnd   = new DateTime($row['time_end'], $utcTz);
+                        $objEnd->setTimezone($srcTz);
+                        $dtEnd    = $objEnd->format('Y-m-d');
+                        if ($masterUpdate['date_start'] > $dtStart) {
+                            $masterUpdate['date_start'] = $dtStart;
+                        }
+                        if ($masterUpdate['date_end'] < $dtEnd) {
+                            $masterUpdate['date_end'] = $dtEnd;
+                        }
+                        log_message('debug', 'masterUpdate (loop) = ' . json_encode($masterUpdate));
+                    }
+                }
+                $sessionMasterModel->update($sessionMaster['id'], $masterUpdate);
+                log_message('debug', 'session master - UPDATED');
+                // allocation
+                $allocationResourceData['resource_id']          = $data['resource_master_id'];
+                $allocationResourceData['session_breakdown_id'] = $breakdownId;
+                $allocationResourceData['allocation_type']      = 'SESSION';
+                log_message('debug', 'allocationResourceData = ' . json_encode($allocationResourceData));
+                $allocationResourceModel->insert($allocationResourceData);
+                $allocationStaffData['user_id']                 = $data['staff_user_id'];
+                $allocationStaffData['session_breakdown_id']    = $breakdownId;
+                $allocationStaffData['allocation_type']         = 'SESSION';
+                log_message('debug', 'allocationStaffData = ' . json_encode($allocationStaffData));
+                $allocationStaffModel->insert($allocationStaffData);
+                if ($db->transStatus() === false) {
+                    $db->transRollback(); // <<< ROLLBACK (Undoes changes from all Models)
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_ERR,
+                        'message' => lang('System.response-msg.error.db-issue'),
+                    ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+                }
+                $db->transCommit();
+                return $this->response->setJSON([
+                    'status'  => STATUS_RESPONSE_OK,
+                    'message' => lang('System.response-msg.success.data-saved')
+                ]);
             }
             return $this->response->setJSON([
                 'status'  => STATUS_RESPONSE_ERR,
