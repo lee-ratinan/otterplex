@@ -24,6 +24,57 @@ class SessionMasterModel extends AppBaseModel
     protected $createdField = 'created_at';
     protected $updatedField = 'updated_at';
 
+    private function applyFilters(string $date_start, string $date_end, int $branch_id)
+    {
+        if (!empty($date_start)) {
+            $this->where('date_start >=', $date_start);
+        }
+        if (!empty($date_end)) {
+            $this->where('date_end <=', $date_end);
+        }
+        if (0 < $branch_id) {
+            $this->where('branch_id', $branch_id);
+        }
+    }
+
+    public function getDatatable(int $draw, int $start, int $length, int $service_id, int $service_variant_id, string $date_start, string $date_end, int $branch_id): array
+    {
+        $session    = session();
+        $lang       = $session->lang;
+        $total      = $this->where('service_variant_id', $service_variant_id)->countAllResults();
+        $filtered   = $total;
+        if (!empty($date_start) || !empty($date_end) || !empty($branch_id)) {
+            $this->applyFilters($date_start, $date_end, $branch_id);
+            $filtered = $this->where('service_variant_id', $service_variant_id)->countAllResults();
+            $this->applyFilters($date_start, $date_end, $branch_id);
+        }
+        $data  = $this->select('session_master.*, branch_master.branch_name, branch_master.branch_local_names')
+            ->join('branch_master', 'branch_master.id = session_master.branch_id')
+            ->where('service_variant_id', $service_variant_id)
+            ->limit($length, $start)
+            ->findAll();
+        $final   = [];
+        $url_ids = ($service_id * ID_MASKED_PRIME) . '/' . ($service_variant_id * ID_MASKED_PRIME);
+        foreach ($data as $row) {
+            $branch_names = json_decode($row['branch_local_names'], true);
+            $branch_name  = $branch_names[$lang] ?? $row['branch_name'];
+            $final[] = [
+                $branch_name,
+                $row['short_description'],
+                $row['session_capacity'],
+                $row['date_start'],
+                $row['date_end'],
+                '<a class="btn btn-primary btn-sm float-end" href="http://localhost:8100/admin/service/variant/session/' . $url_ids . '/' . ($row['id'] * ID_MASKED_PRIME) . '">' . lang('System.buttons.edit') . '</a>',
+            ];
+        }
+        return [
+            'draw'            => $draw,
+            'recordsTotal'    => $total,
+            'recordsFiltered' => $filtered,
+            'data'            => $final
+        ];
+    }
+
     public function getAvailableSessions(string $variantSlug, string $languageCode, string $dateFrom, string $dateTo, int $branchId): array
     {
         $today    = date('Y-m-d');

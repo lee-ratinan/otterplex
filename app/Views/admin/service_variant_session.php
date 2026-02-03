@@ -12,13 +12,33 @@
                                     <i class="fa-solid fa-circle-plus"></i> <?= lang('Service.session.new-session') ?>
                                 </a>
                             </div>
-                            <h2><?= $title ?></h2>
+                            <h2 class="mb-3"><?= $title ?></h2>
+                            <div class="row">
+                                <div class="col">
+                                    <?php echo build_form_input('branch_id', lang('BranchMaster.field.branch_name'), [
+                                        'type' => 'select'
+                                    ], 0, '', $branches); ?>
+                                </div>
+                                <div class="col">
+                                    <?php echo build_form_input('date_start', lang('SessionMaster.field.date_start'), [
+                                        'type' => 'date'
+                                    ], date('Y-m-d')); ?>
+                                </div>
+                                <div class="col">
+                                    <?php echo build_form_input('date_end', lang('SessionMaster.field.date_end'), [
+                                        'type' => 'date'
+                                    ], ''); ?>
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <button class="btn btn-primary" id="btn-filter"><?= lang('System.buttons.filter') ?></button>
+                            </div>
                             <div class="table-responsive">
                                 <table class="table table-sm table-hover table-striped">
                                     <thead>
                                     <tr>
-                                        <th><?= lang('SessionMaster.field.id') ?></th>
                                         <th><?= lang('SessionMaster.field.branch_id') ?></th>
+                                        <th><?= lang('SessionMaster.field.short_description') ?></th>
                                         <th><?= lang('SessionMaster.field.session_capacity') ?></th>
                                         <th><?= lang('SessionMaster.field.date_start') ?></th>
                                         <th><?= lang('SessionMaster.field.date_end') ?></th>
@@ -48,8 +68,18 @@
                 ajax: {
                     url: '<?= base_url('/admin/service/variant/session') ?>',
                     type: 'POST',
-                    data: function (data) {}
+                    data: function (data) {
+                        data.date_start         = $('#date_start').val();
+                        data.date_end           = $('#date_end').val();
+                        data.branch_id          = $('#branch_id').val();
+                        data.service_id         = <?= $service['id'] ?>;
+                        data.service_variant_id = <?= $variant['id'] ?>;
+                    }
                 }
+            });
+            $('#btn-filter').click(function (e) {
+                e.preventDefault();
+                table.draw();
             });
         });
     </script>

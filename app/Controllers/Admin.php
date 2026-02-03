@@ -2064,22 +2064,29 @@ class Admin extends BaseController
         if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
             return $this->forbiddenResponse('string');
         }
+        $businessId   = $session->business['business_id'];
         $sId          = $serviceId / ID_MASKED_PRIME;
         $svId         = $serviceVariantId / ID_MASKED_PRIME;
         $serviceModel = new ServiceMasterModel();
         $variantModel = new ServiceVariantModel();
+        $branchModel  = new BranchMasterModel();
         $service      = $serviceModel->findRow($sId);
         if (empty($service)) {
             throw PageNotFoundException::forPageNotFound();
         }
         $service['service_local_names'] = json_decode($service['service_local_names'], true);
-        $variant          = $variantModel->findRow($svId);
+        $variant                        = $variantModel->findRow($svId);
         if (empty($variant)) {
             throw PageNotFoundException::forPageNotFound();
         }
         $lang         = $this->request->getLocale();
         $v_locales    = json_decode($variant['variant_local_names'], true);
         $title        = ($service['service_local_names'][$lang] ?? $service['service_name']) . '<br>' . ($v_locales[$lang] ?? $variant['variant_name']);
+        $branches     = $branchModel->where('business_id', $businessId)->findAll();
+        $all_branches = [];
+        foreach ($branches as $branch) {
+            $all_branches[$branch['id']] = $branch['branch_name'];
+        }
         $data         = [
             'slug'          => 'service-variant-session',
             'lang'          => $lang,
@@ -2102,6 +2109,7 @@ class Admin extends BaseController
             'variantIdMask' => $serviceVariantId,
             'service'       => $service,
             'variant'       => $variant,
+            'branches'      => $all_branches,
         ];
         return view('admin/service_variant_session', $data);
     }
@@ -2112,12 +2120,20 @@ class Admin extends BaseController
         if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
             return $this->forbiddenResponse('DataTable');
         }
-        return $this->response->setJSON([
-            'draw'            => $this->request->getPost('draw'),
-            'recordsTotal'    => 0,
-            'recordsFiltered' => 0,
-            'data'            => []
-        ]);
+        $sessionMasterModel = new SessionMasterModel();
+        $start              = $this->request->getPost('start');
+        $length             = $this->request->getPost('length');
+        $date_start         = $this->request->getPost('date_start') ?? '';
+        $date_end           = $this->request->getPost('date_end') ?? '';
+        $branch_id          = $this->request->getPost('branch_id');
+        $draw               = $this->request->getPost('draw');
+        $service_id         = $this->request->getPost('service_id');
+        $service_variant_id = $this->request->getPost('service_variant_id');
+        if (empty($branch_id)) {
+            $branch_id = 0;
+        }
+        $sessions           = $sessionMasterModel->getDatatable($draw, $start, $length, $service_id, $service_variant_id, $date_start, $date_end, $branch_id);
+        return $this->response->setJSON($sessions);
     }
 
     public function service_variant_session_manage(int $serviceId, int $serviceVariantId, int $sessionId): string
