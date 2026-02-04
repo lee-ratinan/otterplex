@@ -2028,7 +2028,7 @@ class Admin extends BaseController
                 ]);
             } else {
                 $data['service_id']   = $serviceId;
-                $data['variant_slug'] = generate_slug($data['variant_name']);
+                $data['variant_slug'] = generate_slug($serviceId . $data['variant_name']);
                 $variantModel->insert($data);
                 $serviceModel->updateLowestPrices($serviceId);
                 if ($cache->get($cacheKey)) {
@@ -2827,7 +2827,7 @@ class Admin extends BaseController
                 ]);
             } else {
                 $db->transBegin(); // <<< START TRANSACTION
-                $data['variant_slug'] = generate_slug($data['variant_name']);
+                $data['variant_slug'] = generate_slug($data['product_id'] . $data['variant_name']);
                 log_message('debug', json_encode($data));
                 $variantModel->insert($data);
                 $id                   = $variantModel->getInsertID();

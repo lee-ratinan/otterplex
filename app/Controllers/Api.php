@@ -29,6 +29,7 @@ class Api extends BaseController
             ->select('business_master.*, business_type.type_name, business_type.type_local_names')
             ->join('business_type', 'business_type.id = business_master.business_type_id')
             ->where('country_code', $countryCode)
+            ->where('live_status', 'Y')
             ->groupStart()
             ->like('business_name', $query)
             ->orLike('business_local_names', $query)
@@ -68,6 +69,7 @@ class Api extends BaseController
             ->join('business_type', 'business_type.id = business_master.business_type_id')
             ->where('business_slug', $query)
             ->where('country_code', $countryCode)
+            ->where('live_status', 'Y')
             ->first();
         if (empty($business)) {
             return $this->response->setJSON([

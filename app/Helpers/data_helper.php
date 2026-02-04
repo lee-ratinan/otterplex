@@ -5137,7 +5137,8 @@ if (!function_exists('generate_slug')) {
         $year     = $char_arr[date('y')-25];
         $month    = $char_arr[date('n')-1];
         $date     = date('d');
-        $hash     = substr(strtoupper(md5($string)), 0, 5);
+        $rdm      = date('Hsis');
+        $hash     = substr(strtoupper(md5($rdm . $string . $rdm)), 0, 5);
         return $year . $month . $date . $hash;
     }
 }
