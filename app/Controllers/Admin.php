@@ -2346,8 +2346,8 @@ class Admin extends BaseController
                         'message' => lang('System.response-msg.error.db-issue'),
                     ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
                 }
-                log_message('debug', 'branch = ' . json_encode($branchMaster));
                 $db->transBegin();
+                log_message('debug', 'branch = ' . json_encode($branchMaster));
                 $srcTz     = new \DateTimeZone($branchMaster['timezone_code']);
                 $utcTz     = new \DateTimeZone('UTC');
                 // session_breakdown
@@ -2360,10 +2360,59 @@ class Admin extends BaseController
                 $endObj                         = new DateTime($timeEnd, $srcTz);
                 $endObj->setTimezone($utcTz);
                 $sessionBreakdown['time_end']   = $endObj->format('Y-m-d H:i:s');
+                if ($sessionBreakdown['time_end'] < $sessionBreakdown['time_start']) {
+                    $db->transRollback(); // <<< ROLLBACK (Undoes changes from all Models)
+                    log_message('debug', 'session breakdown start after end = ' . $sessionBreakdown['time_end'] . ' < ' . $sessionBreakdown['time_start']);
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_ERR,
+                        'message' => lang('System.response-msg.error.time-start-after-end'),
+                    ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+                }
                 log_message('debug', 'session breakdown - INSERTING = ' . json_encode($sessionBreakdown));
                 $sessionBreakdownModel->insert($sessionBreakdown);
                 log_message('debug', 'session breakdown - INSERTED');
                 $breakdownId                    = $sessionBreakdownModel->getInsertID();
+                // allocation
+                if (0 < $data['resource_master_id']) {
+                    // check conflict
+                    log_message('debug', 'conflict checking = ' . $data['resource_master_id'] . ' / ' . $sessionBreakdown['time_start'] . ' / ' . $sessionBreakdown['time_end']);
+                    $conflict = $allocationResourceModel->checkResourceConflict($data['resource_master_id'], $sessionBreakdown['time_start'], $sessionBreakdown['time_end']);
+                    log_message('debug', 'resource conflict = ' . json_encode($conflict));
+                    if (!empty($conflict)) {
+                        log_message('debug', 'conflict detected on resource!');
+                        $db->transRollback(); // <<< ROLLBACK (Undoes changes from all Models)
+                        return $this->response->setJSON([
+                            'status'  => STATUS_RESPONSE_ERR,
+                            'message' => lang('System.response-msg.error.time-conflict-resource'),
+                            'data'    => $conflict
+                        ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+                    }
+                    $allocationResourceData['resource_id']          = $data['resource_master_id'];
+                    $allocationResourceData['session_breakdown_id'] = $breakdownId;
+                    $allocationResourceData['allocation_type']      = 'SESSION';
+                    log_message('debug', 'allocationResourceData = ' . json_encode($allocationResourceData));
+                    $allocationResourceModel->insert($allocationResourceData);
+                }
+                if (0 < $data['staff_user_id']) {
+                    // check conflict
+                    log_message('debug', 'conflict checking = ' . $data['staff_user_id'] . ' / ' . $sessionBreakdown['time_start'] . ' / ' . $sessionBreakdown['time_end']);
+                    $conflict = $allocationStaffModel->checkStaffConflict($data['staff_user_id'], $sessionBreakdown['time_start'], $sessionBreakdown['time_end']);
+                    log_message('debug', 'user conflict = ' . json_encode($conflict));
+                    if (!empty($conflict)) {
+                        log_message('debug', 'conflict detected on staff!');
+                        $db->transRollback(); // <<< ROLLBACK (Undoes changes from all Models)
+                        return $this->response->setJSON([
+                            'status'  => STATUS_RESPONSE_ERR,
+                            'message' => lang('System.response-msg.error.time-conflict-staff'),
+                            'data'    => $conflict
+                        ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+                    }
+                    $allocationStaffData['user_id']              = $data['staff_user_id'];
+                    $allocationStaffData['session_breakdown_id'] = $breakdownId;
+                    $allocationStaffData['allocation_type']      = 'SESSION';
+                    log_message('debug', 'allocationStaffData = ' . json_encode($allocationStaffData));
+                    $allocationStaffModel->insert($allocationStaffData);
+                }
                 // update session_master
                 $existingBreakdown          = $sessionBreakdownModel->where('session_id', $sessionMaster['id'])->findAll();
                 $masterUpdate               = [];
@@ -2389,22 +2438,8 @@ class Admin extends BaseController
                 }
                 $sessionMasterModel->update($sessionMaster['id'], $masterUpdate);
                 log_message('debug', 'session master - UPDATED');
-                // allocation
-                if (0 < $data['resource_master_id']) {
-                    $allocationResourceData['resource_id'] = $data['resource_master_id'];
-                    $allocationResourceData['session_breakdown_id'] = $breakdownId;
-                    $allocationResourceData['allocation_type'] = 'SESSION';
-                    log_message('debug', 'allocationResourceData = ' . json_encode($allocationResourceData));
-                    $allocationResourceModel->insert($allocationResourceData);
-                }
-                if (0 < $data['staff_user_id']) {
-                    $allocationStaffData['user_id'] = $data['staff_user_id'];
-                    $allocationStaffData['session_breakdown_id'] = $breakdownId;
-                    $allocationStaffData['allocation_type'] = 'SESSION';
-                    log_message('debug', 'allocationStaffData = ' . json_encode($allocationStaffData));
-                    $allocationStaffModel->insert($allocationStaffData);
-                }
                 if ($db->transStatus() === false) {
+                    log_message('debug', 'session breakdown insert - FAILED UPDATE - ROLLBACK');
                     $db->transRollback(); // <<< ROLLBACK (Undoes changes from all Models)
                     return $this->response->setJSON([
                         'status'  => STATUS_RESPONSE_ERR,
@@ -2412,6 +2447,7 @@ class Admin extends BaseController
                     ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
                 }
                 $db->transCommit();
+                log_message('debug', 'session master - COMMITTED');
                 return $this->response->setJSON([
                     'status'  => STATUS_RESPONSE_OK,
                     'message' => lang('System.response-msg.success.data-saved')
