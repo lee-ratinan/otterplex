@@ -19,6 +19,7 @@
                                         <li><a href="#generic-information"><?= lang('Business.subtitle.generic-information') ?></a></li>
                                         <li><a href="#tax-information"><?= lang('Business.subtitle.tax-information') ?></a></li>
                                         <li><a href="#contact"><?= lang('BusinessMaster.field.contact') ?></a></li>
+                                        <li><a href="#shipping"><?= lang('BusinessMaster.field.shipping') ?></a></li>
                                         <li><a href="#social-media"><?= lang('BusinessMaster.field.social_media') ?></a></li>
                                         <li><a href="#seo"><?= lang('Business.subtitle.mart-seo') ?></a></li>
                                         <li><a href="#decoration"><?= lang('Business.subtitle.mart-decoration') ?></a></li>
@@ -106,6 +107,25 @@
                                 'type'      => 'url',
                                 'maxlength' => 36
                             ], $business['contact_website']);
+                            ?>
+                            <div class="text-end">
+                                <button class="btn btn-primary" id="btn-save-3"><?= lang('System.buttons.save') ?></button>
+                            </div>
+                            <?php
+                            echo '<h3 class="mt-5 pt-5" id="shipping">' . lang('BusinessMaster.field.shipping') . '</h3>';
+                            echo build_form_input('shipping_options', lang('BusinessMaster.field.shipping_options'), [
+                                'type' => 'select',
+                            ], $business['shipping_options'], '', [
+                                'SHIPPING'        => lang('BusinessMaster.enum.shipping_options.SHIPPING'),
+                                'SELF-COLLECTION' => lang('BusinessMaster.enum.shipping_options.SELF-COLLECTION'),
+                                'BOTH'            => lang('BusinessMaster.enum.shipping_options.BOTH'),
+                            ]);
+                            echo build_form_input('shipping_fee_taxable', lang('BusinessMaster.field.shipping_fee_taxable'), [
+                                'type' => 'select',
+                            ], $business['shipping_fee_taxable'], '', [
+                                'Y' => lang('BusinessMaster.enum.shipping_fee_taxable.Y'),
+                                'N' => lang('BusinessMaster.enum.shipping_fee_taxable.N'),
+                            ]);
                             ?>
                             <div class="text-end">
                                 <button class="btn btn-primary" id="btn-save-3"><?= lang('System.buttons.save') ?></button>
@@ -369,7 +389,7 @@
                 e.preventDefault();
                 // business_local_names_en
                 <?php
-                $all_fields = ['business_type_id', 'business_name', 'business_slug', 'allow_advance_booking', 'tax_percentage', 'tax_inclusive', 'live_status', 'mart_primary_color', 'mart_text_color', 'mart_background_color', 'currency_code', 'contact_email_address', 'contact_phone_number', 'contact_website',];
+                $all_fields = ['business_type_id', 'business_name', 'business_slug', 'allow_advance_booking', 'tax_percentage', 'tax_inclusive', 'live_status', 'mart_primary_color', 'mart_text_color', 'mart_background_color', 'currency_code', 'contact_email_address', 'contact_phone_number', 'contact_website', 'shipping_options', 'shipping_fee_taxable'];
                 gen_js_fields_checker($all_fields);
                 foreach ($all_languages as $lang_code => $language_name) {
                     $all_fields[] = 'business_local_names_' . $lang_code;

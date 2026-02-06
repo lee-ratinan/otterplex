@@ -423,7 +423,7 @@ class Admin extends BaseController
             $social_media        = get_social_media();
             $error_msg           = lang('System.response-msg.error.generic');
             if ('save_business' == $script_action) {
-                $fields      = ['business_type_id', 'business_name', 'business_slug', 'allow_advance_booking', 'tax_percentage', 'tax_inclusive', 'live_status', 'mart_primary_color', 'mart_text_color', 'mart_background_color', 'currency_code', 'contact_email_address', 'contact_phone_number', 'contact_website'];
+                $fields      = ['business_type_id', 'business_name', 'business_slug', 'allow_advance_booking', 'tax_percentage', 'tax_inclusive', 'live_status', 'mart_primary_color', 'mart_text_color', 'mart_background_color', 'currency_code', 'contact_email_address', 'contact_phone_number', 'contact_website', 'shipping_options', 'shipping_fee_taxable'];
                 $data        = [];
                 foreach ($available_lang as $code => $language_name) {
                     $fields[] = 'business_local_names_' . $code;

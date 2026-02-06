@@ -24,21 +24,33 @@ return [
         'contact_email_address'      => 'อีเมล',
         'contact_phone_number'       => 'หมายเลขโทรศัพท์',
         'contact_website'            => 'เว็บไซต์',
-        'live_status'                => 'สถานะของร้านออนไลน์'
+        'live_status'                => 'สถานะของร้านออนไลน์',
+        'shipping'                   => 'การจัดส่งสินค้า (ถ้ามี)',
+        'shipping_options'           => 'ตัวเลือกการจัดส่ง',
+        'shipping_fee_taxable'       => 'การคิดภาษีค่าจัดส่งสินค้า',
     ],
     'enum'        => [
-        'tax_inclusive'   => [
+        'tax_inclusive'        => [
             'I' => 'รวมในราคา',
             'E' => 'ไม่รวมในราคา',
             'X' => 'ไม่ต้องคิดภาษี'
         ],
-        'business_status' => [
+        'business_status'      => [
             'A' => '<i class="fa-solid fa-circle-check text-success"></i> ปกติ',
             'E' => '<i class="fa-solid fa-circle-xmark text-danger"></i> หมดอายุ',
         ],
-        'live_status'     => [
+        'live_status'          => [
             'Y' => 'ออนไลน์',
             'N' => 'ปิด'
+        ],
+        'shipping_options'     => [
+            'SHIPPING'        => 'จัดส่งสินค้าผ่านไปรษณีย์',
+            'SELF-COLLECTION' => 'รับสินค้าด้วยตนเองที่สาขา',
+            'BOTH'            => 'ทั้งคู่'
+        ],
+        'shipping_fee_taxable' => [
+            'Y' => 'ต้องคำนวณภาษี',
+            'N' => 'ไม่นำมาคำนวณ'
         ]
     ],
     'explanation' => [

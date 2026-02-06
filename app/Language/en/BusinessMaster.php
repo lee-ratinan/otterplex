@@ -24,21 +24,33 @@ return [
         'contact_email_address'      => 'Email Address',
         'contact_phone_number'       => 'Phone Number',
         'contact_website'            => 'Website',
-        'live_status'                => 'Store’s Online Status'
+        'live_status'                => 'Store’s Online Status',
+        'shipping'                   => 'Shipping (for physical products, if any)',
+        'shipping_options'           => 'Shipping Options',
+        'shipping_fee_taxable'       => 'Tax Shipping Fee',
     ],
     'enum'        => [
-        'tax_inclusive'   => [
+        'tax_inclusive'        => [
             'I' => 'Inclusive',
             'E' => 'Exclusive',
             'X' => 'Not Applicable'
         ],
-        'business_status' => [
+        'business_status'      => [
             'A' => '<i class="fa-solid fa-circle-check text-success"></i> Active',
             'E' => '<i class="fa-solid fa-circle-xmark text-danger"></i> Expired',
         ],
-        'live_status'     => [
+        'live_status'          => [
             'Y' => 'Online',
             'N' => 'Offline'
+        ],
+        'shipping_options'     => [
+            'SHIPPING'        => 'Shipping',
+            'SELF-COLLECTION' => 'Self collection',
+            'BOTH'            => 'Both'
+        ],
+        'shipping_fee_taxable' => [
+            'Y' => 'Taxable',
+            'N' => 'Not Taxable'
         ]
     ],
     'explanation' => [
