@@ -7,6 +7,7 @@ use App\Models\BranchModifiedHoursModel;
 use App\Models\BranchOpeningHoursModel;
 use App\Models\BusinessMasterModel;
 use App\Models\BusinessPaymentMethodModel;
+use App\Models\BusinessShippingFeeModel;
 use App\Models\ProductMasterModel;
 use App\Models\ProductVariantModel;
 use App\Models\ServiceMasterModel;
@@ -51,7 +52,7 @@ class Api extends BaseController
             ];
         }
         return $this->response->setJSON([
-            'query' => $query,
+            'query'   => $query,
             'results' => $results
         ]);
     }
@@ -215,6 +216,9 @@ class Api extends BaseController
             ];
         }
         $business['payments'] = $paymentFinal;
+        // SHIPPING FEE
+        $shippingModel              = new BusinessShippingFeeModel();
+        $business['shipping_rates'] = $shippingModel->where('business_id', $business['id'])->findAll();
         return $this->response->setJSON([
             'query'    => $query,
             'business' => $business
