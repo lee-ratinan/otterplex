@@ -13,6 +13,7 @@ use App\Models\BusinessContractPaymentModel;
 use App\Models\BusinessCustomerModel;
 use App\Models\BusinessMasterModel;
 use App\Models\BusinessPaymentMethodModel;
+use App\Models\BusinessShippingFeeModel;
 use App\Models\BusinessTypeModel;
 use App\Models\BusinessUserModel;
 use App\Models\OtternautPackageModel;
@@ -1581,6 +1582,45 @@ class Admin extends BaseController
             ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+    public function shipping_fee(): string
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('string');
+        }
+        $business = $session->business;
+        $feeModel = new BusinessShippingFeeModel();
+        $feeRates = $feeModel->where('business_id', $session->business['business_id'])->findAll();
+        $data     = [
+            'slug'     => 'business-shipping-fee',
+            'lang'     => $this->request->getLocale(),
+            'business' => $business,
+            'rates'    => $feeRates
+        ];
+        return view('admin/shipping_fee', $data);
+    }
+
+    public function shipping_fee_post(): ResponseInterface
+    {
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER', 'MANAGER'])) {
+            return $this->forbiddenResponse('ResponseInterface');
+        }
+        try {
+
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => lang('System.response-msg.error.db-issue'),
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => $e->getMessage(),
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
     /**
      * Manage order
      * @return string

@@ -57,6 +57,9 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->post('resource', 'Admin::resource_post');
     $routes->get('resource/(:num)', 'Admin::resource_manage/$1');
     $routes->post('resource/manage', 'Admin::resource_manage_post');
+    // SHIPPING
+    $routes->get('shipping-fee', 'Admin::shipping_fee');
+    $routes->post('shipping-fee', 'Admin::shipping_fee_post');
     // ORDER
     $routes->get('order', 'Admin::order');
     // SERVICE

@@ -172,6 +172,7 @@ if (!empty($session->business)) {
                     'business-payment-method' => [base_url('/admin/business/payment-method'), lang('Admin.pages.business-payment-method')],
                     'business-resource-type'  => [base_url('/admin/resource/type'), lang('Admin.pages.business-resource-type')],
                     'business-resource'       => [base_url('/admin/resource'), lang('Admin.pages.business-resource')],
+                    'business-shipping-fee'   => [base_url('/admin/shipping-fee'), lang('Admin.pages.business-shipping-fee')],
                 ]
             ];
         } elseif ('MANAGER' == $session->user_role) {
@@ -182,6 +183,7 @@ if (!empty($session->business)) {
                     'business-user'     => [base_url('/admin/business/user'), lang('Admin.pages.business-user')],
                     'business-customer' => [base_url('/admin/business/customer'), lang('Admin.pages.business-customer')],
                     'business-resource' => [base_url('/admin/resource'), lang('Admin.pages.business-resource')],
+                    'business-shipping-fee'   => [base_url('/admin/shipping-fee'), lang('Admin.pages.business-shipping-fee')],
                 ]
             ];
         }
