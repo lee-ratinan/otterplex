@@ -41,6 +41,7 @@ return [
         'business-user-manage'           => 'Staff Manager',
         'business-customer'              => 'Customer',
         'business-payment-method'        => 'Payment Method',
+        'business-shipping-fee'          => 'Shipping Rate',
     ],
     'dashboard'     => [
         'no-business' => [

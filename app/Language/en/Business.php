@@ -75,5 +75,10 @@ return [
         'new-resource'            => 'New Resource',
         'new-resource-type'       => 'New Resource Type',
         'add-resource-type-first' => 'Please add a resource type before creating a new resource.',
+    ],
+    'shipping-rate'            => [
+        'add-new'             => 'Add New Shipping Rate',
+        'max-price-error'     => 'The upper limit of the range must be higher than the lower limit.',
+        'shipping-rate-error' => 'Shipping rate must be a positive number.'
     ]
 ];

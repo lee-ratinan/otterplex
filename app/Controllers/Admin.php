@@ -1608,7 +1608,37 @@ class Admin extends BaseController
             return $this->forbiddenResponse('ResponseInterface');
         }
         try {
-
+            $rateModel = new BusinessShippingFeeModel();
+            $action = $this->request->getPost('action');
+            if ('insert-shipping-rate' == $action) {
+                $fields    = ['price_range_from', 'price_range_to', 'shipping_rate', 'rate_comment', 'business_id'];
+                $data      = [];
+                foreach ($fields as $field) {
+                    $data[$field] = $this->request->getPost($field);
+                }
+                if (empty($data['rate_comment'])) {
+                    unset($data['rate_comment']);
+                }
+                if (empty($data['price_range_to'])) {
+                    $data['price_range_to'] = -1;
+                } else if (0 == ($data['price_range_to']*100%100)) {
+                    $data['price_range_to'] += 0.99;
+                }
+                if ($rateModel->insert($data)) {
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_OK,
+                        'message' => lang('System.response-msg.success.data-saved'),
+                    ]);
+                }
+            } else if ('delete-rate' == $action) {
+                $id = $this->request->getPost('id');
+                if ($rateModel->delete($id)) {
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_OK,
+                        'message' => lang('System.response-msg.success.data-deleted'),
+                    ]);
+                }
+            }
             return $this->response->setJSON([
                 'status'  => STATUS_RESPONSE_ERR,
                 'message' => lang('System.response-msg.error.db-issue'),

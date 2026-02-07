@@ -41,6 +41,7 @@ return [
         'business-user-manage'           => 'การจัดการพนักงาน',
         'business-customer'              => 'ลูกค้า',
         'business-payment-method'        => 'วิธีการชำระเงิน',
+        'business-shipping-fee'          => 'เรทค่าจัดส่ง',
     ],
     'dashboard'     => [
         'no-business' => [
