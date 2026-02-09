@@ -28,6 +28,8 @@ return [
             'removed'                   => 'Sorry, the file failed to be removed.',
             'no-permission'             => 'You do not have permission to access this feature.',
             'account-created-issue'     => 'Sorry, there was an error creating your account.',
+            'time-conflict-staff'       => 'Sorry, the staff is not available.',
+            'time-conflict-resource'    => 'Sorry, the resource is not available.',
         ],
         'success' => [
             'business-switched'     => 'You have successfully switched your business.',
