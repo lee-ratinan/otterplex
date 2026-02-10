@@ -2,6 +2,8 @@
 
 namespace App\Controllers;
 
+use App\Models\AllocationResourceModel;
+use App\Models\AllocationStaffModel;
 use App\Models\BranchMasterModel;
 use App\Models\BranchModifiedHoursModel;
 use App\Models\BranchOpeningHoursModel;
@@ -10,10 +12,13 @@ use App\Models\BusinessPaymentMethodModel;
 use App\Models\BusinessShippingFeeModel;
 use App\Models\ProductMasterModel;
 use App\Models\ProductVariantModel;
+use App\Models\ResourceMasterModel;
 use App\Models\ServiceMasterModel;
+use App\Models\ServiceStaffModel;
 use App\Models\ServiceVariantModel;
 use App\Models\SessionMasterModel;
 use CodeIgniter\HTTP\ResponseInterface;
+use libphonenumber\geocoding\data\id\Id_62;
 use libphonenumber\PhoneNumberFormat;
 use libphonenumber\PhoneNumberUtil;
 
@@ -225,13 +230,40 @@ class Api extends BaseController
         ]);
     }
 
-    public function get_sessions(string $languageCode, string $countryCode, string $variantSlug): ResponseInterface
+    private function get_basic_business_info(int $businessId, int $serviceId, int $variantId): array
     {
-        $svModel = new ServiceVariantModel();
-        $variant = $svModel->where('variant_slug', $variantSlug)->first();
-        if (empty($variant) || 'A' != $variant['is_active']) {
+        $businessModel = new BusinessMasterModel();
+        $serviceModel  = new ServiceMasterModel();
+        $variantModel  = new ServiceVariantModel();
+        $businessId    = $businessId / ID_MASKED_PRIME;
+        $serviceId     = $serviceId / ID_MASKED_PRIME;
+        $variantId     = $variantId / ID_MASKED_PRIME;
+        $business      = $businessModel->findRow($businessId);
+        if (empty($business) || 'Y' != $business['live_status']) {
+            return []; // wrong business ID or not active
+        }
+        $service = $serviceModel->findRow($serviceId);
+        if (empty($service) || 'A' != $service['is_active']) {
+            return []; // not found or not active
+        }
+        $variant = $variantModel->findRow($variantId);
+        if (empty($variant) || 'A' != $variant['is_active'] || $variant['service_id'] != $service['id']) {
+            return []; // not found or not active or wrong service (not the variant of the right service
+        }
+        return [
+            'business' => $business,
+            'service'  => $service,
+            'variant'  => $variant,
+        ];
+    }
+
+    public function get_sessions(string $languageCode, string $countryCode, int $businessId, int $serviceId, int $variantId): ResponseInterface
+    {
+        $masterDetail = $this->get_basic_business_info($businessId, $serviceId, $variantId);
+        if (empty($masterDetail)) {
             return $this->response->setJSON([]);
         }
+        $variant                 = $masterDetail['variant'];
         $localNames              = json_decode($variant['variant_local_names'], true);
         $variant['variant_name'] = $localNames[$languageCode] ?? $variant['variant_name'];
         $dateFrom                = $this->request->getGet('date_from') ?? '';
@@ -241,7 +273,7 @@ class Api extends BaseController
             $branchId = intval($branchId / ID_MASKED_PRIME);
         }
         $sessionModel            = new SessionMasterModel();
-        $sessions                = $sessionModel->getAvailableSessions($variantSlug, $languageCode, $dateFrom, $dateTo, $branchId);
+        $sessions                = $sessionModel->getAvailableSessions($masterDetail['variant']['id'], $languageCode, $dateFrom, $dateTo, $branchId);
         return $this->response->setJSON([
             'variant_slug'             => $variant['variant_slug'],
             'variant_name'             => $variant['variant_name'],
@@ -254,19 +286,96 @@ class Api extends BaseController
         ]);
     }
 
-    public function get_slots(string $languageCode, string $countryCode, string $variantSlug): ResponseInterface
+    /**
+     * @throws \DateMalformedStringException
+     */
+    public function get_slots(string $languageCode, string $countryCode, int $businessId, int $serviceId, int $variantId): ResponseInterface
     {
-        $svModel = new ServiceVariantModel();
-        $variant = $svModel->where('variant_slug', $variantSlug)->first();
-        if (empty($variant) || 'A' != $variant['is_active']) {
-            return $this->response->setJSON([]);
+        $masterDetail = $this->get_basic_business_info($businessId, $serviceId, $variantId);
+        if (empty($masterDetail)) {
+            return $this->response->setJSON([1]);
         }
+        // models:
+        $resourcesModel    = new ResourceMasterModel();
+        $serviceStaffModel = new ServiceStaffModel();
+        $branchModel       = new BranchMasterModel();
+        $raModel           = new AllocationResourceModel();
+        $saModel           = new AllocationStaffModel();
+        // process:
+        $service                 = $masterDetail['service'];
+        $variant                 = $masterDetail['variant'];
         $localNames              = json_decode($variant['variant_local_names'], true);
         $variant['variant_name'] = $localNames[$languageCode] ?? $variant['variant_name'];
-        $selectedDate            = $this->request->getGet('selected_date') ?? '';
-        $branchId                = (int) $this->request->getGet('branch_id') ?? 0;
+        $selectedDate            = $this->request->getGet('selected_date') ?? date('Y-m-d');
+        $branchId                = (int) $this->request->getGet('branch_id') ?? 0; // Branch is required
+        $branch                  = [];
         if (0 < $branchId) {
             $branchId = intval($branchId / ID_MASKED_PRIME);
+            $branch   = $branchModel->findBranchInfoAndHoursByBranch($branchId, $selectedDate);
+        }
+        if (empty($branch)) {
+            return $this->response->setJSON([2]);
+        }
+        // Fix possible slots
+        if (!empty($branch['opening_hours'][0]) && !empty($branch['opening_hours'][1])) {
+            try {
+                $tzUTC    = new \DateTimeZone('UTC');
+                $minutes  = $variant['service_duration_minutes'];
+                $interval = new \DateInterval("PT30M"); // start every 30 minutes
+                $duration = new \DateInterval("PT{$minutes}M"); // duration is $minutes minutes
+                // calculate slots
+                $strOpenHrs  = $branch['opening_hours'][0];
+                $strCloseHrs = $branch['opening_hours'][1];
+                $openHrs     = new \DateTime($strOpenHrs, $tzUTC);
+                $closeHrs    = new \DateTime($strCloseHrs, $tzUTC);
+                $possibleStartTimes = new \DatePeriod($openHrs, $interval, $closeHrs);
+                $goodSlots   = [];
+                foreach ($possibleStartTimes as $startTime) {
+                    $endTime = clone $startTime;
+                    $endTime->add($duration);
+                    if ($endTime <= $closeHrs) {
+                        $goodSlots[] = [
+                            $startTime->format('Y-m-d\TH:i:s') . '+00:00',
+                            $endTime->format('Y-m-d\TH:i:s') . '+00:00',
+                        ];
+                    }
+                }
+                $branch['slots'] = $goodSlots;
+            } catch (\Exception $e) {
+                log_message('error', $e->getMessage());
+                return $this->response->setJSON([]);
+            }
+        } else {
+            $branch['slots'] = [];
+        }
+        // get service staff list
+        if (!empty($branch['slots'])) {
+            if (0 < $masterDetail['variant']['required_num_staff']) {
+                // need staff
+                $staffByService  = $serviceStaffModel->getStaffByServiceAndBranch($service['id'], $branchId);
+                $branch['users'] = $staffByService;
+                $userIds         = array_keys($staffByService);
+                $userConflicts   = $saModel->checkStaffConflict($userIds, $branch['opening_hours'][0], $branch['opening_hours'][1]);
+                foreach ($userConflicts as $row) {
+                    $branch['userConflicts'][$row['user_id']][] = [
+                        str_replace(' ', 'T', $row['time_start']) . '+00:00',
+                        str_replace(' ', 'T', $row['time_end']) . '+00:00',
+                    ];
+                }
+            }
+            if (!empty($variant['required_resource_type_id'])) {
+                // need resource
+                $resourceRaw         = $resourcesModel->getResourceTypeForBranch($variant['required_resource_type_id']);
+                $branch['resources'] = $resourceRaw;
+                $resourceIds         = array_keys($resourceRaw);
+                $resourceConflicts   = $raModel->checkResourceConflict($resourceIds, $branch['opening_hours'][0], $branch['opening_hours'][1]);
+                foreach ($resourceConflicts as $row) {
+                    $branch['resourceConflicts'][$row['resource_id']][] = [
+                        str_replace(' ', 'T', $row['time_start']) . '+00:00',
+                        str_replace(' ', 'T', $row['time_end']) . '+00:00',
+                    ];
+                }
+            }
         }
         // query
         return $this->response->setJSON([
@@ -276,7 +385,7 @@ class Api extends BaseController
             'price_active'             => $variant['price_active'],
             'price_compare'            => $variant['price_compare'],
             'service_duration_minutes' => $variant['service_duration_minutes'],
-            'slots'                    => (empty($slots) ? null : $slots)
+            'branch'                   => $branch,
         ]);
     }
 }

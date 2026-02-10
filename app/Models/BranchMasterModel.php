@@ -55,4 +55,79 @@ class BranchMasterModel extends AppBaseModel
             'data' => $data,
         ];
     }
+
+    public function findHours(int $branchId, string $date): array
+    {
+        $modModel = new BranchModifiedHoursModel();
+        $hrsModel = new BranchOpeningHoursModel();
+        $dows     = [
+            'SU', 'M', 'T', 'W', 'TH', 'F', 'S',
+        ];
+        $dow     = $dows[date('w', strtotime($date))];
+        $date    = $modModel->where('branch_id', $branchId)->where('modified_hours_date', $date)->first();
+        $hours   = $hrsModel->where('branch_id', $branchId)->where('day_of_the_week', $dow)->first();
+        $result  = [];
+        if (!empty($date)) {
+            if ('CLOSED' == $date['modified_type']) {
+                return ['', ''];
+            } else {
+                return [$date['updated_opening_hours'], $date['updated_closing_hours']];
+            }
+        }
+        if (!empty($hours)) {
+            return [$hours['opening_hours'], $hours['closing_hours']];
+        }
+        return ['', ''];
+    }
+
+    private function formatResultBranchInfoAndHours(array $branch, string $date, array $hours): array
+    {
+        try {
+            $interval = new \DateInterval('PT30M');
+            $tzUTC    = new \DateTimeZone('UTC');
+            $now      = new \DateTime('now', $tzUTC);
+            $result   = $branch;
+            $timezone = $branch['timezone_code'];
+            $tzLocal = new \DateTimeZone($timezone);
+            if (!empty($hours[0]) && !empty($hours[1])) {
+                $openingTime = $date . ' ' . $hours[0];
+                $closingTime = $date . ' ' . $hours[1];
+                $open        = new \DateTime($openingTime, $tzLocal);
+                $close       = new \DateTime($closingTime, $tzLocal);
+                $open->setTimezone($tzUTC);
+                $close->setTimezone($tzUTC);
+                if ($open < $now) {
+                    unset($open);
+                    $open = clone $now;
+                    $timeMinute = intval($open->format('i'));
+                    if (30 > $timeMinute) {
+                        $open->setTime((int)$open->format('H'), 30, 0);
+                    } else {
+                        $open->modify('+1 hour');
+                        $open->setTime((int)$open->format('H'), 0, 0);
+                    }
+                }
+                $result['opening_hours'] = [
+                    $open->format('Y-m-d\TH:i:s') . '+00:00',
+                    $close->format('Y-m-d\TH:i:s') . '+00:00',
+                ];
+            } else {
+                $result['opening_hours']  = ['', ''];
+            }
+            return $result;
+        } catch (\Exception $e) {
+            log_message('error', $e->getMessage());
+            return [];
+        }
+    }
+
+    public function findBranchInfoAndHoursByBranch(int $branchId, string $date): array
+    {
+        $branch = $this->select('id, branch_name, timezone_code, branch_type, branch_status')->findRow($branchId);
+        if (empty($branch)) {
+            return [];
+        }
+        $hours  = $this->findHours($branchId, $date);
+        return $this->formatResultBranchInfoAndHours($branch, $date, $hours);
+    }
 }

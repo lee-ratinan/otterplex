@@ -22,14 +22,18 @@ class AllocationResourceModel extends AppBaseModel
     protected $createdField = 'created_at';
     protected $updatedField = 'updated_at';
 
-    public function checkResourceConflict(int $resourceId, string $newStart, string $newEnd): array|null
+    public function checkResourceConflict(int|array $resourceId, string $start, string $end): array|null
     {
+        if (is_array($resourceId)) {
+            $this->whereIn('resource_id', $resourceId);
+        } else {
+            $this->where('resource_id', $resourceId);
+        }
         return $this->select('allocation_resource.*, session_breakdown.time_start, session_breakdown.time_end')
             ->join('session_breakdown', 'allocation_resource.session_breakdown_id = session_breakdown.id')
-            ->where('resource_id', $resourceId)
             ->groupStart()
-            ->where('session_breakdown.time_start <', $newEnd)
-            ->where('session_breakdown.time_end >', $newStart)
+            ->where('session_breakdown.time_start <', $end)
+            ->where('session_breakdown.time_end >', $start)
             ->groupEnd()
             ->findAll();
     }

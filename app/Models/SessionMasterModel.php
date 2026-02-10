@@ -75,11 +75,10 @@ class SessionMasterModel extends AppBaseModel
         ];
     }
 
-    public function getAvailableSessions(string $variantSlug, string $languageCode, string $dateFrom, string $dateTo, int $branchId): array
+    public function getAvailableSessions(int $variantId, string $languageCode, string $dateFrom, string $dateTo, int $branchId): array
     {
-        $today    = date('Y-m-d');
         if (empty($dateFrom)) {
-            $dateFrom = $today;
+            $dateFrom = date('Y-m-d');
         }
         if (!empty($dateTo)) {
             $this->where('date_end <=', $dateTo);
@@ -87,21 +86,21 @@ class SessionMasterModel extends AppBaseModel
         if (0 < $branchId) {
             $this->where('session_master.branch_id', $branchId);
         }
-        $sessions = $this->select('session_master.id, session_master.session_type, session_master.session_capacity, session_master.short_description, session_master.date_start, session_master.date_end, service_variant.variant_slug, branch_master.branch_name, branch_master.branch_local_names')
-            ->join('service_variant', 'service_variant.id = session_master.service_variant_id')
+        $sessions = $this->select('session_master.id, session_master.session_type, session_master.session_capacity, session_master.short_description, session_master.date_start, session_master.date_end, branch_master.branch_name, branch_master.branch_local_names, branch_master.timezone_code')
             ->join('branch_master', 'session_master.branch_id = branch_master.id')
             ->where('date_start >=', $dateFrom)
             ->where('session_type', 'OPEN')
-            ->where('variant_slug', $variantSlug)
+            ->where('session_master.service_variant_id', $variantId)
             ->findAll();
         if (empty($sessions)) {
-            return [];
+            return ['0'];
         }
         $sIds     = [];
         foreach ($sessions as $session) {
             $sIds[] = $session['id'];
         }
         $sbdModel = new SessionBreakDownModel();
+//        $obiModel = new OrderBookingItemModel();
         $times    = $sbdModel->getSessions($sIds, $languageCode);
         $final    = [];
         foreach ($sessions as $session) {

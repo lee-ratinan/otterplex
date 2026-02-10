@@ -97,4 +97,19 @@ class ResourceMasterModel extends AppBaseModel
             'data'            => $final,
         ];
     }
+
+    public function getResourceTypeForBranch(int $resourceTypeId): array
+    {
+        $raw = $this->select('id, branch_id, resource_name')
+            ->where('is_active', 'A')
+            ->where('resource_type_id', $resourceTypeId)->findAll();
+        $result = [];
+        foreach ($raw as $row) {
+            $result[$row['id']] = [
+                'resource_id'   => $row['id'],
+                'resource_name' => $row['resource_name']
+            ];
+        }
+        return $result;
+    }
 }

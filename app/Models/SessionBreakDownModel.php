@@ -41,21 +41,8 @@ class SessionBreakDownModel extends AppBaseModel
             ->findAll();
         $results = [];
         foreach ($sessions as $session) {
-            // start
-            $duration_str = '';
-            $start_pieces = explode(' ', $session['time_start']);
-            $start_date   = $start_pieces[0];
-            $start_time   = $start_pieces[1];
-            // end
-            $end_pieces   = explode(' ', $session['time_end']);
-            $end_date     = $end_pieces[0];
-            $end_time     = $end_pieces[1];
-            if ($start_date == $end_date) {
-                $duration_str = format_date($start_date, $languageCode) . ': ' . format_time($start_time, $languageCode) . ' - ' . format_time($end_time, $languageCode);
-            } else {
-                $duration_str = format_date_time($session['time_start'], $languageCode) . ' - ' . format_date_time($session['time_end'], $languageCode);
-            }
-            $session['duration_str']           = $duration_str;
+            $session['time_start'] = str_replace(' ', 'T', $session['time_start']) . '+00:00';
+            $session['time_end']   = str_replace(' ', 'T', $session['time_end']) . '+00:00';
             $results[$session['session_id']][] = $session;
         }
         return $results;
