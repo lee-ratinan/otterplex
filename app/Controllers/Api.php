@@ -349,6 +349,11 @@ class Api extends BaseController
             $branch['slots'] = [];
         }
         // get service staff list
+        $branch['users']             = [];
+        $branch['userConflicts']     = [];
+        $branch['resources']         = [];
+        $branch['resourceConflicts'] = [];
+        $branch['availableSlots']    = [];
         if (!empty($branch['slots'])) {
             if (0 < $masterDetail['variant']['required_num_staff']) {
                 // need staff
@@ -376,8 +381,66 @@ class Api extends BaseController
                     ];
                 }
             }
+            foreach ($branch['slots'] as $slot) {
+                $slotStart         = $slot[0];
+                $slotEnd           = $slot[1];
+                $needUser          = false;
+                $needResource      = false;
+                $userAvailable     = [];
+                $resourceAvailable = [];
+                if (!empty($branch['users'])) {
+                    $needUser      = true;
+                    foreach ($branch['users'] as $userId => $user) {
+                        if (isset($branch['userConflicts'][$userId])) {
+                            $foundConflict = false;
+                            foreach ($branch['userConflicts'][$userId] as $bookedTimes) {
+                                if ($bookedTimes[0] < $slotEnd && $bookedTimes[1] > $slotStart) {
+                                    $foundConflict = true;
+                                    break;
+                                }
+                            }
+                            if (!$foundConflict) {
+                                $userAvailable[] = $userId;
+                            }
+                        } else {
+                            $userAvailable[] = $userId;
+                        }
+                    }
+                }
+                if (!empty($branch['resources'])) {
+                    $needResource      = true;
+                    foreach ($branch['resources'] as $resourceId => $resource) {
+                        if (isset($branch['resourceConflicts'][$resourceId])) {
+                            $foundConflict = false;
+                            foreach ($branch['resourceConflicts'][$resourceId] as $bookedTimes) {
+                                if ($bookedTimes[0] < $slotEnd && $bookedTimes[1] > $slotStart) {
+                                    $foundConflict = true;
+                                    break;
+                                }
+                            }
+                            if (!$foundConflict) {
+                                $resourceAvailable[] = $resourceId;
+                            }
+                        } else {
+                            $resourceAvailable[] = $resourceId;
+                        }
+                    }
+                }
+                if ($needUser && empty($userAvailable)) {
+                    continue;
+                }
+                if ($needResource && empty($resourceAvailable)) {
+                    continue;
+                }
+                $branch['availableSlots'][] = [
+                    'start'     => $slotStart,
+                    'end'       => $slotEnd,
+                    'users'     => $userAvailable,
+                    'resources' => $resourceAvailable,
+                ];
+            }
         }
-        // query
+        unset($branch['slots']);
         return $this->response->setJSON([
             'variant_slug'             => $variant['variant_slug'],
             'variant_name'             => $variant['variant_name'],
