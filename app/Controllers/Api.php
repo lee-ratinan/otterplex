@@ -307,6 +307,8 @@ class Api extends BaseController
         // process:
         $service                 = $masterDetail['service'];
         $variant                 = $masterDetail['variant'];
+        $serviceNames            = json_decode($service['service_local_names'], true);
+        $service['service_name'] = $serviceNames[$languageCode] ?? $service['service_name'];
         $localNames              = json_decode($variant['variant_local_names'], true);
         $variant['variant_name'] = $localNames[$languageCode] ?? $variant['variant_name'];
         $selectedDate            = $this->request->getGet('selected_date');
@@ -452,6 +454,8 @@ class Api extends BaseController
         }
         unset($branch['slots']);
         return $this->response->setJSON([
+            'service_slug'             => $service['service_slug'],
+            'service_name'             => $service['service_name'],
             'variant_slug'             => $variant['variant_slug'],
             'variant_name'             => $variant['variant_name'],
             'schedule_type'            => $variant['schedule_type'],
