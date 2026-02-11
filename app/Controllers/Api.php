@@ -250,9 +250,8 @@ class Api extends BaseController
         if (empty($variant) || 'A' != $variant['is_active'] || $variant['service_id'] != $service['id']) {
             return []; // not found or not active or wrong service (not the variant of the right service)
         }
-        $variant['price_active']  = format_price($variant['price_active'], $business['currency_code']);
-        $variant['price_compare'] = format_price($variant['price_compare'], $business['currency_code']);
-        $variant['duration']      = generate_duration_label($variant['service_duration_minutes']);
+        $variant['price_active_str']  = format_price($variant['price_active'], $business['currency_code']);
+        $variant['duration']          = generate_duration_label($variant['service_duration_minutes']);
         return [
             'business' => $business,
             'service'  => $service,
@@ -262,6 +261,7 @@ class Api extends BaseController
 
     public function get_sessions(string $languageCode, string $countryCode, int $businessId, int $serviceId, int $variantId): ResponseInterface
     {
+        service('language')->setLocale($languageCode);
         $masterDetail = $this->get_basic_business_info($businessId, $serviceId, $variantId);
         if (empty($masterDetail)) {
             return $this->response->setJSON([]);
@@ -289,11 +289,9 @@ class Api extends BaseController
         ]);
     }
 
-    /**
-     * @throws \DateMalformedStringException
-     */
     public function get_slots(string $languageCode, string $countryCode, int $businessId, int $serviceId, int $variantId): ResponseInterface
     {
+        service('language')->setLocale($languageCode);
         $masterDetail = $this->get_basic_business_info($businessId, $serviceId, $variantId);
         if (empty($masterDetail)) {
             return $this->response->setJSON([1]);
@@ -362,6 +360,7 @@ class Api extends BaseController
         $branch['users']             = [];
         $branch['resources']         = [];
         $branch['availableSlots']    = [];
+        $branch['slotCount']         = 0;
         if (!empty($branch['slots'])) {
             $branch['userConflicts']     = [];
             $branch['resourceConflicts'] = [];
@@ -451,6 +450,7 @@ class Api extends BaseController
             }
             unset($branch['userConflicts']);
             unset($branch['resourceConflicts']);
+            $branch['slotCount'] = count($branch['availableSlots']);
         }
         unset($branch['slots']);
         return $this->response->setJSON([
@@ -460,7 +460,7 @@ class Api extends BaseController
             'variant_name'             => $variant['variant_name'],
             'schedule_type'            => $variant['schedule_type'],
             'price_active'             => $variant['price_active'],
-            'price_compare'            => $variant['price_compare'],
+            'price_active_str'         => $variant['price_active_str'],
             'service_duration_minutes' => $variant['service_duration_minutes'],
             'duration'                 => $variant['duration'],
             'branch'                   => $branch,
