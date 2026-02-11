@@ -248,8 +248,11 @@ class Api extends BaseController
         }
         $variant = $variantModel->findRow($variantId);
         if (empty($variant) || 'A' != $variant['is_active'] || $variant['service_id'] != $service['id']) {
-            return []; // not found or not active or wrong service (not the variant of the right service
+            return []; // not found or not active or wrong service (not the variant of the right service)
         }
+        $variant['price_active']  = format_price($variant['price_active'], $business['currency_code']);
+        $variant['price_compare'] = format_price($variant['price_compare'], $business['currency_code']);
+        $variant['duration']      = generate_duration_label($variant['service_duration_minutes']);
         return [
             'business' => $business,
             'service'  => $service,
@@ -306,12 +309,17 @@ class Api extends BaseController
         $variant                 = $masterDetail['variant'];
         $localNames              = json_decode($variant['variant_local_names'], true);
         $variant['variant_name'] = $localNames[$languageCode] ?? $variant['variant_name'];
-        $selectedDate            = $this->request->getGet('selected_date') ?? date('Y-m-d');
+        $selectedDate            = $this->request->getGet('selected_date');
         $branchId                = (int) $this->request->getGet('branch_id') ?? 0; // Branch is required
         $branch                  = [];
+        if (empty($selectedDate)) {
+            $selectedDate = date('Y-m-d');
+        }
         if (0 < $branchId) {
             $branchId = intval($branchId / ID_MASKED_PRIME);
             $branch   = $branchModel->findBranchInfoAndHoursByBranch($branchId, $selectedDate);
+            $branch['branch_name'] = $branch['branch_local_names'][$languageCode] ?? $branch['branch_name'];
+            unset($branch['branch_local_names']);
         }
         if (empty($branch)) {
             return $this->response->setJSON([2]);
@@ -350,11 +358,11 @@ class Api extends BaseController
         }
         // get service staff list
         $branch['users']             = [];
-        $branch['userConflicts']     = [];
         $branch['resources']         = [];
-        $branch['resourceConflicts'] = [];
         $branch['availableSlots']    = [];
         if (!empty($branch['slots'])) {
+            $branch['userConflicts']     = [];
+            $branch['resourceConflicts'] = [];
             if (0 < $masterDetail['variant']['required_num_staff']) {
                 // need staff
                 $staffByService  = $serviceStaffModel->getStaffByServiceAndBranch($service['id'], $branchId);
@@ -400,10 +408,10 @@ class Api extends BaseController
                                 }
                             }
                             if (!$foundConflict) {
-                                $userAvailable[] = $userId;
+                                $userAvailable[$userId] = $branch['users'][$userId]['user_public_name'];
                             }
                         } else {
-                            $userAvailable[] = $userId;
+                            $userAvailable[$userId] = $branch['users'][$userId]['user_public_name'];
                         }
                     }
                 }
@@ -418,11 +426,11 @@ class Api extends BaseController
                                     break;
                                 }
                             }
-                            if (!$foundConflict) {
-                                $resourceAvailable[] = $resourceId;
+                            if (!$foundConflict) { // $branch['resources']
+                                $resourceAvailable[$resourceId] = $branch['resources'][$resourceId]['resource_name'];
                             }
                         } else {
-                            $resourceAvailable[] = $resourceId;
+                            $resourceAvailable[$resourceId] = $branch['resources'][$resourceId]['resource_name'];
                         }
                     }
                 }
@@ -439,6 +447,8 @@ class Api extends BaseController
                     'resources' => $resourceAvailable,
                 ];
             }
+            unset($branch['userConflicts']);
+            unset($branch['resourceConflicts']);
         }
         unset($branch['slots']);
         return $this->response->setJSON([
@@ -448,6 +458,7 @@ class Api extends BaseController
             'price_active'             => $variant['price_active'],
             'price_compare'            => $variant['price_compare'],
             'service_duration_minutes' => $variant['service_duration_minutes'],
+            'duration'                 => $variant['duration'],
             'branch'                   => $branch,
         ]);
     }

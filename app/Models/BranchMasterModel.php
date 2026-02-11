@@ -83,12 +83,18 @@ class BranchMasterModel extends AppBaseModel
     private function formatResultBranchInfoAndHours(array $branch, string $date, array $hours): array
     {
         try {
-            $interval = new \DateInterval('PT30M');
             $tzUTC    = new \DateTimeZone('UTC');
             $now      = new \DateTime('now', $tzUTC);
-            $result   = $branch;
+            $result   = [
+                'id'                 => $branch['id'],
+                'branch_name'        => $branch['branch_name'],
+                'branch_local_names' => $branch['branch_local_names'],
+                'timezone_code'      => $branch['timezone_code'],
+                'branch_type'        => $branch['branch_type'],
+                'branch_status'      => $branch['branch_status'],
+            ];
             $timezone = $branch['timezone_code'];
-            $tzLocal = new \DateTimeZone($timezone);
+            $tzLocal  = new \DateTimeZone($timezone);
             if (!empty($hours[0]) && !empty($hours[1])) {
                 $openingTime = $date . ' ' . $hours[0];
                 $closingTime = $date . ' ' . $hours[1];
@@ -123,11 +129,12 @@ class BranchMasterModel extends AppBaseModel
 
     public function findBranchInfoAndHoursByBranch(int $branchId, string $date): array
     {
-        $branch = $this->select('id, branch_name, timezone_code, branch_type, branch_status')->findRow($branchId);
+        $branch = $this->findRow($branchId);
         if (empty($branch)) {
             return [];
         }
-        $hours  = $this->findHours($branchId, $date);
+        $branch['branch_local_names'] = json_decode($branch['branch_local_names'], true);
+        $hours                        = $this->findHours($branchId, $date);
         return $this->formatResultBranchInfoAndHours($branch, $date, $hours);
     }
 }
