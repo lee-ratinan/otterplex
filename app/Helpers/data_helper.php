@@ -5179,3 +5179,18 @@ if (!function_exists('generate_duration_label')) {
         return lang('Service.duration-hm', [$h, $m]);
     }
 }
+if (!function_exists('generate_order_number')) {
+    /**
+     * @throws DateMalformedStringException
+     * @throws DateInvalidTimeZoneException
+     */
+    function generate_order_number(int $id, string $timezone = 'UTC'): string
+    {
+        $date   = new DateTime("now", new DateTimeZone($timezone));
+        $prefix = $date->format('ymd'); // 6 chars
+        $encodedId = base_convert($id, 10, 36);
+        $suffix = str_pad($encodedId, 6, '0', STR_PAD_LEFT);
+        $suffix = strtoupper($suffix);
+        return $prefix . substr($suffix, -6);
+    }
+}

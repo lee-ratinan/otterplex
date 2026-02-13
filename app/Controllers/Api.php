@@ -10,6 +10,9 @@ use App\Models\BranchOpeningHoursModel;
 use App\Models\BusinessMasterModel;
 use App\Models\BusinessPaymentMethodModel;
 use App\Models\BusinessShippingFeeModel;
+use App\Models\CustomerAddressModel;
+use App\Models\CustomerMasterModel;
+use App\Models\OrderMasterModel;
 use App\Models\ProductMasterModel;
 use App\Models\ProductVariantModel;
 use App\Models\ResourceMasterModel;
@@ -465,5 +468,109 @@ class Api extends BaseController
             'duration'                 => $variant['duration'],
             'branch'                   => $branch,
         ]);
+    }
+
+    public function business_checkout(string $languageCode, string $countryCode): ResponseInterface
+    {
+        try {
+            $body      = $this->request->getBody();
+            $bodyArray = json_decode($body, true);
+            $cart      = @$bodyArray['cart'];
+            log_message('debug', "Checking cart");
+            log_message('debug', "Cart: " . json_encode($cart));
+            $businessId = $cart['business_id'];
+            $db         = \Config\Database::connect();
+            $db->transBegin();
+            // FIND BUSINESS
+            $businessModel  = new BusinessMasterModel();
+            $branchModel    = new BranchMasterModel();
+            $businessMaster = $businessModel->findRow($businessId);
+            $branchMaster   = $branchModel->where('business_id', $businessId)->orderBy('id', 'ASC')->first();
+            $timezone       = $branchMaster['timezone_code'];
+            // TABLE: customer_master
+            $customerMasterModel = new CustomerMasterModel();
+            $customerMaster      = $cart['customer_detail'];
+            $customerMasterId    = $customerMasterModel->checkEmailAddress($customerMaster);
+            log_message('debug', "Customer Master: {$customerMasterId} " . json_encode($customerMaster));
+            $customerAddressId   = null;
+            // TABLE: customer_address
+            if (!empty($cart['customer_address_detail'])) {
+                $customerAddressModel = new CustomerAddressModel();
+                $customerAddress      = $cart['customer_address_detail'];
+                $customerAddressId    = $customerAddressModel->checkAddress($customerMasterId, $customerAddress);
+                log_message('debug', "Customer Address: {$customerAddressId} " . json_encode($customerAddress));
+            }
+            $orderMasterModel = new OrderMasterModel();
+            $adjustment       = $cart['order_total'] - $cart['order_subtotal'];
+            $shipping_status  = ('SHIPPING' == $cart['shipping_option'] ? 'OPEN' : 'NOT_APPLICABLE');
+            $orderMaster      = [
+                'business_id'          => $businessId,
+                'customer_id'          => $customerMasterId,
+                'customer_address_id'  => $customerAddressId,
+                'order_number'         => '',
+                'order_subtotal'       => $cart['order_subtotal'],
+                'order_adjustment'     => $adjustment,
+                'order_total'          => $cart['order_total'],
+                'shipping_option'      => $cart['shipping_option'],
+                'payment_method'       => $cart['payment_method'],
+                'order_status'         => 'OPEN',
+                'financial_status'     => 'PENDING',
+                'shipping_status'      => $shipping_status,
+                'staff_comment'        => null,
+                'customer_comment'     => $cart['customer_comment'],
+            ];
+            if (!empty($cart['collection_branch_id'])) {
+                $orderMaster['collection_branch_id'] = ($cart['collection_branch_id'] / ID_MASKED_PRIME);
+            }
+            $orderMasterId = $orderMasterModel->insert($orderMaster);
+            log_message('debug', "Order Master: {$orderMasterId} " . json_encode($orderMaster));
+            $orderNumber   = generate_order_number($orderMasterId, $timezone);
+            $orderMasterModel->update($orderMasterId, ['order_number' => $orderNumber]);
+            log_message('debug', "Order Number: {$orderMasterId} = " . $orderNumber);
+            // line item
+            if (!empty($cart['line_items'])) {
+                foreach ($cart['line_items'] as $row) {
+                    //
+                }
+            }
+            // booking item: scheduled
+            if (!empty($cart['scheduled_service'])) {
+                foreach ($cart['scheduled_service'] as $row) {
+                    //
+                }
+            }
+            // booking item: adhoc
+            if (!empty($cart['adhoc_service'])) {
+                foreach ($cart['adhoc_service'] as $row) {
+                    //
+                }
+            }
+            // adjustment lines
+            if (!empty($cart['adjustment_items'])) {
+                foreach ($cart['adjustment_items'] as $row) {
+                    //
+                }
+            }
+            if ($db->transStatus() === false) {
+                $db->transRollback(); // <<< ROLLBACK (Undoes changes from all Models)
+                return $this->response->setJSON([
+                    'status'  => STATUS_RESPONSE_ERR,
+                    'message' => lang('System.response-msg.error.db-issue')
+                ]);
+            }
+//            $db->transCommit();
+            $db->transRollback(); // rollback all for now
+
+
+            return $this->response->setJSON([
+                'message' => '',
+                'cart'    => $cart,
+            ]);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'message' => $e->getMessage(),
+                'cart'    => null
+            ]);
+        }
     }
 }
