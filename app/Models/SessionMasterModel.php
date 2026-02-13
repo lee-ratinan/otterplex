@@ -12,6 +12,7 @@ class SessionMasterModel extends AppBaseModel
         'service_variant_id',
         'session_type',
         'session_capacity',
+        'session_capacity_utilized',
         'short_description',
         'date_start',
         'date_end',

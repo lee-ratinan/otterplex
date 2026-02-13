@@ -25,4 +25,14 @@ class OrderBookingItemModel extends AppBaseModel
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
+
+    public function bookScheduledSession(): string
+    {
+        return '';
+    }
+
+    public function bookAdhocSession(): string
+    {
+        return '';
+    }
 }

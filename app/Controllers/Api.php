@@ -12,6 +12,9 @@ use App\Models\BusinessPaymentMethodModel;
 use App\Models\BusinessShippingFeeModel;
 use App\Models\CustomerAddressModel;
 use App\Models\CustomerMasterModel;
+use App\Models\OrderBookingItemModel;
+use App\Models\OrderLineAdjustmentModel;
+use App\Models\OrderLineItemModel;
 use App\Models\OrderMasterModel;
 use App\Models\ProductMasterModel;
 use App\Models\ProductVariantModel;
@@ -472,6 +475,7 @@ class Api extends BaseController
 
     public function business_checkout(string $languageCode, string $countryCode): ResponseInterface
     {
+        service('language')->setLocale($languageCode);
         try {
             $body      = $this->request->getBody();
             $bodyArray = json_decode($body, true);
@@ -528,27 +532,70 @@ class Api extends BaseController
             $orderMasterModel->update($orderMasterId, ['order_number' => $orderNumber]);
             log_message('debug', "Order Number: {$orderMasterId} = " . $orderNumber);
             // line item
+            $orderLineModel    = new OrderLineItemModel();
+            $orderBookingModel = new OrderBookingItemModel();
+            $orderAdjustModel  = new OrderLineAdjustmentModel();
+            $errorMessages     = [];
             if (!empty($cart['line_items'])) {
                 foreach ($cart['line_items'] as $row) {
-                    //
+                    $error = $orderLineModel->buyItem($orderMasterId, $row['product_variant_id'], $row['product_name'], $row['product_variant_name'], $row['line_quantity'], $row['unit_price'], $row['line_subtotal'], $row['item_need_delivery']);
+                    if (!empty($error)) {
+                        $errorMessages[] = $error;
+                    }
                 }
             }
             // booking item: scheduled
             if (!empty($cart['scheduled_service'])) {
                 foreach ($cart['scheduled_service'] as $row) {
-                    //
+                    $error = $orderBookingModel->bookScheduledSession();
+                    if (!empty($error)) {
+                        $errorMessages[] = $error;
+                    }
+                    //"service_variant_id": "7",
+                    //      "service_id": "3",
+                    //      "session_id": "9",
+                    //      "service_name": "Japanese Beginner Course 1",
+                    //      "service_variant_name": "In person class",
+                    //      "booking_quantity": "1",
+                    //      "unit_price": "7500.00",
+                    //      "short_description": "Feb 15 Classroom",
+                    //      "date_start": "2026-02-15",
+                    //      "date_end": "2026-04-19",
+                    //      "booking_subtotal": 7500
                 }
             }
             // booking item: adhoc
             if (!empty($cart['adhoc_service'])) {
                 foreach ($cart['adhoc_service'] as $row) {
-                    //
+                    $error = $orderBookingModel->bookAdhocSession();
+                    if (!empty($error)) {
+                        $errorMessages[] = $error;
+                    }
+                    //"service_variant_id": "11",
+                    //      "service_id": "3",
+                    //      "service_name": "Japanese Beginner Course 1",
+                    //      "service_variant_name": "Private Class",
+                    //      "booking_quantity": "1",
+                    //      "unit_price": "1500.00",
+                    //      "resource_ids": "2,3,",
+                    //      "user_id": "11",
+                    //      "user_name": "Chia Jate",
+                    //      "time_start_utc": "2026-02-13T04:30:00+00:00",
+                    //      "time_end_utc": "2026-02-13T06:30:00+00:00",
+                    //      "session_id": 0,
+                    //      "booking_subtotal": 1500
                 }
             }
             // adjustment lines
             if (!empty($cart['adjustment_items'])) {
-                foreach ($cart['adjustment_items'] as $row) {
-                    //
+                foreach ($cart['adjustment_items'] as $adj_type => $row) {
+                    $insert = [
+                        'order_id'        => $orderMasterId,
+                        'adjustment_type' => $adj_type,
+                        'line_detail'     => $row['detail'],
+                        'line_amount'     => $row['amount'],
+                    ];
+                    $orderAdjustModel->insert($insert);
                 }
             }
             if ($db->transStatus() === false) {
@@ -557,19 +604,23 @@ class Api extends BaseController
                     'status'  => STATUS_RESPONSE_ERR,
                     'message' => lang('System.response-msg.error.db-issue')
                 ]);
+            } else if (!empty($errorMessages)) {
+                $db->transRollback(); // <<< ROLLBACK (Undoes changes from all Models)
+                return $this->response->setJSON([
+                    'status'  => STATUS_RESPONSE_ERR,
+                    'message' => implode(', ', $errorMessages)
+                ]);
             }
 //            $db->transCommit();
             $db->transRollback(); // rollback all for now
-
-
             return $this->response->setJSON([
-                'message' => '',
-                'cart'    => $cart,
+//                'message' => '',
+//                'cart'    => $cart,
             ]);
         } catch (\Exception $e) {
             return $this->response->setJSON([
-                'message' => $e->getMessage(),
-                'cart'    => null
+//                'message' => $e->getMessage(),
+//                'cart'    => null
             ]);
         }
     }

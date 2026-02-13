@@ -12,7 +12,6 @@ class OrderLineItemModel extends AppBaseModel
         'id',
         'order_id',
         'product_variant_id',
-        'session_id',
         'product_name',
         'product_variant_name',
         'line_quantity',
@@ -27,4 +26,47 @@ class OrderLineItemModel extends AppBaseModel
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
+
+    /**
+     * @throws \ReflectionException
+     */
+    public function buyItem(int $orderId, int $productVariantId, string $productName, string $variantName, int $lineQuantity, float $unitPrice, float $lineSubtotal, string $needDelivery): string
+    {
+        $itemName     = "{$productName} - {$variantName}";
+        $variantModel = new ProductVariantModel();
+        $variant      = $variantModel->find($productVariantId);
+        if (empty($variant)) {
+            return lang('Checkout.error.adding-item', [$itemName]);
+        }
+        if ($lineQuantity > $variant['inventory_count']) {
+            // if allow pre-order, update logic here (future)
+            return lang('Checkout.error.product-out-of-stock', [$itemName]);
+        }
+        // add line item
+        $lineItem = [
+            'order_id'             => $orderId,
+            'product_variant_id'   => $productVariantId,
+            'product_name'         => $productName,
+            'product_variant_name' => $variantName,
+            'line_quantity'        => $lineQuantity,
+            'unit_price'           => $unitPrice,
+            'line_subtotal'        => $lineSubtotal,
+            'item_need_delivery'   => $needDelivery,
+        ];
+        $this->insert($lineItem);
+        // update variant quantity
+        $newCount      = $variant['inventory_count'] - $lineQuantity;
+        $variantModel->update($productVariantId, ['inventory_count' => $newCount]);
+        // log variant inventory
+        $inventoryModel = new ProductVariantInventoryModel();
+        $quantityChange = -1 * $lineQuantity;
+        $inventoryLine  = [
+            'variant_id'      => $productVariantId,
+            'activity_key'    => 'buy',
+            'quantity_change' => $quantityChange,
+            'new_inventory'   => $newCount,
+        ];
+        $inventoryModel->insert($inventoryLine);
+        return '';
+    }
 }
