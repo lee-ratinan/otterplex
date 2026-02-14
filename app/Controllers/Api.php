@@ -598,6 +598,8 @@ class Api extends BaseController
                         log_message('debug', $error);
                         $errorMessages[] = $error;
                     }
+                    $log_data = [$orderMasterId, $row['service_variant_id'], $row['service_name'], $row['service_variant_name'], $row['booking_quantity'], $row['unit_price'], $row['booking_subtotal'], $row['session_id']];
+                    log_message('debug', "Scheduled Item: " . implode(', ', $log_data));
                 }
             }
             // booking item: adhoc
@@ -654,6 +656,24 @@ class Api extends BaseController
                 ]);
             }
             $db->transCommit();
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_OK,
+                'message' => '',
+                'order'   => $this->getOrderData($orderNumber)
+            ]);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => $e->getMessage(),
+                'order'   => []
+            ]);
+        }
+    }
+
+    public function order_search(string $languageCode, string $countryCode, string $orderNumber): ResponseInterface
+    {
+        service('language')->setLocale($languageCode);
+        try {
             return $this->response->setJSON([
                 'status'  => STATUS_RESPONSE_OK,
                 'message' => '',

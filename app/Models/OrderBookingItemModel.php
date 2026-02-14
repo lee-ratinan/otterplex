@@ -34,7 +34,7 @@ class OrderBookingItemModel extends AppBaseModel
             $sessionMaster      = $sessionMasterModel->findRow($sessionMasterId);
             if (empty($sessionMaster)) {
                 return lang('Checkout.error.session-unavailable');
-            } else if ('OPEN' != $sessionMaster['SESSION_TYPE']) {
+            } else if ('OPEN' != $sessionMaster['session_type']) {
                 return lang('Checkout.error.session-unavailable');
             }
             $capacity    = $sessionMaster['session_capacity'];
@@ -83,25 +83,32 @@ class OrderBookingItemModel extends AppBaseModel
             // chk conflict
             if (0 < $userId) {
                 $conflict = $allocationStaffModel->checkStaffConflict($userId, $startStr, $endStr);
-                log_message('debug', 'user conflict = ' . json_encode($conflict));
+                log_message('debug', 'user conflict check = ' . json_encode($conflict));
                 if (!empty($conflict)) {
                     log_message('debug', 'conflict detected on staff!');
                     return lang('Checkout.error.staff-conflict');
                 }
             }
             $resourceId = 0;
+            log_message('debug', 'resource ids check = ' . $resourceIds);
             if (!empty($resourceIds)) {
+                log_message('debug', 'start checking resource');
                 $explodeIds = explode(',', $resourceIds);
                 foreach ($explodeIds as $rid) {
-                    if (is_int($rid)) {
+                    $rid = intval($rid);
+                    log_message('debug', 'start checking = ' . $rid);
+                    if (0 < $rid) {
                         $conflict = $allocationResourceModel->checkResourceConflict($rid, $startStr, $endStr);
+                        log_message('debug', "resource conflict check for {$rid} = " . json_encode($conflict));
                         if (empty($conflict)) {
+                            log_message('debug', 'conflict not found for ' . $rid);
                             $resourceId = $rid;
                             break;
                         }
                     }
                 }
                 if (0 == $resourceId) {
+                    log_message('debug', 'not yet found good resource, so none is available.');
                     return lang('Checkout.error.resource-conflict');
                 }
             }

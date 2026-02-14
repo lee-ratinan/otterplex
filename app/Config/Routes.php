@@ -106,6 +106,7 @@ $routes->group('api/v1.0', function ($routes) {
     $routes->get('(:segment)/(:segment)/service/session-retrieve/(:segment)/(:segment)/(:segment)', 'Api::get_sessions/$1/$2/$3/$4/$5');
     $routes->get('(:segment)/(:segment)/service/slot-retrieve/(:segment)/(:segment)/(:segment)', 'Api::get_slots/$1/$2/$3/$4/$5');
     $routes->post('(:segment)/(:segment)/business/checkout', 'Api::business_checkout/$1/$2');
+    $routes->get('(:segment)/(:segment)/order/(:segment)', 'Api::order_search/$1/$2/$3');
 });
 // Helper
 $routes->group('helper', function ($routes) {
