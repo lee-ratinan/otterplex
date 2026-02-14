@@ -6,7 +6,7 @@ use App\Models\AppBaseModel;
 
 class OrderLineAdjustmentModel extends AppBaseModel
 {
-    protected $table         = 'order_line_item';
+    protected $table         = 'order_line_adjustment';
     protected $primaryKey    = 'id';
     protected $allowedFields = [
         'id',

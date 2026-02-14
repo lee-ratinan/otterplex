@@ -16,6 +16,7 @@ use App\Models\OrderBookingItemModel;
 use App\Models\OrderLineAdjustmentModel;
 use App\Models\OrderLineItemModel;
 use App\Models\OrderMasterModel;
+use App\Models\OrderPaymentModel;
 use App\Models\ProductMasterModel;
 use App\Models\ProductVariantModel;
 use App\Models\ResourceMasterModel;
@@ -30,6 +31,47 @@ use libphonenumber\PhoneNumberUtil;
 
 class Api extends BaseController
 {
+
+    private function getOrderData(string $orderNumber): array
+    {
+        $orderMasterModel         = new OrderMasterModel();
+        $orderLineItemModel       = new OrderLineItemModel();
+        $orderLineAdjustmentModel = new OrderLineAdjustmentModel();
+        $orderBookingItemModel    = new OrderBookingItemModel();
+        $orderPaymentModel        = new OrderPaymentModel();
+        $branchModel              = new BranchMasterModel();
+        // DATA
+        $orderMaster              = $orderMasterModel->where('order_number', $orderNumber)->first();
+        if (empty($orderMaster)) {
+            return [];
+        }
+        $orderId                  = $orderMaster['id'];
+        return [
+            'customer'         => [
+                'data'    => [],
+                'address' => []
+            ],
+            'order_id'         => $orderMaster['id'],
+            'order_number'     => $orderNumber,
+            'order_subtotal'   => $orderMaster['order_subtotal'],
+            'order_adjustment' => $orderMaster['order_adjustment'],
+            'order_total'      => $orderMaster['order_total'],
+            'shipping'         => [
+                'option'            => $orderMaster['shipping_option'],
+                'collection_branch' => '????',
+                'status'            => $orderMaster['shipping_status'],
+            ],
+            'payment'          => [
+                'method' => $orderMaster['payment_method'],
+                'status' => $orderMaster['financial_status'],
+            ],
+            'order_status'     => $orderMaster['order_status'],
+            'customer_comment' => $orderMaster['customer_comment'],
+            'line_items'       => [],
+            'booking_items'    => [],
+            'adjustment_lines' => []
+        ];
+    }
 
     public function business_search(string $languageCode, string $countryCode): ResponseInterface
     {
@@ -540,50 +582,48 @@ class Api extends BaseController
                 foreach ($cart['line_items'] as $row) {
                     $error = $orderLineModel->buyItem($orderMasterId, $row['product_variant_id'], $row['product_name'], $row['product_variant_name'], $row['line_quantity'], $row['unit_price'], $row['line_subtotal'], $row['item_need_delivery']);
                     if (!empty($error)) {
+                        log_message('debug', $error);
                         $errorMessages[] = $error;
                     }
+                    $log_data = [$orderMasterId, $row['product_variant_id'], $row['product_name'], $row['product_variant_name'], $row['line_quantity'], $row['unit_price'], $row['line_subtotal'], $row['item_need_delivery']];
+                    log_message('debug', "Buy Item: " . implode(', ', $log_data));
                 }
             }
             // booking item: scheduled
             if (!empty($cart['scheduled_service'])) {
                 foreach ($cart['scheduled_service'] as $row) {
-                    $error = $orderBookingModel->bookScheduledSession();
+                    $error = $orderBookingModel->bookScheduledSession($orderMasterId, $row['service_variant_id'], $row['service_name'], $row['service_variant_name'],
+                                $row['booking_quantity'], $row['unit_price'], $row['booking_subtotal'], $row['session_id']);
                     if (!empty($error)) {
+                        log_message('debug', $error);
                         $errorMessages[] = $error;
                     }
-                    //"service_variant_id": "7",
-                    //      "service_id": "3",
-                    //      "session_id": "9",
-                    //      "service_name": "Japanese Beginner Course 1",
-                    //      "service_variant_name": "In person class",
-                    //      "booking_quantity": "1",
-                    //      "unit_price": "7500.00",
-                    //      "short_description": "Feb 15 Classroom",
-                    //      "date_start": "2026-02-15",
-                    //      "date_end": "2026-04-19",
-                    //      "booking_subtotal": 7500
                 }
             }
             // booking item: adhoc
             if (!empty($cart['adhoc_service'])) {
                 foreach ($cart['adhoc_service'] as $row) {
-                    $error = $orderBookingModel->bookAdhocSession();
+                    $now   = (new \DateTime())->setTimezone(new \DateTimeZone('UTC'));
+                    $start = (new \DateTime($row['time_start_utc']))->setTimezone(new \DateTimeZone('UTC'));
+                    if ($start < $now) {
+                        $startStr = $start->format('Y-m-d H:i:s');
+                        $nowStr   = $now->format('Y-m-d H:i:s');
+                        log_message('debug', "ERROR: {$startStr} < {$nowStr}");
+                        $errorMessages[] = lang('Checkout.error.start-in-the-past');
+                    }
+                    $branch   = $branchModel->findRow($row['branch_id']);
+                    $branchTz = $branch['timezone_code'];
+                    $error    = $orderBookingModel->bookAdhocSession($orderMasterId, $orderNumber, $row['service_variant_id'], $row['service_name'], $row['service_variant_name'],
+                            $row['booking_quantity'], $row['unit_price'], $row['booking_subtotal'],
+                            $row['time_start_utc'], $row['time_end_utc'], $row['branch_id'], $branchTz, $row['user_id'], $row['resource_ids']);
                     if (!empty($error)) {
+                        log_message('debug', $error);
                         $errorMessages[] = $error;
                     }
-                    //"service_variant_id": "11",
-                    //      "service_id": "3",
-                    //      "service_name": "Japanese Beginner Course 1",
-                    //      "service_variant_name": "Private Class",
-                    //      "booking_quantity": "1",
-                    //      "unit_price": "1500.00",
-                    //      "resource_ids": "2,3,",
-                    //      "user_id": "11",
-                    //      "user_name": "Chia Jate",
-                    //      "time_start_utc": "2026-02-13T04:30:00+00:00",
-                    //      "time_end_utc": "2026-02-13T06:30:00+00:00",
-                    //      "session_id": 0,
-                    //      "booking_subtotal": 1500
+                    $log_data = [$orderMasterId, $orderNumber, $row['service_variant_id'], $row['service_name'], $row['service_variant_name'],
+                                 $row['booking_quantity'], $row['unit_price'], $row['booking_subtotal'],
+                                 $row['time_start_utc'], $row['time_end_utc'], $row['branch_id'], $branchTz, $row['user_id'], $row['resource_ids']];
+                    log_message('debug', "Adhoc Service: " . implode(', ', $log_data));
                 }
             }
             // adjustment lines
@@ -602,25 +642,28 @@ class Api extends BaseController
                 $db->transRollback(); // <<< ROLLBACK (Undoes changes from all Models)
                 return $this->response->setJSON([
                     'status'  => STATUS_RESPONSE_ERR,
-                    'message' => lang('System.response-msg.error.db-issue')
+                    'message' => lang('System.response-msg.error.db-issue'),
+                    'order'   => []
                 ]);
             } else if (!empty($errorMessages)) {
                 $db->transRollback(); // <<< ROLLBACK (Undoes changes from all Models)
                 return $this->response->setJSON([
                     'status'  => STATUS_RESPONSE_ERR,
-                    'message' => implode(', ', $errorMessages)
+                    'message' => implode(', ', $errorMessages),
+                    'order'   => []
                 ]);
             }
-//            $db->transCommit();
-            $db->transRollback(); // rollback all for now
+            $db->transCommit();
             return $this->response->setJSON([
-//                'message' => '',
-//                'cart'    => $cart,
+                'status'  => STATUS_RESPONSE_OK,
+                'message' => '',
+                'order'   => $this->getOrderData($orderNumber)
             ]);
         } catch (\Exception $e) {
             return $this->response->setJSON([
-//                'message' => $e->getMessage(),
-//                'cart'    => null
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => $e->getMessage(),
+                'order'   => []
             ]);
         }
     }
