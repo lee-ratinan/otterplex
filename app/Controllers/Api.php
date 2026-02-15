@@ -32,7 +32,7 @@ use libphonenumber\PhoneNumberUtil;
 class Api extends BaseController
 {
 
-    private function getOrderData(string $orderNumber): array
+    private function getOrderData(string $orderNumber, string $languageCode): array
     {
         $orderMasterModel         = new OrderMasterModel();
         $orderLineItemModel       = new OrderLineItemModel();
@@ -40,16 +40,24 @@ class Api extends BaseController
         $orderBookingItemModel    = new OrderBookingItemModel();
         $orderPaymentModel        = new OrderPaymentModel();
         $branchModel              = new BranchMasterModel();
+        $customerModel            = new CustomerMasterModel();
+        $customerAddressModel     = new CustomerAddressModel();
         // DATA
         $orderMaster              = $orderMasterModel->where('order_number', $orderNumber)->first();
         if (empty($orderMaster)) {
             return [];
         }
         $orderId                  = $orderMaster['id'];
+        $branchName               = '';
+        if (!empty($orderMaster['collection_branch_id'])) {
+            $branch      = $branchModel->findRow($orderMaster['collection_branch_id']);
+            $branchNames = json_decode($branch['branch_local_names'], true);
+            $branchName  = $branchNames[$languageCode] ?? $branch['branch_name'];
+        }
         return [
             'customer'         => [
-                'data'    => [],
-                'address' => []
+                'data'    => $customerModel->findRow($orderMaster['customer_id']),
+                'address' => (empty($orderMaster['customer_address_id']) ? [] : $customerAddressModel->findRow($orderMaster['customer_address_id'])),
             ],
             'order_id'         => $orderMaster['id'],
             'order_number'     => $orderNumber,
@@ -58,7 +66,7 @@ class Api extends BaseController
             'order_total'      => $orderMaster['order_total'],
             'shipping'         => [
                 'option'            => $orderMaster['shipping_option'],
-                'collection_branch' => '????',
+                'collection_branch' => $branchName,
                 'status'            => $orderMaster['shipping_status'],
             ],
             'payment'          => [
@@ -67,9 +75,10 @@ class Api extends BaseController
             ],
             'order_status'     => $orderMaster['order_status'],
             'customer_comment' => $orderMaster['customer_comment'],
-            'line_items'       => [],
-            'booking_items'    => [],
-            'adjustment_lines' => []
+            'line_items'       => $orderLineItemModel->where('order_id', $orderMaster['id'])->findAll(),
+            'booking_items'    => $orderBookingItemModel->where('order_id', $orderMaster['id'])->findAll(),
+            'adjustment_lines' => $orderLineAdjustmentModel->where('order_id', $orderMaster['id'])->findAll(),
+            'payment_lines'    => $orderPaymentModel->where('order_id', $orderMaster['id'])->findAll(),
         ];
     }
 
@@ -546,10 +555,11 @@ class Api extends BaseController
                 $customerAddressId    = $customerAddressModel->checkAddress($customerMasterId, $customerAddress);
                 log_message('debug', "Customer Address: {$customerAddressId} " . json_encode($customerAddress));
             }
-            $orderMasterModel = new OrderMasterModel();
-            $adjustment       = $cart['order_total'] - $cart['order_subtotal'];
-            $shipping_status  = ('SHIPPING' == $cart['shipping_option'] ? 'OPEN' : 'NOT_APPLICABLE');
-            $orderMaster      = [
+            $orderMasterModel        = new OrderMasterModel();
+            $adjustment              = $cart['order_total'] - $cart['order_subtotal'];
+            $shipping_status         = ('SHIPPING' == $cart['shipping_option'] ? 'OPEN' : 'NOT_APPLICABLE');
+            $cart['shipping_option'] = str_replace('-', '_', $cart['shipping_option']);
+            $orderMaster             = [
                 'business_id'          => $businessId,
                 'customer_id'          => $customerMasterId,
                 'customer_address_id'  => $customerAddressId,
@@ -659,7 +669,7 @@ class Api extends BaseController
             return $this->response->setJSON([
                 'status'  => STATUS_RESPONSE_OK,
                 'message' => '',
-                'order'   => $this->getOrderData($orderNumber)
+                'order'   => $this->getOrderData($orderNumber, $languageCode)
             ]);
         } catch (\Exception $e) {
             return $this->response->setJSON([
@@ -677,7 +687,7 @@ class Api extends BaseController
             return $this->response->setJSON([
                 'status'  => STATUS_RESPONSE_OK,
                 'message' => '',
-                'order'   => $this->getOrderData($orderNumber)
+                'order'   => $this->getOrderData($orderNumber, $languageCode)
             ]);
         } catch (\Exception $e) {
             return $this->response->setJSON([
