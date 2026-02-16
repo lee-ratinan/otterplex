@@ -94,7 +94,7 @@ class SessionMasterModel extends AppBaseModel
             ->where('session_master.service_variant_id', $variantId)
             ->findAll();
         if (empty($sessions)) {
-            return ['0'];
+            return [];
         }
         $sIds     = [];
         foreach ($sessions as $session) {
