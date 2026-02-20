@@ -39,7 +39,7 @@ class OrderMasterModel extends AppBaseModel
         if (!empty($search)) {
             $this->where('order_number', $search);
         }
-        if (!empty($shippingStatus)) {
+        if (!empty($shippingOption)) {
             $this->where('shipping_option', $shippingOption);
         }
         if (!empty($paymentMethod)) {
@@ -76,7 +76,7 @@ class OrderMasterModel extends AppBaseModel
         $orderBy    = $columns[$orderBy] ?? $columns[0];
         $total      = $this->where('business_id', $businessId)->countAllResults();
         $filtered   = $total;
-        if (!empty($search)) {
+        if (!empty($search) || !empty($shippingOption) || !empty($paymentMethod) || !empty($orderStatus) || !empty($financialStatus) || !empty($shippingStatus)) {
             $this->applyFilters($search, $shippingOption, $paymentMethod, $orderStatus, $financialStatus, $shippingStatus);
             $filtered = $this->countAllResults();
             $this->applyFilters($search, $shippingOption, $paymentMethod, $orderStatus, $financialStatus, $shippingStatus);
