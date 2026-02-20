@@ -1745,7 +1745,7 @@ class Admin extends BaseController
     public function order(): string
     {
         $session             = session();
-        // anyone can see the order, no restrictions
+
         $data = [
             'slug'           => 'order',
             'lang'           => $this->request->getLocale(),
@@ -1755,8 +1755,22 @@ class Admin extends BaseController
 
     public function order_post(): ResponseInterface
     {
-        // anyone can see the order, no restrictions
-        return $this->response->setJSON([]);
+        $draw            = $this->request->getPost('draw');
+        $offset          = $this->request->getPost('start');
+        $length          = $this->request->getPost('length');
+        $search          = $this->request->getPost('search');
+        $search          = $search['value'];
+        $order           = $this->request->getPost('order');
+        $orderBy         = $order[0]['column'] ?? 0;
+        $orderDir        = $order[0]['dir'] ?? 'asc';
+        $shippingOption  = $this->request->getPost('shipping_option') ?? '';
+        $paymentMethod   = $this->request->getPost('payment_method') ?? '';
+        $orderStatus     = $this->request->getPost('order_status') ?? '';
+        $financialStatus = $this->request->getPost('financial_status') ?? '';
+        $shippingStatus  = $this->request->getPost('shipping_status') ?? '';
+        $orderModel      = new OrderMasterModel();
+        $orders          = $orderModel->getDataTable($draw, $offset, $length, $search, $orderBy, $orderDir, $shippingOption, $paymentMethod, $orderStatus, $financialStatus, $shippingStatus);
+        return $this->response->setJSON($orders);
     }
 
     public function order_info(int $orderId): string
