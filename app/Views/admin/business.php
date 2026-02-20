@@ -66,9 +66,9 @@
                             <div class="text-end">
                                 <button class="btn btn-primary" id="btn-save-1"><?= lang('System.buttons.save') ?></button>
                             </div>
+                            <h3 class="mt-5 pt-5" id="tax-information"><?= lang('Business.subtitle.tax-information') ?></h3>
                             <?php
                             // country code is not updatable
-                            echo '<h3 class="mt-5 pt-5" id="tax-information">' . lang('Business.subtitle.tax-information') . '</h3>';
                             echo build_form_input('tax_percentage', lang('BusinessMaster.field.tax_percentage'), [
                                 'type' => 'number',
                                 'min'  => 0,
@@ -94,8 +94,8 @@
                             <div class="text-end">
                                 <button class="btn btn-primary" id="btn-save-2"><?= lang('System.buttons.save') ?></button>
                             </div>
+                            <h3 class="mt-5 pt-5" id="contact"><?= lang('BusinessMaster.field.contact') ?></h3>
                             <?php
-                            echo '<h3 class="mt-5 pt-5" id="contact">' . lang('BusinessMaster.field.contact') . '</h3>';
                             echo build_form_input('contact_email_address', lang('BusinessMaster.field.contact_email_address'), [
                                 'type'      => 'email',
                                 'maxlength' => 64
@@ -112,8 +112,8 @@
                             <div class="text-end">
                                 <button class="btn btn-primary" id="btn-save-3"><?= lang('System.buttons.save') ?></button>
                             </div>
+                            <h3 class="mt-5 pt-5" id="shipping"><?= lang('BusinessMaster.field.shipping') ?></h3>
                             <?php
-                            echo '<h3 class="mt-5 pt-5" id="shipping">' . lang('BusinessMaster.field.shipping') . '</h3>';
                             echo build_form_input('shipping_options', lang('BusinessMaster.field.shipping_options'), [
                                 'type' => 'select',
                             ], $business['shipping_options'], '', [
@@ -131,8 +131,8 @@
                             <div class="text-end">
                                 <button class="btn btn-primary" id="btn-save-3"><?= lang('System.buttons.save') ?></button>
                             </div>
+                            <h3 class="mt-5 pt-5" id="social-media"><?= lang('BusinessMaster.field.social_media') ?></h3>
                             <?php
-                            echo '<h3 class="mt-5 pt-5" id="social-media">' . lang('BusinessMaster.field.social_media') . '</h3>';
                             $social_medias = get_social_media();
                             foreach ($social_medias as $code => $social_name) {
                                 echo build_form_input('social_media_' . $code, $social_name, [
@@ -143,8 +143,8 @@
                             <div class="text-end">
                                 <button class="btn btn-primary" id="btn-save-4"><?= lang('System.buttons.save') ?></button>
                             </div>
+                            <h3 class="mt-5 pt-5" id="seo"><?= lang('Business.subtitle.mart-seo') ?></h3>
                             <?php
-                            echo '<h3 class="mt-5 pt-5" id="seo">' . lang('Business.subtitle.mart-seo') . '</h3>';
                             foreach ($all_languages as $lang_code => $language_name) {
                                 echo '<p><b>' . $language_name . '</b></p>';
                                 echo build_form_input('mart_meta_description_' . $lang_code, lang('BusinessMaster.field.mart_meta_description'), [
@@ -158,8 +158,8 @@
                             <div class="text-end">
                                 <button class="btn btn-primary" id="btn-save-5"><?= lang('System.buttons.save') ?></button>
                             </div>
+                            <h3 class="mt-5 pt-5" id="decoration"><?= lang('Business.subtitle.mart-decoration') ?></h3>
                             <?php
-                            echo '<h3 class="mt-5 pt-5" id="decoration">' . lang('Business.subtitle.mart-decoration') . '</h3>';
                             echo build_form_input('mart_primary_color', lang('BusinessMaster.field.mart_primary_color'), [
                                 'type' => 'color',
                             ], '#' . $business['mart_primary_color'], 'mart-reset-color');
