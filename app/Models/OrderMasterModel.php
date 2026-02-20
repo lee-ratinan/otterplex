@@ -33,4 +33,23 @@ class OrderMasterModel extends AppBaseModel
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
+
+    public function getOrderInfo(int $orderId): array
+    {
+        $orderInfo = $this->findRow($orderId);
+        if (empty($orderInfo)) {
+            return [];
+        }
+        // Models
+        $lineItemModel     = new OrderLineItemModel();
+        $orderBookingModel = new OrderBookingItemModel();
+        $lineAdjModel      = new OrderLineAdjustmentModel();
+        $paymentModel      = new OrderPaymentModel();
+        // Details
+        $orderInfo['line_items']    = $lineItemModel->where('order_id', $orderId)->findAll();
+        $orderInfo['booking_items'] = $orderBookingModel->where('order_id', $orderId)->findAll();
+        $orderInfo['adjustments']   = $lineAdjModel->where('order_id', $orderId)->findAll();
+        $orderInfo['payments']      = $paymentModel->where('order_id', $orderId)->findAll();
+        return $orderInfo;
+    }
 }

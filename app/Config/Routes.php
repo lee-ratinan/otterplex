@@ -62,6 +62,9 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->post('shipping-fee', 'Admin::shipping_fee_post');
     // ORDER
     $routes->get('order', 'Admin::order');
+    $routes->post('order', 'Admin::order_post');
+    $routes->get('order/(:num)', 'Admin::order_info/$1');
+    $routes->post('order/manage', 'Admin::order_info_post');
     // SERVICE
     $routes->get('service', 'Admin::service');
     $routes->post('service', 'Admin::service_post');

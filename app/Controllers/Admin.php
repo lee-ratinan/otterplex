@@ -16,6 +16,7 @@ use App\Models\BusinessPaymentMethodModel;
 use App\Models\BusinessShippingFeeModel;
 use App\Models\BusinessTypeModel;
 use App\Models\BusinessUserModel;
+use App\Models\OrderMasterModel;
 use App\Models\OtternautPackageModel;
 use App\Models\ProductCategoryModel;
 use App\Models\ProductMasterModel;
@@ -1743,11 +1744,40 @@ class Admin extends BaseController
      */
     public function order(): string
     {
+        $session             = session();
+        // anyone can see the order, no restrictions
         $data = [
             'slug'           => 'order',
             'lang'           => $this->request->getLocale(),
         ];
         return view('admin/order', $data);
+    }
+
+    public function order_post(): ResponseInterface
+    {
+        // anyone can see the order, no restrictions
+        return $this->response->setJSON([]);
+    }
+
+    public function order_info(int $orderId): string
+    {
+        // anyone can see the order, no restrictions
+        $realId      = $orderId / ID_MASKED_PRIME;
+        $orderModel  = new OrderMasterModel();
+        $orderDetail = $orderModel->getOrderInfo($realId);
+        $data        = [
+            'slug'         => 'order',
+            'lang'         => $this->request->getLocale(),
+            'order_id'     => $realId,
+            'order_detail' => $orderDetail,
+        ];
+        return view('admin/order_info', $data);
+    }
+
+    public function order_info_post(): ResponseInterface
+    {
+        // anyone can see the order, no restrictions
+        return $this->response->setJSON([]);
     }
 
     /**
