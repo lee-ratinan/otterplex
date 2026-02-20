@@ -164,6 +164,9 @@ class Api extends BaseController
         if (!empty($business['business_logo'])) {
             $business['business_logo'] = base_url('/file/business_' . $business['business_logo']);
         }
+        if (!empty($business['business_header'])) {
+            $business['business_header'] = base_url('/file/business_' . $business['business_header']);
+        }
         // BRANCHES
         $branchModel = new BranchMasterModel();
         $branchRaw   = $branchModel

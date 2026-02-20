@@ -24,6 +24,7 @@ class BusinessMasterModel extends AppBaseModel
         'mart_store_intro_paragraph',
         'social_media',
         'business_logo',
+        'business_header',
         'shipping_options',
         'shipping_fee_taxable',
         'contract_anchor_day',

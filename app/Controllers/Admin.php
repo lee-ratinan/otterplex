@@ -564,6 +564,92 @@ class Admin extends BaseController
                     }
                 }
                 $error_msg = lang('System.response-msg.error.removed');
+            } else if ('upload_header_img' == $script_action) {
+                $business_slug = $session->business['business_slug'];
+                helper(['form']);
+                $validationRule = [
+                    'header-img' => [
+                        'label' => lang('Business.business-header'),
+                        'rules' => [
+                            'uploaded[header-img]',
+                            'is_image[header-img]',
+                            'mime_in[header-img,image/jpg,image/jpeg,image/png]',
+                            'max_size[header-img,800]',
+                            'max_dims[header-img,1800,900]',
+                        ],
+                    ],
+                ];
+                if (!$this->validateData([], $validationRule)) {
+                    $errors = $this->validator->getErrors();
+                    $toast  = lang('System.response-msg.error.upload-failed');
+                    foreach ($errors as $error) {
+                        $toast .= '<br>- ' . $error;
+                    }
+                    return $this->response->setJSON([
+                        'success' => STATUS_RESPONSE_ERR,
+                        'message' => $toast
+                    ]);
+                }
+                $img                  = $this->request->getFile('header-img');
+                list($width, $height) = getimagesize($img->getPathname());
+                $file_type            = $img->getClientMimeType();
+                $file_name            = 'header_' . $business_slug . '.jpg';
+                if ($file_type === 'image/png') {
+                    $source = imagecreatefrompng($img->getPathname());
+                } else {
+                    $source = imagecreatefromjpeg($img->getPathname());
+                }
+                // --- Target dimensions ---
+                $targetW     = 1800;
+                $targetH     = 900;
+                $targetRatio = $targetW / $targetH;
+                // --- Step 1: scale the image proportionally so that it is >= target size ---
+                $srcRatio    = $width / $height;
+                // If image is wider relative to height → height is limiting
+                if ($srcRatio > $targetRatio) {
+                    // Height determines scale
+                    $scaledH = $targetH;
+                    $scaledW = intval($targetH * $srcRatio);
+                } else {
+                    // Width determines scale
+                    $scaledW = $targetW;
+                    $scaledH = intval($targetW / $srcRatio);
+                }
+                $scaled = imagecreatetruecolor($scaledW, $scaledH);
+                imagecopyresampled($scaled, $source, 0, 0, 0, 0, $scaledW, $scaledH, $width, $height);
+                // --- Step 2: crop the center to 1280 × 960 ---
+                $cropX = intval(($scaledW - $targetW) / 2);
+                $cropY = intval(($scaledH - $targetH) / 2);
+                $final = imagecreatetruecolor($targetW, $targetH);
+                imagecopyresampled($final, $scaled, 0, 0, $cropX, $cropY, $targetW, $targetH, $targetW, $targetH);
+                imagejpeg($final, WRITEPATH . 'uploads/business_header_images/' . $file_name, 90);
+                // Update database & session
+                $session->set('business_header', base_url('file/business_' . $file_name));
+                $businessMasterModel->update($businessId, ['business_header' => $file_name]);
+                // --- Cleanup ---
+                imagedestroy($source);
+                imagedestroy($scaled);
+                imagedestroy($final);
+                return $this->response->setJSON([
+                    'status'  => STATUS_RESPONSE_OK,
+                    'message' => lang('System.response-msg.success.uploaded')
+                ]);
+            } else if ('remove_header_img' == $script_action) {
+                $business      = $businessMasterModel->find($businessId);
+                $file_name     = $business['business_header'];
+                $file_path     = WRITEPATH . 'uploads/business_header_images/' . $file_name;
+                if (!empty($file_name) && file_exists($file_path)) {
+                    if (unlink($file_path)) {
+                        // Update database & session
+                        $session->set('business_header', '');
+                        $businessMasterModel->update($businessId, ['business_header' => null]);
+                        return $this->response->setJSON([
+                            'status'  => STATUS_RESPONSE_OK,
+                            'message' => lang('System.response-msg.success.removed')
+                        ]);
+                    }
+                }
+                $error_msg = lang('System.response-msg.error.removed');
             }
             return $this->response->setJSON([
                 'status'  => STATUS_RESPONSE_ERR,

@@ -1,34 +1,37 @@
 <?php
 return [
-    'title'                    => 'Manage Business: {0}',
-    'subtitle'                 => [
+    'title'                     => 'Manage Business: {0}',
+    'subtitle'                  => [
         'generic-information' => 'Generic Information',
         'tax-information'     => 'Tax Information',
         'mart-decoration'     => 'Your Marketplace Decoration',
         'mart-seo'            => 'SEO Information',
     ],
-    'btn-update-slug'          => 'Update Slug',
-    'btn-update-slug-confirm'  => 'Confirm Update',
-    'marketplace-url'          => 'The URL to your marketplace is <a href="{0}" target="_blank">{0}</a>. If you have changed the slug, the URL will be changed once you clicked “Save” below.',
-    'logo'                     => 'Logo',
-    'upload-logo'              => 'Upload Your Business Logo',
-    'upload-explanation'       => 'The system only accepts <code>png</code> and <code>jpg</code> files under 600kb. If the file is larger than 1280px (width), 960px (height), it will be cropped accordingly.',
-    'marketplace'              => 'Marketplace',
-    'marketplace-example-text' => 'This is the example of the text to be shown on your marketplace website.',
-    'clear-cache'              => 'Your change will be reflected on the marketplace within an hour. If you would like to update it now, please click the following button',
-    'btn-clear-cache'          => 'Clear Cache',
-    'contracts'                => 'Contracts',
-    'contract-renew'           => 'Renew Contract',
-    'payment-records'          => 'Payment Records',
-    'packages'                 => [
+    'btn-update-slug'           => 'Update Slug',
+    'btn-update-slug-confirm'   => 'Confirm Update',
+    'marketplace-url'           => 'The URL to your marketplace is <a href="{0}" target="_blank">{0}</a>. If you have changed the slug, the URL will be changed once you clicked “Save” below.',
+    'logo'                      => 'Logo',
+    'upload-logo'               => 'Upload Your Business Logo',
+    'upload-explanation'        => 'The system only accepts <code>png</code> and <code>jpg</code> files under 600kb. If the file is larger than 1280px (width), 960px (height), it will be cropped accordingly.',
+    'business-header'           => 'Business Header Banner',
+    'upload-header-img'         => 'Upload Your Business Header Banner',
+    'upload-explanation-header' => 'The system only accepts <code>png</code> and <code>jpg</code> files under 800kb. If the file is larger than 1800px (width), 900px (height), it will be cropped accordingly.',
+    'marketplace'               => 'Marketplace',
+    'marketplace-example-text'  => 'This is the example of the text to be shown on your marketplace website.',
+    'clear-cache'               => 'Your change will be reflected on the marketplace within an hour. If you would like to update it now, please click the following button',
+    'btn-clear-cache'           => 'Clear Cache',
+    'contracts'                 => 'Contracts',
+    'contract-renew'            => 'Renew Contract',
+    'payment-records'           => 'Payment Records',
+    'packages'                  => [
         'pick-one' => 'Please select a package to renew',
         'validity' => [
             'month' => 'Monthly Package',
             'year'  => 'Yearly Package',
         ]
     ],
-    'has-unpaid-contract'      => 'You have an unpaid contract, please make a payment.',
-    'renewal'                  => [
+    'has-unpaid-contract'       => 'You have an unpaid contract, please make a payment.',
+    'renewal'                   => [
         'amount-due'         => 'Amount Due',
         'payments'           => 'Payment Records',
         'payment-at'         => 'Recorded At',
@@ -36,7 +39,7 @@ return [
         'pay-by-credit-card' => 'Pay by Credit Card',
         'pay-by-qr-thailand' => 'Pay by PromptPay QR Code (Thailand)',
     ],
-    'branch-management'        => [
+    'branch-management'         => [
         'new-branch'          => 'New Branch',
         'generic-title'       => 'New Branch Information',
         'generic-information' => 'Generic Information',
@@ -59,7 +62,7 @@ return [
         ],
         'close-shop'          => 'Close Shop'
     ],
-    'user-management'          => [
+    'user-management'           => [
         'new-user'           => 'New User',
         'new-user-info'      => 'New User Information',
         'generic-info'       => 'Generic Information',
@@ -68,15 +71,15 @@ return [
         'no-branches'        => 'The user is not linked to any branches, please add a new branch.',
         'link-to-new-branch' => 'Add New Branch'
     ],
-    'customer-management'      => [
+    'customer-management'       => [
         'privacy-policy' => 'Customer data is considered sensitive information. The customers have their rights to modify and/or delete their information at any given time.',
     ],
-    'resource-management'      => [
+    'resource-management'       => [
         'new-resource'            => 'New Resource',
         'new-resource-type'       => 'New Resource Type',
         'add-resource-type-first' => 'Please add a resource type before creating a new resource.',
     ],
-    'shipping-rate'            => [
+    'shipping-rate'             => [
         'add-new'             => 'Add New Shipping Rate',
         'max-price-error'     => 'The upper limit of the range must be higher than the lower limit.',
         'shipping-rate-error' => 'Shipping rate must be a positive number.'

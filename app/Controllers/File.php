@@ -18,6 +18,7 @@ class File extends BaseController
         // 1. FIX FILE PATH FIRST - IF REQUIRED
         $file_name          = str_replace('profile_picture_', 'profile_pictures/profile_', $file_name);
         $file_name          = str_replace('business_logo_', 'business_logos/logo_', $file_name);
+        $file_name          = str_replace('business_header_', 'business_header_images/header_', $file_name);
         // 2. CHECK SESSION FOR INTERNAL FOLDERS
 //        $file_name_sections = explode('/', $file_name);
 //        $internal_folders   = ['profile_pictures'];

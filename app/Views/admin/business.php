@@ -24,6 +24,7 @@
                                         <li><a href="#seo"><?= lang('Business.subtitle.mart-seo') ?></a></li>
                                         <li><a href="#decoration"><?= lang('Business.subtitle.mart-decoration') ?></a></li>
                                         <li><a href="#upload-your-logo"><?= lang('Business.upload-logo') ?></a></li>
+                                        <li><a href="#upload-your-header-img"><?= lang('Business.upload-header-img') ?></a></li>
                                         <li><a href="#clear-cache-header"><?= lang('Business.btn-clear-cache') ?></a></li>
                                         <li><a href="#contract"><?= lang('Business.contracts') ?></a></li>
                                     </ul>
@@ -175,10 +176,17 @@
                             }
                             ?>
                             <div class="row">
-                                <div class="col p-5 m-3" id="example-mart-background">
-                                    <img class="img img-thumbnail mb-3" id="example-mart-logo" src="<?= $logo_file ?>" alt="OtterNova" style="width:5em;" />
-                                    <h3 id="example-mart-primary"><?= lang('Business.marketplace') ?>: <?= $business['business_local_names'][$lang] ?></h3>
-                                    <p id="example-mart-text"><?= lang('Business.marketplace-example-text') ?></p>
+                                <div class="col m-3 px-0" id="example-mart-background">
+                                    <?php if (!empty($business['business_header'])) : ?>
+                                        <img class="img mb-3 w-100" id="example-mart-logo" src="<?= base_url('file/business_' . $business['business_header']) ?>" alt="<?= $business['business_local_names'][$lang] ?>" />
+                                    <?php endif; ?>
+                                    <div class="p-3">
+                                        <?php if (!empty($logo_file)) : ?>
+                                            <img class="img img-thumbnail mb-3" id="example-mart-logo" src="<?= $logo_file ?>" alt="<?= $business['business_local_names'][$lang] ?>" style="width:5em;" />
+                                        <?php endif; ?>
+                                        <h3 id="example-mart-primary"><?= lang('Business.marketplace') ?>: <?= $business['business_local_names'][$lang] ?></h3>
+                                        <p id="example-mart-text"><?= lang('Business.marketplace-example-text') ?></p>
+                                    </div>
                                 </div>
                             </div>
                             <div class="text-end">
@@ -194,6 +202,18 @@
                                     <button id="btn-upload-logo" type="submit" class="btn btn-primary"><?= lang('System.buttons.upload') ?></button>
                                     <button id="btn-remove-logo" type="button" class="btn btn-outline-danger"><?= lang('System.buttons.remove') ?></button>
                                     <button id="btn-remove-logo-confirm" type="button" class="btn btn-outline-danger" style="display:none"><?= lang('System.buttons.remove-confirm') ?></button>
+                                </div>
+                            </form>
+                            <!-- UPLOAD HEADER IMG -->
+                            <h3 class="mt-5 pt-5" id="upload-your-header-img"><?= lang('Business.upload-header-img') ?></h3>
+                            <form id="form-upload-header-img" action="<?= base_url('/admin/business') ?>" method="post" enctype="multipart/form-data">
+                                <input type="hidden" name="script_action" value="upload_header_img"/>
+                                <input type="file" id="header-img" name="header-img" class="form-control my-3"/>
+                                <p class="small"><?= lang('Business.upload-explanation-header') ?></p>
+                                <div class="text-end">
+                                    <button id="btn-upload-header-img" type="submit" class="btn btn-primary"><?= lang('System.buttons.upload') ?></button>
+                                    <button id="btn-remove-header-img" type="button" class="btn btn-outline-danger"><?= lang('System.buttons.remove') ?></button>
+                                    <button id="btn-remove-header-img-confirm" type="button" class="btn btn-outline-danger" style="display:none"><?= lang('System.buttons.remove-confirm') ?></button>
                                 </div>
                             </form>
                             <!-- CLEAR CACHE -->
@@ -502,6 +522,73 @@
                     }
                 });
             });
+            // HEADER IMG
+            $('#btn-upload-header-img').on('click', function (e) {
+                e.preventDefault();
+                // check if the file is selected
+                if ($('#header-img').val() === '') {
+                    toastr.warning('<?= lang('System.response-msg.error.please-check-empty-field') ?>');
+                    $('#header-img').focus();
+                    return;
+                }
+                $('#btn-upload-header-img').prop('disabled', true);
+                // submit #form-upload-avatar form in AJAX
+                $.ajax({
+                    url: '<?= base_url('/admin/business') ?>',
+                    type: 'POST',
+                    data: new FormData($('#form-upload-header-img')[0]),
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+                    success: function (response) {
+                        $('#btn-upload-header-img').prop('disabled', false);
+                        if (response.status === "<?= STATUS_RESPONSE_OK ?>") {
+                            toastr.success(response.message);
+                            setTimeout(function() { location.reload(); }, 3000);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        $('#btn-upload-header-img').prop('disabled', false);
+                        let response = JSON.parse(xhr.responseText);
+                        let message = response.message ?? '<?= lang('System.response-msg.error.generic') ?>';
+                        toastr.error(message);
+                    }
+                });
+            });
+            $('#btn-remove-header-img').on('click', function (e) {
+                e.preventDefault();
+                $('#btn-remove-header-img').hide();
+                $('#btn-remove-header-img-confirm').show();
+            });
+            $('#btn-remove-header-img-confirm').on('click', function (e) {
+                e.preventDefault();
+                $('#btn-remove-header-img-confirm').prop('disabled', true);
+                $.ajax({
+                    url: '<?= base_url('/admin/business') ?>',
+                    type: 'POST',
+                    data: {
+                        script_action: 'remove_header_img'
+                    },
+                    success: function (response) {
+                        $('#btn-remove-header-img-confirm').prop('disabled', false);
+                        if (response.status === "<?= STATUS_RESPONSE_OK ?>") {
+                            toastr.success(response.message);
+                            setTimeout(function() { location.reload(); }, 3000);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        $('#btn-remove-header-img-confirm').prop('disabled', false);
+                        let response = JSON.parse(xhr.responseText);
+                        let message = response.message ?? '<?= lang('System.response-msg.error.generic') ?>';
+                        toastr.error(message);
+                    }
+                });
+            });
+            // CACHE
             $('#btn-clear-cache').click(function (e) {
                 e.preventDefault();
                 $('#clear-cache-status').html('');
