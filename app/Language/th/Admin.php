@@ -10,6 +10,7 @@ return [
         'about'                          => 'เกี่ยวกับระบบ',
         'logout'                         => 'ออกจากระบบ',
         'order'                          => 'ออร์เดอร์',
+        'order-info'                     => 'รายละเอียดออร์เดอร์',
         'allocation'                     => 'ตารางเวลา',
         'allocation-staff'               => 'ตารางเวลาพนักงาน',
         'allocation-resource'            => 'ตารางเวลาทรัพยากร',

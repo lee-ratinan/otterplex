@@ -161,4 +161,16 @@ class OrderBookingItemModel extends AppBaseModel
             return $e->getMessage();
         }
     }
+
+    public function getBookingItemsByOrderId(int $orderId): array
+    {
+        return $this->select('order_booking_item.*, service_variant.variant_name AS main_variant_name, service_variant.variant_local_names, service_variant.service_id,
+            service_master.service_name AS main_service_name, service_master.service_local_names, service_master.service_slug,
+            session_master.short_description AS session_description')
+            ->join('service_variant', 'order_booking_item.service_variant_id = service_variant.id')
+            ->join('service_master', 'service_variant.service_id = service_master.id')
+            ->join('session_master', 'order_booking_item.session_id = session_master.id', 'left outer')
+            ->where('order_id', $orderId)
+            ->findAll();
+    }
 }

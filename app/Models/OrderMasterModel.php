@@ -34,6 +34,36 @@ class OrderMasterModel extends AppBaseModel
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
 
+    public function getStatusIcons(): array
+    {
+        return [
+            'shipping_option'  => [
+                'NOT_APPLICABLE'  => '<i class="fa-solid fa-circle-minus text-muted"></i> ',
+                'SELF_COLLECTION' => '<i class="fa-solid fa-hand-holding"></i> ',
+                'SHIPPING'        => '<i class="fa-solid fa-truck-fast"></i> '
+            ],
+            'order_status'     => [
+                'OPEN'     => '<i class="fa-solid fa-circle-dot text-success"></i> ',
+                'CLOSED'   => '<i class="fa-solid fa-circle-check text-muted"></i> ',
+                'CANCELED' => '<i class="fa-solid fa-circle-xmark text-danger"></i> '
+            ],
+            'financial_status' => [
+                'PENDING'            => '<i class="fa-solid fa-circle-dot text-muted"></i> ',
+                'PAID'               => '<i class="fa-solid fa-circle-check text-success"></i> ',
+                'PARTIALLY_PAID'     => '<i class="fa-solid fa-circle-minus text-warning"></i> ',
+                'REFUNDED'           => '<i class="fa-solid fa-circle-check text-muted"></i> ',
+                'PARTIALLY_REFUNDED' => '<i class="fa-solid fa-circle-minus text-muted"></i> '
+            ],
+            'shipping_status'  => [
+                'OPEN'           => '<i class="fa-solid fa-circle text-danger"></i> ',
+                'IN_PROGRESS'    => '<i class="fa-solid fa-circle-dot text-success"></i> ',
+                'SHIPPED'        => '<i class="fa-solid fa-circle-check text-success"></i> ',
+                'RETURNED'       => '<i class="fa-solid fa-circle-xmark text-danger"></i> ',
+                'NOT_APPLICABLE' => '<i class="fa-solid fa-circle-minus text-muted"></i> '
+            ],
+        ];
+    }
+
     public function applyFilters(string $search, string $shippingOption, string $paymentMethod, string $orderStatus, string $financialStatus, string $shippingStatus): void
     {
         if (!empty($search)) {
@@ -88,6 +118,7 @@ class OrderMasterModel extends AppBaseModel
             ->limit($length, $offset)
             ->findAll();
         $final      = [];
+        $statuses   = $this->getStatusIcons();
         foreach ($data as $row) {
             $paymentMethod = $row['payment_method'];
             if (in_array($paymentMethod, ['cash', 'bank_transfer', 'promptpay_static', 'external_online'])) {
@@ -97,11 +128,11 @@ class OrderMasterModel extends AppBaseModel
                 $row['order_number'],
                 $row['customer_name'],
                 format_price($row['order_total'], $currency),
-                lang('OrderMaster.enum.shipping_option.' . $row['shipping_option']),
+                $statuses['shipping_option'][$row['shipping_option']] . lang('OrderMaster.enum.shipping_option.' . $row['shipping_option']),
                 $paymentMethod,
-                lang('OrderMaster.enum.order_status.' . $row['order_status']),
-                lang('OrderMaster.enum.financial_status.' . $row['financial_status']),
-                lang('OrderMaster.enum.shipping_status.' . $row['shipping_status']),
+                $statuses['order_status'][$row['order_status']] . lang('OrderMaster.enum.order_status.' . $row['order_status']),
+                $statuses['financial_status'][$row['financial_status']] . lang('OrderMaster.enum.financial_status.' . $row['financial_status']),
+                $statuses['shipping_status'][$row['shipping_status']] . lang('OrderMaster.enum.shipping_status.' . $row['shipping_status']),
                 '<a class="btn btn-primary btn-sm float-end" href="' . base_url('admin/order/' . ($row['id'] * ID_MASKED_PRIME)) . '">' . lang('System.buttons.edit') . '</a>'
             ];
         }
@@ -115,7 +146,16 @@ class OrderMasterModel extends AppBaseModel
 
     public function getOrderInfo(int $orderId): array
     {
-        $orderInfo = $this->findRow($orderId);
+        $orderInfo = $this->select('order_master.*,
+            customer_master.customer_name, customer_master.email_address, customer_master.telephone_number,
+            customer_address.address_line_1, customer_address.address_line_2, customer_address.address_line_3,
+            customer_address.address_city, customer_address.country_code, customer_address.postal_code,
+            branch_master.branch_name, branch_master.branch_local_names')
+            ->join('customer_master', 'order_master.customer_id = customer_master.id', 'left outer')
+            ->join('customer_address', 'order_master.customer_address_id = customer_address.id', 'left outer')
+            ->join('branch_master', 'order_master.collection_branch_id = branch_master.id', 'left outer')
+            ->where('order_master.id', $orderId)
+            ->first();
         if (empty($orderInfo)) {
             return [];
         }
@@ -125,8 +165,8 @@ class OrderMasterModel extends AppBaseModel
         $lineAdjModel      = new OrderLineAdjustmentModel();
         $paymentModel      = new OrderPaymentModel();
         // Details
-        $orderInfo['line_items']    = $lineItemModel->where('order_id', $orderId)->findAll();
-        $orderInfo['booking_items'] = $orderBookingModel->where('order_id', $orderId)->findAll();
+        $orderInfo['line_items']    = $lineItemModel->getLineItemsByOrderId($orderId);
+        $orderInfo['booking_items'] = $orderBookingModel->getBookingItemsByOrderId($orderId);
         $orderInfo['adjustments']   = $lineAdjModel->where('order_id', $orderId)->findAll();
         $orderInfo['payments']      = $paymentModel->where('order_id', $orderId)->findAll();
         return $orderInfo;

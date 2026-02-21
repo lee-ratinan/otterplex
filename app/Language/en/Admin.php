@@ -10,6 +10,7 @@ return [
         'about'                          => 'About',
         'logout'                         => 'Logout',
         'order'                          => 'Order',
+        'order-info'                     => 'Order Detail',
         'allocation'                     => 'Allocation',
         'allocation-staff'               => 'Staff Allocation',
         'allocation-resource'            => 'Resource Allocation',

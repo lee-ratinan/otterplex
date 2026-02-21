@@ -53,7 +53,11 @@
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    <?php $totalMinutes = 0; ?>
+                                    <?php
+                                    $totalMinutes  = 0;
+                                    $lastTimeStart = '';
+                                    $lastTimeEnd   = '';
+                                    ?>
                                     <?php foreach ($sessions_list as $row) : ?>
                                         <?php
                                         $utcTz    = new \DateTimeZone('UTC');
@@ -65,6 +69,8 @@
                                         $totalMinutes += $minutes;
                                         $start->setTimezone($branchTz);
                                         $end->setTimezone($branchTz);
+                                        $lastTimeStart = $start->format('H:i');
+                                        $lastTimeEnd   = $end->format('H:i');
                                         ?>
                                         <tr>
                                             <td><?= format_date_time($start->format('Y-m-d H:i:s'), $lang) ?></td>
@@ -90,24 +96,24 @@
                                 <h3 class="mt-5 pt-5"><?= lang('Service.breakdown-list-add') ?></h3>
                                 <div class="row">
                                     <div class="col"><?= build_form_input('session_breakdown_date_start', lang('SessionBreakdown.field.date_start'), ['type' => 'date', 'min'  => date('Y-m-d')]); ?></div>
-                                    <div class="col"><?= build_form_input('session_breakdown_time_start', lang('SessionBreakdown.field.time_start'), ['type' => 'time']); ?></div>
+                                    <div class="col"><?= build_form_input('session_breakdown_time_start', lang('SessionBreakdown.field.time_start'), ['type' => 'time'], $lastTimeStart); ?></div>
                                 </div>
                                 <div class="row">
                                     <div class="col"><?= build_form_input('session_breakdown_date_end', lang('SessionBreakdown.field.date_end'), ['type' => 'date', 'min'  => date('Y-m-d')]); ?></div>
-                                    <div class="col"><?= build_form_input('session_breakdown_time_end', lang('SessionBreakdown.field.time_end'), ['type' => 'time']); ?></div>
+                                    <div class="col"><?= build_form_input('session_breakdown_time_end', lang('SessionBreakdown.field.time_end'), ['type' => 'time'], $lastTimeEnd); ?></div>
                                 </div>
                                 <?php
                                 if (!empty($resource_type)) {
                                     echo build_form_input('session_breakdown_resource_master_id', $resource_type, [
                                         'type' => 'select'
-                                    ], '', '', $resource_options);
+                                    ], $last_resource_id, '', $resource_options);
                                 } else {
                                     echo '<input type="hidden" id="session_breakdown_resource_master_id" name="session_breakdown_resource_master_id" value="0" />';
                                 }
                                 if (1 == $variant['required_num_staff']) {
                                     echo build_form_input('session_breakdown_staff_user_id', lang('Service.service-staff'), [
                                         'type' => 'select'
-                                    ], '', '', $staff_options);
+                                    ], $last_user_id, '', $staff_options);
                                 } else {
                                     echo '<input type="hidden" id="session_breakdown_staff_user_id" name="session_breakdown_staff_user_id" value="0" />';
                                 }

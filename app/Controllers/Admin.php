@@ -1776,14 +1776,24 @@ class Admin extends BaseController
     public function order_info(int $orderId): string
     {
         // anyone can see the order, no restrictions
+        $session     = session();
+        $business    = $session->business;
         $realId      = $orderId / ID_MASKED_PRIME;
         $orderModel  = new OrderMasterModel();
         $orderDetail = $orderModel->getOrderInfo($realId);
         $data        = [
-            'slug'         => 'order',
+            'slug'         => 'order-info',
             'lang'         => $this->request->getLocale(),
+            'breadcrumb'   => [
+                [
+                    'url'        => base_url('admin/order'),
+                    'page_title' => lang('Admin.pages.order'),
+                ]
+            ],
             'order_id'     => $realId,
             'order_detail' => $orderDetail,
+            'business'     => $business,
+            'statuses'     => $orderModel->getStatusIcons()
         ];
         return view('admin/order_info', $data);
     }
@@ -2393,6 +2403,8 @@ class Admin extends BaseController
         $branchTz            = '';
         $staffAllocations    = [];
         $resourceAllocations = [];
+        $lastUserId          = 0;
+        $lastResourceId      = 0;
         if (0 < $realSessionId) {
             $mode        = 'edit';
             $sessionData = $sessionModel->findRow($realSessionId);
@@ -2409,7 +2421,7 @@ class Admin extends BaseController
                 $resourceTypeRaw = $resourceTypeModel->where('id', $variant['required_resource_type_id'])->first();
                 $resourceTypes   = json_encode($resourceTypeRaw['resource_local_names'], true);
                 $resourceType    = $resourceTypes[$lang] ?? $resourceTypeRaw['resource_type'];
-                $resourcesRaw    = $resourceModel->where('resource_type_id', $variant['required_resource_type_id'])->findAll();
+                $resourcesRaw    = $resourceModel->where('branch_id', $sessionData['branch_id'])->where('resource_type_id', $variant['required_resource_type_id'])->findAll();
                 $resourceOptions = [];
                 foreach ($resourcesRaw as $row) {
                     $resourceOptions[$row['id']] = $row['resource_name'];
@@ -2430,9 +2442,11 @@ class Admin extends BaseController
                     ->whereIn('session_breakdown_id', $sessionBreakdownIds)->findAll();
                 foreach ($staffAllocationRaw as $row) {
                     $staffAllocations[$row['session_breakdown_id']] = $row['user_name_first'] . ' ' . $row['user_name_last'];
+                    $lastUserId                                     = $row['user_id'];
                 }
                 foreach ($resourceAllocationRaw as $row) {
                     $resourceAllocations[$row['session_breakdown_id']] = $row['resource_name'];
+                    $lastResourceId                                    = $row['resource_id'];
                 }
             }
             // tz
@@ -2472,7 +2486,9 @@ class Admin extends BaseController
             'staff_options'        => $staffOptions,
             'staff_allocations'    => $staffAllocations,
             'resource_allocations' => $resourceAllocations,
-            'url_ids'              => $serviceId . '/' . $serviceVariantId
+            'url_ids'              => $serviceId . '/' . $serviceVariantId,
+            'last_user_id'         => $lastUserId,
+            'last_resource_id'     => $lastResourceId,
         ];
         return view('admin/service_variant_session_manage', $data);
     }

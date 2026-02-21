@@ -69,4 +69,14 @@ class OrderLineItemModel extends AppBaseModel
         $inventoryModel->insert($inventoryLine);
         return '';
     }
+
+    public function getLineItemsByOrderId(int $orderId): array
+    {
+        return $this->select('order_line_item.*, product_variant.variant_name AS main_variant_name, product_variant.variant_local_names, product_variant.variant_sku, product_variant.product_id,
+            product_master.product_name AS main_product_name, product_master.product_local_names, product_master.product_slug')
+            ->join('product_variant', 'order_line_item.product_variant_id = product_variant.id')
+            ->join('product_master', 'product_variant.product_id = product_master.id')
+            ->where('order_id', $orderId)
+            ->findAll();
+    }
 }
