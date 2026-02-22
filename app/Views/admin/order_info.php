@@ -10,7 +10,7 @@
                             <h2><?= $order_detail['order_number'] ?></h2>
                             <hr />
                             <div class="row">
-                                <div class="col col-lg-8">
+                                <div class="col-12 col-lg-8">
                                     <h3><?= lang('Order.line-items') ?></h3>
                                     <?php foreach($order_detail['line_items'] as $row) : ?>
                                         <div class="row">
@@ -60,8 +60,53 @@
                                         <div class="col-8 col-lg-9 col-xl-10 text-end"><b><?= lang('Order.financial') ?></b></div>
                                         <div class="col-4 col-lg-3 col-xl-2 text-end"><?= format_price($order_detail['order_total'], $business['currency_code']) ?></div>
                                     </div>
+                                    <hr />
+                                    <h3><?= lang('Order.payment-history') ?></h3>
+                                    <?php if (empty($order_detail['payments'])):  ?>
+                                        <p class="alert bg-warning"><?= lang('Order.payment-not-found') ?></p>
+                                    <?php else: ?>
+                                        <?php foreach ($order_detail['payments'] as $row) : ?>
+                                            <div class="row">
+                                                <div class="col-6 col-md-4">
+                                                    <i class="fa-regular fa-clock"></i> <span class="utc-to-local"><?= date('Y-m-d\TH:i:s', strtotime($row['created_at'])) . '+00:00' ?></span><br>
+                                                    <?= $payment_statuses['payment_status'][$row['payment_status']] ?> <?= lang('OrderPayment.enum.payment_status.' . $row['payment_status']) ?>
+                                                </div>
+                                                <div class="col-6 col-md-4 col-lg-5 col-xl-6">
+                                                    <?= lang('BusinessPaymentMethod.enum.payment_method.' . $row['payment_method']) ?>
+                                                    <?= (empty($row['payment_notes']) ? '' : '<br>' . lang('OrderPayment.field.payment_notes') . ': ' . $row['payment_notes']) ?>
+                                                    <?= (empty($row['staff_comment']) ? '' : '<br>' . lang('OrderPayment.field.staff_comment') . ': ' . $row['staff_comment']) ?>
+                                                </div>
+                                                <div class="col-12 col-md-4 col-lg-3 col-xl-2 text-end"><?= format_price($row['amount_paid'], $business['currency_code'])?></div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col"><hr /></div>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
+                                    <h4><?= lang('Order.add-payment') ?></h4>
+                                    <hr />
+                                    <h3><?= lang('Order.history') ?></h3>
+                                    <?php if (empty($order_detail['history'])) : ?>
+                                        <p class="alert bg-warning"><?= lang('Order.history-not-found') ?></p>
+                                    <?php else: ?>
+                                        <?php foreach ($order_detail['history'] as $row) : ?>
+                                            <div class="row">
+                                                <div class="col-12 col-md-4 col-lg-3">
+                                                    <i class="fa-regular fa-clock"></i> <span class="utc-to-local"><?= date('Y-m-d\TH:i:s', strtotime($row['created_at'])) . '+00:00' ?></span>
+                                                </div>
+                                                <div class="col-12 col-md-8 col-lg-9">
+                                                    <?php if ('TEXT' == $row['comment_type']) : ?>
+                                                        <?= $row['comment_value'] ?>
+                                                    <?php else : ?>
+                                                        <?= lang('OrderComment.enum.comment_code.' . $row['comment_code']) ?> : <?= $row['comment_value'] ?>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </div>
+                                        <?php endforeach ?>
+                                    <?php endif; ?>
+                                    <h4><?= lang('Order.add-comment') ?></h4>
                                 </div>
-                                <div class="col col-lg-4">
+                                <div class="col-12 col-lg-4">
                                     <h3><?= lang('Order.statuses') ?></h3>
                                     <div class="row">
                                         <div class="col-6 text-end"><?= lang('OrderMaster.field.order_status') ?></div>
@@ -79,13 +124,10 @@
                                         <div class="col-6 text-end"><?= lang('Order.financial') ?></div>
                                         <div class="col-6"><?= format_price($order_detail['order_total'], $business['currency_code']) ?></div>
                                     </div>
-                                    <hr />
-                                    <h3><?= lang('Order.payment-history') ?></h3>
                                     <div class="row">
                                         <div class="col-6 text-end"><?= lang('OrderMaster.field.payment_method') ?></div>
                                         <div class="col-6"><?= lang('BusinessPaymentMethod.enum.payment_method.' . $order_detail['payment_method']) ?></div>
                                     </div>
-                                    <pre><?php print_r($order_detail['payments']) ?></pre>
                                     <hr />
                                     <h3><?= lang('Order.shipping-detail') ?></h3>
                                     <div class="row">
@@ -112,10 +154,10 @@
                                     <hr />
                                     <h3><?= lang('Order.customer-detail') ?></h3>
                                     <?php foreach (['customer_name', 'email_address', 'telephone_number'] as $key) : ?>
-                                        <div class="row">
-                                            <div class="col-6 text-end"><?= lang('CustomerMaster.field.' . $key) ?></div>
-                                            <div class="col-6"><?= $order_detail[$key] ?></div>
-                                        </div>
+                                        <p>
+                                            <i class="fa-solid fa-caret-right"></i> <?= lang('CustomerMaster.field.' . $key) ?>:<br>
+                                            <?= $order_detail[$key] ?>
+                                        </p>
                                     <?php endforeach; ?>
                                     <hr />
                                     <h3><?= lang('Order.comment') ?></h3>
@@ -128,7 +170,6 @@
                                         <?= (empty($order_detail['staff_comment']) ? '-' : $order_detail['staff_comment']) ?>
                                     </p>
                                 </div>
-                                <pre><?php print_r($order_detail) ?></pre>
                             </div>
                         </div>
                     </div>

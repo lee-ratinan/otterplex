@@ -24,4 +24,15 @@ class OrderPaymentModel extends AppBaseModel
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
+
+    public function getStatusIcons(): array
+    {
+        return [
+            'payment_status' => [
+                'COMPLETE' => '<i class="fa-solid fa-circle-check text-success"></i>',
+                'FAIL'     => '<i class="fa-solid fa-circle-xmark text-danger"></i>',
+                'PENDING'  => '<i class="fa-solid fa-circle-pause text-warning"></i>',
+            ]
+        ];
+    }
 }

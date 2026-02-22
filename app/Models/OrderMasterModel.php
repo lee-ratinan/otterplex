@@ -164,11 +164,13 @@ class OrderMasterModel extends AppBaseModel
         $orderBookingModel = new OrderBookingItemModel();
         $lineAdjModel      = new OrderLineAdjustmentModel();
         $paymentModel      = new OrderPaymentModel();
+        $commentModel      = new OrderCommentModel();
         // Details
         $orderInfo['line_items']    = $lineItemModel->getLineItemsByOrderId($orderId);
         $orderInfo['booking_items'] = $orderBookingModel->getBookingItemsByOrderId($orderId);
         $orderInfo['adjustments']   = $lineAdjModel->where('order_id', $orderId)->findAll();
         $orderInfo['payments']      = $paymentModel->where('order_id', $orderId)->findAll();
+        $orderInfo['history']       = $commentModel->where('order_id', $orderId)->findAll();
         return $orderInfo;
     }
 }

@@ -17,6 +17,7 @@ use App\Models\BusinessShippingFeeModel;
 use App\Models\BusinessTypeModel;
 use App\Models\BusinessUserModel;
 use App\Models\OrderMasterModel;
+use App\Models\OrderPaymentModel;
 use App\Models\OtternautPackageModel;
 use App\Models\ProductCategoryModel;
 use App\Models\ProductMasterModel;
@@ -1776,24 +1777,26 @@ class Admin extends BaseController
     public function order_info(int $orderId): string
     {
         // anyone can see the order, no restrictions
-        $session     = session();
-        $business    = $session->business;
-        $realId      = $orderId / ID_MASKED_PRIME;
-        $orderModel  = new OrderMasterModel();
-        $orderDetail = $orderModel->getOrderInfo($realId);
-        $data        = [
-            'slug'         => 'order-info',
-            'lang'         => $this->request->getLocale(),
-            'breadcrumb'   => [
+        $session           = session();
+        $business          = $session->business;
+        $realId            = $orderId / ID_MASKED_PRIME;
+        $orderModel        = new OrderMasterModel();
+        $orderPaymentModel = new OrderPaymentModel();
+        $orderDetail       = $orderModel->getOrderInfo($realId);
+        $data              = [
+            'slug'             => 'order-info',
+            'lang'             => $this->request->getLocale(),
+            'breadcrumb'       => [
                 [
                     'url'        => base_url('admin/order'),
                     'page_title' => lang('Admin.pages.order'),
                 ]
             ],
-            'order_id'     => $realId,
-            'order_detail' => $orderDetail,
-            'business'     => $business,
-            'statuses'     => $orderModel->getStatusIcons()
+            'order_id'         => $realId,
+            'order_detail'     => $orderDetail,
+            'business'         => $business,
+            'statuses'         => $orderModel->getStatusIcons(),
+            'payment_statuses' => $orderPaymentModel->getStatusIcons()
         ];
         return view('admin/order_info', $data);
     }
