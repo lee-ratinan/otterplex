@@ -15,7 +15,7 @@ return [
     'upload-explanation'        => 'The system only accepts <code>png</code> and <code>jpg</code> files under 600kb. If the file is larger than 500px (width), 500px (height), it will be cropped accordingly.',
     'business-header'           => 'Business Header Banner',
     'upload-header-img'         => 'Upload Your Business Header Banner',
-    'upload-explanation-header' => 'The system only accepts <code>png</code> and <code>jpg</code> files under 800kb. If the file is larger than 1200px (width), 800px (height), it will be cropped accordingly.',
+    'upload-explanation-header' => 'The system only accepts <code>png</code> and <code>jpg</code> files under 1000kb. If the file is larger than 1200px (width), 800px (height), it will be cropped accordingly.',
     'marketplace'               => 'Marketplace',
     'marketplace-example-text'  => 'This is the example of the text to be shown on your marketplace website.',
     'clear-cache'               => 'Your change will be reflected on the marketplace within an hour. If you would like to update it now, please click the following button',

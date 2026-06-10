@@ -489,7 +489,7 @@ class Admin extends BaseController
                         'rules' => [
                             'uploaded[logo]',
                             'is_image[logo]',
-                            'mime_in[logo,image/jpg,image/jpeg,image/png]',
+                            'mime_in[header-img,image/jpg,image/jpeg,image/png,image/webp]',
                             'max_size[logo,600]',
                             'max_dims[logo,500,500]',
                         ],
@@ -509,11 +509,20 @@ class Admin extends BaseController
                 $img                  = $this->request->getFile('logo');
                 list($width, $height) = getimagesize($img->getPathname());
                 $file_type            = $img->getClientMimeType();
-                $file_name            = 'logo_' . $business_slug . '.jpg';
-                if ($file_type === 'image/png') {
-                    $source = imagecreatefrompng($img->getPathname());
-                } else {
-                    $source = imagecreatefromjpeg($img->getPathname());
+                $file_name            = 'logo_' . $business_slug . '.webp';
+                switch ($file_type) {
+                    case 'image/png':
+                        $source = imagecreatefrompng($img->getPathname());
+                        break;
+                    case 'image/webp':
+                        $source = imagecreatefromwebp($img->getPathname());
+                        break;
+                    case 'image/jpeg':
+                    case 'image/jpg':
+                        $source = imagecreatefromjpeg($img->getPathname());
+                        break;
+                    default:
+                        throw new \RuntimeException('Unsupported image type');
                 }
                 // --- Target dimensions ---
                 $targetW     = 500;
@@ -537,8 +546,10 @@ class Admin extends BaseController
                 $cropX = intval(($scaledW - $targetW) / 2);
                 $cropY = intval(($scaledH - $targetH) / 2);
                 $final = imagecreatetruecolor($targetW, $targetH);
+                $white = imagecolorallocate($final, 255, 255, 255);
+                imagefill($final, 0, 0, $white);
                 imagecopyresampled($final, $scaled, 0, 0, $cropX, $cropY, $targetW, $targetH, $targetW, $targetH);
-                imagejpeg($final, WRITEPATH . 'uploads/business_logos/' . $file_name, 90);
+                imagewebp($final, WRITEPATH . 'uploads/business_logos/' . $file_name, 90);
                 // Update database & session
                 $session->set('business_logo', base_url('file/business_' . $file_name));
                 $businessMasterModel->update($businessId, ['business_logo' => $file_name]);
@@ -575,9 +586,9 @@ class Admin extends BaseController
                         'rules' => [
                             'uploaded[header-img]',
                             'is_image[header-img]',
-                            'mime_in[header-img,image/jpg,image/jpeg,image/png]',
-                            'max_size[header-img,800]',
-                            'max_dims[header-img,1200,800]',
+                            'mime_in[header-img,image/jpg,image/jpeg,image/png,image/webp]',
+                            'max_size[header-img,1000]',
+                            'max_dims[header-img,2400,1600]',
                         ],
                     ],
                 ];
@@ -595,11 +606,20 @@ class Admin extends BaseController
                 $img                  = $this->request->getFile('header-img');
                 list($width, $height) = getimagesize($img->getPathname());
                 $file_type            = $img->getClientMimeType();
-                $file_name            = 'header_' . $business_slug . '.jpg';
-                if ($file_type === 'image/png') {
-                    $source = imagecreatefrompng($img->getPathname());
-                } else {
-                    $source = imagecreatefromjpeg($img->getPathname());
+                $file_name            = 'header_' . $business_slug . '.webp';
+                switch ($file_type) {
+                    case 'image/png':
+                        $source = imagecreatefrompng($img->getPathname());
+                        break;
+                    case 'image/webp':
+                        $source = imagecreatefromwebp($img->getPathname());
+                        break;
+                    case 'image/jpeg':
+                    case 'image/jpg':
+                        $source = imagecreatefromjpeg($img->getPathname());
+                        break;
+                    default:
+                        throw new \RuntimeException('Unsupported image type');
                 }
                 // --- Target dimensions ---
                 $targetW     = 1200;
@@ -623,8 +643,10 @@ class Admin extends BaseController
                 $cropX = intval(($scaledW - $targetW) / 2);
                 $cropY = intval(($scaledH - $targetH) / 2);
                 $final = imagecreatetruecolor($targetW, $targetH);
+                $white = imagecolorallocate($final, 255, 255, 255);
+                imagefill($final, 0, 0, $white);
                 imagecopyresampled($final, $scaled, 0, 0, $cropX, $cropY, $targetW, $targetH, $targetW, $targetH);
-                imagejpeg($final, WRITEPATH . 'uploads/business_header_images/' . $file_name, 90);
+                imagewebp($final, WRITEPATH . 'uploads/business_header_images/' . $file_name, 90);
                 // Update database & session
                 $session->set('business_header', base_url('file/business_' . $file_name));
                 $businessMasterModel->update($businessId, ['business_header' => $file_name]);
