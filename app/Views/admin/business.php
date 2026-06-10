@@ -6,9 +6,9 @@
             <div class="card">
                 <div class="card-body p-3">
                     <h2><?= lang('Business.title', [$business['business_local_names'][$lang] ?? $business['business_name']]) ?></h2>
-                    <pre>
-                        <?php var_dump(gd_info()); ?>
-                    </pre>
+<!--                    <pre>-->
+<!--                        --><?php //var_dump(gd_info()); ?>
+<!--                    </pre>-->
                     <div class="row">
                         <div class="col-12 col-lg-6">
                             <p>
