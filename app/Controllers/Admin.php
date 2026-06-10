@@ -491,7 +491,7 @@ class Admin extends BaseController
                             'is_image[logo]',
                             'mime_in[logo,image/jpg,image/jpeg,image/png]',
                             'max_size[logo,600]',
-                            'max_dims[logo,1280,960]',
+                            'max_dims[logo,500,500]',
                         ],
                     ],
                 ];
@@ -516,12 +516,12 @@ class Admin extends BaseController
                     $source = imagecreatefromjpeg($img->getPathname());
                 }
                 // --- Target dimensions ---
-                $targetW     = 1280;
-                $targetH     = 960;
+                $targetW     = 500;
+                $targetH     = 500;
                 $targetRatio = $targetW / $targetH;
                 // --- Step 1: scale the image proportionally so that it is >= target size ---
                 $srcRatio    = $width / $height;
-                // If image is wider relative to height → height is limiting
+                // If the image is wider relative to height → height is limiting
                 if ($srcRatio > $targetRatio) {
                     // Height determines scale
                     $scaledH = $targetH;
@@ -577,7 +577,7 @@ class Admin extends BaseController
                             'is_image[header-img]',
                             'mime_in[header-img,image/jpg,image/jpeg,image/png]',
                             'max_size[header-img,800]',
-                            'max_dims[header-img,1800,900]',
+                            'max_dims[header-img,1200,800]',
                         ],
                     ],
                 ];
@@ -602,12 +602,12 @@ class Admin extends BaseController
                     $source = imagecreatefromjpeg($img->getPathname());
                 }
                 // --- Target dimensions ---
-                $targetW     = 1800;
-                $targetH     = 900;
+                $targetW     = 1200;
+                $targetH     = 800;
                 $targetRatio = $targetW / $targetH;
                 // --- Step 1: scale the image proportionally so that it is >= target size ---
                 $srcRatio    = $width / $height;
-                // If image is wider relative to height → height is limiting
+                // If the image is wider relative to height → height is limiting
                 if ($srcRatio > $targetRatio) {
                     // Height determines scale
                     $scaledH = $targetH;
