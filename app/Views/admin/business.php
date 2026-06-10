@@ -19,8 +19,8 @@
                                         <li><a href="#generic-information"><?= lang('Business.subtitle.generic-information') ?></a></li>
                                         <li><a href="#tax-information"><?= lang('Business.subtitle.tax-information') ?></a></li>
                                         <li><a href="#contact"><?= lang('BusinessMaster.field.contact') ?></a></li>
-                                        <li><a href="#shipping"><?= lang('BusinessMaster.field.shipping') ?></a></li>
                                         <li><a href="#social-media"><?= lang('BusinessMaster.field.social_media') ?></a></li>
+                                        <li><a href="#shipping"><?= lang('BusinessMaster.field.shipping') ?></a></li>
                                         <li><a href="#seo"><?= lang('Business.subtitle.mart-seo') ?></a></li>
                                         <li><a href="#decoration"><?= lang('Business.subtitle.mart-decoration') ?></a></li>
                                         <li><a href="#upload-your-logo"><?= lang('Business.upload-logo') ?></a></li>
@@ -112,6 +112,18 @@
                             <div class="text-end">
                                 <button class="btn btn-primary" id="btn-save-3"><?= lang('System.buttons.save') ?></button>
                             </div>
+                            <h3 class="mt-5 pt-5" id="social-media"><?= lang('BusinessMaster.field.social_media') ?></h3>
+                            <?php
+                            $social_medias = get_social_media();
+                            foreach ($social_medias as $code => $social_name) {
+                                echo build_form_input('social_media_' . $code, $social_name, [
+                                    'type' => 'url',
+                                ], @$business['social_media'][$code]);
+                            }
+                            ?>
+                            <div class="text-end">
+                                <button class="btn btn-primary" id="btn-save-4"><?= lang('System.buttons.save') ?></button>
+                            </div>
                             <h3 class="mt-5 pt-5" id="shipping"><?= lang('BusinessMaster.field.shipping') ?></h3>
                             <?php
                             echo build_form_input('shipping_options', lang('BusinessMaster.field.shipping_options'), [
@@ -130,18 +142,6 @@
                             ?>
                             <div class="text-end">
                                 <button class="btn btn-primary" id="btn-save-3"><?= lang('System.buttons.save') ?></button>
-                            </div>
-                            <h3 class="mt-5 pt-5" id="social-media"><?= lang('BusinessMaster.field.social_media') ?></h3>
-                            <?php
-                            $social_medias = get_social_media();
-                            foreach ($social_medias as $code => $social_name) {
-                                echo build_form_input('social_media_' . $code, $social_name, [
-                                    'type' => 'url',
-                                ], @$business['social_media'][$code]);
-                            }
-                            ?>
-                            <div class="text-end">
-                                <button class="btn btn-primary" id="btn-save-4"><?= lang('System.buttons.save') ?></button>
                             </div>
                             <h3 class="mt-5 pt-5" id="seo"><?= lang('Business.subtitle.mart-seo') ?></h3>
                             <?php
@@ -175,20 +175,6 @@
                                 ], @$business['mart_store_intro_paragraph'][$lang_code]);
                             }
                             ?>
-                            <div class="row">
-                                <div class="col m-3 px-0" id="example-mart-background">
-                                    <?php if (!empty($business['business_header'])) : ?>
-                                        <img class="img mb-3 w-100" id="example-mart-logo" src="<?= base_url('file/business_' . $business['business_header']) ?>" alt="<?= $business['business_local_names'][$lang] ?>" />
-                                    <?php endif; ?>
-                                    <div class="p-3">
-                                        <?php if (!empty($logo_file)) : ?>
-                                            <img class="img img-thumbnail mb-3" id="example-mart-logo" src="<?= $logo_file ?>" alt="<?= $business['business_local_names'][$lang] ?>" style="width:5em;" />
-                                        <?php endif; ?>
-                                        <h3 id="example-mart-primary"><?= lang('Business.marketplace') ?>: <?= $business['business_local_names'][$lang] ?></h3>
-                                        <p id="example-mart-text"><?= lang('Business.marketplace-example-text') ?></p>
-                                    </div>
-                                </div>
-                            </div>
                             <div class="text-end">
                                 <button class="btn btn-primary" id="btn-save-6"><?= lang('System.buttons.save') ?></button>
                             </div>
@@ -216,6 +202,20 @@
                                     <button id="btn-remove-header-img-confirm" type="button" class="btn btn-outline-danger" style="display:none"><?= lang('System.buttons.remove-confirm') ?></button>
                                 </div>
                             </form>
+                            <div class="row">
+                                <div class="col m-3 px-0" id="example-mart-background">
+                                    <?php if (!empty($business['business_header'])) : ?>
+                                        <img class="img mb-3 w-100" id="example-mart-logo" src="<?= base_url('file/business_' . $business['business_header']) ?>" alt="<?= $business['business_local_names'][$lang] ?>" />
+                                    <?php endif; ?>
+                                    <div class="p-3">
+                                        <?php if (!empty($logo_file)) : ?>
+                                            <img class="img img-thumbnail mb-3" id="example-mart-logo" src="<?= $logo_file ?>" alt="<?= $business['business_local_names'][$lang] ?>" style="width:5em;" />
+                                        <?php endif; ?>
+                                        <h3 id="example-mart-primary"><?= lang('Business.marketplace') ?>: <?= $business['business_local_names'][$lang] ?></h3>
+                                        <p id="example-mart-text"><?= lang('Business.marketplace-example-text') ?></p>
+                                    </div>
+                                </div>
+                            </div>
                             <!-- CLEAR CACHE -->
                             <h3 class="mt-5 pt-5" id="clear-cache-header"><?= lang('Business.btn-clear-cache') ?></h3>
                             <p class="mt-3"><?= lang('Business.clear-cache') ?></p>
