@@ -126,7 +126,7 @@ class Home extends BaseController
             $logModel->insertLogin($logData);
             // Successful login: regenerate session ID to prevent fixation
             $businesses      = $businessModel->getBusinessesByUserId($user['id'], true);
-            log_message('debug', '[SYSTEM] ' . json_encode($businesses));
+            log_message('debug', '[CHECK USER BIZ] [USER: ' . $user['id'] . '] ' . json_encode($businesses));
             $businessIds     = [];
             $currentBusiness = [];
             if (!empty($businesses)) {
@@ -140,7 +140,14 @@ class Home extends BaseController
                     $currentBusiness = $businesses[0];
                 }
             }
+            log_message('debug', '[CHECK USER CURRENT BIZ] [USER: ' . $user['id'] . '] ' . json_encode($currentBusiness));
             $businessLogo = '';
+            if (empty($currentBusiness)) {
+                return $this->response->setJSON([
+                    'status'   => STATUS_RESPONSE_ERR,
+                    'message' => lang('System.response-msg.error.generic') . ' [NO_BIZ]'
+                ]);
+            }
             if (!empty($currentBusiness['business_logo'])) {
                 $businessLogo = base_url('file/business_' . $currentBusiness['business_logo']);
             }
