@@ -206,7 +206,7 @@ class Api extends BaseController
         $hoursModel   = new BranchOpeningHoursModel();
         $mhModel      = new BranchModifiedHoursModel();
         $yesterday    = date('Y-m-d', strtotime('yesterday'));
-        if (empty($bIds)) {
+        if (!empty($bIds)) {
             $hoursRaw = $hoursModel->whereIn('branch_id', $bIds)->findAll();
             $modifiedRaw = $mhModel->whereIn('branch_id', $bIds)->where('modified_hours_date >=', $yesterday)->findAll();
             foreach ($hoursRaw as $row) {
