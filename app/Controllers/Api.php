@@ -123,6 +123,7 @@ class Api extends BaseController
             $paragraph   = $paragraphs[$languageCode] ?? '';
             $results[]   = [
                 'link'           => getenv('marketplace_site') . '@' . $row['business_slug'],
+                'slug'           => $row['business_slug'],
                 'businessType'   => $type,
                 'name'           => $name,
                 'introParagraph' => $paragraph,
