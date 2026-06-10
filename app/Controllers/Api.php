@@ -206,26 +206,28 @@ class Api extends BaseController
         $hoursModel   = new BranchOpeningHoursModel();
         $mhModel      = new BranchModifiedHoursModel();
         $yesterday    = date('Y-m-d', strtotime('yesterday'));
-        $hoursRaw     = $hoursModel->whereIn('branch_id', $bIds)->findAll();
-        $modifiedRaw  = $mhModel->whereIn('branch_id', $bIds)->where('modified_hours_date >=', $yesterday)->findAll();
-        foreach ($hoursRaw as $row) {
-            $branches[$row['branch_id']]['hours'][$row['day_of_the_week']] = [
-                'opening_hours' => $row['opening_hours'],
-                'closing_hours' => $row['closing_hours'],
-            ];
-        }
-        foreach ($modifiedRaw as $row) {
-            $open  = null;
-            $close = null;
-            if ('CLOSED' != $row['modified_type']) {
-                $open  = $row['updated_opening_hours'];
-                $close = $row['updated_closing_hours'];
+        if (empty($bIds)) {
+            $hoursRaw = $hoursModel->whereIn('branch_id', $bIds)->findAll();
+            $modifiedRaw = $mhModel->whereIn('branch_id', $bIds)->where('modified_hours_date >=', $yesterday)->findAll();
+            foreach ($hoursRaw as $row) {
+                $branches[$row['branch_id']]['hours'][$row['day_of_the_week']] = [
+                    'opening_hours' => $row['opening_hours'],
+                    'closing_hours' => $row['closing_hours'],
+                ];
             }
-            $branches[$row['branch_id']]['modified_hours'][] = [
-                'date'          => $row['modified_hours_date'],
-                'opening_hours' => $open,
-                'closing_hours' => $close,
-            ];
+            foreach ($modifiedRaw as $row) {
+                $open = null;
+                $close = null;
+                if ('CLOSED' != $row['modified_type']) {
+                    $open = $row['updated_opening_hours'];
+                    $close = $row['updated_closing_hours'];
+                }
+                $branches[$row['branch_id']]['modified_hours'][] = [
+                    'date'          => $row['modified_hours_date'],
+                    'opening_hours' => $open,
+                    'closing_hours' => $close,
+                ];
+            }
         }
         $business['branches'] = $branches;
         // SERVICES
