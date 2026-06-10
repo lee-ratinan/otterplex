@@ -85,32 +85,48 @@ class Api extends BaseController
     public function business_search(string $languageCode, string $countryCode): ResponseInterface
     {
         $query         = $this->request->getGet('query');
+        $mode          = $this->request->getGet('mode') ?? 'search';
+        $limit         = $this->request->getGet('limit') ?? 10;
         $businessModel = new BusinessMasterModel();
         $countryCode   = strtolower($countryCode);
         $languageCode  = strtolower($languageCode);
-        $rawResults    = $businessModel
-            ->select('business_master.*, business_type.type_name, business_type.type_local_names')
-            ->join('business_type', 'business_type.id = business_master.business_type_id')
-            ->where('country_code', $countryCode)
-            ->where('live_status', 'Y')
-            ->groupStart()
-            ->like('business_name', $query)
-            ->orLike('business_local_names', $query)
-            ->groupEnd()
-            ->orderBy('business_name')
-            ->limit(10)
-            ->findAll();
+        $rawResults    = [];
+        if ('search' == $mode) {
+            $rawResults = $businessModel
+                ->select('business_master.*, business_type.type_name, business_type.type_local_names')
+                ->join('business_type', 'business_type.id = business_master.business_type_id')
+                ->where('country_code', $countryCode)
+                ->where('live_status', 'Y')
+                ->groupStart()
+                ->like('business_name', $query)
+                ->orLike('business_local_names', $query)
+                ->groupEnd()
+                ->orderBy('business_name')
+                ->limit($limit)
+                ->findAll();
+        } else if ('random' == $mode) {
+            $rawResults   = $businessModel
+                ->select('business_master.*, business_type.type_name, business_type.type_local_names')
+                ->join('business_type', 'business_type.id = business_master.business_type_id')
+                ->where('country_code', $countryCode)
+                ->where('live_status', 'Y')
+                ->orderBy('RAND()')
+                ->findAll($limit);
+        }
         $results       = [];
         foreach ($rawResults as $row) {
             $local_names = json_decode($row['business_local_names'], true);
             $name        = $local_names[$languageCode] ?? $row['business_name'];
             $types       = json_decode($row['type_local_names'], true);
             $type        = $types[$languageCode] ?? $row['business_type'];
+            $paragraphs  = json_decode($row['mart_store_intro_paragraph'], true);
+            $paragraph   = $paragraphs[$languageCode] ?? '';
             $results[]   = [
-                'link'         => getenv('marketplace_site') . '@' . $row['business_slug'],
-                'businessType' => $type,
-                'name'         => $name,
-                'businessLogo' => (!empty($row['business_logo']) ? base_url('/file/business_' . $row['business_logo']) : '')
+                'link'           => getenv('marketplace_site') . '@' . $row['business_slug'],
+                'businessType'   => $type,
+                'name'           => $name,
+                'introParagraph' => $paragraph,
+                'businessLogo'   => (!empty($row['business_logo']) ? base_url('/file/business_' . $row['business_logo']) : '')
             ];
         }
         return $this->response->setJSON([
