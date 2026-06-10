@@ -165,10 +165,10 @@
                                         <i class="fa-solid fa-caret-right"></i> <?= lang('OrderMaster.field.customer_comment') ?>:<br>
                                         <?= (empty($order_detail['customer_comment']) ? '-' : $order_detail['customer_comment']) ?>
                                     </p>
-                                    <p>
-                                        <i class="fa-solid fa-caret-right"></i> <?= lang('OrderMaster.field.staff_comment') ?>:<br>
-                                        <?= (empty($order_detail['staff_comment']) ? '-' : $order_detail['staff_comment']) ?>
-                                    </p>
+<!--                                    <p> JUST DON'T USE STAFF_COMMENT ANYMORE, USE THE COMMENT TABLE -->
+<!--                                        <i class="fa-solid fa-caret-right"></i> --><?php //= lang('OrderMaster.field.staff_comment') ?><!--:<br>-->
+<!--                                        --><?php //= (empty($order_detail['staff_comment']) ? '-' : $order_detail['staff_comment']) ?>
+<!--                                    </p>-->
                                 </div>
                             </div>
                         </div>
