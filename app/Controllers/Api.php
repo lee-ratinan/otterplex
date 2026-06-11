@@ -115,11 +115,11 @@ class Api extends BaseController
         }
         $results       = [];
         foreach ($rawResults as $row) {
-            $local_names = json_decode($row['business_local_names'], true);
+            $local_names = ($row['business_local_names'] ? json_decode($row['business_local_names'], true) : '');
             $name        = $local_names[$languageCode] ?? $row['business_name'];
-            $types       = json_decode($row['type_local_names'], true);
+            $types       = ($row['type_local_names'] ? json_decode($row['type_local_names'], true) : '');
             $type        = $types[$languageCode] ?? $row['business_type'];
-            $paragraphs  = json_decode($row['mart_store_intro_paragraph'], true);
+            $paragraphs  = ($row['mart_store_intro_paragraph'] ? json_decode($row['mart_store_intro_paragraph'], true) : '');
             $paragraph   = $paragraphs[$languageCode] ?? '';
             $results[]   = [
                 'link'           => getenv('marketplace_site') . '@' . $row['business_slug'],

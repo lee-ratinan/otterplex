@@ -31,6 +31,7 @@ use App\Models\ServiceVariantModel;
 use App\Models\SessionBreakDownModel;
 use App\Models\SessionMasterModel;
 use App\Models\UserMasterModel;
+use App\Services\ImageUploadService;
 use CodeIgniter\Exceptions\PageNotFoundException;
 use CodeIgniter\HTTP\RedirectResponse;
 use CodeIgniter\HTTP\ResponseInterface;
@@ -176,6 +177,7 @@ class Admin extends BaseController
             $script_action   = $this->request->getPost('script_action');
             $available_lang  = get_available_locales();
             $error_msg       = lang('System.response-msg.error.generic');
+            $upload_service  = new ImageUploadService();
             if ('save_profile' == $script_action) {
                 $telephone_number   = $this->request->getPost('telephone_number') ?? null;
                 $lang_code          = $this->request->getPost('lang_code');
@@ -234,48 +236,30 @@ class Admin extends BaseController
                 }
                 $error_msg = lang('System.response-msg.error.password-failed') . ' ' . $result;
             } elseif ('upload_avatar' == $script_action) {
-                helper(['form']);
-                $validationRule = [
-                    'avatar' => [
-                        'label' => lang('Admin.profile.avatar'),
-                        'rules' => [
-                            'uploaded[avatar]',
-                            'is_image[avatar]',
-                            'mime_in[avatar,image/jpg,image/jpeg,image/png]',
-                            'max_size[avatar,400]',
-                            'max_dims[avatar,1024,1024]',
-                        ],
-                    ],
-                ];
-                if (!$this->validateData([], $validationRule)) {
-                    $errors = $this->validator->getErrors();
-                    $toast  = lang('System.response-msg.error.upload-failed');
-                    foreach ($errors as $error) {
-                        $toast .= '<br>- ' . $error;
-                    }
+                $file = $this->request->getFile('avatar');
+                if (!$file) {
                     return $this->response->setJSON([
                         'success' => STATUS_RESPONSE_ERR,
-                        'message' => $toast
+                        'message' => lang('System.response-msg.error.upload-failed')
                     ]);
                 }
-                $img                  = $this->request->getFile('avatar');
-                list($width, $height) = getimagesize($img->getPathname());
-                $side                 = round(min($width, $height));
-                $file_type            = $img->getClientMimeType();
-                $email_address        = $session->user['email_address'];
-                $file_name            = 'profile_' . preg_replace('/[^a-z0-9]/i', '', strtolower($email_address)) . '.jpg';
-                if ('image/png' == $file_type) {
-                    $source = imagecreatefrompng($img->getPathname());
-                } else {
-                    $source = imagecreatefromjpeg($img->getPathname());
+                $result = $upload_service->uploadAndCropToWebp(
+                    $file,
+                    WRITEPATH . 'uploads/profile_pictures/',
+                    'profile_' . preg_replace('/[^a-z0-9]/i', '', strtolower($session->user['email_address'])),
+                    [500, 500],
+                    [
+                        'max_size'   => 1000,
+                        'max_width'  => 1000,
+                        'max_height' => 1000
+                    ]
+                );
+                if (!$result['success']) {
+                    return $this->response->setJSON([
+                        'success' => STATUS_RESPONSE_ERR,
+                        'message' => implode('<br>', $result['errors'])
+                    ]);
                 }
-                $destination = imagecreatetruecolor($side, $side);
-                $x           = round(($width - $side) / 2);
-                $y           = round(($height - $side) / 2);
-                imagecopyresampled($destination, $source, 0, 0, $x, $y, $side, $side, $side, $side);
-                imagejpeg($destination, WRITEPATH . 'uploads/profile_pictures/' . $file_name, 90);
-                imagedestroy($source);
-                imagedestroy($destination);
                 $session->set(['avatar' => retrieve_avatars($session->user['email_address'], $session->full_name)]);
                 return $this->response->setJSON([
                     'status'  => STATUS_RESPONSE_OK,
@@ -425,6 +409,7 @@ class Admin extends BaseController
             $available_lang      = get_available_locales();
             $social_media        = get_social_media();
             $error_msg           = lang('System.response-msg.error.generic');
+            $upload_service      = new ImageUploadService();
             if ('save_business' == $script_action) {
                 $fields      = ['business_type_id', 'business_name', 'business_slug', 'allow_advance_booking', 'tax_percentage', 'tax_inclusive', 'live_status', 'mart_primary_color', 'mart_text_color', 'mart_background_color', 'currency_code', 'contact_email_address', 'contact_phone_number', 'contact_website', 'shipping_options', 'shipping_fee_taxable'];
                 $data        = [];
@@ -481,82 +466,32 @@ class Admin extends BaseController
                     ]);
                 }
             } else if ('upload_logo' == $script_action) {
-                $business_slug = $session->business['business_slug'];
-                helper(['form']);
-                $validationRule = [
-                    'logo' => [
-                        'label' => lang('Business.logo'),
-                        'rules' => [
-                            'uploaded[logo]',
-                            'is_image[logo]',
-                            'mime_in[header-img,image/jpg,image/jpeg,image/png,image/webp]',
-                            'max_size[logo,600]',
-                            'max_dims[logo,500,500]',
-                        ],
-                    ],
-                ];
-                if (!$this->validateData([], $validationRule)) {
-                    $errors = $this->validator->getErrors();
-                    $toast  = lang('System.response-msg.error.upload-failed');
-                    foreach ($errors as $error) {
-                        $toast .= '<br>- ' . $error;
-                    }
+                $file = $this->request->getFile('logo');
+                if (!$file) {
                     return $this->response->setJSON([
                         'success' => STATUS_RESPONSE_ERR,
-                        'message' => $toast
+                        'message' => lang('System.response-msg.error.upload-failed')
                     ]);
                 }
-                $img                  = $this->request->getFile('logo');
-                list($width, $height) = getimagesize($img->getPathname());
-                $file_type            = $img->getClientMimeType();
-                $file_name            = 'logo_' . $business_slug . '.webp';
-                switch ($file_type) {
-                    case 'image/png':
-                        $source = imagecreatefrompng($img->getPathname());
-                        break;
-                    case 'image/webp':
-                        $source = imagecreatefromwebp($img->getPathname());
-                        break;
-                    case 'image/jpeg':
-                    case 'image/jpg':
-                        $source = imagecreatefromjpeg($img->getPathname());
-                        break;
-                    default:
-                        throw new \RuntimeException('Unsupported image type');
+                $result = $upload_service->uploadAndCropToWebp(
+                    $file,
+                    WRITEPATH . 'uploads/business_logos/',
+                    'logo_' . $session->business['business_slug'],
+                    [800, 800],
+                    [
+                        'max_size'   => 1000,
+                        'max_width'  => 1200,
+                        'max_height' => 1200
+                    ]
+                );
+                if (!$result['success']) {
+                    return $this->response->setJSON([
+                        'success' => STATUS_RESPONSE_ERR,
+                        'message' => implode('<br>', $result['errors'])
+                    ]);
                 }
-                // --- Target dimensions ---
-                $targetW     = 500;
-                $targetH     = 500;
-                $targetRatio = $targetW / $targetH;
-                // --- Step 1: scale the image proportionally so that it is >= target size ---
-                $srcRatio    = $width / $height;
-                // If the image is wider relative to height → height is limiting
-                if ($srcRatio > $targetRatio) {
-                    // Height determines scale
-                    $scaledH = $targetH;
-                    $scaledW = intval($targetH * $srcRatio);
-                } else {
-                    // Width determines scale
-                    $scaledW = $targetW;
-                    $scaledH = intval($targetW / $srcRatio);
-                }
-                $scaled = imagecreatetruecolor($scaledW, $scaledH);
-                imagecopyresampled($scaled, $source, 0, 0, 0, 0, $scaledW, $scaledH, $width, $height);
-                // --- Step 2: crop the center to 1280 × 960 ---
-                $cropX = intval(($scaledW - $targetW) / 2);
-                $cropY = intval(($scaledH - $targetH) / 2);
-                $final = imagecreatetruecolor($targetW, $targetH);
-                $white = imagecolorallocate($final, 255, 255, 255);
-                imagefill($final, 0, 0, $white);
-                imagecopyresampled($final, $scaled, 0, 0, $cropX, $cropY, $targetW, $targetH, $targetW, $targetH);
-                imagewebp($final, WRITEPATH . 'uploads/business_logos/' . $file_name, 90);
-                // Update database & session
-                $session->set('business_logo', base_url('file/business_' . $file_name));
-                $businessMasterModel->update($businessId, ['business_logo' => $file_name]);
-                // --- Cleanup ---
-                imagedestroy($source);
-                imagedestroy($scaled);
-                imagedestroy($final);
+                $session->set('business_logo', base_url('file/business_' . $result['file_name']));
+                $businessMasterModel->update($businessId, ['business_logo' => $result['file_name']]);
                 return $this->response->setJSON([
                     'status'  => STATUS_RESPONSE_OK,
                     'message' => lang('System.response-msg.success.uploaded')
@@ -579,81 +514,32 @@ class Admin extends BaseController
                 $error_msg = lang('System.response-msg.error.removed');
             } else if ('upload_header_img' == $script_action) {
                 $business_slug = $session->business['business_slug'];
-                helper(['form']);
-                $validationRule = [
-                    'header-img' => [
-                        'label' => lang('Business.business-header'),
-                        'rules' => [
-                            'uploaded[header-img]',
-                            'is_image[header-img]',
-                            'mime_in[header-img,image/jpg,image/jpeg,image/png,image/webp]',
-                            'max_size[header-img,1000]',
-                            'max_dims[header-img,2400,1600]',
-                        ],
-                    ],
-                ];
-                if (!$this->validateData([], $validationRule)) {
-                    $errors = $this->validator->getErrors();
-                    $toast  = lang('System.response-msg.error.upload-failed');
-                    foreach ($errors as $error) {
-                        $toast .= '<br>- ' . $error;
-                    }
+                $file = $this->request->getFile('header-img');
+                if (!$file) {
                     return $this->response->setJSON([
                         'success' => STATUS_RESPONSE_ERR,
-                        'message' => $toast
+                        'message' => lang('System.response-msg.error.upload-failed')
                     ]);
                 }
-                $img                  = $this->request->getFile('header-img');
-                list($width, $height) = getimagesize($img->getPathname());
-                $file_type            = $img->getClientMimeType();
-                $file_name            = 'header_' . $business_slug . '.webp';
-                switch ($file_type) {
-                    case 'image/png':
-                        $source = imagecreatefrompng($img->getPathname());
-                        break;
-                    case 'image/webp':
-                        $source = imagecreatefromwebp($img->getPathname());
-                        break;
-                    case 'image/jpeg':
-                    case 'image/jpg':
-                        $source = imagecreatefromjpeg($img->getPathname());
-                        break;
-                    default:
-                        throw new \RuntimeException('Unsupported image type');
+                $result = $upload_service->uploadAndCropToWebp(
+                    $file,
+                    WRITEPATH . 'uploads/business_header_images/',
+                    'header_' . $business_slug,
+                    [1200, 800],
+                    [
+                        'max_size'   => 1500,
+                        'max_width'  => 2500,
+                        'max_height' => 1500
+                    ]
+                );
+                if (!$result['success']) {
+                    return $this->response->setJSON([
+                        'success' => STATUS_RESPONSE_ERR,
+                        'message' => implode('<br>', $result['errors'])
+                    ]);
                 }
-                // --- Target dimensions ---
-                $targetW     = 1200;
-                $targetH     = 800;
-                $targetRatio = $targetW / $targetH;
-                // --- Step 1: scale the image proportionally so that it is >= target size ---
-                $srcRatio    = $width / $height;
-                // If the image is wider relative to height → height is limiting
-                if ($srcRatio > $targetRatio) {
-                    // Height determines scale
-                    $scaledH = $targetH;
-                    $scaledW = intval($targetH * $srcRatio);
-                } else {
-                    // Width determines scale
-                    $scaledW = $targetW;
-                    $scaledH = intval($targetW / $srcRatio);
-                }
-                $scaled = imagecreatetruecolor($scaledW, $scaledH);
-                imagecopyresampled($scaled, $source, 0, 0, 0, 0, $scaledW, $scaledH, $width, $height);
-                // --- Step 2: crop the center to 1280 × 960 ---
-                $cropX = intval(($scaledW - $targetW) / 2);
-                $cropY = intval(($scaledH - $targetH) / 2);
-                $final = imagecreatetruecolor($targetW, $targetH);
-                $white = imagecolorallocate($final, 255, 255, 255);
-                imagefill($final, 0, 0, $white);
-                imagecopyresampled($final, $scaled, 0, 0, $cropX, $cropY, $targetW, $targetH, $targetW, $targetH);
-                imagewebp($final, WRITEPATH . 'uploads/business_header_images/' . $file_name, 90);
-                // Update database & session
-                $session->set('business_header', base_url('file/business_' . $file_name));
-                $businessMasterModel->update($businessId, ['business_header' => $file_name]);
-                // --- Cleanup ---
-                imagedestroy($source);
-                imagedestroy($scaled);
-                imagedestroy($final);
+                $session->set('business_header', base_url('file/business_' . $result['file_name']));
+                $businessMasterModel->update($businessId, ['business_header' => $result['file_name']]);
                 return $this->response->setJSON([
                     'status'  => STATUS_RESPONSE_OK,
                     'message' => lang('System.response-msg.success.uploaded')
@@ -1972,71 +1858,35 @@ class Admin extends BaseController
             $serviceModel  = new ServiceMasterModel();
             $script_action = $this->request->getPost('script_action');
             if ('upload_image' == $script_action) {
-                helper(['form']);
-                $validationRule = [
-                    'service_image' => [
-                        'label' => lang('Service.upload-image'),
-                        'rules' => [
-                            'uploaded[service_image]',
-                            'is_image[service_image]',
-                            'mime_in[service_image,image/jpg,image/jpeg,image/png]',
-                            'max_size[service_image,800]',
-                            'max_dims[service_image,1280,960]',
-                        ],
-                    ],
-                ];
-                if (!$this->validateData([], $validationRule)) {
-                    $errors = $this->validator->getErrors();
-                    $toast  = lang('System.response-msg.error.upload-failed');
-                    foreach ($errors as $error) {
-                        $toast .= '<br>- ' . $error;
-                    }
+                $upload_service = new ImageUploadService();
+                $slug           = $this->request->getPost('slug_for_image');
+                $serviceId      = $this->request->getPost('id_for_image');
+                $file           = $this->request->getFile('service_image');
+                if (!$file) {
                     return $this->response->setJSON([
                         'success' => STATUS_RESPONSE_ERR,
-                        'message' => $toast
+                        'message' => lang('System.response-msg.error.upload-failed')
                     ]);
                 }
-                $slug                 = $this->request->getPost('slug_for_image');
-                $serviceId            = $this->request->getPost('id_for_image');
-                $img                  = $this->request->getFile('service_image');
-                list($width, $height) = getimagesize($img->getPathname());
-                $file_type            = $img->getClientMimeType();
-                $file_name            = 'service_image_' . $slug . '.jpg';
-                if ($file_type === 'image/png') {
-                    $source = imagecreatefrompng($img->getPathname());
-                } else {
-                    $source = imagecreatefromjpeg($img->getPathname());
+                $result = $upload_service->uploadAndCropToWebp(
+                    $file,
+                    WRITEPATH . 'uploads/',
+                    'service_image_' . $slug,
+                    [1000, 1000],
+                    [
+                        'max_size'   => 1500,
+                        'max_width'  => 1500,
+                        'max_height' => 1500
+                    ],
+                    90
+                );
+                if (!$result['success']) {
+                    return $this->response->setJSON([
+                        'success' => STATUS_RESPONSE_ERR,
+                        'message' => implode('<br>', $result['errors'])
+                    ]);
                 }
-                // --- Target dimensions ---
-                $targetW     = 1280;
-                $targetH     = 960;
-                $targetRatio = $targetW / $targetH;
-                // --- Step 1: scale the image proportionally so that it is >= target size ---
-                $srcRatio    = $width / $height;
-                // If image is wider relative to height → height is limiting
-                if ($srcRatio > $targetRatio) {
-                    // Height determines scale
-                    $scaledH = $targetH;
-                    $scaledW = intval($targetH * $srcRatio);
-                } else {
-                    // Width determines scale
-                    $scaledW = $targetW;
-                    $scaledH = intval($targetW / $srcRatio);
-                }
-                $scaled = imagecreatetruecolor($scaledW, $scaledH);
-                imagecopyresampled($scaled, $source, 0, 0, 0, 0, $scaledW, $scaledH, $width, $height);
-                // --- Step 2: crop the center to 1280 × 960 ---
-                $cropX = intval(($scaledW - $targetW) / 2);
-                $cropY = intval(($scaledH - $targetH) / 2);
-                $final = imagecreatetruecolor($targetW, $targetH);
-                imagecopyresampled($final, $scaled, 0, 0, $cropX, $cropY, $targetW, $targetH, $targetW, $targetH);
-                imagejpeg($final, WRITEPATH . 'uploads/' . $file_name, 90);
-                // Update database & session
-                $serviceModel->update($serviceId, ['service_image' => $file_name]);
-                // --- Cleanup ---
-                imagedestroy($source);
-                imagedestroy($scaled);
-                imagedestroy($final);
+                $serviceModel->update($serviceId, ['service_image' => $result['file_name']]);
                 return $this->response->setJSON([
                     'status'  => STATUS_RESPONSE_OK,
                     'message' => lang('System.response-msg.success.uploaded')
@@ -2826,71 +2676,35 @@ class Admin extends BaseController
             $productModel = new ProductMasterModel();
             $script_action = $this->request->getPost('script_action');
             if ('upload_image' == $script_action) {
-                helper(['form']);
-                $validationRule = [
-                    'product_image' => [
-                        'label' => lang('Product.upload-image'),
-                        'rules' => [
-                            'uploaded[product_image]',
-                            'is_image[product_image]',
-                            'mime_in[product_image,image/jpg,image/jpeg,image/png]',
-                            'max_size[product_image,800]',
-                            'max_dims[product_image,1280,960]',
-                        ],
-                    ],
-                ];
-                if (!$this->validateData([], $validationRule)) {
-                    $errors = $this->validator->getErrors();
-                    $toast  = lang('System.response-msg.error.upload-failed');
-                    foreach ($errors as $error) {
-                        $toast .= '<br>- ' . $error;
-                    }
+                $upload_service = new ImageUploadService();
+                $slug           = $this->request->getPost('slug_for_image');
+                $productId      = $this->request->getPost('id_for_image');
+                $file           = $this->request->getFile('product_image');
+                if (!$file) {
                     return $this->response->setJSON([
                         'success' => STATUS_RESPONSE_ERR,
-                        'message' => $toast
+                        'message' => lang('System.response-msg.error.upload-failed')
                     ]);
                 }
-                $slug                 = $this->request->getPost('slug_for_image');
-                $serviceId            = $this->request->getPost('id_for_image');
-                $img                  = $this->request->getFile('product_image');
-                list($width, $height) = getimagesize($img->getPathname());
-                $file_type            = $img->getClientMimeType();
-                $file_name            = 'product_image_' . $slug . '.jpg';
-                if ($file_type === 'image/png') {
-                    $source = imagecreatefrompng($img->getPathname());
-                } else {
-                    $source = imagecreatefromjpeg($img->getPathname());
+                $result = $upload_service->uploadAndCropToWebp(
+                    $file,
+                    WRITEPATH . 'uploads/',
+                    'product_image_' . $slug,
+                    [1000, 1000],
+                    [
+                        'max_size'   => 1500,
+                        'max_width'  => 1500,
+                        'max_height' => 1500
+                    ],
+                    90
+                );
+                if (!$result['success']) {
+                    return $this->response->setJSON([
+                        'success' => STATUS_RESPONSE_ERR,
+                        'message' => implode('<br>', $result['errors'])
+                    ]);
                 }
-                // --- Target dimensions ---
-                $targetW     = 1280;
-                $targetH     = 960;
-                $targetRatio = $targetW / $targetH;
-                // --- Step 1: scale the image proportionally so that it is >= target size ---
-                $srcRatio    = $width / $height;
-                // If image is wider relative to height → height is limiting
-                if ($srcRatio > $targetRatio) {
-                    // Height determines scale
-                    $scaledH = $targetH;
-                    $scaledW = intval($targetH * $srcRatio);
-                } else {
-                    // Width determines scale
-                    $scaledW = $targetW;
-                    $scaledH = intval($targetW / $srcRatio);
-                }
-                $scaled = imagecreatetruecolor($scaledW, $scaledH);
-                imagecopyresampled($scaled, $source, 0, 0, 0, 0, $scaledW, $scaledH, $width, $height);
-                // --- Step 2: crop the center to 1280 × 960 ---
-                $cropX = intval(($scaledW - $targetW) / 2);
-                $cropY = intval(($scaledH - $targetH) / 2);
-                $final = imagecreatetruecolor($targetW, $targetH);
-                imagecopyresampled($final, $scaled, 0, 0, $cropX, $cropY, $targetW, $targetH, $targetW, $targetH);
-                imagejpeg($final, WRITEPATH . 'uploads/' . $file_name, 90);
-                // Update database & session
-                $productModel->update($serviceId, ['product_image' => $file_name]);
-                // --- Cleanup ---
-                imagedestroy($source);
-                imagedestroy($scaled);
-                imagedestroy($final);
+                $productModel->update($productId, ['product_image' => $result['file_name']]);
                 return $this->response->setJSON([
                     'status'  => STATUS_RESPONSE_OK,
                     'message' => lang('System.response-msg.success.uploaded')
@@ -3325,6 +3139,15 @@ class Admin extends BaseController
             'lang'           => $this->request->getLocale(),
         ];
         return view('admin/blog_category', $data);
+    }
+
+    /**
+     * PHPInfo
+     * @return string
+     */
+    public function phpinfo(): string
+    {
+        return view('admin/phpinfo');
     }
 
 }

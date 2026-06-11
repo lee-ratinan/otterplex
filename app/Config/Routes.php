@@ -24,6 +24,7 @@ $routes->get('download/(:any)', 'File::index/$1/1');
 // Internal System
 $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->get('dashboard', 'Admin::index');
+    $routes->get('phpinfo', 'Admin::phpinfo');
     $routes->get('profile', 'Admin::profile');
     $routes->post('profile', 'Admin::profile_post');
     $routes->get('my-businesses', 'Admin::my_businesses');
