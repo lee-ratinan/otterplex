@@ -70,8 +70,8 @@ if (!function_exists('retrieve_avatars')) {
     {
         $full_name      = trim(preg_replace('/\s+/u', ' ', $full_name));
         $email_address  = preg_replace('/[^a-z0-9]/i', '', strtolower($email_address));
-        $file_url       = base_url('file/profile_picture_' . $email_address . '.jpg');
-        $file_path      = WRITEPATH . 'uploads/profile_pictures/profile_' . $email_address . '.jpg';
+        $file_url       = base_url('file/profile_picture_' . $email_address . '.webp');
+        $file_path      = WRITEPATH . 'uploads/profile_pictures/profile_' . $email_address . '.webp';
         if (file_exists($file_path)) {
             return "<img src='" . $file_url . "' class='avatar-img' title='{$full_name}' data-bs-toggle='tooltip' data-bs-placement='top'>";
         }
