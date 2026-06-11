@@ -2,13 +2,17 @@
 
 namespace App\Services;
 
-use CodeIgniter\Files\File;
+use CodeIgniter\Files\FileSizeUnit;
 use CodeIgniter\HTTP\Files\UploadedFile;
 
 class ImageUploadService
 {
     /**
      * Handles validation, cropping, and saving an uploaded image to WebP format.
+     *
+     * Note: To convert to WebP on local Macbook with brew install webp, use the following command in Terminal:
+     * > for file in *.png; do cwebp -q 80 "$file" -o "${file%.*}.webp"; done
+     * > for file in *.jpg; do cwebp -q 80 "$file" -o "${file%.*}.webp"; done
      *
      * @param UploadedFile $file The CI4 uploaded file instance
      * @param string $uploadPath Target folder path (relative to WRITEPATH or absolute)
@@ -31,7 +35,7 @@ class ImageUploadService
         $maxWidth  = $constraints['max_width'] ?? 500;
         $maxHeight = $constraints['max_height'] ?? 500;
 
-        // 1. Check if file was actually uploaded and is valid
+        // 1. Check if the file was actually uploaded and is valid
         if (!$file->isValid() || $file->hasMoved()) {
             return [
                 'success'   => false,
@@ -51,7 +55,7 @@ class ImageUploadService
         }
 
         // Validate File Size (bytes to KB conversion)
-        $fileSizeKb = $file->getSizeByUnit('kb');
+        $fileSizeKb = $file->getSizeByMetricUnit(FileSizeUnit::KB);;
         if ($fileSizeKb > $maxSize) {
             $errors[] = "The file size exceeds the maximum limit of {$maxSize} KB.";
         }
