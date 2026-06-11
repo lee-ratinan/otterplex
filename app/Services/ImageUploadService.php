@@ -24,7 +24,7 @@ class ImageUploadService
         string $finalFileName,
         array $dimensions,
         array $constraints = [],
-        int $quality = 95
+        int $quality = 80
     ): array {
 
         $maxSize   = $constraints['max_size'] ?? 600; // in KB

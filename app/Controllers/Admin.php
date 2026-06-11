@@ -1877,8 +1877,7 @@ class Admin extends BaseController
                         'max_size'   => 1500,
                         'max_width'  => 1500,
                         'max_height' => 1500
-                    ],
-                    90
+                    ]
                 );
                 if (!$result['success']) {
                     return $this->response->setJSON([
@@ -2695,8 +2694,7 @@ class Admin extends BaseController
                         'max_size'   => 1500,
                         'max_width'  => 1500,
                         'max_height' => 1500
-                    ],
-                    90
+                    ]
                 );
                 if (!$result['success']) {
                     return $this->response->setJSON([
