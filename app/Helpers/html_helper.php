@@ -89,7 +89,7 @@ if (!function_exists('retrieve_avatars')) {
         $first    = $parts[0];
         $last     = $parts[count($parts) - 1];
         $initials = retrieve_avatars_extract_initial($first) . retrieve_avatars_extract_initial($last);
-        return "<div class='avatar-txt' style='background-color:$color;color:$text_color' title='$full_name' data-bs-toggle='tooltip' data-bs-placement='top' data-file-path='$file_path' data-file-url='$file_url'>$initials</div>";
+        return "<div class='avatar-txt' style='background-color:$color;color:$text_color' title='$full_name' data-bs-toggle='tooltip' data-bs-placement='top'>$initials $file_path $file_url</div>";
     }
 }
 if (!function_exists('format_date')) {
