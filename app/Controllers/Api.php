@@ -138,7 +138,7 @@ class Api extends BaseController
 
     public function business_retrieve(string $languageCode, string $countryCode): ResponseInterface
     {
-        $this->request->setLocale($languageCode);
+        $this->request->setLocale($languageCode . '-' . $countryCode);
         $session       = session();
         $session->set('lang', $languageCode);
         $query         = $this->request->getGet('business-slug');
@@ -270,6 +270,7 @@ class Api extends BaseController
             $descriptions                   = json_decode($product['product_description'], true);
             $product['product_name']        = $local_names[$languageCode] ?? $product['product_name'];
             $product['product_description'] = $descriptions[$languageCode] ?? '';
+            $product['product_tag_label']   = lang('ProductMaster.enum.product_tag.' . $product['product_tag']);
             unset($product['product_local_names']);
             if (!empty($product['product_image'])) {
                 $product['product_image'] = base_url('file/' . $product['product_image']);

@@ -247,7 +247,7 @@ class Admin extends BaseController
                     $file,
                     WRITEPATH . 'uploads/profile_pictures/',
                     'profile_' . preg_replace('/[^a-z0-9]/i', '', strtolower($session->user['email_address'])),
-                    [500, 500],
+                    [800, 800],
                     [
                         'max_size'   => 1000,
                         'max_width'  => 1000,
