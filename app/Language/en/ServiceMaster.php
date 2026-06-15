@@ -10,6 +10,7 @@ return [
         'price_active_lowest'  => 'Starting Active Price',
         'price_compare_lowest' => 'Starting Full Price',
         'service_description'  => 'Service Description',
+        'book_count'           => 'Sessions Booked'
     ],
     'enum'        => [
         'is_active' => [

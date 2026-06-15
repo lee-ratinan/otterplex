@@ -6,6 +6,7 @@ return [
         'variant_slug'              => 'Variant Slug',
         'variant_name'              => 'Variant Name',
         'variant_local_names'       => 'Variant Local Names',
+        'variant_description'       => 'Variant Description',
         'is_active'                 => 'Status',
         'schedule_type'             => 'Schedule Type',
         'variant_capacity'          => 'Variant Capacity',

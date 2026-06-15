@@ -6,6 +6,7 @@ return [
         'variant_slug'              => 'รหัสตัวเลือกบริการ',
         'variant_name'              => 'ชื่อตัวเลือก',
         'variant_local_names'       => 'ชื่อตัวเลือกในภาษาต่างๆ',
+        'variant_description'       => 'คำอธิบายตัวเลือก',
         'is_active'                 => 'สถานะ',
         'schedule_type'             => 'ประเภทการนัดหมาย',
         'variant_capacity'          => 'จำนวนลูกค้าที่รับได้',

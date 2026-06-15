@@ -11,6 +11,7 @@ return [
         'inventory_count'     => 'จำนวนสินค้าในสต็อก',
         'price_active'        => 'ราคา',
         'price_compare'       => 'ราคาเปรียบเทียบ',
+        'variant_description' => 'คำอธิบายตัวเลือก',
     ],
     'enum'    => [
         'is_active' => [

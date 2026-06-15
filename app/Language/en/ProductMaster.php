@@ -13,6 +13,7 @@ return [
         'price_active_lowest'  => 'Active Price',
         'price_compare_lowest' => 'Compare Price',
         'product_description'  => 'Product Description',
+        'purchase_count'       => 'Items Sold'
     ],
     'enum'  => [
         'product_tag'  => [

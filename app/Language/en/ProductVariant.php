@@ -11,6 +11,7 @@ return [
         'inventory_count'     => 'Inventory Count',
         'price_active'        => 'Price',
         'price_compare'       => 'Compare Price',
+        'variant_description' => 'Variant Description',
     ],
     'enum'    => [
         'is_active' => [

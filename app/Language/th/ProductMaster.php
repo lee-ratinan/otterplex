@@ -12,7 +12,8 @@ return [
         'is_active'            => 'สถานะ',
         'price_active_lowest'  => 'ราคาขาย',
         'price_compare_lowest' => 'ราคาเปรียบเทียบ',
-        'product_description'  => 'คำอธิบายสินค้า'
+        'product_description'  => 'คำอธิบายสินค้า',
+        'purchase_count'       => 'จำนวนที่ขายได้'
     ],
     'enum'  => [
         'product_tag'  => [

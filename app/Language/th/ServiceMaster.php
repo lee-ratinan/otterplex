@@ -9,7 +9,8 @@ return [
         'is_active'            => 'สถานะ',
         'price_active_lowest'  => 'ราคาจริงเริ่มต้น',
         'price_compare_lowest' => 'ราคาเต็มเริ่มต้น',
-        'service_description'  => 'คำอธิบายสินค้า'
+        'service_description'  => 'คำอธิบายสินค้า',
+        'book_count'           => 'จำนวนการจองที่ผ่านมา'
     ],
     'enum'        => [
         'is_active' => [
