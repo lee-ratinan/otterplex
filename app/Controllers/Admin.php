@@ -477,7 +477,7 @@ class Admin extends BaseController
                     $file,
                     WRITEPATH . 'uploads/business_logos/',
                     'logo_' . $session->business['business_slug'],
-                    [800, 800],
+                    [1000, 1000],
                     [
                         'max_size'   => 1000,
                         'max_width'  => 1200,
@@ -1870,7 +1870,7 @@ class Admin extends BaseController
                 }
                 $result = $upload_service->uploadAndCropToWebp(
                     $file,
-                    WRITEPATH . 'uploads/',
+                    WRITEPATH . 'uploads/service_image/',
                     'service_image_' . $slug,
                     [1000, 1000],
                     [
@@ -2687,7 +2687,7 @@ class Admin extends BaseController
                 }
                 $result = $upload_service->uploadAndCropToWebp(
                     $file,
-                    WRITEPATH . 'uploads/',
+                    WRITEPATH . 'uploads/product_image/',
                     'product_image_' . $slug,
                     [1000, 1000],
                     [
