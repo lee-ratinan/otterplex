@@ -20,6 +20,7 @@ use App\Models\OrderPaymentModel;
 use App\Models\ProductMasterModel;
 use App\Models\ProductVariantModel;
 use App\Models\ResourceMasterModel;
+use App\Models\ReviewMasterModel;
 use App\Models\ServiceMasterModel;
 use App\Models\ServiceStaffModel;
 use App\Models\ServiceVariantModel;
@@ -719,5 +720,95 @@ class Api extends BaseController
                 'order'   => []
             ]);
         }
+    }
+
+    public function review_retrieve(string $languageCode, string $countryCode, string $page, string $sort, string $entity_type, string $entity_id): ResponseInterface
+    {
+        service('language')->setLocale($languageCode);
+        $review_model = new ReviewMasterModel();
+        $entity_id    = intval($entity_id);
+        $page         = intval($page);
+        $limit        = 5;
+        $offset       = ($page - 1) * $limit;
+        if (0 < $entity_id) {
+            // ENTITY TYPE
+            if ('business' == $entity_type) {
+                $review_model->where('business_id', $entity_id);
+            } else if ('product' == $entity_type) {
+                $review_model->where('product_id', $entity_id);
+            } else if ('service' == $entity_type) {
+                $review_model->where('service_id', $entity_id);
+            } else {
+                return $this->response->setJSON([
+                    'status'  => STATUS_RESPONSE_ERR,
+                    'message' => 'WRONG ENTITY TYPE',
+                    'reviews' => []
+                ]);
+            }
+            // SORT
+            if ('relevant' == $sort) {
+                $review_model->orderBy('rating', 'DESC')
+                    ->orderBy('created_at', 'DESC');
+            } else if ('most-recent-first' == $sort) {
+                $review_model->orderBy('created_at', 'DESC');
+            } else if ('oldest-first' == $sort) {
+                $review_model->orderBy('created_at', 'ASC');
+            } else if ('highest-rating-first' == $sort) {
+                $review_model->orderBy('rating', 'DESC');
+            } else if ('lowest-rating-first' == $sort) {
+                $review_model->orderBy('rating', 'ASC');
+            } else {
+                return $this->response->setJSON([
+                    'status'  => STATUS_RESPONSE_ERR,
+                    'message' => 'WRONG SORT',
+                    'reviews' => []
+                ]);
+            }
+            $reviews_raw = $review_model
+                ->select('review_master.*, customer_master.customer_name AS customer_name')
+                ->join('customer_master', 'customer_master.id = review_master.customer_id')
+                ->where('review_status', 'approved')
+                ->where('flag_for_aggregation', 'no_action')
+                ->findAll($limit, $offset);
+            $reviews     = [];
+            foreach ($reviews_raw as $row) {
+                $masking   = $row['customer_masking'];
+                $name      = $row['customer_name'];
+                if ('masked-full' == $masking) {
+                    $name = '*** ***';
+                } else if ('masked-parts' == $masking) {
+                    $words = explode(' ', $name);
+                    $maskedWords = array_map(function($word) {
+                        $length = mb_strlen($word, 'UTF-8');
+                        if ($length <= 2) {
+                            return mb_substr($word, 0, 1, 'UTF-8') . str_repeat('*', $length - 1);
+                        }
+                        $start = mb_substr($word, 0, 1, 'UTF-8');
+                        $mask = str_repeat('*', $length - 2);
+                        $end = mb_substr($word, -1, 1, 'UTF-8');
+                        return $start . $mask . $end;
+                    }, $words);
+                    $name = implode(' ', $maskedWords);
+                }
+                $reviews[] = [
+                    'customer_name' => $name,
+                    'stars'         => $row['rating'],
+                    'date'          => format_date($row['created_at'], $languageCode),
+                    'title'         => $row['review_title'],
+                    'body'          => $row['review_body'],
+                ];
+            }
+            log_message('debug', json_encode($reviews, JSON_PRETTY_PRINT));
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_OK,
+                'message' => '',
+                'reviews' => $reviews
+            ]);
+        }
+        return $this->response->setJSON([
+            'status'  => STATUS_RESPONSE_ERR,
+            'message' => 'WRONG ENTITY ID',
+            'reviews' => []
+        ]);
     }
 }
