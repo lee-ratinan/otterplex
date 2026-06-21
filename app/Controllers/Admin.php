@@ -810,7 +810,7 @@ class Admin extends BaseController
                 $bmModel = new BranchMasterModel();
                 $fields = [
                     'id', 'subdivision_code', 'branch_name', 'branch_slug', 'timezone_code', 'branch_type',
-                    'branch_address', 'branch_postal_code', 'branch_status'
+                    'branch_address', 'branch_postal_code', 'google_map_url', 'branch_status'
                 ];
                 foreach ($fields as $field) {
                     $data[$field] = $this->request->getPost($field);

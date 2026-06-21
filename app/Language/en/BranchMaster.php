@@ -1,6 +1,6 @@
 <?php
 return [
-    'field' => [
+    'field'       => [
         'id'                 => 'ID',
         'business_id'        => 'Business',
         'subdivision_code'   => 'Location',
@@ -11,9 +11,10 @@ return [
         'branch_type'        => 'Branch Type',
         'branch_address'     => 'Address',
         'branch_postal_code' => 'Postal Code',
+        'google_map_url'     => 'Google Map',
         'branch_status'      => 'Status',
     ],
-    'enum'  => [
+    'enum'        => [
         'branch_type'   => [
             'PHYSICAL' => 'Physical',
             'ONLINE'   => 'Online',
@@ -22,5 +23,8 @@ return [
             'ACTIVE'   => 'Active',
             'INACTIVE' => 'Inactive',
         ],
+    ],
+    'explanation' => [
+        'google_map_url' => 'If you want to show the branch location on Google Map, please paste the embed code here. The system will extract the URL for the location.'
     ]
 ];

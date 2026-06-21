@@ -48,6 +48,10 @@
                                 'ACTIVE'   => lang('BranchMaster.enum.branch_status.ACTIVE'),
                                 'INACTIVE' => lang('BranchMaster.enum.branch_status.INACTIVE')
                             ]);
+                            echo build_form_input('google_map_url', lang('BranchMaster.field.google_map_url'), [
+                                'type'             => 'text',
+                                'data-explanation' => lang('BranchMaster.explanation.google_map_url')
+                            ], @$branch['google_map_url']);
                             ?>
                             <div class="text-end">
                                 <button class="btn btn-primary" id="btn-save-master"><?= lang('System.buttons.save') ?></button>
@@ -158,6 +162,24 @@
     </div>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
+            $('#google_map_url').change(function () {
+                let iframeString = $(this).val(),
+                    finalUrl = '';
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(iframeString, 'text/html');
+                const iframe = doc.querySelector('iframe');
+                if (!iframe) {
+                    finalUrl = '';
+                } else {
+                    const src = iframe.getAttribute('src');
+                    if (!src) {
+                        finalUrl = '';
+                    } else {
+                        finalUrl = src;
+                    }
+                }
+                $(this).val(finalUrl);
+            });
             $('#branch_slug').change(function () {
                 let slug = $(this).val();
                 slug = slug.toLowerCase();
@@ -186,7 +208,7 @@
             $('#btn-save-master').click(function (e) {
                 e.preventDefault();
                 <?php
-                $fields = ['subdivision_code', 'branch_name', 'branch_slug', 'timezone_code', 'branch_type', 'branch_address', 'branch_postal_code', 'branch_status'];
+                $fields = ['subdivision_code', 'branch_name', 'branch_slug', 'timezone_code', 'branch_type', 'branch_address', 'branch_postal_code', 'google_map_url', 'branch_status'];
                 foreach ($all_languages as $language_code => $language_name) {
                     $fields[] = 'branch_local_names_' . $language_code;
                 }

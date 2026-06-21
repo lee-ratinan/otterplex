@@ -17,6 +17,7 @@ class BranchMasterModel extends AppBaseModel
         'branch_type',
         'branch_address',
         'branch_postal_code',
+        'google_map_url',
         'branch_status',
         'created_by',
         'created_at',
