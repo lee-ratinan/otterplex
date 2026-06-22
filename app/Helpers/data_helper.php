@@ -11,26 +11,47 @@ if (!function_exists('get_setting_limitation')) {
     function get_setting_limitation(string $package): array
     {
         $data = [
+            'free'     => [
+                'business_user'   => 1,
+                'service_master'  => 1,
+                'product_master'  => 1,
+                'variants'        => 1,
+                'images'          => 1,
+                'branch_master'   => 1,
+            ],
             'basic'    => [
-                'business_user'   => 10,
-                'branch_master'   => 10,
-                'service_master'  => 10,
-                'product_master'  => 10,
+                'business_user'   => 3,
+                'service_master'  => 5,
+                'product_master'  => 5,
+                'variants'        => 5,
+                'images'          => 1,
+                'branch_master'   => 1,
             ],
             'standard' => [
-                'business_user'   => 20,
-                'branch_master'   => 20,
-                'service_master'  => 30,
-                'product_master'  => 30,
+                'business_user'   => 10,
+                'service_master'  => 20,
+                'product_master'  => 20,
+                'variants'        => 5,
+                'images'          => 3,
+                'branch_master'   => 5,
             ],
             'premium'  => [
-                'business_user'   => 50,
-                'branch_master'   => 20,
-                'service_master'  => 100,
-                'product_master'  => 100,
+                'business_user'   => 30,
+                'service_master'  => 50,
+                'product_master'  => 50,
+                'variants'        => 10,
+                'images'          => 5,
+                'branch_master'   => 10,
             ],
         ];
-        return $data[$package] ?? [];
+        return $data[$package] ?? [
+            'business_user'   => 0,
+            'service_master'  => 0,
+            'product_master'  => 0,
+            'variants'        => 0,
+            'images'          => 0,
+            'branch_master'   => 0,
+        ];
     }
 }
 
@@ -1795,7 +1816,7 @@ if (!function_exists('get_available_countries')) {
      */
     function get_available_countries(): array
     {
-        $countries = ['TH'];
+        $countries = ['TH', 'SG', 'MY', 'JP', 'TW'];
         $final     = [];
         foreach ($countries as $code) {
             $final[$code] = get_country_list($code);
@@ -2465,7 +2486,22 @@ if (!function_exists('get_currency_common_name')) {
                 'en' => 'THB: Thai baht'
             ],
             'USD' => [
-                'en' => 'USD: US Dollar',
+                'en' => 'USD: US dollar',
+            ],
+            'SGD' => [
+                'en' => 'SGD: Singapore dollar',
+            ],
+            'MYR' => [
+                'en' => 'MYR: Malaysian ringgit',
+                'ms' => 'MYR: Ringgit',
+            ],
+            'JPY' => [
+                'en' => 'JPY: Japanese yen',
+                'ja' => 'JPY: 円'
+            ],
+            'TWD' => [
+                'en' => 'TWD: New Taiwan dollar',
+                'zh' => 'TWD: 新臺幣'
             ]
         ];
         if (isset($currencies[$currency_code])) {
@@ -2478,7 +2514,11 @@ if (!function_exists('get_available_currency_codes')) {
     function get_available_currency_code_by_country(string $country_code): array
     {
         $codes = [
-            'TH' => ['THB', 'USD']
+            'TH' => ['THB', 'USD'],
+            'SG' => ['SGD', 'USD'],
+            'MY' => ['MYR', 'USD'],
+            'JP' => ['JPY', 'USD'],
+            'TW' => ['TWD', 'USD']
         ];
         return $codes[$country_code] ?? [];
     }
@@ -3757,12 +3797,16 @@ if (!function_exists('get_available_locales')) {
         if ('long' == $format) {
             return [
                 'en' => 'English (US)',
-                'th' => 'ภาษาไทย'
+//                'ja' => '日本語',
+                'th' => 'ภาษาไทย',
+//                'zh' => '中文（國語）'
             ];
         }
         return [
             'en' => 'E',
-            'th' => 'ท'
+//            'ja' => '日',
+            'th' => 'ท',
+//            'zh' => '中'
         ];
     }
 }

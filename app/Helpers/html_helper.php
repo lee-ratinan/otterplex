@@ -104,16 +104,23 @@ if (!function_exists('format_date')) {
         if (empty($lang)) {
             $lang = get_session_field('lang');
         }
+        if (!in_array($lang, ['en', 'th', 'ja', 'zh'])) {
+            $lang = 'en';
+        }
         $month_array = [
             'en' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
             'th' => ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.']
         ];
         $pieces = explode('-', $date);
         $dd     = intval($pieces[2]);
+        $mm     = intval($pieces[1]);
         $mmmm   = $month_array[$lang][intval($pieces[1]) - 1];
         $yyyy   = intval($pieces[0]);
         if ('th' == $lang) {
             $yyyy += 543;
+            return "{$dd} {$mmmm} {$yyyy}";
+        } else if ('ja' == $lang || 'zh' == $lang) {
+            return "{$yyyy}年{$mm}月{$dd}日";
         }
         return "{$dd} {$mmmm} {$yyyy}";
     }
@@ -132,6 +139,8 @@ if (!function_exists('format_time')) {
         }
         if ('th' == $lang) {
             return substr($time, 0, 5) . 'น.';
+        } else if ('ja' == $lang || 'zh' == $lang) {
+            return substr($time, 0, 5);
         }
         // English (US)
         $pieces = explode(':', $time);
@@ -229,15 +238,23 @@ if (!function_exists('format_price')) {
      * @param int $decimals_override
      * @return string
      */
-    function format_price(float $price, string $currency, int $decimals_override = 2): string
+    function format_price(float $price, string $currency, int $decimals_override = -1): string
     {
-        $currency            = strtoupper($currency);
+        $currency = strtoupper($currency);
         $country_to_currency = [
+            'JP' => 'JPY',
+            'MY' => 'MYR',
+            'SG' => 'SGD',
             'TH' => 'THB',
+            'TW' => 'TWD',
             'US' => 'USD',
         ];
         if (isset($country_to_currency[$currency])) {
             $currency = $country_to_currency[$currency];
+        }
+        $default_decimals = (in_array($currency, ['JPY', 'IDR', 'KRW']) ? 0 : 2);
+        if (-1 == $decimals_override) {
+            $decimals_override = $default_decimals;
         }
         // Check negative
         $negative = '';
@@ -245,8 +262,16 @@ if (!function_exists('format_price')) {
             $negative = '-';
             $price    = abs($price);
         }
-        if ('THB' == $currency) {
+        if ('JPY' == $currency) {
+            return $negative . number_format($price, $decimals_override) . '円';
+        } else if ('MYR' == $currency) {
+            return $negative . 'RM' . number_format($price, $decimals_override);
+        } else if ('SGD' == $currency) {
+            return $negative . 'S$' . number_format($price, $decimals_override);
+        } else if ('THB' == $currency) {
             return $negative . '฿' . number_format($price, $decimals_override);
+        } else if ('TWD' == $currency) {
+            return $negative . 'NT$' . number_format($price, $decimals_override);
         }
         return $negative . '$' . number_format($price, $decimals_override);
     }
