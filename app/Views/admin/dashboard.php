@@ -36,6 +36,7 @@
                                     <?= ('Y' == $session->business['live_status'] ? '<i class="fa-solid fa-clipboard-check text-success"></i>' : '<i class="fa-solid fa-clipboard-check text-danger"></i>') ?>
                                     <?= lang('Dashboard.setup.check-business-setup') ?>
                                 </p>
+                                <a href="<?= base_url('admin/business') ?>" class="btn btn-primary btn-sm m-1"><i class="fa-solid fa-gear"></i> <?= lang('Admin.pages.business') ?></a>
                             </div>
                         </div>
                         <!-- BRANCHES -->
