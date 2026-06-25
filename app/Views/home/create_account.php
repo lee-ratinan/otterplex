@@ -61,6 +61,8 @@
         </div>
     </form>
 <script>
+    import {$} from "../../../public/assets/vendor/chart.js/chunks/helpers.dataset";
+
     document.addEventListener("DOMContentLoaded", function () {
         $('#btn-create-account').click(function (e) {
             e.preventDefault();
@@ -68,6 +70,13 @@
             $fields = ['user_name_first', 'user_name_last', 'email_address', 'password', 'confirm_password', 'business_name', 'country_code'];
             gen_js_fields_checker($fields);
             ?>
+            // check if the email_address format is valid
+            let email_address = $('#email_address').val();
+            let email_regex   = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!email_regex.test(email_address)) {
+                $('#email_address').focus();
+                return false;
+            }
             if (!$('#acceptTerms').prop('checked')) {
                 $('#acceptTerms').focus();
                 return false;

@@ -8,6 +8,7 @@ use App\Models\LogActivityModel;
 use App\Models\UserMasterModel;
 use CodeIgniter\HTTP\RedirectResponse;
 use CodeIgniter\HTTP\ResponseInterface;
+use Config\Database;
 use Config\Services;
 use Transliterator;
 
@@ -27,7 +28,7 @@ class Home extends BaseController
     private function generateErrorResponse(int $statusCode, string $message): ResponseInterface
     {
         return $this->response
-            ->setStatusCode($statusCode)
+            ->setStatusCode($statusCode, $message)
             ->setJSON([
                 'status'  => STATUS_RESPONSE_ERR,
                 'message' => $message
@@ -58,9 +59,17 @@ class Home extends BaseController
 
     /**
      * Login script
-     * Require
+     * Require:
      * POST username
      * POST password
+     * ERRORS
+     * 100 Too many attempts
+     * 101 Wrong credentials (missing username or password)
+     * 102 Wrong credentials (user not found)
+     * 103 Wrong credentials (password mismatch)
+     * 104 Account not active
+     * 105 No business found (shown as a generic error)
+     * Or exception messages
      * @return ResponseInterface
      */
     public function login_post(): ResponseInterface
@@ -74,36 +83,36 @@ class Home extends BaseController
             $username      = $this->request->getPost('username');
             $password      = $this->request->getPost('password');
             // Throttling by IP + email (simple but effective)
-            $throttleKey = 'login-' . $this->request->getIPAddress() . '-' . md5($username);
+            $throttleKey   = 'login-' . $this->request->getIPAddress() . '-' . md5($username);
             if (!$throttler->check($throttleKey, self::THROTTLER_LOGIN_CAPACITY, self::THROTTLER_LOGIN_SECOND)) {
                 // Too many attempts
-                return $this->generateErrorResponse(ResponseInterface::HTTP_UNAUTHORIZED, lang('System.response-msg.error.generic') . ' [MA]'); // too Many Attempts
+                return $this->generateErrorResponse(ResponseInterface::HTTP_UNAUTHORIZED, lang('System.response-msg.error.generic') . ' [100]'); // Too Many Attempts
             }
             // Validate input
             if (empty($username) || empty($password)) {
                 $throttler->check($throttleKey, self::THROTTLER_LOGIN_CAPACITY, self::THROTTLER_LOGIN_SECOND);
-                return $this->generateErrorResponse(ResponseInterface::HTTP_UNAUTHORIZED, lang('System.response-msg.error.wrong-credentials') . ' [VF]'); // Verification
+                return $this->generateErrorResponse(ResponseInterface::HTTP_UNAUTHORIZED, lang('System.response-msg.error.wrong-credentials') . ' [101]'); // Verification
             }
             $user = $userModel->where('email_address', $username)->first();
             if (!$user) {
                 $throttler->check($throttleKey, self::THROTTLER_LOGIN_CAPACITY, self::THROTTLER_LOGIN_SECOND);
-                return $this->generateErrorResponse(ResponseInterface::HTTP_UNAUTHORIZED, lang('System.response-msg.error.wrong-credentials') . ' [NF]'); // Not Found
+                return $this->generateErrorResponse(ResponseInterface::HTTP_UNAUTHORIZED, lang('System.response-msg.error.wrong-credentials') . ' [102]'); // Not Found
             }
             // Verify password
             if (!password_verify($password, $user['password_hash'])) {
                 $throttler->check($throttleKey, self::THROTTLER_LOGIN_CAPACITY, self::THROTTLER_LOGIN_SECOND);
-                return $this->generateErrorResponse(ResponseInterface::HTTP_UNAUTHORIZED, lang('System.response-msg.error.wrong-credentials') . ' [PH]'); // not equal Password Hash
+                return $this->generateErrorResponse(ResponseInterface::HTTP_UNAUTHORIZED, lang('System.response-msg.error.wrong-credentials') . ' [103]'); // not equal Password Hash
             }
             // Check status
             if ($userModel::ACCOUNT_STATUS_ACTIVE != $user['account_status']) {
-                return $this->generateErrorResponse(ResponseInterface::HTTP_UNAUTHORIZED, lang('System.response-msg.error.inactive-account') . ' [NA]'); // account Not Active
+                return $this->generateErrorResponse(ResponseInterface::HTTP_UNAUTHORIZED, lang('System.response-msg.error.inactive-account') . ' [104]'); // account Not Active
             }
             // Log
             $userAgent  = $this->request->getUserAgent();
             $ipAddress  = $this->request->getIPAddress();
             if ($userAgent->isMobile()) {
                 $deviceType = 'mobile';
-                $uaStr = strtolower($userAgent->getAgentString());
+                $uaStr      = strtolower($userAgent->getAgentString());
                 if (str_contains($uaStr, 'tab') ||
                     str_contains($uaStr, 'ipad')) {
                     $deviceType = 'tablet';
@@ -145,7 +154,7 @@ class Home extends BaseController
             if (empty($currentBusiness)) {
                 return $this->response->setJSON([
                     'status'   => STATUS_RESPONSE_ERR,
-                    'message' => lang('System.response-msg.error.generic') . ' [NO_BIZ]'
+                    'message' => lang('System.response-msg.error.generic') . ' [105]'
                 ]);
             }
             if (!empty($currentBusiness['business_logo'])) {
@@ -168,7 +177,7 @@ class Home extends BaseController
                 'business_ids'   => $businessIds,
                 'needOTP'        => false, // Not for now
             ]);
-            // Redirect to intended page or dashboard
+            // Redirect to the dashboard
             $redirectTo = $session->get('redirect_url') ?? '/admin/dashboard';
             $session->remove('redirect_url');
             return $this->response->setJSON([
@@ -201,7 +210,7 @@ class Home extends BaseController
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
-     * Create account page
+     * Create an account page
      * @return string
      */
     public function create_account(): string
@@ -214,8 +223,18 @@ class Home extends BaseController
     }
 
     /**
-     * Create account script
+     * Create an account script
+     * Require:
+     * POST user_name_first
+     * POST user_name_last
+     * POST email_address
+     * POST password
+     * POST business_name
+     * POST country_code
      * @return ResponseInterface
+     * ERRORS:
+     * Empty fields
+     * 200 DB Error (can't insert user)
      */
     public function create_account_post(): ResponseInterface
     {
@@ -225,16 +244,22 @@ class Home extends BaseController
         $business_master        = [];
         foreach ($user_master_fields as $field) {
             $user_master[$field] = $this->request->getPost($field);
+            if (empty($user_master[$field])) {
+                return $this->generateErrorResponse(ResponseInterface::HTTP_BAD_REQUEST, lang('System.response-msg.error.please-check-empty-field') . ' [' . $field . ']');
+            }
         }
         $user_master['user_public_name'] = $user_master['user_name_first'];
         foreach ($business_master_fields as $field) {
-            $business_master[$field] = $this->request->getPost($field);
+            $business_master[$field]     = $this->request->getPost($field);
+            if (empty($user_master[$field])) {
+                return $this->generateErrorResponse(ResponseInterface::HTTP_BAD_REQUEST, lang('System.response-msg.error.please-check-empty-field') . ' [' . $field . ']');
+            }
         }
         $userMasterModel     = new UserMasterModel();
         $businessMasterModel = new BusinessMasterModel();
         $businessUserModel   = new BusinessUserModel();
         // Get the DB connection to manage the transaction
-        $db = \Config\Database::connect();
+        $db = Database::connect();
         $db->transBegin(); // <<< START TRANSACTION
         try {
             $password                          = $user_master['password'];
@@ -252,7 +277,7 @@ class Home extends BaseController
             $userMasterModel->insert($user_master);
             $userId                            = $userMasterModel->getInsertID();
             if (!$userId) {
-                throw new \Exception(lang('System.response-msg.error.account-created-issue') . ' [USR-ERR]');
+                throw new \Exception(lang('System.response-msg.error.account-created-issue') . ' [200]');
             }
             // SLUG
             $transliterator = Transliterator::create('Any-Latin; Latin-ASCII; Lower()');
@@ -297,7 +322,7 @@ class Home extends BaseController
             $business_user['role_status']         = $businessUserModel::ROLE_STATUS_ACTIVE;
             $business_user['my_default_business'] = $businessUserModel::MY_DEFAULT_BUSINESS_YES;
             $businessUserModel->insert($business_user);
-            $buId = $businessUserModel->getInsertID();
+            $buId                                 = $businessUserModel->getInsertID();
             if (!$buId) {
                 throw new \Exception(lang('System.response-msg.error.account-created-issue') . ' [BIZUSR-ERR]');
             }
