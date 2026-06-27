@@ -68,7 +68,7 @@ class Home extends BaseController
      * 102 Wrong credentials (user not found)
      * 103 Wrong credentials (password mismatch)
      * 104 Account not active
-     * 105 No business found (shown as a generic error)
+     * 105 No business found (shown as a generic error) - removed
      * Or exception messages
      * @return ResponseInterface
      */
@@ -151,12 +151,12 @@ class Home extends BaseController
             }
             log_message('debug', '[CHECK USER CURRENT BIZ] [USER: ' . $user['id'] . '] ' . json_encode($currentBusiness));
             $businessLogo = '';
-            if (empty($currentBusiness)) {
-                return $this->response->setJSON([
-                    'status'   => STATUS_RESPONSE_ERR,
-                    'message' => lang('System.response-msg.error.generic') . ' [105]'
-                ]);
-            }
+//            if (empty($currentBusiness)) {
+//                return $this->response->setJSON([
+//                    'status'   => STATUS_RESPONSE_ERR,
+//                    'message' => lang('System.response-msg.error.generic') . ' [105]'
+//                ]);
+//            }
             if (!empty($currentBusiness['business_logo'])) {
                 $businessLogo = base_url('file/business_' . $currentBusiness['business_logo']);
             }
@@ -172,13 +172,16 @@ class Home extends BaseController
                 'avatar'         => retrieve_avatars($user['email_address'], $user['user_name_first'] . ' ' . $user['user_name_last']),
                 'business_logo'  => $businessLogo,
                 'user'           => $user,
-                'user_role'      => $currentBusiness['user_role'],
+                'user_role'      => $currentBusiness['user_role'] ?? null,
                 'business'       => $currentBusiness,
                 'business_ids'   => $businessIds,
                 'needOTP'        => false, // Not for now
             ]);
             // Redirect to the dashboard
             $redirectTo = $session->get('redirect_url') ?? '/admin/dashboard';
+            if (empty($currentBusiness)) {
+                $redirectTo = '/admin/business-account-management'; // for expired business recovery
+            }
             $session->remove('redirect_url');
             return $this->response->setJSON([
                 'status'   => STATUS_RESPONSE_OK,
@@ -235,7 +238,10 @@ class Home extends BaseController
      * ERRORS:
      * Empty fields
      * 200 DB Error (can't insert user)
-     */
+     * 201 DB Error (can't insert business)
+     * 202 DB Error (can't insert business user)
+     * 203 Email Error (can't send activation email)
+     **/
     public function create_account_post(): ResponseInterface
     {
         $user_master_fields     = ['user_name_first', 'user_name_last', 'email_address', 'password'];
@@ -277,7 +283,7 @@ class Home extends BaseController
             $userMasterModel->insert($user_master);
             $userId                            = $userMasterModel->getInsertID();
             if (!$userId) {
-                throw new \Exception(lang('System.response-msg.error.account-created-issue') . ' [200]');
+                throw new \Exception(lang('System.response-msg.error.account-created-issue') . ' [200]'); // can't insert the user
             }
             // SLUG
             $transliterator = Transliterator::create('Any-Latin; Latin-ASCII; Lower()');
@@ -287,34 +293,49 @@ class Home extends BaseController
             $slug           = preg_replace('/-+/', '-', $slug);
             $slug           = trim($slug, '-');
             // LOCALES
-            $available_language_codes = get_available_locales();
+            $available_language_codes = get_available_locales_for_country($business_master['country_code']);
             $available_language_codes = array_keys($available_language_codes);
             $local_names              = [];
             foreach ($available_language_codes as $code) {
+                // Initialize all languages to the same initial business first
                 $local_names[$code] = $business_master['business_name'];
             }
             // CURRENCIES AND TAX
             $available_currencies = get_available_currency_code_by_country($business_master['country_code']);
             $tax_default_settings = get_default_tax_settings_by_country($business_master['country_code']);
-            // CONTRACT
-            $free_trial_expiry    = date(DATE_FORMAT_DB, strtotime(DEFAULT_FREE_TRIAL));
             // DATA
-            $business_master['business_type_id']      = 1; // DEFAULT
-            $business_master['business_slug']         = $slug;
-            $business_master['business_local_names']  = json_encode($local_names, JSON_UNESCAPED_UNICODE);
-            $business_master['currency_code']         = $available_currencies[0];
-            $business_master['tax_percentage']        = $tax_default_settings['tax_percentage'];
-            $business_master['tax_inclusive']         = $tax_default_settings['tax_inclusive'];
-            $business_master['mart_primary_color']    = '00AA00';
-            $business_master['mart_text_color']       = '000000';
-            $business_master['mart_background_color'] = 'FFFFFF';
-            $business_master['business_logo']         = null;
-            $business_master['contract_anchor_date']  = null;
-            $business_master['contract_expiry']       = $free_trial_expiry;
+            $business_master['business_type_id']           = 1; // DEFAULT
+            $business_master['business_slug']              = $slug;
+            $business_master['business_local_names']       = json_encode($local_names, JSON_UNESCAPED_UNICODE);
+            $business_master['currency_code']              = $available_currencies[0];
+            $business_master['tax_percentage']             = $tax_default_settings['tax_percentage'];
+            $business_master['tax_inclusive']              = $tax_default_settings['tax_inclusive'];
+            $business_master['mart_primary_color']         = '00AA00';
+            $business_master['mart_text_color']            = '000000';
+            $business_master['mart_background_color']      = 'FFFFFF';
+            $business_master['mart_meta_description']      = '';
+            $business_master['mart_meta_keywords']         = '';
+            $business_master['mart_store_intro_paragraph'] = '';
+            $business_master['social_media']               = null;
+            $business_master['business_logo']              = null;
+            $business_master['business_header']            = null;
+            $business_master['shipping_options']           = 'BOTH';
+            $business_master['shipping_fee_taxable']       = 'N';
+            $business_master['contract_anchor_date']       = null;
+            $business_master['contract_expiry']            = DEFAULT_EXPIRY_DATE;
+            $business_master['allow_advance_booking']      = null;
+            $business_master['contact_email_address']      = null;
+            $business_master['contact_phone_number']       = null;
+            $business_master['contact_website']            = null;
+            $business_master['live_status']                = 0;
+            $business_master['review_stars']               = 0;
+            $business_master['review_count']               = 0;
+            $business_master['review_rating_total']        = 0;
+            $business_master['review_breakdown']           = '0;0;0;0;0';
             $businessMasterModel->insert($business_master);
             $businessId = $businessMasterModel->getInsertID();
             if (!$businessId) {
-                throw new \Exception(lang('System.response-msg.error.account-created-issue') . ' [BIZ-ERR]');
+                throw new \Exception(lang('System.response-msg.error.account-created-issue') . ' [201]'); // can't insert the business
             }
             $business_user['business_id']         = $businessId;
             $business_user['user_id']             = $userId;
@@ -324,38 +345,27 @@ class Home extends BaseController
             $businessUserModel->insert($business_user);
             $buId                                 = $businessUserModel->getInsertID();
             if (!$buId) {
-                throw new \Exception(lang('System.response-msg.error.account-created-issue') . ' [BIZUSR-ERR]');
-            }
-            if ($db->transStatus() === false) {
-                $db->transRollback(); // <<< ROLLBACK (Undoes changes from all Models)
-                return $this->response->setJSON([
-                    'status'  => STATUS_RESPONSE_ERR,
-                    'message' => lang('System.response-msg.error.account-created-issue') . ' [UKNDB]'
-                ]);
+                throw new \Exception(lang('System.response-msg.error.account-created-issue') . ' [202]'); // can't insert the business user
             }
             // EMAIL
-            $exp     = dechex(strtotime('+20 minutes')*11);
-            $userTkn = dechex($userId*37);
-            $hash    = substr(hash('sha256', $user_master['email_address']), 0, 15);
-            $token   = "$exp-$userTkn-$hash";
-            $tknLnk  = base_url('account-activation?hl=' . $user_master['lang_code'] . '&token=' . $token);
-            $subject = lang('System.email.account-activation.subject');
-            $message = lang('System.email.account-activation.message', [$tknLnk, $tknLnk]);
+            $exp       = dechex(strtotime('+20 minutes')*11);
+            $userTkn   = dechex($userId*37);
+            $hash      = substr(hash('sha256', $user_master['email_address']), 0, 15);
+            $token     = "$exp-$userTkn-$hash";
+            $tknLnk    = base_url('account-activation?hl=' . $user_master['lang_code'] . '&token=' . $token);
+            $subject   = lang('System.email.account-activation.subject');
+            $message   = lang('System.email.account-activation.message', [$tknLnk, $tknLnk]);
             $preheader = substr($message, 0, 50);
             $reply_to  = getenv('SUPPORT_EMAIL');
             log_message('debug', 'EMAIL: SUBJECT: ' . $subject);
             log_message('debug', 'EMAIL: MESSAGE: ' . $message);
             if (!send_system_email($user_master['email_address'], $subject, $preheader, $message, $reply_to)) {
-                $db->transRollback(); // <<< ROLLBACK (Undoes changes from all Models)
-                return $this->response->setJSON([
-                    'status'  => STATUS_RESPONSE_ERR,
-                    'message' => lang('System.response-msg.error.account-created-issue') . ' [ACTEM]'
-                ]);
+                throw new \Exception(lang('System.response-msg.error.account-created-issue') . ' [203]'); // can't send activation email
             }
             $db->transCommit(); // <<< COMMIT (Saves changes from all Models)
             return $this->response->setJSON([
                 'status'  => STATUS_RESPONSE_OK,
-                'message' => lang('System.response-msg.success.account-created')
+                'message' => lang('System.response-msg.error.account-created-issue') . ' [' . lang('System.response-msg.success.account-created') . ']'
             ]);
         } catch (\Exception $e) {
             $db->transRollback(); // <<< ROLLBACK (Undoes changes from all Models)
@@ -368,7 +378,9 @@ class Home extends BaseController
     }
 
     /**
-     * Verify token from the email, if correct, activate the account
+     * Verify the token from the email, if correct, activate the account
+     * GET
+     * token
      * @return string
      */
     public function account_activation(): string
@@ -440,7 +452,7 @@ class Home extends BaseController
     }
 
     /**
-     * Forget password script - send email with token for resetting the password
+     * Forget password script - send email with a token for resetting the password
      * @return ResponseInterface
      */
     public function forgot_password_post(): ResponseInterface

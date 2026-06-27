@@ -3822,6 +3822,22 @@ if (!function_exists('get_available_locales')) {
         ];
     }
 }
+if (!function_exists('get_available_locales')) {
+    /**
+     * @param string $country_code
+     * @return array
+     */
+    function get_available_locales_for_country(string $country_code): array
+    {
+        $country_code = strtoupper($country_code);
+        if ('TH' == $country_code) {
+            return [
+                'en' => 'English (US)',
+                'th' => 'ภาษาไทย',
+            ];
+        }
+    }
+}
 if (!function_exists('get_social_media')) {
     function get_social_media(): array
     {
