@@ -47,7 +47,7 @@ class Cors extends BaseConfig
          * E.g.:
          *   - ['https://\w+\.example\.com']
          */
-        'allowedOriginsPatterns' => [],
+        'allowedOriginsPatterns' => ['https:\/\/\w+\.otternova\.com'],
 
         /**
          * Weather to send the `Access-Control-Allow-Credentials` header.
@@ -102,4 +102,14 @@ class Cors extends BaseConfig
          */
         'maxAge' => 7200,
     ];
+
+    public function __construct()
+    {
+        parent::__construct();
+        $envOrigins = env('CORS_ALLOWED_ORIGINS');
+        if (!empty($envOrigins)) {
+            $envOrigins = explode(',', $envOrigins);
+        }
+        $this->default['allowedOrigins'] = ($envOrigins ?? []);
+    }
 }
