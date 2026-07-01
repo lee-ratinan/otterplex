@@ -4,6 +4,8 @@ namespace App\Models;
 
 class BusinessMasterModel extends AppBaseModel
 {
+    const LIVE_STATUS_ACTIVE   = 'Y';
+    const LIVE_STATUS_INACTIVE = 'N';
     protected $table = 'business_master';
     protected $primaryKey = 'id';
     protected $allowedFields = [

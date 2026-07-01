@@ -26,14 +26,21 @@ use App\Models\ServiceStaffModel;
 use App\Models\ServiceVariantModel;
 use App\Models\SessionMasterModel;
 use CodeIgniter\HTTP\ResponseInterface;
-use libphonenumber\geocoding\data\id\Id_62;
+use Config\Database;
+use libphonenumber\NumberParseException;
 use libphonenumber\PhoneNumberFormat;
 use libphonenumber\PhoneNumberUtil;
 
 class Api extends BaseController
 {
 
-    private function getOrderData(string $orderNumber, string $languageCode): array
+    /**
+     * This endpoint is for retrieving the order information as requested by the customer.
+     * @param string $orderNumber
+     * @param string $languageCode
+     * @return array
+     */
+    private function getOrderData (string $orderNumber, string $languageCode): array
     {
         $orderMasterModel         = new OrderMasterModel();
         $orderLineItemModel       = new OrderLineItemModel();
@@ -48,7 +55,6 @@ class Api extends BaseController
         if (empty($orderMaster)) {
             return [];
         }
-        $orderId                  = $orderMaster['id'];
         $branchName               = '';
         if (!empty($orderMaster['collection_branch_id'])) {
             $branch      = $branchModel->findRow($orderMaster['collection_branch_id']);
@@ -83,7 +89,13 @@ class Api extends BaseController
         ];
     }
 
-    public function business_search(string $languageCode, string $countryCode): ResponseInterface
+    /**
+     * This endpoint is for searching a business by name, in any languages, in the specified country.
+     * @param string $languageCode
+     * @param string $countryCode
+     * @return ResponseInterface
+     */
+    public function business_search (string $languageCode, string $countryCode): ResponseInterface
     {
         $query         = $this->request->getGet('query');
         $mode          = $this->request->getGet('mode') ?? 'search';
@@ -97,7 +109,7 @@ class Api extends BaseController
                 ->select('business_master.*, business_type.type_name, business_type.type_local_names')
                 ->join('business_type', 'business_type.id = business_master.business_type_id')
                 ->where('country_code', $countryCode)
-                ->where('live_status', 'Y')
+                ->where('live_status', $businessModel::LIVE_STATUS_ACTIVE)
                 ->groupStart()
                 ->like('business_name', $query)
                 ->orLike('business_local_names', $query)
@@ -110,7 +122,7 @@ class Api extends BaseController
                 ->select('business_master.*, business_type.type_name, business_type.type_local_names')
                 ->join('business_type', 'business_type.id = business_master.business_type_id')
                 ->where('country_code', $countryCode)
-                ->where('live_status', 'Y')
+                ->where('live_status', $businessModel::LIVE_STATUS_ACTIVE)
                 ->orderBy('RAND()')
                 ->findAll($limit);
         }
@@ -137,7 +149,13 @@ class Api extends BaseController
         ]);
     }
 
-    public function business_retrieve(string $languageCode, string $countryCode): ResponseInterface
+    /**
+     * Retrieve specific business by slug.
+     * @param string $languageCode
+     * @param string $countryCode
+     * @return ResponseInterface
+     */
+    public function business_retrieve (string $languageCode, string $countryCode): ResponseInterface
     {
         $this->request->setLocale($languageCode . '-' . $countryCode);
         $session       = session();
@@ -150,7 +168,7 @@ class Api extends BaseController
             ->join('business_type', 'business_type.id = business_master.business_type_id')
             ->where('business_slug', $query)
             ->where('country_code', $countryCode)
-            ->where('live_status', 'Y')
+            ->where('live_status', $businessModel::LIVE_STATUS_ACTIVE)
             ->first();
         if (empty($business)) {
             return $this->response->setJSON([
@@ -163,7 +181,11 @@ class Api extends BaseController
         $mart_meta_descriptions                 = json_decode($business['mart_meta_description'], true);
         $mart_meta_keywords_array               = json_decode($business['mart_meta_keywords'], true);
         $mart_store_intro_paragraphs            = json_decode($business['mart_store_intro_paragraph'], true);
-        $business['social_media']               = json_decode($business['social_media'], true);
+        $social_media_raw                       = json_decode($business['social_media'], true);
+        $social_media                           = array_filter($social_media_raw, function ($value) {
+            return !empty($value);
+        });
+        $business['social_media']               = $social_media;
         $business['country']                    = get_country_name_single_language($business['country_code'], $languageCode);
         $business['business_name']              = $local_names[$languageCode] ?? $business['business_name'];
         $business['type_name']                  = $type_names[$languageCode] ?? $business['type_name'];
@@ -172,9 +194,13 @@ class Api extends BaseController
         $business['mart_store_intro_paragraph'] = $mart_store_intro_paragraphs[$languageCode] ?? '';
         $business['contact_phone_number_shown'] = '';
         if (!empty($business['contact_phone_number'])) {
-            $phone_util = PhoneNumberUtil::getInstance();
-            $phone_obj  = $phone_util->parse($business['contact_phone_number'], $business['country_code']);
-            $business['contact_phone_number_shown'] = $phone_util->format($phone_obj, PhoneNumberFormat::NATIONAL);
+            try {
+                $phone_util = PhoneNumberUtil::getInstance();
+                $phone_obj  = $phone_util->parse($business['contact_phone_number'], $business['country_code']);
+                $business['contact_phone_number_shown'] = $phone_util->format($phone_obj, PhoneNumberFormat::NATIONAL);
+            } catch (NumberParseException $e) {
+                $business['contact_phone_number_shown'] = $business['country_code'] . ' ' . $business['contact_phone_number'];
+            }
         }
         $business['contact_phone_number']       = $business['contact_phone_number'] ?? '';
         unset($business['business_local_names']);
@@ -311,7 +337,14 @@ class Api extends BaseController
         ]);
     }
 
-    private function get_basic_business_info(int $businessId, int $serviceId, int $variantId): array
+    /**
+     * Get the basic business info (business, service, variant)
+     * @param int $businessId
+     * @param int $serviceId
+     * @param int $variantId
+     * @return array
+     */
+    private function get_basic_business_info (int $businessId, int $serviceId, int $variantId): array
     {
         $businessModel = new BusinessMasterModel();
         $serviceModel  = new ServiceMasterModel();
@@ -340,12 +373,24 @@ class Api extends BaseController
         ];
     }
 
-    public function get_sessions(string $languageCode, string $countryCode, int $businessId, int $serviceId, int $variantId): ResponseInterface
+    /**
+     * Get a session list for a specific service variant
+     * @param string $languageCode
+     * @param string $countryCode
+     * @param int $businessId
+     * @param int $serviceId
+     * @param int $variantId
+     * @return ResponseInterface
+     */
+    public function get_sessions (string $languageCode, string $countryCode, int $businessId, int $serviceId, int $variantId): ResponseInterface
     {
         service('language')->setLocale($languageCode);
         $masterDetail = $this->get_basic_business_info($businessId, $serviceId, $variantId);
         if (empty($masterDetail)) {
-            return $this->response->setJSON([]);
+            return $this->response->setJSON([
+                'query'    => 'session-' . $variantId,
+                'sessions' => []
+            ]);
         }
         $variant                 = $masterDetail['variant'];
         $localNames              = json_decode($variant['variant_local_names'], true);
@@ -359,23 +404,38 @@ class Api extends BaseController
         $sessionModel            = new SessionMasterModel();
         $sessions                = $sessionModel->getAvailableSessions($masterDetail['variant']['id'], $languageCode, $dateFrom, $dateTo, $branchId);
         return $this->response->setJSON([
-            'variant_slug'             => $variant['variant_slug'],
-            'variant_name'             => $variant['variant_name'],
-            'schedule_type'            => $variant['schedule_type'],
-            'variant_capacity'         => $variant['variant_capacity'],
-            'price_active'             => $variant['price_active'],
-            'price_compare'            => $variant['price_compare'],
-            'service_duration_minutes' => $variant['service_duration_minutes'],
-            'sessions'                 => (empty($sessions) ? null : $sessions)
+            'query'    => 'session-' . $variantId,
+            'sessions' => [
+                'variant_slug'             => $variant['variant_slug'],
+                'variant_name'             => $variant['variant_name'],
+                'schedule_type'            => $variant['schedule_type'],
+                'variant_capacity'         => $variant['variant_capacity'],
+                'price_active'             => $variant['price_active'],
+                'price_compare'            => $variant['price_compare'],
+                'service_duration_minutes' => $variant['service_duration_minutes'],
+                'sessions'                 => (empty($sessions) ? null : $sessions)
+            ]
         ]);
     }
 
-    public function get_slots(string $languageCode, string $countryCode, int $businessId, int $serviceId, int $variantId): ResponseInterface
+    /**
+     * Get a session detail for a specific service variant
+     * @param string $languageCode
+     * @param string $countryCode
+     * @param int $businessId
+     * @param int $serviceId
+     * @param int $variantId
+     * @return ResponseInterface
+     */
+    public function get_slots (string $languageCode, string $countryCode, int $businessId, int $serviceId, int $variantId): ResponseInterface
     {
         service('language')->setLocale($languageCode);
         $masterDetail = $this->get_basic_business_info($businessId, $serviceId, $variantId);
         if (empty($masterDetail)) {
-            return $this->response->setJSON([1]);
+            return $this->response->setJSON([
+                'query'    => 'slot-' . $variantId,
+                'slots'    => [],
+            ]);
         }
         // models:
         $resourcesModel    = new ResourceMasterModel();
@@ -403,7 +463,10 @@ class Api extends BaseController
             unset($branch['branch_local_names']);
         }
         if (empty($branch)) {
-            return $this->response->setJSON([2]);
+            return $this->response->setJSON([
+                'query'    => 'slot-' . $variantId,
+                'slots'    => [],
+            ]);
         }
         // Fix possible slots
         if (!empty($branch['opening_hours'][0]) && !empty($branch['opening_hours'][1])) {
@@ -432,7 +495,10 @@ class Api extends BaseController
                 $branch['slots'] = $goodSlots;
             } catch (\Exception $e) {
                 log_message('error', $e->getMessage());
-                return $this->response->setJSON([]);
+                return $this->response->setJSON([
+                    'query'    => 'slot-' . $variantId,
+                    'slots'    => [],
+                ]);
             }
         } else {
             $branch['slots'] = [];
@@ -535,35 +601,42 @@ class Api extends BaseController
         }
         unset($branch['slots']);
         return $this->response->setJSON([
-            'service_slug'             => $service['service_slug'],
-            'service_name'             => $service['service_name'],
-            'variant_slug'             => $variant['variant_slug'],
-            'variant_name'             => $variant['variant_name'],
-            'schedule_type'            => $variant['schedule_type'],
-            'price_active'             => $variant['price_active'],
-            'price_active_str'         => $variant['price_active_str'],
-            'service_duration_minutes' => $variant['service_duration_minutes'],
-            'duration'                 => $variant['duration'],
-            'branch'                   => $branch,
+            'query'    => 'slot-' . $variantId,
+            'slots'    => [
+                'service_slug'             => $service['service_slug'],
+                'service_name'             => $service['service_name'],
+                'variant_slug'             => $variant['variant_slug'],
+                'variant_name'             => $variant['variant_name'],
+                'schedule_type'            => $variant['schedule_type'],
+                'price_active'             => $variant['price_active'],
+                'price_active_str'         => $variant['price_active_str'],
+                'service_duration_minutes' => $variant['service_duration_minutes'],
+                'duration'                 => $variant['duration'],
+                'branch'                   => $branch,
+            ],
         ]);
     }
 
-    public function business_checkout(string $languageCode, string $countryCode): ResponseInterface
+    /**
+     * Checkout
+     * @param string $languageCode
+     * @param string $countryCode
+     * @return ResponseInterface
+     */
+    public function business_checkout (string $languageCode, string $countryCode): ResponseInterface
     {
         service('language')->setLocale($languageCode);
         try {
-            $body      = $this->request->getBody();
-            $bodyArray = json_decode($body, true);
-            $cart      = @$bodyArray['cart'];
+            $body          = $this->request->getBody();
+            $bodyArray     = json_decode($body, true);
+            $cart          = @$bodyArray['cart'];
             log_message('debug', "Checking cart");
             log_message('debug', "Cart: " . json_encode($cart));
-            $businessId = $cart['business_id'];
-            $db         = \Config\Database::connect();
+            $businessId     = $cart['business_id'];
+            $db             = Database::connect();
             $db->transBegin();
             // FIND BUSINESS
-            $businessModel  = new BusinessMasterModel();
             $branchModel    = new BranchMasterModel();
-            $businessMaster = $businessModel->findRow($businessId);
             $branchMaster   = $branchModel->where('business_id', $businessId)->orderBy('id', 'ASC')->first();
             $timezone       = $branchMaster['timezone_code'];
             // TABLE: customer_master
@@ -704,7 +777,14 @@ class Api extends BaseController
         }
     }
 
-    public function order_search(string $languageCode, string $countryCode, string $orderNumber): ResponseInterface
+    /**
+     * Search order by order number
+     * @param string $languageCode
+     * @param string $countryCode
+     * @param string $orderNumber
+     * @return ResponseInterface
+     */
+    public function order_search (string $languageCode, string $countryCode, string $orderNumber): ResponseInterface
     {
         service('language')->setLocale($languageCode);
         try {
@@ -722,7 +802,17 @@ class Api extends BaseController
         }
     }
 
-    public function review_retrieve(string $languageCode, string $countryCode, string $page, string $sort, string $entity_type, string $entity_id): ResponseInterface
+    /**
+     * Retrieve the reviews for the specific entity (business, product, service)
+     * @param string $languageCode
+     * @param string $countryCode
+     * @param string $page
+     * @param string $sort
+     * @param string $entity_type
+     * @param string $entity_id
+     * @return ResponseInterface
+     */
+    public function review_retrieve (string $languageCode, string $countryCode, string $page, string $sort, string $entity_type, string $entity_id): ResponseInterface
     {
         service('language')->setLocale($languageCode);
         $review_model = new ReviewMasterModel();
