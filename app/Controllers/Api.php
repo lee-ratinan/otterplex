@@ -106,21 +106,24 @@ class Api extends BaseController
         $rawResults    = [];
         if ('search' == $mode) {
             $rawResults = $businessModel
-                ->select('business_master.*, business_type.type_name, business_type.type_local_names')
+                ->select('business_master.*, business_type.type_name, business_type.type_local_names, business_master_translation.business_name as business_name_translated')
                 ->join('business_type', 'business_type.id = business_master.business_type_id')
+                ->join('business_master_translation', 'business_master_translation.business_id = business_master.id', 'left')
+                ->groupStart()
                 ->where('country_code', $countryCode)
                 ->where('live_status', $businessModel::LIVE_STATUS_ACTIVE)
-                ->groupStart()
-                ->like('business_name', $query)
-                ->orLike('business_local_names', $query)
+                ->where('business_master_translation.language_code', $languageCode)
                 ->groupEnd()
+                ->like('business_name_translated', $query)
                 ->orderBy('business_name')
                 ->limit($limit)
                 ->findAll();
         } else if ('random' == $mode) {
             $rawResults   = $businessModel
-                ->select('business_master.*, business_type.type_name, business_type.type_local_names')
+                ->select('business_master.*, business_type.type_name, business_type.type_local_names, business_master_translation.business_name as business_name_translated')
                 ->join('business_type', 'business_type.id = business_master.business_type_id')
+                ->join('business_master_translation', 'business_master_translation.business_id = business_master.id', 'left')
+                ->where('business_master_translation.language_code', $languageCode)
                 ->where('country_code', $countryCode)
                 ->where('live_status', $businessModel::LIVE_STATUS_ACTIVE)
                 ->orderBy('RAND()')
@@ -128,8 +131,8 @@ class Api extends BaseController
         }
         $results       = [];
         foreach ($rawResults as $row) {
-            $local_names = ($row['business_local_names'] ? json_decode($row['business_local_names'], true) : '');
-            $name        = $local_names[$languageCode] ?? $row['business_name'];
+            $local_names = $row['business_name_translated'] ?? '';
+            $name        = $local_names ?? $row['business_name'];
             $types       = ($row['type_local_names'] ? json_decode($row['type_local_names'], true) : '');
             $type        = $types[$languageCode] ?? $row['business_type'];
             $paragraphs  = ($row['mart_store_intro_paragraph'] ? json_decode($row['mart_store_intro_paragraph'], true) : '');
@@ -164,8 +167,9 @@ class Api extends BaseController
         $businessModel = new BusinessMasterModel();
         // BUSINESS
         $business      = $businessModel
-            ->select('business_master.*, business_type.type_name, business_type.type_local_names')
+            ->select('business_master.*, business_type.type_name, business_type.type_local_names, business_master_translation.business_name as business_name_translated')
             ->join('business_type', 'business_type.id = business_master.business_type_id')
+            ->join('business_master_translation', 'business_master_translation.business_id = business_master.id', 'left')
             ->where('business_slug', $query)
             ->where('country_code', $countryCode)
             ->where('live_status', $businessModel::LIVE_STATUS_ACTIVE)
@@ -176,7 +180,7 @@ class Api extends BaseController
                 'business' => []
             ])->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
         }
-        $local_names                            = json_decode($business['business_local_names'], true);
+        $local_names                            = $business['business_name_translated'] ?? [];
         $type_names                             = json_decode($business['type_local_names'], true);
         $mart_meta_descriptions                 = json_decode($business['mart_meta_description'], true);
         $mart_meta_keywords_array               = json_decode($business['mart_meta_keywords'], true);

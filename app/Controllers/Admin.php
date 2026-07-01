@@ -12,6 +12,7 @@ use App\Models\BusinessContractModel;
 use App\Models\BusinessContractPaymentModel;
 use App\Models\BusinessCustomerModel;
 use App\Models\BusinessMasterModel;
+use App\Models\BusinessMasterTranslationModel;
 use App\Models\BusinessPaymentMethodModel;
 use App\Models\BusinessShippingFeeModel;
 use App\Models\BusinessTypeModel;
@@ -405,6 +406,7 @@ class Admin extends BaseController
             $session             = session();
             $businessId          = $session->business['business_id'];
             $businessMasterModel = new BusinessMasterModel();
+            $businessTrxModel    = new BusinessMasterTranslationModel();
             $script_action       = $this->request->getPost('script_action');
             $available_lang      = get_available_locales();
             $social_media        = get_social_media();
@@ -448,13 +450,13 @@ class Admin extends BaseController
                     $social_medias_values[$code] = $data['social_media_' . $code];
                     unset($data['social_media_' . $code]);
                 }
-                $data['business_local_names']       = json_encode($business_local_names_values, JSON_UNESCAPED_UNICODE);
+                $data['business_local_names']       = null; // json_encode($business_local_names_values, JSON_UNESCAPED_UNICODE);
                 $data['mart_meta_description']      = json_encode($mart_meta_description_values, JSON_UNESCAPED_UNICODE);
                 $data['mart_meta_keywords']         = json_encode($mart_meta_keywords_values, JSON_UNESCAPED_UNICODE);
                 $data['mart_store_intro_paragraph'] = json_encode($mart_store_intro_paragraph_values, JSON_UNESCAPED_UNICODE);
                 $data['social_media']               = json_encode($social_medias_values, JSON_UNESCAPED_UNICODE);
                 // Save
-                if ($businessMasterModel->update($businessId, $data)) {
+                if ($businessMasterModel->update($businessId, $data) && $businessTrxModel->updateName($businessId, $business_local_names_values)) {
                     // Reset business session
                     $businessUserModel = new BusinessUserModel();
                     $businesses        = $businessUserModel->getBusinessesByUserId($session->user_id, true, $data['business_slug']);

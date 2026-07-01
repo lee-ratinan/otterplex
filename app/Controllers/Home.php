@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\BusinessMasterModel;
+use App\Models\BusinessMasterTranslationModel;
 use App\Models\BusinessUserModel;
 use App\Models\LogActivityModel;
 use App\Models\UserMasterModel;
@@ -241,6 +242,7 @@ class Home extends BaseController
      * 201 DB Error (can't insert business)
      * 202 DB Error (can't insert business user)
      * 203 Email Error (can't send activation email)
+     * 204 DB Error (can't insert business translation)')
      **/
     public function create_account_post(): ResponseInterface
     {
@@ -251,19 +253,20 @@ class Home extends BaseController
         foreach ($user_master_fields as $field) {
             $user_master[$field] = $this->request->getPost($field);
             if (empty($user_master[$field])) {
-                return $this->generateErrorResponse(ResponseInterface::HTTP_BAD_REQUEST, lang('System.response-msg.error.please-check-empty-field') . ' [' . $field . ']');
+                return $this->generateErrorResponse(ResponseInterface::HTTP_BAD_REQUEST, lang('System.response-msg.error.please-check-empty-field') . ' [' . lang('UserMaster.field.' . $field) . ']');
             }
         }
         $user_master['user_public_name'] = $user_master['user_name_first'];
         foreach ($business_master_fields as $field) {
             $business_master[$field]     = $this->request->getPost($field);
-            if (empty($user_master[$field])) {
-                return $this->generateErrorResponse(ResponseInterface::HTTP_BAD_REQUEST, lang('System.response-msg.error.please-check-empty-field') . ' [' . $field . ']');
+            if (empty($business_master[$field])) {
+                return $this->generateErrorResponse(ResponseInterface::HTTP_BAD_REQUEST, lang('System.response-msg.error.please-check-empty-field') . ' [' . lang('BusinessMaster.field.' . $field) . ']');
             }
         }
         $userMasterModel     = new UserMasterModel();
         $businessMasterModel = new BusinessMasterModel();
         $businessUserModel   = new BusinessUserModel();
+        $businessTrxModel    = new BusinessMasterTranslationModel();
         // Get the DB connection to manage the transaction
         $db = Database::connect();
         $db->transBegin(); // <<< START TRANSACTION
@@ -306,7 +309,7 @@ class Home extends BaseController
             // DATA
             $business_master['business_type_id']           = 1; // DEFAULT
             $business_master['business_slug']              = $slug;
-            $business_master['business_local_names']       = json_encode($local_names, JSON_UNESCAPED_UNICODE);
+            $business_master['business_local_names']       = null; // json_encode($local_names, JSON_UNESCAPED_UNICODE); DEPRECATED
             $business_master['currency_code']              = $available_currencies[0];
             $business_master['tax_percentage']             = $tax_default_settings['tax_percentage'];
             $business_master['tax_inclusive']              = $tax_default_settings['tax_inclusive'];
@@ -333,10 +336,16 @@ class Home extends BaseController
             $business_master['review_rating_total']        = 0;
             $business_master['review_breakdown']           = '0;0;0;0;0';
             $businessMasterModel->insert($business_master);
-            $businessId = $businessMasterModel->getInsertID();
+            $businessId                                    = $businessMasterModel->getInsertID();
             if (!$businessId) {
                 throw new \Exception(lang('System.response-msg.error.account-created-issue') . ' [201]'); // can't insert the business
             }
+            // BUSINESS NAMES
+            $translation = $businessTrxModel->updateName($businessId, $local_names);
+            if (!$translation) {
+                throw new \Exception(lang('System.response-msg.error.account-created-issue') . ' [204]'); // can't insert the business translation'
+            }
+            // BUSINESS USER
             $business_user['business_id']         = $businessId;
             $business_user['user_id']             = $userId;
             $business_user['user_role']           = $businessUserModel::USER_ROLE_OWNER;
@@ -365,7 +374,7 @@ class Home extends BaseController
             $db->transCommit(); // <<< COMMIT (Saves changes from all Models)
             return $this->response->setJSON([
                 'status'  => STATUS_RESPONSE_OK,
-                'message' => lang('System.response-msg.error.account-created-issue') . ' [' . lang('System.response-msg.success.account-created') . ']'
+                'message' => lang('System.response-msg.success.account-created')
             ]);
         } catch (\Exception $e) {
             $db->transRollback(); // <<< ROLLBACK (Undoes changes from all Models)

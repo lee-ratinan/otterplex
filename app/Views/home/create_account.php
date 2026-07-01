@@ -61,8 +61,6 @@
         </div>
     </form>
 <script>
-    import {$} from "../../../public/assets/vendor/chart.js/chunks/helpers.dataset";
-
     document.addEventListener("DOMContentLoaded", function () {
         $('#btn-create-account').click(function (e) {
             e.preventDefault();
@@ -71,7 +69,6 @@
             gen_js_fields_checker($fields);
             ?>
             // check if the email_address format is valid
-            let email_address = $('#email_address').val();
             let email_regex   = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!email_regex.test(email_address)) {
                 $('#email_address').focus();
@@ -91,7 +88,7 @@
                 function(response, status) {
                     if (response.status === "<?= STATUS_RESPONSE_OK ?>") {
                         toastr.success(response.message);
-                        setTimeout(function() { window.location.href = '<?= base_url('login') ?>'; }, 3000);
+                        setTimeout(function() { window.location.href = '<?= base_url('login') ?>'; }, 5000);
                     } else {
                         toastr.error(response.message);
                     }

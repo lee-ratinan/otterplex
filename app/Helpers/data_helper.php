@@ -1828,7 +1828,7 @@ if (!function_exists('get_available_countries')) {
      */
     function get_available_countries(): array
     {
-        $countries = ['TH', 'SG', 'MY', 'JP', 'TW'];
+        $countries = ['TH']; // , 'SG', 'MY', 'JP', 'TW'];
         $final     = [];
         foreach ($countries as $code) {
             $final[$code] = get_country_list($code);
@@ -3822,7 +3822,7 @@ if (!function_exists('get_available_locales')) {
         ];
     }
 }
-if (!function_exists('get_available_locales')) {
+if (!function_exists('get_available_locales_for_country')) {
     /**
      * @param string $country_code
      * @return array
@@ -3836,6 +3836,7 @@ if (!function_exists('get_available_locales')) {
                 'th' => 'ภาษาไทย',
             ];
         }
+        return [];
     }
 }
 if (!function_exists('get_social_media')) {

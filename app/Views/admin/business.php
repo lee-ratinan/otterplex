@@ -410,7 +410,6 @@
             // SAVE
             $('#btn-save-1, #btn-save-2, #btn-save-3, #btn-save-4, #btn-save-5, #btn-save-6').on('click', function (e) {
                 e.preventDefault();
-                // business_local_names_en
                 <?php
                 $all_fields = ['business_type_id', 'business_name', 'business_slug', 'allow_advance_booking', 'tax_percentage', 'tax_inclusive', 'live_status', 'mart_primary_color', 'mart_text_color', 'mart_background_color', 'currency_code', 'contact_email_address', 'contact_phone_number', 'contact_website', 'shipping_options', 'shipping_fee_taxable'];
                 gen_js_fields_checker($all_fields);
