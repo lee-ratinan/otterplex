@@ -48,15 +48,23 @@ class BusinessUserModel extends AppBaseModel
             $this->where('business_master.business_slug', $business_slug);
         }
         $businesses = $this->select('business_user.*, business_master.business_type_id, business_master.business_name,
-                business_master.business_slug, business_master.business_local_names, business_master.country_code, business_master.business_logo, business_master.business_header,
+                business_master.business_slug, business_master.country_code, business_master.business_logo, business_master.business_header,
                 business_master.currency_code, business_master.tax_percentage, business_master.tax_inclusive, business_master.contract_anchor_day, business_master.contract_expiry, business_master.live_status')
             ->join('business_master', 'business_master.id = business_user.business_id')
             ->where('user_id', $userId)
             ->findAll();
-        for ($i = 0; $i < count($businesses); $i++) {
-            $businesses[$i]['business_local_names'] = json_decode($businesses[$i]['business_local_names'], true);
+        $businessIds = [];
+        $rawData     = [];
+        foreach ($businesses as $business) {
+            $businessIds[] = $business['business_id'];
+            $rawData[$business['business_id']] = $business;
         }
-        return $businesses;
+        $businessTrxModel = new BusinessMasterTranslationModel();
+        $translations     = $businessTrxModel->whereIn('business_id', $businessIds)->findAll();
+        foreach ($translations as $translation) {
+            $rawData[$translation['business_id']]['business_local_names'][$translation['language_code']] = $translation['business_name'];
+        }
+        return array_values($rawData);
     }
 
     /**

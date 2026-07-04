@@ -46,4 +46,23 @@ class BusinessMasterTranslationModel extends AppBaseModel
         }
         return $this->db->table($this->table)->upsertBatch($rows);
     }
+
+    /**
+     * Get the business name in a specific language
+     * @param int $businessId
+     * @param string $languageCode
+     * @param string $fallbackLanguageCode
+     * @return string
+     */
+    public function getBusinessName(int $businessId, string $languageCode, string $fallbackLanguageCode = 'en'): string
+    {
+        $languageCode = strtolower($languageCode);
+        $row = $this->where('business_id', $businessId)->where('language_code', $languageCode)->first();
+        if (empty($row)) {
+            $fallbackLanguageCode = strtolower($fallbackLanguageCode);
+            $row = $this->where('business_id', $businessId)->where('language_code', $fallbackLanguageCode)->first();
+            return $row['business_name'] ?? '';
+        }
+        return $row['business_name'];
+    }
 }

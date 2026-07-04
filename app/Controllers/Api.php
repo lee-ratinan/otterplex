@@ -8,6 +8,7 @@ use App\Models\BranchMasterModel;
 use App\Models\BranchModifiedHoursModel;
 use App\Models\BranchOpeningHoursModel;
 use App\Models\BusinessMasterModel;
+use App\Models\BusinessMasterTranslationModel;
 use App\Models\BusinessPaymentMethodModel;
 use App\Models\BusinessShippingFeeModel;
 use App\Models\CustomerAddressModel;
@@ -167,9 +168,8 @@ class Api extends BaseController
         $businessModel = new BusinessMasterModel();
         // BUSINESS
         $business      = $businessModel
-            ->select('business_master.*, business_type.type_name, business_type.type_local_names, business_master_translation.business_name as business_name_translated')
+            ->select('business_master.*, business_type.type_name, business_type.type_local_names')
             ->join('business_type', 'business_type.id = business_master.business_type_id')
-            ->join('business_master_translation', 'business_master_translation.business_id = business_master.id', 'left')
             ->where('business_slug', $query)
             ->where('country_code', $countryCode)
             ->where('live_status', $businessModel::LIVE_STATUS_ACTIVE)
@@ -180,18 +180,16 @@ class Api extends BaseController
                 'business' => []
             ])->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
         }
-        $local_names                            = $business['business_name_translated'] ?? [];
         $type_names                             = json_decode($business['type_local_names'], true);
         $mart_meta_descriptions                 = json_decode($business['mart_meta_description'], true);
         $mart_meta_keywords_array               = json_decode($business['mart_meta_keywords'], true);
         $mart_store_intro_paragraphs            = json_decode($business['mart_store_intro_paragraph'], true);
-        $social_media_raw                       = json_decode($business['social_media'], true);
+        $social_media_raw                       = empty($business['social_media']) ? [] : json_decode($business['social_media'], true);
         $social_media                           = array_filter($social_media_raw, function ($value) {
             return !empty($value);
         });
         $business['social_media']               = $social_media;
         $business['country']                    = get_country_name_single_language($business['country_code'], $languageCode);
-        $business['business_name']              = $local_names[$languageCode] ?? $business['business_name'];
         $business['type_name']                  = $type_names[$languageCode] ?? $business['type_name'];
         $business['mart_meta_description']      = $mart_meta_descriptions[$languageCode] ?? '';
         $business['mart_meta_keywords']         = $mart_meta_keywords_array[$languageCode] ?? '';
@@ -215,6 +213,10 @@ class Api extends BaseController
         if (!empty($business['business_header'])) {
             $business['business_header'] = base_url('/file/business_' . $business['business_header']);
         }
+        // TRANSLATED NAMES
+        $businessTrxModel          = new BusinessMasterTranslationModel();
+        $local_name                = $businessTrxModel->getBusinessName($business['id'], $languageCode);
+        $business['business_name'] = empty($local_name) ? $business['business_name'] : $local_name;
         // BRANCHES
         $branchModel = new BranchMasterModel();
         $branchRaw   = $branchModel
