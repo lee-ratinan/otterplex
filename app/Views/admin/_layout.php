@@ -249,5 +249,27 @@ if (!empty($session->business)) {
 <script src="<?= base_url('assets/js/main.js') ?>"></script>
 <script>let str_no_notifications = '<?= lang('Notifications.string.no-notifications') ?>', str_show_all_notification = '<?= lang('Notifications.string.show-all-notifications') ?>';</script>
 <script src="<?= base_url('assets/js/notification.js') ?>"></script>
+<script>
+    // 1. Get the session expiry timestamp passed to CodeIgniter view
+    const sessionExpiryTime = new Date("<?= str_replace(' ', 'T', session()->get('sessionExpiry')) ?>Z").getTime();
+    let idleTimer;
+    // 2. Function to trigger the actual logout
+    function forceLogout() { fetch('<?= base_url('logout') ?>', { method: 'GET' }).then(() => {window.location.href = '<?= base_url() ?>';}); }
+    // 3. Check for Hard Session Expiry
+    function checkSessionExpiry() { const currentTime = new Date().getTime(); if (currentTime >= sessionExpiryTime) { forceLogout(); } }
+    // 4. Handle Idle Timeout (10 Minutes of absolute inactivity)
+    function resetIdleTimer() { clearTimeout(idleTimer);
+        idleTimer = setTimeout(() => { console.log("User idle for 10 minutes. Logging out..."); forceLogout(); }, 600000);
+    }
+    // 5. Listen for user activity to reset the idle clock
+    window.onload = function() {
+        resetIdleTimer();
+        // Check every 30 seconds if the hard UTC timestamp has expired
+        setInterval(checkSessionExpiry, 30000);
+        // Reset idle timer if they move the mouse, scroll, or press a key
+        const activityEvents = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
+        activityEvents.forEach(event => { document.addEventListener(event, resetIdleTimer, true); });
+    };
+</script>
 </body>
 </html>
