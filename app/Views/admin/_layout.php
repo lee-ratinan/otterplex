@@ -71,14 +71,12 @@ if (!empty($session->business)) {
                 </a>
             </li>
             <!-- Header / Notifications -->
-            <li class="nav-item dropdown d-none">
+            <li class="nav-item dropdown">
                 <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
                     <i class="fa-solid fa-bell"></i>
-                    <span class="badge bg-primary badge-number">4</span>
+                    <span class="badge bg-primary badge-number" id="noti-badge"></span>
                 </a>
-                <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications">
-                    <li class="dropdown-footer">###</li>
-                </ul>
+                <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications" id="noti-items-container" style="min-width:300px;"></ul>
             </li>
             <!-- Header / Profile -->
             <li class="nav-item dropdown pe-3">
@@ -249,5 +247,6 @@ if (!empty($session->business)) {
 <script src="<?= base_url('assets/vendor/DataTables/datatables.min.js') ?>"></script>
 <!-- Template Main JS File -->
 <script src="<?= base_url('assets/js/main.js') ?>"></script>
+<script src="<?= base_url('assets/js/notification.js') ?>"></script>
 </body>
 </html>

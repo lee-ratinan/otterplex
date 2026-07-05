@@ -102,6 +102,9 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     // BLOG
     $routes->get('blog', 'Admin::blog');
     $routes->get('blog/category', 'Admin::blog_category');
+    // NOTIFICATION
+    $routes->get('notifications/fetch', 'Notification::fetch');
+    $routes->post('notifications/mark-read/(:num)', 'Notification::markAsRead/$1');
 });
 // Booking APIs
 $routes->group('api/v1.0', function ($routes) {
