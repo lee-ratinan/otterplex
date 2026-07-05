@@ -81,7 +81,7 @@ class NotificationModel extends Model
      */
     public function getUnreadCount(int $user_id): int|string
     {
-        return $this->where(['user_id' => $user_id, 'is_read' => 0])->countAllResults();
+        return $this->where(['user_id' => $user_id, 'is_read' => 'N'])->countAllResults();
     }
 
     /**

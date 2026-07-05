@@ -103,6 +103,7 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->get('blog', 'Admin::blog');
     $routes->get('blog/category', 'Admin::blog_category');
     // NOTIFICATION
+    $routes->get('notifications', 'Notification::index');
     $routes->get('notifications/fetch', 'Notification::fetch');
     $routes->post('notifications/mark-read/(:num)', 'Notification::markAsRead/$1');
 });

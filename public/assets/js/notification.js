@@ -12,17 +12,19 @@ $(document).ready(function() {
             success: function(data) {
                 // 1. Manage Badge Counter
                 if (data.unread_count > 0) {
-                    $('#noti-badge').text(data.unread_count).removeClass('d-none');
+                    let unread = data.unread_count;
+                    if (99 < unread) {
+                        unread = '99+';
+                    }
+                    $('#noti-badge').text(unread).removeClass('d-none');
                 } else {
                     $('#noti-badge').addClass('d-none');
                 }
                 // 2. Build List
                 let htmlOutput = '';
                 if (data.notifications.length === 0) {
-                    console.log('No notifications');
-                    htmlOutput = `<li class="notification-item"><i class="fa-solid fa-triangle-exclamation"></i><div><p>No Notifications</p></div></li>`;
+                    htmlOutput = `<li class="notification-item"><i class="fa-solid fa-triangle-exclamation"></i><div><p>${str_no_notifications}</p></div></li>`;
                 } else {
-                    console.log('There are notifications');
                     data.notifications.forEach(function(item) {
                         let iconClass = iconMapping[item.notification_type] || iconMapping['default'];
                         let unreadClass = (item.is_read === 'Y' ? '' : 'fw-bold');
@@ -30,8 +32,8 @@ $(document).ready(function() {
                         let localTime = new Date(item.created_at + ' UTC').toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                         htmlOutput += `<li class="notification-item"><i class="${iconClass}"></i><div><a href="${item.notification_link}" class="noti-item" data-id="${item.id}"><p class="${unreadClass}">${item.notification_message}</p><p>${localTime}</p></a></div></li><li><hr class="dropdown-divider"></li>`;
                     });
-                    console.log(htmlOutput);
                 }
+                htmlOutput += `<li class="dropdown-footer"><a href="/admin/notifications">${str_show_all_notification}</a></li>`
                 $('#noti-items-container').html(htmlOutput);
             }
         });

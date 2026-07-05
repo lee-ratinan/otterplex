@@ -74,7 +74,7 @@ if (!empty($session->business)) {
             <li class="nav-item dropdown">
                 <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
                     <i class="fa-solid fa-bell"></i>
-                    <span class="badge bg-primary badge-number" id="noti-badge"></span>
+                    <span class="badge bg-danger badge-number" id="noti-badge"></span>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications" id="noti-items-container" style="min-width:300px;"></ul>
             </li>
@@ -247,6 +247,7 @@ if (!empty($session->business)) {
 <script src="<?= base_url('assets/vendor/DataTables/datatables.min.js') ?>"></script>
 <!-- Template Main JS File -->
 <script src="<?= base_url('assets/js/main.js') ?>"></script>
+<script>let str_no_notifications = '<?= lang('Notifications.string.no-notifications') ?>', str_show_all_notification = '<?= lang('Notifications.string.show-all-notifications') ?>';</script>
 <script src="<?= base_url('assets/js/notification.js') ?>"></script>
 </body>
 </html>
