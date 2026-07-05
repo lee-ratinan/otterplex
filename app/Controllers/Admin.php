@@ -363,6 +363,7 @@ class Admin extends BaseController
         $businessMasterModel  = new BusinessMasterModel();
         $businessTypeModel    = new BusinessTypeModel();
         $contractModel        = new BusinessContractModel();
+        $translationModel     = new BusinessMasterTranslationModel();
         $businessId           = $session->business['business_id'];
         $business             = $businessMasterModel->find($businessId);
         $businessTypes        = $businessTypeModel->retrieveData();
@@ -373,12 +374,18 @@ class Admin extends BaseController
             $logo_file = base_url('file/business_' . $business['business_logo']);
         }
         // DATA
-        $business['business_local_names']       = json_decode($business['business_local_names'], true);
         $business['mart_meta_description']      = json_decode($business['mart_meta_description'], true);
         $business['mart_meta_keywords']         = json_decode($business['mart_meta_keywords'], true);
         $business['mart_store_intro_paragraph'] = json_decode($business['mart_store_intro_paragraph'], true);
         $business['social_media']               = json_decode($business['social_media'], true);
-        $data = [
+        // TRANSLATION
+        $local_names_raw                        = $translationModel->where('business_id', $businessId)->findAll();
+        $local_names_values                     = [];
+        foreach ($local_names_raw as $local_names_raw_item) {
+            $local_names_values[$local_names_raw_item['language_code']] = $local_names_raw_item['business_name'];
+        }
+        $business['business_local_names']       = $local_names_values;
+        $data                                   = [
             'slug'           => 'business',
             'lang'           => $this->request->getLocale(),
             'business'       => $business,

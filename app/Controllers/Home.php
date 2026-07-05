@@ -326,15 +326,16 @@ class Home extends BaseController
             $business_master['shipping_fee_taxable']       = 'N';
             $business_master['contract_anchor_date']       = null;
             $business_master['contract_expiry']            = DEFAULT_EXPIRY_DATE;
-            $business_master['allow_advance_booking']      = null;
+            $business_master['allow_advance_booking']      = 3;
             $business_master['contact_email_address']      = null;
             $business_master['contact_phone_number']       = null;
             $business_master['contact_website']            = null;
-            $business_master['live_status']                = 0;
-            $business_master['review_stars']               = 0;
+            $business_master['live_status']                = 'N';
+            $business_master['review_stars']               = '0.0';
             $business_master['review_count']               = 0;
             $business_master['review_rating_total']        = 0;
             $business_master['review_breakdown']           = '0;0;0;0;0';
+            $business_master['created_by']                 = $userId;
             $businessMasterModel->insert($business_master);
             $businessId                                    = $businessMasterModel->getInsertID();
             if (!$businessId) {
