@@ -256,13 +256,20 @@ class Home extends BaseController
                 return $this->generateErrorResponse(ResponseInterface::HTTP_BAD_REQUEST, lang('System.response-msg.error.please-check-empty-field') . ' [' . lang('UserMaster.field.' . $field) . ']');
             }
         }
-        $user_master['user_public_name'] = $user_master['user_name_first'];
         foreach ($business_master_fields as $field) {
             $business_master[$field]     = $this->request->getPost($field);
             if (empty($business_master[$field])) {
                 return $this->generateErrorResponse(ResponseInterface::HTTP_BAD_REQUEST, lang('System.response-msg.error.please-check-empty-field') . ' [' . lang('BusinessMaster.field.' . $field) . ']');
             }
         }
+        $available_language_codes = get_available_locales_for_country($business_master['country_code']);
+        $available_language_codes = array_keys($available_language_codes);
+        $user_master['user_public_name'] = null; // $user_master['user_name_first'];
+        $user_local_names    = [];
+        foreach ($available_language_codes as $code) {
+            $user_local_names[$code] = $user_master['user_name_first'];
+        }
+        $user_master['user_public_local_names'] = json_encode($user_local_names, JSON_UNESCAPED_UNICODE);
         $userMasterModel     = new UserMasterModel();
         $businessMasterModel = new BusinessMasterModel();
         $businessUserModel   = new BusinessUserModel();
@@ -296,8 +303,6 @@ class Home extends BaseController
             $slug           = preg_replace('/-+/', '-', $slug);
             $slug           = trim($slug, '-');
             // LOCALES
-            $available_language_codes = get_available_locales_for_country($business_master['country_code']);
-            $available_language_codes = array_keys($available_language_codes);
             $local_names              = [];
             foreach ($available_language_codes as $code) {
                 // Initialize all languages to the same initial business first

@@ -6,16 +6,59 @@
             <div class="card">
                 <div class="card-body p-3">
                     <h2><?= lang('Business.title', [$business['business_local_names'][$lang] ?? $business['business_name']]) ?></h2>
-<!--                    <pre>-->
-<!--                        --><?php //var_dump(gd_info()); ?>
-<!--                    </pre>-->
                     <div class="row">
                         <div class="col-12 col-lg-6">
-                            <p>
-                                <?= lang('BusinessMaster.field.country_code') . ': ' . get_country_name_single_language($business['country_code'], $session->lang) ?>
-                                <br>
-                                <?= lang('BusinessMaster.field.contract_expiry') . ': ' . format_date($business['contract_expiry']) ?>
-                            </p>
+                            <div class="row">
+                                <div class="col-6 col-sm-4">
+                                    <div class="card">
+                                        <div class="card-body p-3">
+                                            <h6><?= lang('BusinessMaster.field.country_code') ?></h6>
+                                            <?= get_country_name_single_language($business['country_code'], $session->lang) ?>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-sm-4">
+                                    <div class="card">
+                                        <div class="card-body p-3">
+                                            <h6><?= lang('BusinessMaster.field.currency_code') ?></h6>
+                                            <?= get_currency_common_name($business['currency_code'], $session->lang) ?>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-sm-4">
+                                    <div class="card">
+                                        <div class="card-body p-3">
+                                            <h6><?= lang('BusinessMaster.field.contract_plan') ?></h6>
+                                            <?= lang('BusinessMaster.enum.contract_plan.' . $business['contract_plan']) ?>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-sm-4">
+                                    <div class="card">
+                                        <div class="card-body p-3">
+                                            <h6><?= lang('BusinessMaster.field.contract_expiry') ?></h6>
+                                            <?= format_date($business['contract_expiry'], $session->lang) ?>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-sm-4">
+                                    <div class="card">
+                                        <div class="card-body p-3">
+                                            <h6><?= lang('BusinessMaster.field.review_stars') ?></h6>
+                                            <b><?= number_format($business['review_stars'], 1) ?></b><small>/<?= number_format($business['review_count']) ?></small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-sm-4">
+                                    <div class="card">
+                                        <div class="card-body p-3">
+                                            <h6><?= lang('BusinessMaster.field.live_status') ?></h6>
+                                            <?= ('Y' == $business['live_status']) ? '<i class="fa-solid fa-toggle-on text-success"></i>' : '<i class="fa-solid fa-toggle-off text-danger"></i>' ?>
+                                            <?= lang('BusinessMaster.enum.live_status.' . $business['live_status']) ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="card border-1 rounded">
                                 <div class="card-body p-3">
                                     <ul class="mb-0">
@@ -87,12 +130,21 @@
                             ]);
                             $currencies_for_this_country = get_available_currency_code_by_country($business['country_code']);
                             $currency_list               = [];
-                            foreach ($currencies_for_this_country as $cd) {
-                                $currency_list[$cd] = get_currency_common_name($cd, $session->lang);
+                            if ('Y' == $business['live_status']) {
+                                $currency_list[$business['currency_code']] = get_currency_common_name($business['currency_code'], $session->lang);
+                                echo build_form_input('currency_code', lang('BusinessMaster.field.currency_code'), [
+                                    'type'             => 'select',
+                                    'data-explanation' => lang('BusinessMaster.explanation.currency_code')
+                                ], $business['currency_code'], '', $currency_list);
+                            } else {
+                                foreach ($currencies_for_this_country as $cd) {
+                                    $currency_list[$cd] = get_currency_common_name($cd, $session->lang);
+                                }
+                                echo build_form_input('currency_code', lang('BusinessMaster.field.currency_code'), [
+                                    'type'             => 'select',
+                                    'data-explanation' => lang('BusinessMaster.explanation.currency_code')
+                                ], $business['currency_code'], '', $currency_list);
                             }
-                            echo build_form_input('currency_code', lang('BusinessMaster.field.currency_code'), [
-                                'type' => 'select',
-                            ], $business['currency_code'], '', $currency_list);
                             ?>
                             <div class="text-end">
                                 <button class="btn btn-primary" id="btn-save-2"><?= lang('System.buttons.save') ?></button>
