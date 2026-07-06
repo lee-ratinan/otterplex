@@ -6,7 +6,6 @@ if (!function_exists('send_system_email')) {
     /**
      * @param string $to_email
      * @param string $subject
-     * @param string $preheader
      * @param string $message
      * @param string $reply_to_email
      * @param string $cc
@@ -14,7 +13,7 @@ if (!function_exists('send_system_email')) {
      * @param string $microdata
      * @return bool
      */
-    function send_system_email(string $to_email, string $subject, string $preheader, string $message, string $reply_to_email = '', string $cc ='', string $bcc = '', string $microdata = ''): bool
+    function send_system_email(string $to_email, string $subject, string $message, string $reply_to_email = '', string $cc ='', string $bcc = '', string $microdata = ''): bool
     {
         $footer_line = lang('System.email.footer-line');
         $privacy     = lang('System.email.footer-privacy');
@@ -22,13 +21,14 @@ if (!function_exists('send_system_email')) {
         $email       = Services::email();
         $email->clear();
         $logo        = base_url('assets/img/logo.png');
+        $preheader   = substr($message, 0, 200);
         $html        = "<!doctype html>
 <html lang='en'>
   <head>
     <meta charset='utf-8' />
     <meta name='viewport' content='width=device-width, initial-scale=1' />
     <meta name='x-apple-disable-message-reformatting' />
-    <title>{{subject}}</title>
+    <title>{$subject}</title>
     <style>
     @media (prefers-color-scheme: dark) {
       body, table.table-bg { background: #0b0b0c !important; }

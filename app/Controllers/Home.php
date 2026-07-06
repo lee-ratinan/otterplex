@@ -370,11 +370,10 @@ class Home extends BaseController
             $tknLnk    = base_url('account-activation?hl=' . $user_master['lang_code'] . '&token=' . $token);
             $subject   = lang('System.email.account-activation.subject');
             $message   = lang('System.email.account-activation.message', [$tknLnk, $tknLnk]);
-            $preheader = substr($message, 0, 50);
             $reply_to  = getenv('SUPPORT_EMAIL');
             log_message('debug', 'EMAIL: SUBJECT: ' . $subject);
             log_message('debug', 'EMAIL: MESSAGE: ' . $message);
-            if (!send_system_email($user_master['email_address'], $subject, $preheader, $message, $reply_to)) {
+            if (!send_system_email($user_master['email_address'], $subject, $message, $reply_to)) {
                 throw new \Exception(lang('System.response-msg.error.account-created-issue') . ' [203]'); // can't send activation email
             }
             $db->transCommit(); // <<< COMMIT (Saves changes from all Models)
