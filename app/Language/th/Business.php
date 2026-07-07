@@ -40,18 +40,18 @@ return [
         'pay-by-qr-thailand' => 'ชำระโดยการสแกน QR (พร้อมเพย์)',
     ],
     'branch-management'         => [
-        'new-branch'          => 'สาขาใหม่',
-        'generic-title'       => 'ข้อมูลสาขาเปิดใหม่',
-        'generic-information' => 'ข้อมูลทั่วไป',
-        'opening-hours'       => 'เวลาเปิดทำการ',
-        'modified-hours'      => 'การเปลี่ยนแปลงเวลาเปิดทำการ',
-        'modified-hours-new'  => 'เพิ่มวันที่มีการเปลี่ยนแปลง',
-        'hours'               => [
+        'new-branch'           => 'สาขาใหม่',
+        'generic-title'        => 'ข้อมูลสาขาเปิดใหม่',
+        'generic-information'  => 'ข้อมูลทั่วไป',
+        'opening-hours'        => 'เวลาเปิดทำการ',
+        'modified-hours'       => 'การเปลี่ยนแปลงเวลาเปิดทำการ',
+        'modified-hours-new'   => 'เพิ่มวันที่มีการเปลี่ยนแปลง',
+        'hours'                => [
             'day'    => 'วัน',
             'opens'  => 'เวลาเปิด',
             'closes' => 'เวลาปิด',
         ],
-        'days'                => [
+        'days'                 => [
             'M'  => 'วันจันทร์',
             'T'  => 'วันอังคาร',
             'W'  => 'วันพุธ',
@@ -60,7 +60,9 @@ return [
             'S'  => 'วันเสาร์',
             'SU' => 'วันอาทิตย์',
         ],
-        'close-shop'          => 'ปิดร้าน'
+        'close-shop'           => 'ปิดร้าน',
+        'staff-in-this-branch' => 'พนักงานในสาขานี้',
+        'go-to-user-to-manage' => 'กรุณาไปยังหน้าพนักงานเพื่อแก้ไขรายชื่อพนักงานในสาขานี้'
     ],
     'user-management'           => [
         'new-user'           => 'พนักงานใหม่',

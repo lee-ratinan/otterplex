@@ -40,18 +40,18 @@ return [
         'pay-by-qr-thailand' => 'Pay by PromptPay QR Code (Thailand)',
     ],
     'branch-management'         => [
-        'new-branch'          => 'New Branch',
-        'generic-title'       => 'New Branch Information',
-        'generic-information' => 'Generic Information',
-        'opening-hours'       => 'Opening Hours',
-        'modified-hours'      => 'Modified Hours',
-        'modified-hours-new'  => 'Add Date with Modified Hours',
-        'hours'               => [
+        'new-branch'           => 'New Branch',
+        'generic-title'        => 'New Branch Information',
+        'generic-information'  => 'Generic Information',
+        'opening-hours'        => 'Opening Hours',
+        'modified-hours'       => 'Modified Hours',
+        'modified-hours-new'   => 'Add Date with Modified Hours',
+        'hours'                => [
             'day'    => 'Day',
             'opens'  => 'Opens',
             'closes' => 'Closes',
         ],
-        'days'                => [
+        'days'                 => [
             'M'  => 'Monday',
             'T'  => 'Tuesday',
             'W'  => 'Wednesday',
@@ -60,7 +60,9 @@ return [
             'S'  => 'Saturday',
             'SU' => 'Sunday',
         ],
-        'close-shop'          => 'Close Shop'
+        'close-shop'           => 'Close Shop',
+        'staff-in-this-branch' => 'Staff In This Branch',
+        'go-to-user-to-manage' => 'Please go to staff management to update this list'
     ],
     'user-management'           => [
         'new-user'           => 'New User',

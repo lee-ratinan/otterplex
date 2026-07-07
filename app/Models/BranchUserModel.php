@@ -46,4 +46,16 @@ class BranchUserModel extends AppBaseModel
             ->where('branch_user.user_id', $userId)
             ->findAll();
     }
+
+    /**
+     * @param int $branchId
+     * @return array
+     */
+    public function getUsersByBranchId(int $branchId): array
+    {
+        return $this->select('branch_user.*, user_master.user_name_first, user_master.user_name_last')
+            ->join('user_master', 'user_master.id = branch_user.user_id')
+            ->where('branch_user.branch_id', $branchId)
+            ->findAll();
+    }
 }

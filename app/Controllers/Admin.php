@@ -748,6 +748,7 @@ class Admin extends BaseController
         $branchModel   = new BranchMasterModel();
         $hoursModel    = new BranchOpeningHoursModel();
         $modifiedModel = new BranchModifiedHoursModel();
+        $staffModel    = new BranchUserModel();
         $mode          = 'new';
         $branch        = [];
         $hours         = [
@@ -785,6 +786,8 @@ class Admin extends BaseController
         // OPTIONS
         $subdivisions = get_country_subdivisions($session->business['country_code']);
         $timezones    = get_tzdb_by_country($session->business['country_code']);
+        // STAFF
+        $staff        = $staffModel->getUsersByBranchId($branch['id']);
         $data         = [
             'slug'          => 'business-branch-manage',
             'lang'          => $this->request->getLocale(),
@@ -795,6 +798,7 @@ class Admin extends BaseController
             'subdivisions'  => $subdivisions,
             'all_languages' => $allLanguages,
             'timezones'     => $timezones,
+            'staff'         => $staff,
             'breadcrumb'    => [
                 [
                     'url'        => base_url('admin/business/branch'),

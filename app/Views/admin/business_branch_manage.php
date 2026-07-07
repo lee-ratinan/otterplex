@@ -145,6 +145,26 @@
                             <div class="text-end">
                                 <button class="btn btn-primary" id="btn-save-modified"><?= lang('System.buttons.save') ?></button>
                             </div>
+                            <h3 class="pt-5 mt-5"><?= lang('Business.branch-management.staff-in-this-branch') ?></h3>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-hover table-striped">
+                                    <thead>
+                                    <tr>
+                                        <th><?= lang('UserMaster.field.user_full_name') ?></th>
+                                        <th><?= lang('BranchUser.field.user_role') ?></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <?php foreach ($staff as $row) : ?>
+                                    <tr>
+                                        <td><?= $row['user_name_first'] ?> <?= $row['user_name_last'] ?></td>
+                                        <td><?= lang('BranchUser.enum.user_role.' . $row['user_role']) ?></td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <p><?= lang('Business.branch-management.go-to-user-to-manage') ?></p>
                         </div>
                         <?php endif; ?>
                     </div>
@@ -208,11 +228,12 @@
             $('#btn-save-master').click(function (e) {
                 e.preventDefault();
                 <?php
-                $fields = ['subdivision_code', 'branch_name', 'branch_slug', 'timezone_code', 'branch_type', 'branch_address', 'branch_postal_code', 'google_map_url', 'branch_status'];
+                $fields = ['subdivision_code', 'branch_name', 'branch_slug', 'timezone_code', 'branch_type', 'branch_address', 'branch_postal_code', 'branch_status'];
                 foreach ($all_languages as $language_code => $language_name) {
                     $fields[] = 'branch_local_names_' . $language_code;
                 }
                 gen_js_fields_checker($fields);
+                $fields[] = 'google_map_url';
                 ?>
                 $('#btn-save-master').prop('disabled', true);
                 $('#id').val(<?= $branch['id'] ?? 0 ?>);

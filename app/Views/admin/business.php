@@ -463,8 +463,11 @@
             $('#btn-save-1, #btn-save-2, #btn-save-3, #btn-save-4, #btn-save-5, #btn-save-6').on('click', function (e) {
                 e.preventDefault();
                 <?php
-                $all_fields = ['business_type_id', 'business_name', 'business_slug', 'allow_advance_booking', 'tax_percentage', 'tax_inclusive', 'live_status', 'mart_primary_color', 'mart_text_color', 'mart_background_color', 'currency_code', 'contact_email_address', 'contact_phone_number', 'contact_website', 'shipping_options', 'shipping_fee_taxable'];
+                $all_fields = ['business_type_id', 'business_name', 'business_slug', 'allow_advance_booking', 'tax_percentage', 'tax_inclusive', 'live_status', 'mart_primary_color', 'mart_text_color', 'mart_background_color', 'currency_code', 'shipping_options', 'shipping_fee_taxable'];
                 gen_js_fields_checker($all_fields);
+                $all_fields[] = 'contact_email_address';
+                $all_fields[] = 'contact_phone_number';
+                $all_fields[] = 'contact_website';
                 foreach ($all_languages as $lang_code => $language_name) {
                     $all_fields[] = 'business_local_names_' . $lang_code;
                     $all_fields[] = 'mart_meta_description_' . $lang_code;
