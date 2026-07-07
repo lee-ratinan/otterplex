@@ -62,7 +62,7 @@ return [
         ],
         'close-shop'           => 'Close Shop',
         'staff-in-this-branch' => 'Staff In This Branch',
-        'go-to-user-to-manage' => 'Please go to staff management to update this list'
+        'go-to-user-to-manage' => 'Please go to <a href="{0}">staff management</a> to update this list.'
     ],
     'user-management'           => [
         'new-user'           => 'New User',

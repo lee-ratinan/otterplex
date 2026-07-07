@@ -3801,6 +3801,8 @@ if (!function_exists('get_tzdb_by_code')) {
 }
 if (!function_exists('get_available_locales')) {
     /**
+     * @deprecated User get_available_locales_for_country instead
+     *
      * @param string $format (optional) either long or short
      * @return array
      */

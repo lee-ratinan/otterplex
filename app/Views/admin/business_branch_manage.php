@@ -164,7 +164,7 @@
                                     </tbody>
                                 </table>
                             </div>
-                            <p><?= lang('Business.branch-management.go-to-user-to-manage') ?></p>
+                            <p><?= lang('Business.branch-management.go-to-user-to-manage', [base_url('admin/business/user')]) ?></p>
                         </div>
                         <?php endif; ?>
                     </div>

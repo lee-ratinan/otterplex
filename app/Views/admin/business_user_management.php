@@ -26,14 +26,16 @@
                             'type' => 'text',
                         ], @$user['user_name_last']);
                         echo '</div></div>';
-                        echo build_form_input('user_public_name', lang('UserMaster.field.user_public_name'), [
-                            'type'             => 'text',
-                            'data-explanation' => lang('UserMaster.explanation.user_public_name')
-                        ], @$user['user_public_name']);
+                        foreach ($all_languages as $lang_code => $language_name) {
+                            echo build_form_input('user_public_local_names_' . $lang_code, lang('UserMaster.field.user_public_name') . ' (' . $language_name . ')', [
+                                'type'             => 'text',
+                                'data-explanation' => lang('UserMaster.explanation.user_public_name')
+                            ], @$user['user_public_local_names'][$lang_code]);
+                        }
                         $account_status_attr['type'] = 'select';
                         $account_status_options      = [
                             'A' => lang('UserMaster.enum.account_status.A'),
-                            'P' => lang('UserMaster.enum.account_status.P'),
+//                            'P' => lang('UserMaster.enum.account_status.P'),
                             'B' => lang('UserMaster.enum.account_status.B'),
                             'S' => lang('UserMaster.enum.account_status.S'),
                         ];
@@ -147,7 +149,9 @@
                 <?php
                 $fields = ['email_address', 'user_name_first', 'user_name_last', 'account_status'];
                 gen_js_fields_checker($fields);
-                $fields[] = 'user_public_name';
+                foreach ($all_languages as $language_code => $language_name) {
+                    $fields[] = 'user_public_local_names_' . $language_code;
+                }
                 ?>
                 $('#btn-save-master').prop('disabled', true);
                 $('#action').val('user_master');

@@ -761,6 +761,7 @@ class Admin extends BaseController
             'SU' => [0, null, null],
         ];
         $modified      = [];
+        $staff         = [];
         $allLanguages  = get_available_locales('long');
         if ('new-branch' !== $branch_slug) {
             $branch = $branchModel
@@ -780,14 +781,14 @@ class Admin extends BaseController
             foreach ($hour_raw as $hour) {
                 $hours[$hour['day_of_the_week']] = [$hour['id'], substr($hour['opening_hours'], 0, 5), substr($hour['closing_hours'], 0, 5)];
             }
+            // STAFF
+            $staff     = $staffModel->getUsersByBranchId($branch['id']);
             // FIX MODE
             $mode      = 'edit';
         }
         // OPTIONS
         $subdivisions = get_country_subdivisions($session->business['country_code']);
         $timezones    = get_tzdb_by_country($session->business['country_code']);
-        // STAFF
-        $staff        = $staffModel->getUsersByBranchId($branch['id']);
         $data         = [
             'slug'          => 'business-branch-manage',
             'lang'          => $this->request->getLocale(),
@@ -997,20 +998,28 @@ class Admin extends BaseController
                     $local_names             = json_decode($branch['branch_local_names'], true);
                     $branches[$branch['id']] = $local_names[$session->lang] ?? $branch['branch_name'];
                 }
+                $user_local_names = $user['user_public_local_names'];
+                if (!empty($user_local_names)) {
+                    $user['user_public_local_names'] = json_decode($user_local_names, true);
+                } else {
+                    $user['user_public_local_names'] = [];
+                }
             } else {
                 throw new PageNotFoundException(lang('Admin.pages.page-not-found'));
             }
         }
-        $data = [
-            'slug'         => 'business-user-manage',
-            'lang'         => $this->request->getLocale(),
-            'mode'         => $mode,
-            'user'         => $user,
-            'userIdUrl'    => $userId * ID_MASKED_PRIME,
-            'businessUser' => $businessUser,
-            'branchUser'   => $branchUser,
-            'branches'     => $branches,
-            'breadcrumb'   => [
+        $allLanguages = get_available_locales_for_country($session->business['country_code']);
+        $data         = [
+            'slug'          => 'business-user-manage',
+            'lang'          => $this->request->getLocale(),
+            'mode'          => $mode,
+            'user'          => $user,
+            'userIdUrl'     => $userId * ID_MASKED_PRIME,
+            'businessUser'  => $businessUser,
+            'branchUser'    => $branchUser,
+            'branches'      => $branches,
+            'all_languages' => $allLanguages,
+            'breadcrumb'    => [
                 [
                     'url'        => base_url('admin/business/user'),
                     'page_title' => lang('Admin.pages.business-user'),
@@ -1030,16 +1039,19 @@ class Admin extends BaseController
             $action = $this->request->getPost('action');
             $id     = $this->request->getPost('id');
             if ('user_master' === $action) {
-                $uModel  = new UserMasterModel();
-                $buModel = new BusinessUserModel();
-                $fields  = ['email_address', 'user_name_first', 'user_name_last', 'user_public_name', 'account_status'];
-                $data    = [];
+                $uModel        = new UserMasterModel();
+                $buModel       = new BusinessUserModel();
+                $fields        = ['email_address', 'user_name_first', 'user_name_last', 'account_status'];
+                $all_languages = get_available_locales_for_country($session->business['country_code']);
+                $data          = [];
                 foreach ($fields as $field) {
                     $data[$field] = $this->request->getPost($field);
                 }
-                if (empty($data['user_public_name'])) {
-                    $data['user_public_name'] = $data['user_name_first'];
+                $user_local_names = [];
+                foreach ($all_languages as $language_code => $dummy) {
+                    $user_local_names[$language_code]  = $this->request->getPost('user_public_local_names_' . $language_code);
                 }
+                $data['user_public_local_names'] = json_encode($user_local_names);
                 if (0 < $id) {
                     if ($uModel->update($id, $data)) {
                         return $this->response->setJSON([
