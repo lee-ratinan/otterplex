@@ -74,8 +74,90 @@
                                     <?php foreach ($hours as $d => $hour) : ?>
                                         <tr>
                                             <td><?= lang('Business.branch-management.days.' . $d) ?></td>
-                                            <td><label><input type="time" class="form-control branch-opening-hours-<?= $d ?>" name="branch-opening-hours-<?= $d ?>-opn" id="branch-opening-hours-<?= $d ?>-opn" data-id="<?= $hour[0] ?>" data-day="<?= $d ?>" value="<?= $hour[1] ?>"/></label></td>
-                                            <td><label><input type="time" class="form-control branch-opening-hours-<?= $d ?>" name="branch-opening-hours-<?= $d ?>-cls" id="branch-opening-hours-<?= $d ?>-cls" data-id="<?= $hour[0] ?>" data-day="<?= $d ?>" value="<?= $hour[2] ?>"/></label></td>
+                                            <td>
+                                                <label>
+                                                    <?php
+                                                    $opening[$d]['hh'] = substr($hour[1], 0, 2);
+                                                    $opening[$d]['mm'] = substr($hour[1], 3, 2);
+                                                    ?>
+                                                    <div class="input-group">
+                                                        <select class="form-control branch-hours-editable branch-opening-hours-<?= $d ?>-hh"
+                                                                name="branch-opening-hours-<?= $d ?>-hh-opn"
+                                                                id="branch-opening-hours-<?= $d ?>-hh-opn"
+                                                                data-id="<?= $hour[0] ?>" data-day="<?= $d ?>" data-hour-type="opn">
+                                                            <?php for ($i = 0; $i < 33; $i++) : ?>
+                                                                <option value="<?= sprintf('%02d', $i) ?>" <?= ($opening[$d]['hh'] == $i ? 'selected' : '') ?>>
+                                                                    <?= $i ?>
+                                                                    <?php
+                                                                    if (23 < $i) {
+                                                                        echo ' (' . ($i - 24) . ' am +1)';
+                                                                    } else if (12 < $i) {
+                                                                        echo ' (' . ($i - 12) . ' pm)';
+                                                                    } else if (12 == $i) {
+                                                                        echo ' (12 pm)';
+                                                                    } else {
+                                                                        echo ' (' . $i . ' am)';
+                                                                    }
+                                                                    ?>
+                                                                </option>
+                                                            <?php endfor; ?>
+                                                        </select>
+                                                        <span class="input-group-text">:</span>
+                                                        <select class="form-control branch-hours-editable branch-opening-hours-<?= $d ?>-mm"
+                                                                name="branch-opening-hours-<?= $d ?>-mm-opn"
+                                                                id="branch-opening-hours-<?= $d ?>-mm-opn"
+                                                                data-id="<?= $hour[0] ?>" data-day="<?= $d ?>" data-hour-type="opn">
+                                                            <option value="00" <?= ($opening[$d]['mm'] == '00' ? 'selected' : '') ?>>00</option>
+                                                            <option value="15" <?= ($opening[$d]['mm'] == '15' ? 'selected' : '') ?>>15</option>
+                                                            <option value="30" <?= ($opening[$d]['mm'] == '30' ? 'selected' : '') ?>>30</option>
+                                                            <option value="45" <?= ($opening[$d]['mm'] == '45' ? 'selected' : '') ?>>45</option>
+                                                        </select>
+                                                    </div>
+                                                    <input type="hidden" class="form-control branch-opening-hours-<?= $d ?>" name="branch-opening-hours-<?= $d ?>-opn" id="branch-opening-hours-<?= $d ?>-opn" data-id="<?= $hour[0] ?>" data-day="<?= $d ?>" value="<?= $hour[1] ?>"/>
+                                                </label>
+                                            </td>
+                                            <td>
+                                                <label>
+                                                    <?php
+                                                    $opening[$d]['hh'] = substr($hour[2], 0, 2);
+                                                    $opening[$d]['mm'] = substr($hour[2], 3, 2);
+                                                    ?>
+                                                    <div class="input-group">
+                                                        <select class="form-control branch-hours-editable branch-opening-hours-<?= $d ?>-hh"
+                                                                name="branch-opening-hours-<?= $d ?>-hh-cls"
+                                                                id="branch-opening-hours-<?= $d ?>-hh-cls"
+                                                                data-id="<?= $hour[0] ?>" data-day="<?= $d ?>" data-hour-type="cls">
+                                                            <?php for ($i = 0; $i < 33; $i++) : ?>
+                                                                <option value="<?= sprintf('%02d', $i) ?>" <?= ($opening[$d]['hh'] == $i ? 'selected' : '') ?>>
+                                                                    <?= $i ?>
+                                                                    <?php
+                                                                    if (23 < $i) {
+                                                                        echo ' (' . ($i - 24) . ' am +1)';
+                                                                    } else if (12 < $i) {
+                                                                        echo ' (' . ($i - 12) . ' pm)';
+                                                                    } else if (12 == $i) {
+                                                                        echo ' (12 pm)';
+                                                                    } else {
+                                                                        echo ' (' . $i . ' am)';
+                                                                    }
+                                                                    ?>
+                                                                </option>
+                                                            <?php endfor; ?>
+                                                        </select>
+                                                        <span class="input-group-text">:</span>
+                                                        <select class="form-control branch-hours-editable branch-opening-hours-<?= $d ?>-mm"
+                                                                name="branch-opening-hours-<?= $d ?>-mm-cls"
+                                                                id="branch-opening-hours-<?= $d ?>-mm-cls"
+                                                                data-id="<?= $hour[0] ?>" data-day="<?= $d ?>" data-hour-type="cls">
+                                                            <option value="00" <?= ($opening[$d]['mm'] == '00' ? 'selected' : '') ?>>00</option>
+                                                            <option value="15" <?= ($opening[$d]['mm'] == '15' ? 'selected' : '') ?>>15</option>
+                                                            <option value="30" <?= ($opening[$d]['mm'] == '30' ? 'selected' : '') ?>>30</option>
+                                                            <option value="45" <?= ($opening[$d]['mm'] == '45' ? 'selected' : '') ?>>45</option>
+                                                        </select>
+                                                    </div>
+                                                    <input type="hidden" class="form-control branch-opening-hours-<?= $d ?>" name="branch-opening-hours-<?= $d ?>-cls" id="branch-opening-hours-<?= $d ?>-cls" data-id="<?= $hour[0] ?>" data-day="<?= $d ?>" value="<?= $hour[2] ?>"/>
+                                                </label>
+                                            </td>
                                             <td class="text-end">
                                                 <button class="btn btn-primary btn-sm btn-save-hours" data-target="branch-opening-hours-<?= $d ?>" id="btn-save-hours-<?= $d ?>" data-id="<?= $hour[0] ?>" data-dow="<?= $d ?>"><?= lang('System.buttons.save') ?></button>
                                                 <button class="btn btn-outline-danger btn-sm btn-close-day" data-dow="<?= $d ?>"><?= lang('Business.branch-management.close-shop') ?></button>
@@ -256,6 +338,13 @@
                     let message = response.responseJSON.message ?? '<?= lang('System.response-msg.error.generic') ?>';
                     toastr.error(message);
                 });
+            });
+            $('.branch-hours-editable').change(function () {
+                let data_day = $(this).data('day'),
+                    data_hour_type = $(this).data('hour-type'),
+                    new_hour = $('#branch-opening-hours-' + data_day + '-hh-' + data_hour_type).val(),
+                    new_mins = $('#branch-opening-hours-' + data_day + '-mm-' + data_hour_type).val();
+                $('#branch-opening-hours-' + data_day + '-' + data_hour_type).val(new_hour + ':' + new_mins);
             });
             $('.btn-save-hours').click(function (e) {
                 e.preventDefault();
