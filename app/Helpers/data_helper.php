@@ -5117,12 +5117,12 @@ if (!function_exists('calculate_bill_cycle')) {
     /**
      * Calculate bill cycle
      * @param string $baseDate
-     * @param int $anchorDay
+     * @param int|null $anchorDay
      * @param string $cycle Either 'month' or 'year'
      * @return string
      * @throws DateMalformedStringException
      */
-    function calculate_bill_cycle(string $baseDate, int $anchorDay, string $cycle = 'month'): string
+    function calculate_bill_cycle(string $baseDate, int|null $anchorDay = 0, string $cycle = 'month'): string
     {
         $dt    = new DateTime($baseDate);
         $day   = (int) $dt->format('d');

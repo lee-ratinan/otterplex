@@ -67,6 +67,7 @@ return [
         'currency_code'         => 'The currency code cannot be changed when the business is <b>live</b>.<br /><b class="text-danger"><i class="fa-solid fa-exclamation-triangle"></i> CAUTION!</b> Please note that all prices will not be changed, accordingly. So, if you changed the currency from THB to USD, any item that costs 100 baht will be 100 US dollars immediately.',
         'mart_meta_description' => 'This is a short description, around 20-40 words, describing your business.',
         'mart_meta_keywords'    => 'This is a list of keywords that explains your business that your customers could use to find your business.',
-        'live_status'           => 'This field determines whether the member of public can search for and see your store on the marketplace.'
+        'live_status'           => 'This field determines whether the member of public can search for and see your store on the marketplace.',
+        'shipping_fee_taxable'  => 'You can set up the shipping rates <a href="{0}">here</a>.'
     ]
 ];

@@ -21,7 +21,7 @@ return [
     'clear-cache'               => 'Your change will be reflected on the marketplace within an hour. If you would like to update it now, please click the following button',
     'btn-clear-cache'           => 'Clear Cache',
     'contracts'                 => 'Contracts',
-    'contract-renew'            => 'Renew Contract',
+    'contract-renew'            => 'Upgrade/Renew Plan',
     'payment-records'           => 'Payment Records',
     'packages'                  => [
         'pick-one' => 'Please select a package to renew',

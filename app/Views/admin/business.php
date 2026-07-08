@@ -190,6 +190,7 @@
                             ]);
                             echo build_form_input('shipping_fee_taxable', lang('BusinessMaster.field.shipping_fee_taxable'), [
                                 'type' => 'select',
+                                'data-explanation' => lang('BusinessMaster.explanation.shipping_fee_taxable', [base_url('admin/shipping-fee')])
                             ], $business['shipping_fee_taxable'], '', [
                                 'Y' => lang('BusinessMaster.enum.shipping_fee_taxable.Y'),
                                 'N' => lang('BusinessMaster.enum.shipping_fee_taxable.N'),
