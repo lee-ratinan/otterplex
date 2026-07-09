@@ -707,6 +707,33 @@ class Admin extends BaseController
     }
 
     /**
+     * Tag page
+     * @return string
+     */
+    public function business_tag(): string
+    {
+        return view('admin/business_tag');
+    }
+
+    /**
+     * Save tag
+     * @return ResponseInterface
+     */
+    public function business_tag_post(): ResponseInterface
+    {
+        return $this->response->setJSON([]);
+    }
+
+    /**
+     * Show current plan and the previous plans of the business
+     * @return string
+     */
+    public function business_plan(): string
+    {
+        return view('admin/business_plan');
+    }
+
+    /**
      * Manage branch
      * @return string
      */
@@ -1218,6 +1245,41 @@ class Admin extends BaseController
         return $this->response->setJSON($users);
     }
 
+    /**
+     * Policy documents
+     * @return string
+     */
+    public function business_policy_document(): string
+    {
+        return view('admin/business_policy_document');
+    }
+
+    /**
+     * Edit policy document
+     * @param string $document_type
+     * @return string
+     */
+    public function business_policy_document_edit(string $document_type): string
+    {
+        return view('admin/business_policy_document_edit');
+    }
+
+    /**
+     * @return ResponseInterface
+     */
+    public function business_policy_document_edit_post(): ResponseInterface
+    {
+        return $this->response->setJSON([]);
+    }
+
+    /**
+     * About us page (for premium plan only)
+     * @return string
+     */
+    public function business_about_us_page(): string
+    {
+        return view('admin/business_about_us_page');
+    }
     public function business_payment_method(): string
     {
         $session = session();

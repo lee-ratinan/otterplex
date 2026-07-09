@@ -33,8 +33,11 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     // BUSINESS
     $routes->get('business', 'Admin::business');
     $routes->post('business', 'Admin::business_post');
-    $routes->get('business/contract-renewal', 'Admin::business_contract_renewal');
-    $routes->post('business/contract-renewal', 'Admin::business_contract_renewal_post');
+    $routes->get('business/contract-renewal', 'Admin::business_contract_renewal'); // maybe deprecating
+    $routes->post('business/contract-renewal', 'Admin::business_contract_renewal_post'); // maybe deprecating
+    $routes->get('business/tag', 'Admin::business_tag'); // new
+    $routes->post('business/tag', 'Admin::business_tag_post'); // new
+    $routes->get('business/plan', 'Admin::business_plan'); // to redesign everything
     $routes->get('business/branch', 'Admin::business_branch');
     $routes->post('business/branch', 'Admin::business_branch_post');
     $routes->get('business/branch/new-branch', 'Admin::business_branch_manage/new-branch');
@@ -46,6 +49,10 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->post('business/user-manage', 'Admin::business_user_manage_post');
     $routes->get('business/customer', 'Admin::business_customer');
     $routes->post('business/customer', 'Admin::business_customer_post');
+    $routes->get('business/policy', 'Admin::business_policy_document'); // all policies
+    $routes->get('business/policy/(:any)', 'Admin::business_policy_document_edit'); // edit
+    $routes->post('business/policy/manage', 'Admin::business_policy_document_edit_post'); // save
+    $routes->get('business/about-us-page', 'Admin::business_about_us_page'); // only for premium plan
     // PAYMENT
     $routes->get('business/payment-method', 'Admin::business_payment_method');
     $routes->post('business/payment-method', 'Admin::business_payment_method_post');
