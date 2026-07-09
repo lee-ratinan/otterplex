@@ -216,7 +216,8 @@ if (!function_exists('build_form_input')) {
             return '';
         }
         // TextArea and Others
-        $attr[]    = "placeholder='{$label}'";
+        $stripped  = trim(strip_tags($label));
+        $attr[]    = "placeholder='{$stripped}'";
         if ('textarea' == $attributes['type']) {
             $attr_str  = implode(' ', $attr);
             $ta_tag    = "<textarea {$attr_str}>{$current_value}</textarea>";

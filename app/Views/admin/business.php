@@ -171,7 +171,7 @@
                             <?php
                             $social_medias = get_social_media();
                             foreach ($social_medias as $code => $social_name) {
-                                echo build_form_input('social_media_' . $code, $social_name, [
+                                echo build_form_input('social_media_' . $code, '<i class="fa-brands fa-' . strtolower($social_name) . '"></i> ' . $social_name, [
                                     'type' => 'url',
                                 ], @$business['social_media'][$code]);
                             }
@@ -279,91 +279,6 @@
                                 <button id="btn-clear-cache" type="button" class="btn btn-primary"><?= lang('Business.btn-clear-cache') ?></button>
                             </div>
                             <div id="clear-cache-status"></div>
-                        </div>
-                    </div>
-                    <hr class="my-3" />
-                    <h2 class="mt-5 pt-5" id="contract"><?= lang('Business.contracts') ?></h2>
-                    <div class="table-responsive">
-                        <table id="contract-table" class="table table-sm table-striped table-hover">
-                            <thead>
-                            <tr>
-                                <th style="min-width:150px"><?= lang('BusinessContract.field.contract_start') ?></th>
-                                <th style="min-width:150px"><?= lang('BusinessContract.field.contract_expiry') ?></th>
-                                <th style="min-width:100px"><?= lang('BusinessContract.field.package_id') ?></th>
-                                <th style="min-width:150px"><?= lang('BusinessContract.field.invoice_number') ?></th>
-                                <th style="min-width:120px"><?= lang('BusinessContract.field.total_amount') ?></th>
-                                <th style="min-width:120px"><?= lang('BusinessContract.field.paid_amount') ?></th>
-                                <th style="min-width:150px"><?= lang('BusinessContract.field.financial_status') ?></th>
-                                <th style="min-width:100px"><?= lang('System.buttons.view-more') ?></th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <?php foreach ($contracts as $contract) : ?>
-                                <tr>
-                                    <td data-sort="<?= $contract['contract_start'] ?>"><?= format_date($contract['contract_start']) ?></td>
-                                    <td data-sort="<?= $contract['contract_expiry'] ?>"><?= format_date($contract['contract_expiry']) ?></td>
-                                    <td><?= $contract['package_name'] ?></td>
-                                    <td><?= $contract['invoice_number'] ?></td>
-                                    <td class="text-end" data-sort="<?= $contract['total_amount'] ?>"><?= format_price($contract['total_amount'], $contract['country_code']) ?></td>
-                                    <td class="text-end" data-sort="<?= $contract['paid_amount'] ?>"><?= format_price($contract['paid_amount'], $contract['country_code']) ?></td>
-                                    <td><?= lang('BusinessContract.enum.financial_status.' . $contract['financial_status']) ?></td>
-                                    <?php
-                                    $payments = [];
-                                    if (isset($contract['payments'])) {
-                                        foreach ($contract['payments'] as $payment) {
-                                            $payments[] = [
-                                                'payment_method' => lang('BusinessContractPayment.enum.payment_method.' . $payment['payment_method']),
-                                                'payment_notes'  => $payment['payment_notes'],
-                                                'staff_comment'  => $payment['staff_comment'],
-                                                'amount_paid'    => format_price($payment['amount_paid'], $contract['country_code']),
-                                                'payment_status' => lang('BusinessContractPayment.enum.payment_status.' . $payment['payment_status'])
-                                            ];
-                                        }
-                                    }
-                                    ?>
-                                    <td>
-                                        <a class="btn-modal" href="#" data-bs-toggle="modal" data-bs-target="#contract-modal"
-                                           data-package="<?= $contract['package_name'] ?>"
-                                           data-invoice-number="<?= $contract['invoice_number'] ?>"
-                                           data-start="<?= format_date($contract['contract_start']) ?>"
-                                           data-expiry="<?= format_date($contract['contract_expiry']) ?>"
-                                           data-invoiced-amount="<?= $contract['invoiced_amount'] != $contract['total_amount'] ? format_price($contract['invoiced_amount'], $contract['country_code']) : '' ?>"
-                                           data-discount-amount="<?= $contract['discount_amount'] != 0 ? format_price($contract['discount_amount'], $contract['country_code']) : '' ?>"
-                                           data-total-amount="<?= format_price($contract['total_amount'], $contract['country_code']) ?>"
-                                           data-paid-amount="<?= format_price($contract['paid_amount'], $contract['country_code']) ?>"
-                                           data-status="<?= lang('BusinessContract.enum.financial_status.' . $contract['financial_status']) ?>"
-                                           data-payments="<?= htmlspecialchars(json_encode($payments), ENT_QUOTES, 'UTF-8') ?>"
-                                        ><?= lang('System.buttons.view-more') ?></a>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="text-end mt-3"><a class="btn btn-primary" href="<?= base_url('admin/business/contract-renewal') ?>"><?= lang('Business.contract-renew') ?></a></div>
-                    <div class="modal fade" id="contract-modal" tabindex="-1" aria-labelledby="contract-modal-label" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h1 class="modal-title fs-5" id="contract-modal-label">[INVOICE-NUMBER]</h1>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <table class="table table-sm table-borderless">
-                                        <tr><td style="width:50%;"><?= lang('BusinessContract.field.package_id') ?></td><td id="modal-package"></td></tr>
-                                        <tr><td><?= lang('BusinessContract.field.invoice_number') ?></td><td id="modal-invoice-number"></td></tr>
-                                        <tr><td><?= lang('BusinessContract.field.contract_start') ?></td><td id="modal-start"></td></tr>
-                                        <tr><td><?= lang('BusinessContract.field.contract_expiry') ?></td><td id="modal-expiry"></td></tr>
-                                        <tr id="modal-invoice-row"><td><?= lang('BusinessContract.field.invoiced_amount') ?></td><td id="modal-invoiced-amount"></td></tr>
-                                        <tr id="modal-discount-row"><td><?= lang('BusinessContract.field.discount_amount') ?></td><td id="modal-discount-amount"></td></tr>
-                                        <tr><td><?= lang('BusinessContract.field.total_amount') ?></td><td id="modal-total-amount"></td></tr>
-                                        <tr><td><?= lang('BusinessContract.field.paid_amount') ?></td><td id="modal-paid-amount"></td></tr>
-                                        <tr><td><?= lang('BusinessContract.field.financial_status') ?></td><td id="modal-status"></td></tr>
-                                    </table>
-                                    <h4><?= lang('Business.payment-records') ?></h4>
-                                    <div id="modal-payment-records"></div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>

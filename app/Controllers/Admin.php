@@ -362,13 +362,11 @@ class Admin extends BaseController
         }
         $businessMasterModel  = new BusinessMasterModel();
         $businessTypeModel    = new BusinessTypeModel();
-        $contractModel        = new BusinessContractModel();
         $translationModel     = new BusinessMasterTranslationModel();
         $businessId           = $session->business['business_id'];
         $business             = $businessMasterModel->find($businessId);
         $businessTypes        = $businessTypeModel->retrieveData();
-        $contracts            = $contractModel->retrieveDataByBusinessId($businessId);
-        $allLanguages         = get_available_locales('long');
+        $allLanguages         = get_available_locales_for_country($business['country_code']);
         $logo_file            = base_url('assets/img/logo.png');
         if (!empty($business['business_logo'])) {
             $logo_file = base_url('file/business_' . $business['business_logo']);
@@ -390,7 +388,6 @@ class Admin extends BaseController
             'lang'           => $this->request->getLocale(),
             'business'       => $business,
             'business_types' => $businessTypes,
-            'contracts'      => $contracts,
             'all_languages'  => $allLanguages,
             'logo_file'      => $logo_file
         ];
@@ -415,7 +412,14 @@ class Admin extends BaseController
             $businessMasterModel = new BusinessMasterModel();
             $businessTrxModel    = new BusinessMasterTranslationModel();
             $script_action       = $this->request->getPost('script_action');
-            $available_lang      = get_available_locales();
+            $businessEntity      = $businessMasterModel->find($businessId);
+            if (empty($businessEntity)) {
+                return $this->response->setJSON([
+                    'success' => STATUS_RESPONSE_ERR,
+                    'message' => lang('System.response-msg.error.generic')
+                ]);
+            }
+            $available_lang      = get_available_locales_for_country($businessEntity['country_code']);
             $social_media        = get_social_media();
             $error_msg           = lang('System.response-msg.error.generic');
             $upload_service      = new ImageUploadService();
