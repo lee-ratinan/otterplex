@@ -36,6 +36,8 @@ return [
         'blog-category'                  => 'Blog Category',
         'business'                       => 'Business',
         'business-contract-renewal'      => 'Business Contract Renewal',
+        'business-tag'                   => 'Tag',
+        'business-plan'                  => 'Plan',
         'business-branch'                => 'Branch',
         'business-branch-manage'         => 'Branch Manager',
         'business-user'                  => 'Staff',
@@ -43,6 +45,8 @@ return [
         'business-customer'              => 'Customer',
         'business-payment-method'        => 'Payment Method',
         'business-shipping-fee'          => 'Shipping Rate',
+        'business-policy'                => 'Policy Documents',
+        'business-about-us-page'         => 'About Us Page',
     ],
     'dashboard'     => [
         'no-business' => [

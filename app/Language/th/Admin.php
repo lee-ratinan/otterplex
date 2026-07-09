@@ -36,6 +36,8 @@ return [
         'blog-category'                  => 'ประเภทบล็อก',
         'business'                       => 'ธุรกิจ',
         'business-contract-renewal'      => 'ต่ออายุสัญญาธุรกิจ',
+        'business-tag'                   => 'แท็ก',
+        'business-plan'                  => 'แผน',
         'business-branch'                => 'สาขา',
         'business-branch-manage'         => 'การจัดการสาขา',
         'business-user'                  => 'พนักงาน',
@@ -43,6 +45,8 @@ return [
         'business-customer'              => 'ลูกค้า',
         'business-payment-method'        => 'วิธีการชำระเงิน',
         'business-shipping-fee'          => 'เรทค่าจัดส่ง',
+        'business-policy'                => 'หน้านโยบาย',
+        'business-about-us-page'         => 'หน้าเกี่ยวกับเรา',
     ],
     'dashboard'     => [
         'no-business' => [

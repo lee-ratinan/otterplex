@@ -164,6 +164,8 @@ if (!empty($session->business)) {
                 'title' => '<i class="fa-solid fa-store me-3"></i><span>' . lang('Admin.pages.business') . '</span>',
                 'links' => [
                     'business'                => [base_url('/admin/business'), lang('Admin.pages.business')],
+                    'business-tag'            => [base_url('/admin/business/tag'), lang('Admin.pages.business-tag')],
+                    'business-plan'           => [base_url('/admin/business/plan'), lang('Admin.pages.business-plan')],
                     'business-branch'         => [base_url('/admin/business/branch'), lang('Admin.pages.business-branch')],
                     'business-user'           => [base_url('/admin/business/user'), lang('Admin.pages.business-user')],
                     'business-customer'       => [base_url('/admin/business/customer'), lang('Admin.pages.business-customer')],
@@ -171,17 +173,19 @@ if (!empty($session->business)) {
                     'business-resource-type'  => [base_url('/admin/resource/type'), lang('Admin.pages.business-resource-type')],
                     'business-resource'       => [base_url('/admin/resource'), lang('Admin.pages.business-resource')],
                     'business-shipping-fee'   => [base_url('/admin/shipping-fee'), lang('Admin.pages.business-shipping-fee')],
+                    'business-policy'         => [base_url('/admin/business/policy'), lang('Admin.pages.business-policy')],
+                    'business-about-us-page'  => [base_url('/admin/business/about-us-page'), lang('Admin.pages.business-about-us-page')],
                 ]
             ];
         } elseif ('MANAGER' == $session->user_role) {
             $sidebar_menu['business'] = [
                 'title' => '<i class="fa-solid fa-store me-3"></i><span>' . lang('Admin.pages.business') . '</span>',
                 'links' => [
-                    'business-branch'   => [base_url('/admin/business/branch'), lang('Admin.pages.business-branch')],
-                    'business-user'     => [base_url('/admin/business/user'), lang('Admin.pages.business-user')],
-                    'business-customer' => [base_url('/admin/business/customer'), lang('Admin.pages.business-customer')],
-                    'business-resource' => [base_url('/admin/resource'), lang('Admin.pages.business-resource')],
-                    'business-shipping-fee'   => [base_url('/admin/shipping-fee'), lang('Admin.pages.business-shipping-fee')],
+                    'business-branch'       => [base_url('/admin/business/branch'), lang('Admin.pages.business-branch')],
+                    'business-user'         => [base_url('/admin/business/user'), lang('Admin.pages.business-user')],
+                    'business-customer'     => [base_url('/admin/business/customer'), lang('Admin.pages.business-customer')],
+                    'business-resource'     => [base_url('/admin/resource'), lang('Admin.pages.business-resource')],
+                    'business-shipping-fee' => [base_url('/admin/shipping-fee'), lang('Admin.pages.business-shipping-fee')],
                 ]
             ];
         }

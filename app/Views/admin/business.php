@@ -72,7 +72,6 @@
                                         <li><a href="#upload-your-logo"><?= lang('Business.upload-logo') ?></a></li>
                                         <li><a href="#upload-your-header-img"><?= lang('Business.upload-header-img') ?></a></li>
                                         <li><a href="#clear-cache-header"><?= lang('Business.btn-clear-cache') ?></a></li>
-                                        <li><a href="#contract"><?= lang('Business.contracts') ?></a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -284,46 +283,10 @@
                 </div>
             </div>
         </div>
-        <label for="script_action"><input type="hidden" name="script_action" id="script_action" value="" /></label>
+        <input type="hidden" name="script_action" id="script_action" value="" />
     </div>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            const table = $('#contract-table').DataTable();
-            // MODAL
-            $('.btn-modal').click(function (e) {
-                e.preventDefault();
-                $('#contract-modal-label').html($(this).data('invoice-number'));
-                $('#modal-package').html($(this).data('package'));
-                $('#modal-invoice-number').html($(this).data('invoice-number'));
-                $('#modal-start').html($(this).data('start'));
-                $('#modal-expiry').html($(this).data('expiry'));
-                $('#modal-invoiced-amount').html($(this).data('invoiced-amount'));
-                $('#modal-discount-amount').html($(this).data('discount-amount'));
-                $('#modal-total-amount').html($(this).data('total-amount'));
-                $('#modal-paid-amount').html($(this).data('paid-amount'));
-                $('#modal-status').html($(this).data('status'));
-                $('#modal-invoice-row, #modal-discount-row').removeClass('d-none');
-                if ('' === $(this).data('invoiced-amount')) {
-                    $('#modal-invoice-row').addClass('d-none');
-                }
-                if ('' === $(this).data('discount-amount')) {
-                    $('#modal-discount-row').addClass('d-none');
-                }
-                let payments = $(this).data('payments');
-                $('#modal-payment-records').html('<?= lang('System.generic-term.no-data') ?>');
-                if (0 < payments.length) {
-                    let payment_lines = '<table class="table table-sm table-borderless">';
-                    $.each(payments, function (i, data) {
-                        payment_lines += '<tr><td style="width:50%"><?= lang('BusinessContractPayment.field.payment_method') ?></td><td>' + data.payment_method + '</td></tr>';
-                        payment_lines += '<tr><td><?= lang('BusinessContractPayment.field.payment_notes') ?></td><td>' + data.payment_notes + '</td></tr>';
-                        payment_lines += '<tr><td><?= lang('BusinessContractPayment.field.amount_paid') ?></td><td>' + data.amount_paid + '</td></tr>';
-                        payment_lines += '<tr><td><?= lang('BusinessContractPayment.field.payment_status') ?></td><td>' + data.payment_status + '</td></tr>';
-                        payment_lines += '<tr><td><?= lang('BusinessContractPayment.field.staff_comment') ?></td><td>' + data.staff_comment + '</td></tr>';
-                    });
-                    payment_lines += '</table>';
-                    $('#modal-payment-records').html(payment_lines);
-                }
-            });
             // SLUG
             $('#btn-update-slug').click(function () {
                 $(this).addClass('d-none');
