@@ -46,6 +46,7 @@ return [
         'business-payment-method'        => 'วิธีการชำระเงิน',
         'business-shipping-fee'          => 'เรทค่าจัดส่ง',
         'business-policy'                => 'หน้านโยบาย',
+        'business-policy-edit'           => 'แก้ไขเอกสารนโยบาย',
         'business-about-us-page'         => 'หน้าเกี่ยวกับเรา',
     ],
     'dashboard'     => [

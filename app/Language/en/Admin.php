@@ -46,6 +46,7 @@ return [
         'business-payment-method'        => 'Payment Method',
         'business-shipping-fee'          => 'Shipping Rate',
         'business-policy'                => 'Policy Documents',
+        'business-policy-edit'           => 'Edit Policy Documents',
         'business-about-us-page'         => 'About Us Page',
     ],
     'dashboard'     => [

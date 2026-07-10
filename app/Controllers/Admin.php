@@ -14,6 +14,7 @@ use App\Models\BusinessCustomerModel;
 use App\Models\BusinessMasterModel;
 use App\Models\BusinessMasterTranslationModel;
 use App\Models\BusinessPaymentMethodModel;
+use App\Models\BusinessPolicyModel;
 use App\Models\BusinessShippingFeeModel;
 use App\Models\BusinessTypeModel;
 use App\Models\BusinessUserModel;
@@ -1251,17 +1252,99 @@ class Admin extends BaseController
      */
     public function business_policy_document(): string
     {
-        return view('admin/business_policy_document');
+        $session = session();
+        if ('OWNER' != $session->user_role) {
+            return $this->forbiddenResponse('string');
+        }
+        $businessMasterModel  = new BusinessMasterModel();
+        $businessPolicyModel  = new BusinessPolicyModel();
+        $policy_types         = $businessPolicyModel->get_policy_types();
+        $businessId           = $session->business['business_id'];
+        $business             = $businessMasterModel->find($businessId);
+        if (empty($business)) {
+            throw new PageNotFoundException();
+        }
+        $policies             = $businessPolicyModel->where('business_id', $businessId)->findAll();
+        $languages            = get_available_locales_for_country($business['country_code']);
+        // reformat policies
+        $policyText           = [];
+        foreach ($policy_types as $policy_type) {
+            foreach ($languages as $language_code => $dummy) {
+                $policyText[$policy_type][$language_code] = [];
+            }
+        }
+        foreach ($policies as $policy) {
+            $policyText[$policy['policy_type']][$policy['language_code']] = $policy;
+        }
+        $data = [
+            'slug'         => 'business-policy',
+            'lang'         => $this->request->getLocale(),
+            'languages'    => $languages,
+            'policies'     => $policyText,
+            'policy_types' => $policy_types
+        ];
+        return view('admin/business_policy_document', $data);
     }
 
     /**
      * Edit policy document
-     * @param string $document_type
+     * @param int $policyId
+     * @param string $policyType (optional)
+     * @param string $languageCode (optional)
      * @return string
      */
-    public function business_policy_document_edit(string $document_type): string
+    public function business_policy_document_edit(int $policyId, string $policyType = '', string $languageCode = ''): string
     {
-        return view('admin/business_policy_document_edit');
+        $session = session();
+        if ('OWNER' != $session->user_role) {
+            return $this->forbiddenResponse('string');
+        }
+        $businessMasterModel = new BusinessMasterModel();
+        $businessPolicyModel = new BusinessPolicyModel();
+        $businessId          = $session->business['business_id'];
+        $business            = $businessMasterModel->find($businessId);
+        if (empty($business)) {
+            throw new PageNotFoundException();
+        }
+        $languages = get_available_locales_for_country($business['country_code']);
+        $data      = [];
+        if (0 < $policyId) {
+            // edit mode
+            $policy = $businessPolicyModel->where('id', $policyId)->where('business_id', $businessId)->first();
+            if (empty($policy)) {
+                throw new PageNotFoundException();
+            }
+            $languageCode = $policy['language_code'];
+            $policyType   = $policy['policy_type'];
+        } else {
+            // new mode
+            $policyTypes = $businessPolicyModel->get_policy_types();
+            if (!in_array($policyType, $policyTypes)) {
+                throw new PageNotFoundException();
+            }
+            if (!isset($languages[$languageCode])) {
+                throw new PageNotFoundException();
+            }
+            $policyId    = 0;
+            $policy      = [];
+        }
+        $data = [
+            'slug'          => 'business-policy-edit',
+            'lang'          => $this->request->getLocale(),
+            'id'            => $policyId,
+            'business_id'   => $businessId,
+            'language_code' => $languageCode,
+            'policy_type'   => $policyType,
+            'policy'        => $policy,
+            'languages'     => $languages,
+            'breadcrumb'   => [
+                [
+                    'url'        => base_url('admin/business/policy'),
+                    'page_title' => lang('Admin.pages.business-policy'),
+                ]
+            ]
+        ];
+        return view('admin/business_policy_document_edit', $data);
     }
 
     /**
@@ -1278,7 +1361,15 @@ class Admin extends BaseController
      */
     public function business_about_us_page(): string
     {
-        return view('admin/business_about_us_page');
+        $session = session();
+        if ('OWNER' != $session->user_role) {
+            return $this->forbiddenResponse('string');
+        }
+        $data = [
+            'slug'          => 'business-about-us-page',
+            'lang'          => $this->request->getLocale(),
+        ];
+        return view('admin/business_about_us_page', $data);
     }
     public function business_payment_method(): string
     {

@@ -50,7 +50,8 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->get('business/customer', 'Admin::business_customer');
     $routes->post('business/customer', 'Admin::business_customer_post');
     $routes->get('business/policy', 'Admin::business_policy_document'); // all policies
-    $routes->get('business/policy/(:any)', 'Admin::business_policy_document_edit'); // edit
+    $routes->get('business/policy/(:num)', 'Admin::business_policy_document_edit/$1/existed/existed'); // edit
+    $routes->get('business/policy/(:any)/(:any)/new', 'Admin::business_policy_document_edit/0/$1/$2'); // new
     $routes->post('business/policy/manage', 'Admin::business_policy_document_edit_post'); // save
     $routes->get('business/about-us-page', 'Admin::business_about_us_page'); // only for premium plan
     // PAYMENT
