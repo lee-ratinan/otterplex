@@ -35,6 +35,18 @@ if (!empty($session->business)) {
     <link href="<?= base_url('assets/vendor/DataTables/datatables.min.css') ?>" rel="stylesheet">
     <!-- Template Main CSS File -->
     <link href="<?= base_url('assets/css/style.css') ?>" rel="stylesheet">
+    <script>
+        const setTheme = () => {
+            const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            document.documentElement.setAttribute('data-bs-theme', isDark ? 'dark' : 'light');
+        };
+
+        // Run instantly on load to avoid a white flicker
+        setTheme();
+
+        // Listen for changes if user switches OS theme while on page
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', setTheme);
+    </script>
     <!-- =======================================================
     * Template Name: NiceAdmin
     * Template URL: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/

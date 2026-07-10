@@ -1316,3 +1316,119 @@ h6 {
     border: #ff0000 1px solid!important;
     color:#fff !important;
 }
+
+/*--------------------------------------------------------------
+# Dark Mode Custom Overrides (Bootstrap 5.3+)
+--------------------------------------------------------------*/
+[data-bs-theme="dark"] {
+  /* Global adjustments */
+  body {
+    background: #12141c; /* Dark primary background */
+    color: #e2e8f0;      /* Soft white text */
+  }
+
+  /* Text & Navigation elements */
+  .dropdown-menu .dropdown-footer a,
+  .accordion-flush .accordion-body {
+    color: #a0aec0;
+  }
+
+  .nav-tabs-bordered .nav-link {
+    color: #a0aec0;
+  }
+
+  .nav-tabs-bordered .nav-link.active {
+    background-color: #1a1f2c;
+    color: #ff9252;
+  }
+
+  /* Cards & Content Blocks */
+  .card {
+    background-color: #1a1f2c; /* Midnight blue-gray card backgrounds */
+    box-shadow: 0px 0 30px rgba(0, 0, 0, 0.25);
+  }
+
+  .card-header,
+  .card-footer {
+    border-color: #2d3748;
+    background-color: #1e2533;
+    color: #a0aec0;
+  }
+
+  .card-img-overlay {
+    background-color: rgba(0, 0, 0, 0.6);
+  }
+
+  /* Dropdowns */
+  .dropdown-menu {
+    background-color: #1e2533;
+    box-shadow: 0 5px 30px 0 rgba(0, 0, 0, 0.5);
+  }
+
+  .dropdown-menu .dropdown-item:hover {
+    background-color: #2d3748;
+  }
+
+  @media (min-width: 768px) {
+    .dropdown-menu-arrow::before {
+      background: #1e2533;
+      border-top: 1px solid #2d3748;
+      border-left: 1px solid #2d3748;
+    }
+  }
+
+  /* Accordions */
+  .accordion-item, .sidebar-nav .nav-link {
+    border: 1px solid #2d3748;
+    background-color: #1a1f2c;
+  }
+
+  .accordion-button {
+    background-color: #1a1f2c;
+    color: #e2e8f0;
+  }
+
+  .accordion-button:not(.collapsed), .sidebar-nav .nav-link.collapsed {
+    background-color: #212836;
+    color: #c97232;
+  }
+
+  /* Layout, Headers, Borders, and Breadcrumbs */
+  .header, .sidebar {
+    background-color: #1a1f2c;
+    box-shadow: 0px 2px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  @media (max-width: 1199px) {
+    .header .search-bar {
+      background: #1a1f2c;
+      box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.4);
+    }
+  }
+
+  .nav-tabs-bordered,
+  .dropdown-menu .dropdown-divider {
+    border-color: #2d3748;
+    color: #2d3748;
+  }
+
+  .breadcrumb,
+  .breadcrumb a,
+  .breadcrumb .breadcrumb-item::before {
+    color: #718096;
+  }
+
+  .breadcrumb a:hover,
+  .breadcrumb .active {
+    color: #cbd5e1;
+  }
+
+  /* Invert Light Alerts/Badges for Dark Theme readability */
+  .bg-primary-light   { background-color: rgba(13, 110, 253, 0.2);   border-color: #0d6efd; color: #6ea8fe; }
+  .bg-secondary-light { background-color: rgba(108, 117, 125, 0.2); border-color: #6c757d; color: #a8aeb4; }
+  .bg-success-light   { background-color: rgba(25, 135, 84, 0.2);   border-color: #198754; color: #75b798; }
+  .bg-danger-light    { background-color: rgba(220, 53, 69, 0.2);   border-color: #dc3545; color: #ea868f; }
+  .bg-warning-light   { background-color: rgba(255, 193, 7, 0.2);   border-color: #ffc107; color: #ffda6a; }
+  .bg-info-light      { background-color: rgba(13, 202, 240, 0.2);  border-color: #0dcaf0; color: #6edff6; }
+  .bg-dark-light      { background-color: rgba(33, 37, 41, 0.2);    border-color: #212529; color: #dee2e6; }
+}
