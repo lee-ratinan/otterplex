@@ -29,11 +29,7 @@
             const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
             document.documentElement.setAttribute('data-bs-theme', isDark ? 'dark' : 'light');
         };
-
-        // Run instantly on load to avoid a white flicker
-        setTheme();
-
-        // Listen for changes if user switches OS theme while on page
+        setTheme(); // Run instantly on-load to avoid a white flicker
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', setTheme);
     </script>
     <!-- =======================================================
