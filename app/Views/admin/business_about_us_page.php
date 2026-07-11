@@ -6,6 +6,7 @@
             <div class="card">
                 <div class="card-body p-3">
                     <h2><?= lang('Admin.pages.business-about-us-page') ?></h2>
+                    <p><?= lang('BusinessAboutUs.restriction') ?></p>
                 </div>
             </div>
         </div>
