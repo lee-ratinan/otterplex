@@ -35,8 +35,9 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->post('business', 'Admin::business_post');
     $routes->get('business/contract-renewal', 'Admin::business_contract_renewal'); // maybe deprecating
     $routes->post('business/contract-renewal', 'Admin::business_contract_renewal_post'); // maybe deprecating
-    $routes->get('business/tag', 'Admin::business_tag'); // new
-    $routes->post('business/tag', 'Admin::business_tag_post'); // new
+    $routes->get('business/tag', 'Admin::business_tag');
+    $routes->post('business/tag', 'Admin::business_tag_post/retrieve'); // retrieve
+    $routes->post('business/tag/(:any)', 'Admin::business_tag_post/$1'); // new or delete
     $routes->get('business/plan', 'Admin::business_plan'); // to redesign everything
     $routes->get('business/branch', 'Admin::business_branch');
     $routes->post('business/branch', 'Admin::business_branch_post');

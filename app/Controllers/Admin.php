@@ -713,20 +713,31 @@ class Admin extends BaseController
      */
     public function business_tag(): string
     {
+
         return view('admin/business_tag');
     }
 
     /**
-     * Save tag
+     * Retrieve or save tags
+     * @param string $mode
      * @return ResponseInterface
      */
-    public function business_tag_post(): ResponseInterface
+    public function business_tag_post(string $mode = 'retrieve'): ResponseInterface
     {
-        return $this->response->setJSON([]);
+        $session = session();
+        if ('OWNER' != $session->user_role) {
+            return $this->forbiddenResponse('ResponseInterface');
+        }
+
+
+        return $this->response->setJSON([
+            'success' => STATUS_RESPONSE_OK,
+            'tags'    => []
+        ]);
     }
 
     /**
-     * Show current plan and the previous plans of the business
+     * Show the current plan and the previous plans of the business
      * @return string
      */
     public function business_plan(): string
