@@ -10,7 +10,6 @@ class TagMasterModel extends AppBaseModel
     protected $allowedFields    = [
         'id',
         'tag_name',
-        'tag_slug',
         'created_by',
         'created_at',
         'updated_at'

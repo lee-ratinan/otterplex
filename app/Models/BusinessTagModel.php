@@ -25,7 +25,7 @@ class BusinessTagModel extends AppBaseModel
      */
     public function getTagsForBusiness(int $businessId): array
     {
-        return $this->select('business_tag.*, tag_master.tag_name, tag_master.tag_slug')
+        return $this->select('business_tag.*, tag_master.tag_name')
             ->join('tag_master', 'tag_master.id = business_tag.tag_id')
             ->where('business_id', $businessId)->findAll();
     }

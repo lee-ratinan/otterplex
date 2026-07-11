@@ -16,6 +16,7 @@ use App\Models\BusinessMasterTranslationModel;
 use App\Models\BusinessPaymentMethodModel;
 use App\Models\BusinessPolicyModel;
 use App\Models\BusinessShippingFeeModel;
+use App\Models\BusinessTagModel;
 use App\Models\BusinessTypeModel;
 use App\Models\BusinessUserModel;
 use App\Models\OrderMasterModel;
@@ -32,6 +33,7 @@ use App\Models\ServiceStaffModel;
 use App\Models\ServiceVariantModel;
 use App\Models\SessionBreakDownModel;
 use App\Models\SessionMasterModel;
+use App\Models\TagMasterModel;
 use App\Models\UserMasterModel;
 use App\Services\ImageUploadService;
 use CodeIgniter\Exceptions\PageNotFoundException;
@@ -60,7 +62,7 @@ class Admin extends BaseController
             return view('admin/_forbidden', $data);
         } elseif ('ResponseInterface' == $type) {
             return $this->response->setJSON([
-                'success' => STATUS_RESPONSE_ERR,
+                'status'  => STATUS_RESPONSE_ERR,
                 'message' => lang('System.response-msg.error.no-permission')
             ]);
         }
@@ -93,7 +95,7 @@ class Admin extends BaseController
             return view('_404', $data);
         }
         return $this->response->setStatusCode(ResponseInterface::HTTP_NOT_FOUND)
-            ->setJSON(['success' => STATUS_RESPONSE_ERR]);
+            ->setJSON(['status' => STATUS_RESPONSE_ERR]);
     }
 
     /**
@@ -241,7 +243,7 @@ class Admin extends BaseController
                 $file = $this->request->getFile('avatar');
                 if (!$file) {
                     return $this->response->setJSON([
-                        'success' => STATUS_RESPONSE_ERR,
+                        'status'  => STATUS_RESPONSE_ERR,
                         'message' => lang('System.response-msg.error.upload-failed')
                     ]);
                 }
@@ -258,7 +260,7 @@ class Admin extends BaseController
                 );
                 if (!$result['success']) {
                     return $this->response->setJSON([
-                        'success' => STATUS_RESPONSE_ERR,
+                        'status'  => STATUS_RESPONSE_ERR,
                         'message' => implode('<br>', $result['errors'])
                     ]);
                 }
@@ -416,7 +418,7 @@ class Admin extends BaseController
             $businessEntity      = $businessMasterModel->find($businessId);
             if (empty($businessEntity)) {
                 return $this->response->setJSON([
-                    'success' => STATUS_RESPONSE_ERR,
+                    'status'  => STATUS_RESPONSE_ERR,
                     'message' => lang('System.response-msg.error.generic')
                 ]);
             }
@@ -483,7 +485,7 @@ class Admin extends BaseController
                 $file = $this->request->getFile('logo');
                 if (!$file) {
                     return $this->response->setJSON([
-                        'success' => STATUS_RESPONSE_ERR,
+                        'status'  => STATUS_RESPONSE_ERR,
                         'message' => lang('System.response-msg.error.upload-failed')
                     ]);
                 }
@@ -500,7 +502,7 @@ class Admin extends BaseController
                 );
                 if (!$result['success']) {
                     return $this->response->setJSON([
-                        'success' => STATUS_RESPONSE_ERR,
+                        'status'  => STATUS_RESPONSE_ERR,
                         'message' => implode('<br>', $result['errors'])
                     ]);
                 }
@@ -531,7 +533,7 @@ class Admin extends BaseController
                 $file = $this->request->getFile('header-img');
                 if (!$file) {
                     return $this->response->setJSON([
-                        'success' => STATUS_RESPONSE_ERR,
+                        'status'  => STATUS_RESPONSE_ERR,
                         'message' => lang('System.response-msg.error.upload-failed')
                     ]);
                 }
@@ -548,7 +550,7 @@ class Admin extends BaseController
                 );
                 if (!$result['success']) {
                     return $this->response->setJSON([
-                        'success' => STATUS_RESPONSE_ERR,
+                        'status'  => STATUS_RESPONSE_ERR,
                         'message' => implode('<br>', $result['errors'])
                     ]);
                 }
@@ -696,7 +698,7 @@ class Admin extends BaseController
                 ]);
             }
             return $this->response->setJSON([
-                'success' => STATUS_RESPONSE_ERR,
+                'status'  => STATUS_RESPONSE_ERR,
                 'message' => lang('System.response-msg.error.generic')
             ]);
         } catch (\Exception $e) {
@@ -713,8 +715,15 @@ class Admin extends BaseController
      */
     public function business_tag(): string
     {
-
-        return view('admin/business_tag');
+        $session       = session();
+        if ('OWNER' != $session->user_role) {
+            return $this->forbiddenResponse('string');
+        }
+        $data       = [
+            'slug'       => 'business-tag',
+            'lang'       => $this->request->getLocale()
+        ];
+        return view('admin/business_tag', $data);
     }
 
     /**
@@ -728,11 +737,67 @@ class Admin extends BaseController
         if ('OWNER' != $session->user_role) {
             return $this->forbiddenResponse('ResponseInterface');
         }
+        $tagModel   = new BusinessTagModel();
+        $tmModel    = new TagMasterModel();
+        $businessId = $session->business['business_id'];
+        if ('retrieve' == $mode) {
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_OK,
+                'tags'    => $tagModel->getTagsForBusiness($businessId)
+            ]);
+        } else if ('delete' == $mode) {
+            try {
+                $tagId = $this->request->getPost('tag_id');
+                if ($tagModel
+                    ->where('business_id', $businessId)
+                    ->where('id', $tagId)
+                    ->delete()) {
+                    return $this->response->setJSON([
+                        'status' => STATUS_RESPONSE_OK,
+                        'tags'   => lang('System.response-msg.success.data-deleted')
+                    ]);
+                }
+            } catch (\Exception $e) {
+                return $this->response->setJSON([
+                    'status'  => STATUS_RESPONSE_ERR,
+                    'message' => $e->getMessage(),
+                ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+            }
+        } else if ('save' == $mode) {
+            try {
+                $tag_name = $this->request->getPost('tag_name');
+                $tag_item = $tmModel->where('tag_name', $tag_name)->first();
+                if (empty($tag_item)) {
+                    // insert new tag
+                    $tag_data = [
+                        'tag_name' => $tag_name,
+                    ];
+                    $tmId = $tmModel->insert($tag_data);
+                    if ($tmId) {
+                        $bt_data = [
+                            'business_id' => $businessId,
+                            'tag_id'      => $tmId,
+                        ];
+                        if ($tagModel->insert($bt_data)) {
+                            return $this->response->setJSON([
+                                'status'  => STATUS_RESPONSE_OK,
+                                'message' => lang('System.response-msg.success.data-saved')
+                            ]);
+                        }
+                    }
+                }
+            } catch (\Exception $e) {
+                return $this->response->setJSON([
+                    'status'  => STATUS_RESPONSE_ERR,
+                    'message' => $e->getMessage(),
+                ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+            }
+        }
 
 
         return $this->response->setJSON([
-            'success' => STATUS_RESPONSE_OK,
-            'tags'    => []
+            'status' => STATUS_RESPONSE_OK,
+            'tags'   => []
         ]);
     }
 
@@ -742,7 +807,15 @@ class Admin extends BaseController
      */
     public function business_plan(): string
     {
-        return view('admin/business_plan');
+        $session       = session();
+        if ('OWNER' != $session->user_role) {
+            return $this->forbiddenResponse('string');
+        }
+        $data       = [
+            'slug'       => 'business-plan',
+            'lang'       => $this->request->getLocale(),
+        ];
+        return view('admin/business_plan', $data);
     }
 
     /**
@@ -2095,7 +2168,7 @@ class Admin extends BaseController
                 $file           = $this->request->getFile('service_image');
                 if (!$file) {
                     return $this->response->setJSON([
-                        'success' => STATUS_RESPONSE_ERR,
+                        'status'  => STATUS_RESPONSE_ERR,
                         'message' => lang('System.response-msg.error.upload-failed')
                     ]);
                 }
@@ -2112,7 +2185,7 @@ class Admin extends BaseController
                 );
                 if (!$result['success']) {
                     return $this->response->setJSON([
-                        'success' => STATUS_RESPONSE_ERR,
+                        'status'  => STATUS_RESPONSE_ERR,
                         'message' => implode('<br>', $result['errors'])
                     ]);
                 }
@@ -2912,7 +2985,7 @@ class Admin extends BaseController
                 $file           = $this->request->getFile('product_image');
                 if (!$file) {
                     return $this->response->setJSON([
-                        'success' => STATUS_RESPONSE_ERR,
+                        'status'  => STATUS_RESPONSE_ERR,
                         'message' => lang('System.response-msg.error.upload-failed')
                     ]);
                 }
@@ -2929,7 +3002,7 @@ class Admin extends BaseController
                 );
                 if (!$result['success']) {
                     return $this->response->setJSON([
-                        'success' => STATUS_RESPONSE_ERR,
+                        'status'  => STATUS_RESPONSE_ERR,
                         'message' => implode('<br>', $result['errors'])
                     ]);
                 }
