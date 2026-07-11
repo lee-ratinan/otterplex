@@ -13,7 +13,8 @@ class BusinessPolicyModel extends AppBaseModel
         'business_id',
         'language_code',
         'policy_type',
-        'policy_text',
+        'policy_text_html',
+        'policy_text_delta',
         'created_by',
         'created_at',
         'updated_at'

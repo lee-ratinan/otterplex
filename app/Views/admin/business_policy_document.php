@@ -28,7 +28,12 @@
                                                     <?= lang('System.buttons.new') ?>
                                                 </a>
                                             <?php else: ?>
-                                                <a class="btn btn-outline-primary btn-sm" href="<?= base_url('admin/business/policy/' . $policy_type_rows[$language_key]['id']) ?>">
+                                                <?php
+                                                $text = strip_tags($policy_type_rows[$language_key]['policy_text_html']);
+                                                $text = str_replace('&nbsp;', ' ', $text);
+                                                echo mb_strlen($text) > 20 ? mb_substr($text, 0, 20) . '...' : $text;
+                                                ?>
+                                                <a class="btn btn-outline-primary btn-sm float-end" href="<?= base_url('admin/business/policy/' . $policy_type_rows[$language_key]['id']) ?>">
                                                     <?= lang('System.buttons.edit') ?>
                                                 </a>
                                             <?php endif; ?>

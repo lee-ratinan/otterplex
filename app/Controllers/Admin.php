@@ -1352,7 +1352,45 @@ class Admin extends BaseController
      */
     public function business_policy_document_edit_post(): ResponseInterface
     {
-        return $this->response->setJSON([]);
+        $session = session();
+        if (!in_array($session->user_role, ['OWNER'])) {
+            return $this->forbiddenResponse('ResponseInterface');
+        }
+        try {
+            $policyModel               = new BusinessPolicyModel();
+            $data['policy_text_html']  = $this->request->getPost('policy_text_html');
+            $data['policy_text_delta'] = $this->request->getPost('policy_text_delta');
+            $id                        = $this->request->getPost('policy_id');
+            if (0 < $id) {
+                if ($policyModel->update($id, $data)) {
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_OK,
+                        'message' => lang('System.response-msg.success.data-saved'),
+                    ]);
+                }
+            } else {
+                $fields      = ['business_id', 'language_code', 'policy_type', 'policy_text_html', 'policy_text_delta'];
+                $data        = [];
+                foreach ($fields as $field) {
+                    $data[$field] = $this->request->getPost($field);
+                }
+                if ($policyModel->insert($data)) {
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_OK,
+                        'message' => lang('System.response-msg.success.data-saved'),
+                    ]);
+                }
+            }
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => lang('System.response-msg.error.db-issue'),
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => $e->getMessage(),
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
