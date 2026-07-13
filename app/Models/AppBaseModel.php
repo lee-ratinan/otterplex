@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use CodeIgniter\Config\Services;
+use CodeIgniter\Database\BaseResult;
 use CodeIgniter\Model;
 use ReflectionException;
 
@@ -118,10 +119,10 @@ class AppBaseModel extends Model
      * Delete the data (really delete from the database) and log
      * @param int|null $id
      * @param bool $purge
-     * @return bool
+     * @return BaseResult|bool
      * @throws ReflectionException
      */
-    public function delete($id = null, bool $purge = false): bool
+    public function delete($id = null, bool $purge = false): BaseResult|bool
     {
         $result = parent::delete($id, $purge);
         if ($result) {

@@ -741,22 +741,25 @@ class Admin extends BaseController
         $tmModel    = new TagMasterModel();
         $businessId = $session->business['business_id'];
         if ('retrieve' == $mode) {
+            $tags = $tagModel->getTagsForBusiness($businessId);
             return $this->response->setJSON([
-                'status'  => STATUS_RESPONSE_OK,
-                'tags'    => $tagModel->getTagsForBusiness($businessId)
+                'status' => STATUS_RESPONSE_OK,
+                'tags'   => $tags,
+                'count'  => count($tags)
             ]);
         } else if ('delete' == $mode) {
             try {
                 $tagId = $this->request->getPost('tag_id');
-                if ($tagModel
-                    ->where('business_id', $businessId)
-                    ->where('id', $tagId)
-                    ->delete()) {
+                if ($tagModel->deleteTag($businessId, $tagId)) {
                     return $this->response->setJSON([
-                        'status' => STATUS_RESPONSE_OK,
-                        'tags'   => lang('System.response-msg.success.data-deleted')
+                        'status'  => STATUS_RESPONSE_OK,
+                        'message' => lang('System.response-msg.success.data-deleted')
                     ]);
                 }
+                return $this->response->setJSON([
+                    'status'  => STATUS_RESPONSE_ERR,
+                    'message' => lang('System.response-msg.error.generic')
+                ]);
             } catch (\Exception $e) {
                 return $this->response->setJSON([
                     'status'  => STATUS_RESPONSE_ERR,
@@ -767,23 +770,31 @@ class Admin extends BaseController
             try {
                 $tag_name = $this->request->getPost('tag_name');
                 $tag_item = $tmModel->where('tag_name', $tag_name)->first();
+                // TAG_MASTER
                 if (empty($tag_item)) {
-                    // insert new tag
                     $tag_data = [
                         'tag_name' => $tag_name,
                     ];
                     $tmId = $tmModel->insert($tag_data);
-                    if ($tmId) {
-                        $bt_data = [
-                            'business_id' => $businessId,
-                            'tag_id'      => $tmId,
-                        ];
-                        if ($tagModel->insert($bt_data)) {
-                            return $this->response->setJSON([
-                                'status'  => STATUS_RESPONSE_OK,
-                                'message' => lang('System.response-msg.success.data-saved')
-                            ]);
-                        }
+                } else {
+                    $tmId = $tag_item['id'];
+                }
+                // BUSINESS_TAG
+                if ($tmId) {
+                    $bt_data = [
+                        'business_id' => $businessId,
+                        'tag_id'      => $tmId,
+                    ];
+                    if ($tagModel->insert($bt_data)) {
+                        return $this->response->setJSON([
+                            'status'  => STATUS_RESPONSE_OK,
+                            'message' => lang('System.response-msg.success.data-saved')
+                        ]);
+                    } else {
+                        return $this->response->setJSON([
+                            'status'  => STATUS_RESPONSE_ERR,
+                            'message' => lang('System.response-msg.error.generic')
+                        ]);
                     }
                 }
             } catch (\Exception $e) {
@@ -793,11 +804,8 @@ class Admin extends BaseController
                 ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
             }
         }
-
-
         return $this->response->setJSON([
             'status' => STATUS_RESPONSE_OK,
-            'tags'   => []
         ]);
     }
 

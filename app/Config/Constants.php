@@ -108,3 +108,5 @@ defined('ID_MASKED_PRIME')            || define('ID_MASKED_PRIME', 787);
 defined('DEFAULT_FREE_TRIAL')         || define('DEFAULT_FREE_TRIAL', '+30 days');
 defined('DEFAULT_EXPIRY_DATE')        || define('DEFAULT_EXPIRY_DATE', '2099-12-31');
 defined('ALLOW_ADVANCE_BOOKING')      || define('ALLOW_ADVANCE_BOOKING', 3);
+
+defined('BUSINESS_TAG_MAX')            || define('BUSINESS_TAG_MAX', 50);

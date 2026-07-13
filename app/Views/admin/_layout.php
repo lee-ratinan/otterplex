@@ -99,7 +99,7 @@ if (!empty($session->business)) {
                 <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
                     <li class="dropdown-header">
                         <h6><?= $session->full_name ?></h6>
-                        <span><?= substr($session->user['profile_status_msg'], 0, 30) . (empty($businessName) ? '' : '<br>' . $businessName . ' / ' . lang('BusinessUser.enum.user_role.' . $session->user_role)) ?></span>
+                        <span><?= (!empty($session->user['profile_status_msg']) ? mb_substr($session->user['profile_status_msg'], 0, 30) : '') . (empty($businessName) ? '' : '<br>' . $businessName . ' / ' . lang('BusinessUser.enum.user_role.' . $session->user_role)) ?></span>
                     </li>
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item d-flex align-items-center" href="<?= base_url('/admin/profile') ?>"><i class="fa-solid fa-user-gear me-3"></i><span><?= lang('Admin.pages.profile') ?></span></a></li>
