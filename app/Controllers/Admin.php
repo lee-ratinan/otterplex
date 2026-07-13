@@ -815,13 +815,19 @@ class Admin extends BaseController
      */
     public function business_plan(): string
     {
-        $session       = session();
+        $session     = session();
         if ('OWNER' != $session->user_role) {
             return $this->forbiddenResponse('string');
         }
+        $business   = $session->business;
+        $plans      = retrieve_plans($business['country_code']);
+        unset($plans['free']);
         $data       = [
             'slug'       => 'business-plan',
             'lang'       => $this->request->getLocale(),
+            'business'   => $business,
+            'plans'      => $plans,
+            'options'    => retrieve_plan_options()
         ];
         return view('admin/business_plan', $data);
     }
