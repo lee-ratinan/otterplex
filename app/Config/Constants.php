@@ -109,4 +109,7 @@ defined('DEFAULT_FREE_TRIAL')         || define('DEFAULT_FREE_TRIAL', '+30 days'
 defined('DEFAULT_EXPIRY_DATE')        || define('DEFAULT_EXPIRY_DATE', '2099-12-31');
 defined('ALLOW_ADVANCE_BOOKING')      || define('ALLOW_ADVANCE_BOOKING', 3);
 
-defined('BUSINESS_TAG_MAX')            || define('BUSINESS_TAG_MAX', 50);
+defined('SESSION_IDLE_TIMEOUT')       || define('SESSION_IDLE_TIMEOUT',     3600000); // 1 hour idle time = logout
+defined('SESSION_CHECK_EXPIRY_FREQ')  || define('SESSION_CHECK_EXPIRY_FREQ', 60000); // Check session expiry every 1 minute
+
+defined('BUSINESS_TAG_MAX')           || define('BUSINESS_TAG_MAX', 50);

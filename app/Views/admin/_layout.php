@@ -274,14 +274,15 @@ if (!empty($session->business)) {
     // 3. Check for Hard Session Expiry
     function checkSessionExpiry() { const currentTime = new Date().getTime(); if (currentTime >= sessionExpiryTime) { forceLogout(); } }
     // 4. Handle Idle Timeout (10 Minutes of absolute inactivity)
-    function resetIdleTimer() { clearTimeout(idleTimer);
-        idleTimer = setTimeout(() => { console.log("User idle for 10 minutes. Logging out..."); forceLogout(); }, 600000);
+    function resetIdleTimer() {
+        clearTimeout(idleTimer);
+        idleTimer = setTimeout(() => { console.log("User idle for 60 minutes. Logging out..."); forceLogout(); }, <?= SESSION_IDLE_TIMEOUT ?>);
     }
     // 5. Listen for user activity to reset the idle clock
     window.onload = function() {
         resetIdleTimer();
-        // Check every 30 seconds if the hard UTC timestamp has expired
-        setInterval(checkSessionExpiry, 30000);
+        // Check every 120 seconds if the hard UTC timestamp has expired
+        setInterval(checkSessionExpiry, <?= SESSION_CHECK_EXPIRY_FREQ ?>);
         // Reset idle timer if they move the mouse, scroll, or press a key
         const activityEvents = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
         activityEvents.forEach(event => { document.addEventListener(event, resetIdleTimer, true); });
