@@ -19,6 +19,9 @@ use App\Models\BusinessShippingFeeModel;
 use App\Models\BusinessTagModel;
 use App\Models\BusinessTypeModel;
 use App\Models\BusinessUserAttributeModel;
+use App\Models\BusinessUserAttributeValueModel;
+use App\Models\BusinessUserLanguage;
+use App\Models\BusinessUserLanguageModel;
 use App\Models\BusinessUserModel;
 use App\Models\OrderMasterModel;
 use App\Models\OrderPaymentModel;
@@ -1118,6 +1121,13 @@ class Admin extends BaseController
         $businessUser  = [];
         $branchUser    = [];
         $branches      = [];
+        $allAttrMdl    = new BusinessUserAttributeModel();
+        $usrAttrValMdl = new BusinessUserAttributeValueModel();
+        $usrLangMdl    = new BusinessUserLanguageModel();
+        $allAttr       = [];
+        $usrAttrVal    = [];
+        $usrLang       = [];
+        $proficiencies = [];
         if (0 < $userId) {
             $mode         = 'edit';
             $user         = $userModel->find($userId);
@@ -1135,22 +1145,36 @@ class Admin extends BaseController
                 } else {
                     $user['user_public_local_names'] = [];
                 }
+                $businessUserId = $businessUser['id'];
+                $allAttr        = $allAttrMdl->where('business_id', $businessId)->findAll();
+                $usrAttrValRaw  = $usrAttrValMdl->where('business_user_id', $businessUserId)->findAll();
+                foreach ($usrAttrValRaw as $attrVal) {
+                    $usrAttrVal[$attrVal['business_user_attribute_id']] = $attrVal['attribute_value'];
+                }
+                $usrLangRaw     = $usrLangMdl->where('business_user_id', $businessUserId)->findAll();
+                foreach ($usrLangRaw as $usrLangRow) {
+                    $usrLang[$usrLangRow['language_code']] = $usrLangRow['proficiency_level'];
+                }
+                $proficiencies  = $usrLangMdl->get_language_proficiency();
             } else {
                 throw new PageNotFoundException(lang('Admin.pages.page-not-found'));
             }
         }
-        $allLanguages = get_available_locales_for_country($session->business['country_code']);
         $data         = [
-            'slug'          => 'business-user-manage',
-            'lang'          => $this->request->getLocale(),
-            'mode'          => $mode,
-            'user'          => $user,
-            'userIdUrl'     => $userId * ID_MASKED_PRIME,
-            'businessUser'  => $businessUser,
-            'branchUser'    => $branchUser,
-            'branches'      => $branches,
-            'all_languages' => $allLanguages,
-            'breadcrumb'    => [
+            'slug'                  => 'business-user-manage',
+            'lang'                  => $this->request->getLocale(),
+            'mode'                  => $mode,
+            'user'                  => $user,
+            'userIdUrl'             => $userId * ID_MASKED_PRIME,
+            'businessUser'          => $businessUser,
+            'branchUser'            => $branchUser,
+            'branches'              => $branches,
+            'all_languages'         => get_available_locales_for_country($session->business['country_code']),
+            'all_attribute_fields'  => $allAttr,
+            'all_attribute_values'  => $usrAttrVal,
+            'user_languages_skills' => $usrLang,
+            'proficiencies'         => $proficiencies,
+            'breadcrumb'            => [
                 [
                     'url'        => base_url('admin/business/user'),
                     'page_title' => lang('Admin.pages.business-user'),
@@ -1374,7 +1398,6 @@ class Admin extends BaseController
                 $data['data_unit']             = null;
                 $data['in_use']                = 'Y';
                 if ('list' == $data['data_type']) {
-//                    $data['data_list'] = json_encode($values['data_list']);
                     // split first
                     $split = [];
                     $count = [];
