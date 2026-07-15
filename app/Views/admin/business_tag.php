@@ -8,7 +8,7 @@
                     <div class="col-12 col-lg-6">
                         <h2><?= lang('BusinessTag.title') ?> (<span id="tag-count"></span>)</h2>
                         <p><?= lang('BusinessTag.paragraph', [BUSINESS_TAG_MAX]) ?></p>
-                        <ol class="mb-3" id="tag-area"></ol>
+                        <div class="mb-3" id="tag-area"></div>
                         <div id="new-tag-form">
                             <label for="tag-name" class="form-label"><?= lang('BusinessTag.new-business-tag') ?></label>
                             <input type="text" class="form-control" id="tag-name" placeholder="<?= lang('BusinessTag.new-business-tag') ?>"/>
@@ -26,9 +26,13 @@
             function renderTags(tags, count) {
                 $('#tag-area').empty();
                 $('#tag-count').html(count);
-                $.each(tags, function (i, tag) {
-                    $('#tag-area').append('<li class="mb-1">' + tag.tag_name + ' <button class="btn btn-outline-danger btn-sm btn-delete" data-business-id="' + tag.business_id + '" data-tag-id="' + tag.tag_id + '"><i class="fa-solid fa-times-circle"></i></button></li>')
-                });
+                if (0 === count) {
+                    $('#tag-area').append('<div class="alert alert-warning"><i class="fa-solid fa-triangle-exclamation"></i> <?= lang('System.generic-term.no-data') ?></div>');
+                } else {
+                    $.each(tags, function (i, tag) {
+                        $('#tag-area').append('<div class="mb-1">' + tag.tag_name + ' <button class="btn btn-outline-danger btn-sm btn-delete" data-business-id="' + tag.business_id + '" data-tag-id="' + tag.tag_id + '"><i class="fa-solid fa-times-circle"></i></button></div>')
+                    });
+                }
                 if (count < <?= BUSINESS_TAG_MAX ?>) {
                     $('#new-tag-form').show();
                 } else {

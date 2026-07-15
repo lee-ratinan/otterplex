@@ -48,6 +48,8 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->post('business/user', 'Admin::business_user_post');
     $routes->get('business/user/(:num)', 'Admin::business_user_manage/$1');
     $routes->post('business/user-manage', 'Admin::business_user_manage_post');
+    $routes->get('business/user-attribute', 'Admin::business_user_attribute');
+    $routes->post('business/user-attribute-manage', 'Admin::business_user_attribute_post');
     $routes->get('business/customer', 'Admin::business_customer');
     $routes->post('business/customer', 'Admin::business_customer_post');
     $routes->get('business/policy', 'Admin::business_policy_document'); // all policies

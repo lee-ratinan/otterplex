@@ -192,7 +192,7 @@ if (!function_exists('build_form_input')) {
         if (empty($label)) {
             $label_cls = 'd-none';
         }
-        $structure = "<div class='mb-3'><label for='{$id}' class='form-label {$label_cls}'>{$label} {$required}</label> ###FORM### ###EXP### </div>";
+        $structure = "<div class='mb-3' id='div-{$id}-container'><label for='{$id}' class='form-label {$label_cls}'>{$label} {$required}</label> ###FORM### ###EXP### </div>";
         $attr      = [];
         $attr[]    = "id='{$id}'";
         $attr[]    = "class='form-control $other_classes'";

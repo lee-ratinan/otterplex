@@ -113,3 +113,4 @@ defined('SESSION_IDLE_TIMEOUT')       || define('SESSION_IDLE_TIMEOUT',     3600
 defined('SESSION_CHECK_EXPIRY_FREQ')  || define('SESSION_CHECK_EXPIRY_FREQ', 60000); // Check session expiry every 1 minute
 
 defined('BUSINESS_TAG_MAX')           || define('BUSINESS_TAG_MAX', 50);
+defined('USER_ATTR_MAX')              || define('USER_ATTR_MAX', 20);

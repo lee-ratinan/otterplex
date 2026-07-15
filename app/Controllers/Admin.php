@@ -18,6 +18,7 @@ use App\Models\BusinessPolicyModel;
 use App\Models\BusinessShippingFeeModel;
 use App\Models\BusinessTagModel;
 use App\Models\BusinessTypeModel;
+use App\Models\BusinessUserAttributeModel;
 use App\Models\BusinessUserModel;
 use App\Models\OrderMasterModel;
 use App\Models\OrderPaymentModel;
@@ -1295,7 +1296,75 @@ class Admin extends BaseController
             }
             return $this->response->setJSON([
                 'status'  => STATUS_RESPONSE_ERR,
-                'message' => lang('System.response-msg.error.db-issue'),
+                'message' => lang('System.response-msg.error.generic'),
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => $e->getMessage(),
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function business_user_attribute(): string
+    {
+        $session = session();
+        if ($session->user_role != 'OWNER') {
+            return $this->forbiddenResponse('string');
+        }
+        $businessId = $session->business['business_id'];
+        $buaModel   = new BusinessUserAttributeModel();
+        $attributes = $buaModel->where('business_id', $businessId)->findAll();
+        $data       = [
+            'slug'          => 'business-user-attribute',
+            'lang'          => $this->request->getLocale(),
+            'data_types'    => $buaModel->getDataTypes(),
+            'in_use_values' => $buaModel->getInUseValues(),
+            'languages'     => get_available_locales_for_country($session->business['country_code']),
+            'attributes'    => $attributes,
+        ];
+        return view('admin/business_user_attribute', $data);
+    }
+
+    public function business_user_attribute_post(): ResponseInterface
+    {
+        $session = session();
+        if ($session->user_role != 'OWNER') {
+            return $this->forbiddenResponse('ResponseInterface');
+        }
+        try {
+            $bId      = $session->business['business_id'];
+            $mode     = $this->request->getPost('mode');
+            $buaModel = new BusinessUserAttributeModel();
+            if ('toggle-in-use' == $mode) {
+                $id       = $this->request->getPost('id');
+                $newValue = $this->request->getPost('new_value');
+                $found    = $buaModel
+                    ->where('business_id', $bId)
+                    ->where('id', $id)
+                    ->first();
+                if (!empty($found)) {
+                    $data['in_use'] = $newValue;
+                    $label          = [
+                        'Y' => '<i class="fa-solid fa-check-circle text-success"></i> ' . lang('BusinessUserAttribute.enum.in_use.Y'),
+                        'N' => '<i class="fa-solid fa-times-circle text-danger"></i> ' . lang('BusinessUserAttribute.enum.in_use.N'),
+                    ];
+                    if ($buaModel->update($id, $data)) {
+                        return $this->response->setJSON([
+                            'status'  => STATUS_RESPONSE_OK,
+                            'label'   => $label[$newValue],
+                            'message' => lang('System.response-msg.success.data-saved'),
+                        ]);
+                    }
+                }
+                return $this->response->setJSON([
+                    'status'  => STATUS_RESPONSE_ERR,
+                    'message' => lang('System.response-msg.error.db-issue'),
+                ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+            }
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => lang('System.response-msg.error.generic'),
             ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
         } catch (\Exception $e) {
             return $this->response->setJSON([

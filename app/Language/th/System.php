@@ -54,6 +54,8 @@ return [
         'filter'          => '<i class="fa-solid fa-filter"></i> กรอง',
         'reset'           => 'รีเซ็ต',
         'view-more'       => '<i class="fa-regular fa-eye"></i> ดูเพิ่มเติม',
+        'enable'          => 'ใช้งาน',
+        'disable'         => 'ปิดการใช้งาน',
     ],
     'generic-term'       => [
         'no-data' => 'ไม่พบข้อมูล'

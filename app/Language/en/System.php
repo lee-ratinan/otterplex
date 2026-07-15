@@ -54,6 +54,8 @@ return [
         'filter'          => '<i class="fa-solid fa-filter"></i> Filter',
         'reset'           => 'Reset',
         'view-more'       => '<i class="fa-regular fa-eye"></i> View More',
+        'enable'          => 'Enable',
+        'disable'         => 'Disable',
     ],
     'generic-term'       => [
         'no-data' => 'No data'

@@ -42,6 +42,7 @@ return [
         'business-branch-manage'         => 'Branch Manager',
         'business-user'                  => 'Staff',
         'business-user-manage'           => 'Staff Manager',
+        'business-user-attribute'        => 'Staff Attribute',
         'business-customer'              => 'Customer',
         'business-payment-method'        => 'Payment Method',
         'business-shipping-fee'          => 'Shipping Rate',

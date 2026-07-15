@@ -42,6 +42,7 @@ return [
         'business-branch-manage'         => 'การจัดการสาขา',
         'business-user'                  => 'พนักงาน',
         'business-user-manage'           => 'การจัดการพนักงาน',
+        'business-user-attribute'        => 'คุณลักษณะของพนักงาน',
         'business-customer'              => 'ลูกค้า',
         'business-payment-method'        => 'วิธีการชำระเงิน',
         'business-shipping-fee'          => 'เรทค่าจัดส่ง',

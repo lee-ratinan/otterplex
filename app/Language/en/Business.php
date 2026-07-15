@@ -73,6 +73,12 @@ return [
         'no-branches'        => 'The user is not linked to any branches, please add a new branch.',
         'link-to-new-branch' => 'Add New Branch'
     ],
+    'user-attribute'            => [
+        'title'         => 'User Attribute',
+        'paragraph'     => 'By default, there are some user attributes that the system supports by default, such as name, gender, nationality, language skills. However, if you wish to add more attributes, you can do so by defining more on this page. The fields will be shown on the user profile page. However, you cannot remove the attribute once saved. You can only hide them if you do not need them anymore.',
+        'paragraph-2'   => 'You can add up to {0} attributes.',
+        'new-attribute' => 'New Attribute',
+    ],
     'customer-management'       => [
         'privacy-policy' => 'Customer data is considered sensitive information. The customers have their rights to modify and/or delete their information at any given time.',
     ],

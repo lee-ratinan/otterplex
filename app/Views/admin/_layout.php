@@ -180,6 +180,7 @@ if (!empty($session->business)) {
                     'business-plan'           => [base_url('/admin/business/plan'), lang('Admin.pages.business-plan')],
                     'business-branch'         => [base_url('/admin/business/branch'), lang('Admin.pages.business-branch')],
                     'business-user'           => [base_url('/admin/business/user'), lang('Admin.pages.business-user')],
+                    'business-user-attribute' => [base_url('/admin/business/user-attribute'), lang('Admin.pages.business-user-attribute')],
                     'business-customer'       => [base_url('/admin/business/customer'), lang('Admin.pages.business-customer')],
                     'business-payment-method' => [base_url('/admin/business/payment-method'), lang('Admin.pages.business-payment-method')],
                     'business-resource-type'  => [base_url('/admin/resource/type'), lang('Admin.pages.business-resource-type')],
