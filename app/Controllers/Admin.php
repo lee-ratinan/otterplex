@@ -1367,6 +1367,8 @@ class Admin extends BaseController
                         $values[$field][$language_code] = $this->request->getPost($field . '_' . $language_code);
                     }
                 }
+                $first_language                = array_key_first($languages);
+                $data['attribute_name']        = $values['attribute_local_names'][$first_language] ?? null;
                 $data['attribute_local_names'] = json_encode($values['attribute_local_names']);
                 $data['data_list']             = null;
                 $data['data_unit']             = null;
