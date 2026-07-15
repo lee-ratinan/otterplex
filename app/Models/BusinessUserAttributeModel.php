@@ -10,7 +10,7 @@ class BusinessUserAttributeModel extends AppBaseModel
         'id',
         'business_id',
         'attribute_name',
-        'attribute_local_name',
+        'attribute_local_names',
         'data_type',
         'data_list',
         'data_unit',

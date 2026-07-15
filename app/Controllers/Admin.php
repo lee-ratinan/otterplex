@@ -1357,14 +1357,62 @@ class Admin extends BaseController
                         ]);
                     }
                 }
-                return $this->response->setJSON([
-                    'status'  => STATUS_RESPONSE_ERR,
-                    'message' => lang('System.response-msg.error.db-issue'),
-                ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+            } else if ('new-attribute' == $mode) {
+                $languages         = get_available_locales_for_country($session->business['country_code']);
+                $data['data_type'] = $this->request->getPost('data_type');
+                $fields            = ['attribute_local_names', 'data_list', 'data_unit'];
+                $values            = [];
+                foreach ($fields as $field) {
+                    foreach ($languages as $language_code => $dummy) {
+                        $values[$field][$language_code] = $this->request->getPost($field . '_' . $language_code);
+                    }
+                }
+                $data['attribute_local_names'] = json_encode($values['attribute_local_names']);
+                $data['data_list']             = null;
+                $data['data_unit']             = null;
+                $data['in_use']                = 'Y';
+                if ('list' == $data['data_type']) {
+//                    $data['data_list'] = json_encode($values['data_list']);
+                    // split first
+                    $split = [];
+                    $count = [];
+                    $cnt   = 0;
+                    foreach ($values['data_list'] as $lc => $scsv) {
+                        $split[$lc] = explode(';', $scsv);
+                        $count[$lc] = count($split[$lc]);
+                        $cnt        = count($split[$lc]);
+                    }
+                    // if counts are not equal, then it's wrong
+                    $count_unique = array_unique($count);
+                    if (1 < count($count_unique)) {
+                        return $this->response->setJSON([
+                            'status'  => STATUS_RESPONSE_ERR,
+                            'message' => lang('System.response-msg.error.generic'),
+                        ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+                    }
+                    $list_value = [];
+                    for ($i = 0; $i < $cnt; $i++) {
+                        $j = 'L' . $i+1;
+                        foreach ($languages as $language_code => $dummy) {
+                            $list_value[$j][$language_code] = $split[$language_code][$i];
+                        }
+                    }
+                    $data['data_list'] = json_encode($list_value);
+                }
+                if ('num' == $data['data_type']) {
+                    $data['data_unit'] = json_encode($values['data_unit']);
+                }
+                $data['business_id'] = $bId;
+                if ($buaModel->insert($data)) {
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_OK,
+                        'message' => lang('System.response-msg.success.data-saved'),
+                    ]);
+                }
             }
             return $this->response->setJSON([
                 'status'  => STATUS_RESPONSE_ERR,
-                'message' => lang('System.response-msg.error.generic'),
+                'message' => lang('System.response-msg.error.db-issue'),
             ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
         } catch (\Exception $e) {
             return $this->response->setJSON([
