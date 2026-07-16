@@ -58,7 +58,9 @@ return [
         'disable'         => 'Disable',
     ],
     'generic-term'       => [
-        'no-data' => 'No data'
+        'no-data' => 'No data',
+        'yes'     => 'Yes',
+        'no'      => 'No',
     ],
     'generic-field'      => [
         'created_by' => 'Created By',

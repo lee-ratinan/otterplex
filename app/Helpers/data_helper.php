@@ -3849,21 +3849,21 @@ if (!function_exists('get_available_locales_for_user_proficiency')) {
     {
         return [
             'en-XX' => 'English',
-            'en-US' => 'English (United States)',
-            'en-GB' => 'English (United Kingdom)',
-            'en-AU' => 'English (Australia)',
-            'en-SG' => 'English (Singapore)',
             'th-TH' => 'ภาษาไทย (Thai)',
-            'ja-JP' => '日本語 (Japanese)',
-            'zh-TW' => '國語 (Taiwanese)',
-            'zh-SG' => '華語 (Singaporean Mandarin)',
-            'ko-KR' => '한국어 (Korean)',
             'id-ID' => 'Bahasa Indonesia (Indonesian)',
             'ms-MY' => 'Bahasa Melayu (Malay)',
+            'en-AU' => 'English (Australia)',
+            'en-SG' => 'English (Singapore)',
+            'en-GB' => 'English (United Kingdom)',
+            'en-US' => 'English (United States)',
             'es-ES' => 'español (Spanish)',
             'fr-FR' => 'français (French)',
             'tl-PH' => 'Tagalog',
-            'vi-VN' => 'Tiếng Việt (Vietnamese)'
+            'vi-VN' => 'Tiếng Việt (Vietnamese)',
+            'ko-KR' => '한국어 (Korean)',
+            'zh-TW' => '國語 (Taiwanese)',
+            'ja-JP' => '日本語 (Japanese)',
+            'zh-SG' => '華語 (Singaporean Mandarin)',
         ];
     }
 }

@@ -65,13 +65,17 @@ return [
         'go-to-user-to-manage' => 'Please go to <a href="{0}">staff management</a> to update this list.'
     ],
     'user-management'           => [
-        'new-user'           => 'New User',
-        'new-user-info'      => 'New User Information',
-        'generic-info'       => 'Generic Information',
-        'link-to-business'   => 'User Status in Business',
-        'link-to-branches'   => 'User Status in Branches',
-        'no-branches'        => 'The user is not linked to any branches, please add a new branch.',
-        'link-to-new-branch' => 'Add New Branch'
+        'new-user'                   => 'New User',
+        'new-user-info'              => 'New User Information',
+        'generic-info'               => 'Generic Information',
+        'link-to-business'           => 'User Status in Business',
+        'link-to-branches'           => 'User Status in Branches',
+        'no-branches'                => 'The user is not linked to any branches, please add a new branch.',
+        'link-to-new-branch'         => 'Add New Branch',
+        'custom-attributes'          => 'Custom Attributes',
+        'language-proficiency-level' => 'Language Proficiency Level',
+        'new-language'               => 'New Language',
+        'other-attributes'           => 'Other Attributes',
     ],
     'user-attribute'            => [
         'title'         => 'User Attribute',

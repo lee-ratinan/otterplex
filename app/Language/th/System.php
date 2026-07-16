@@ -58,7 +58,9 @@ return [
         'disable'         => 'ปิดการใช้งาน',
     ],
     'generic-term'       => [
-        'no-data' => 'ไม่พบข้อมูล'
+        'no-data' => 'ไม่พบข้อมูล',
+        'yes'     => 'ใช่',
+        'no'      => 'ไม่ใช่',
     ],
     'generic-field'      => [
         'created_by' => 'เพิ่มข้อมูลโดย',

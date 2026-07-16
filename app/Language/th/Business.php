@@ -65,13 +65,17 @@ return [
         'go-to-user-to-manage' => 'กรุณาไปยังหน้า<a href="{0}">พนักงาน</a>เพื่อแก้ไขรายชื่อพนักงานในสาขานี้'
     ],
     'user-management'           => [
-        'new-user'           => 'พนักงานใหม่',
-        'new-user-info'      => 'ข้อมูลพนักงานใหม่',
-        'generic-info'       => 'ข้อมูลทั่วไป',
-        'link-to-business'   => 'สถานะของผู้ใช้ในธุรกิจ',
-        'link-to-branches'   => 'สถานะของผู้ใช้ในสาขา',
-        'no-branches'        => 'ไม่มีรายการสาขาของพนักงาน กรุณาเพิ่มสาขา',
-        'link-to-new-branch' => 'เพิ่มสาขาของพนักงาน'
+        'new-user'                   => 'พนักงานใหม่',
+        'new-user-info'              => 'ข้อมูลพนักงานใหม่',
+        'generic-info'               => 'ข้อมูลทั่วไป',
+        'link-to-business'           => 'สถานะของผู้ใช้ในธุรกิจ',
+        'link-to-branches'           => 'สถานะของผู้ใช้ในสาขา',
+        'no-branches'                => 'ไม่มีรายการสาขาของพนักงาน กรุณาเพิ่มสาขา',
+        'link-to-new-branch'         => 'เพิ่มสาขาของพนักงาน',
+        'custom-attributes'          => 'คุณลักษณะเฉพาะ',
+        'language-proficiency-level' => 'ระดับความสามารถทางภาษา',
+        'new-language'               => 'เพิ่มภาษาใหม่',
+        'other-attributes'           => 'คุณลักษณะอื่นๆ',
     ],
     'user-attribute'            => [
         'title'         => 'คุณลักษณะของพนักงาน',

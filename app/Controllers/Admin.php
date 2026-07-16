@@ -1128,6 +1128,7 @@ class Admin extends BaseController
         $usrAttrVal    = [];
         $usrLang       = [];
         $proficiencies = [];
+        $usrLangList   = [];
         if (0 < $userId) {
             $mode         = 'edit';
             $user         = $userModel->find($userId);
@@ -1149,13 +1150,23 @@ class Admin extends BaseController
                 $allAttr        = $allAttrMdl->where('business_id', $businessId)->findAll();
                 $usrAttrValRaw  = $usrAttrValMdl->where('business_user_id', $businessUserId)->findAll();
                 foreach ($usrAttrValRaw as $attrVal) {
-                    $usrAttrVal[$attrVal['business_user_attribute_id']] = $attrVal['attribute_value'];
+                    $usrAttrVal[$attrVal['business_user_attribute_id']] = [
+                        'id'    => $attrVal['id'],
+                        'value' => $attrVal['attribute_value'],
+                    ];
                 }
                 $usrLangRaw     = $usrLangMdl->where('business_user_id', $businessUserId)->findAll();
                 foreach ($usrLangRaw as $usrLangRow) {
-                    $usrLang[$usrLangRow['language_code']] = $usrLangRow['proficiency_level'];
+                    $usrLang[$usrLangRow['language_code']] = [
+                        'id'                => $usrLangRow['id'],
+                        'proficiency_level' => $usrLangRow['proficiency_level']
+                    ];
                 }
-                $proficiencies  = $usrLangMdl->get_language_proficiency();
+                $profRaw        = $usrLangMdl->get_language_proficiency();
+                foreach ($profRaw as $proficiency) {
+                    $proficiencies[$proficiency] = lang('BusinessUserLanguage.enum.proficiency_level.' . $proficiency);
+                }
+                $usrLangList    = get_available_locales_for_user_proficiency();
             } else {
                 throw new PageNotFoundException(lang('Admin.pages.page-not-found'));
             }
@@ -1174,6 +1185,7 @@ class Admin extends BaseController
             'all_attribute_values'  => $usrAttrVal,
             'user_languages_skills' => $usrLang,
             'proficiencies'         => $proficiencies,
+            'user_language_list'    => $usrLangList,
             'breadcrumb'            => [
                 [
                     'url'        => base_url('admin/business/user'),
@@ -1316,6 +1328,48 @@ class Admin extends BaseController
                         'status'  => STATUS_RESPONSE_OK,
                         'message' => lang('System.response-msg.success.data-deleted'),
                     ]);
+                }
+            } else if ('business_user_language_new' == $action) {
+                $data['business_user_id']  = $this->request->getPost('business_user_id');
+                $data['language_code']     = $this->request->getPost('language_code');
+                $data['proficiency_level'] = $this->request->getPost('proficiency_level');
+                $bulModel = new BusinessUserLanguageModel();
+                if ($bulModel->insert($data)) {
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_OK,
+                        'message' => lang('System.response-msg.success.data-saved'),
+                    ]);
+                }
+            } else if ('business_user_language_delete' == $action) {
+                $business_user_id = $this->request->getPost('business_user_id');
+                $bulModel         = new BusinessUserLanguageModel();
+                if ($bulModel->delete($business_user_id)) {
+                    return $this->response->setJSON([
+                        'status'  => STATUS_RESPONSE_OK,
+                        'message' => lang('System.response-msg.success.data-deleted'),
+                    ]);
+                }
+            } else if ('business_user_attribute_value' == $action) {
+                $id     = $this->request->getPost('business_user_attribute_value_id');
+                $fields = ['business_user_id', 'business_user_attribute_id', 'attribute_value'];
+                foreach ($fields as $field) {
+                    $data[$field] = $this->request->getPost($field);
+                }
+                $buavModel  = new BusinessUserAttributeValueModel();
+                if (0 < $id) {
+                    if ($buavModel->update($id, $data)) {
+                        return $this->response->setJSON([
+                            'status'  => STATUS_RESPONSE_OK,
+                            'message' => lang('System.response-msg.success.data-saved'),
+                        ]);
+                    }
+                } else {
+                    if ($buavModel->insert($data)) {
+                        return $this->response->setJSON([
+                            'status'  => STATUS_RESPONSE_OK,
+                            'message' => lang('System.response-msg.success.data-saved'),
+                        ]);
+                    }
                 }
             }
             return $this->response->setJSON([

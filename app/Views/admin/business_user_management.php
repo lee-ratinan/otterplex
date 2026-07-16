@@ -54,6 +54,101 @@
                     </div>
                     <?php if ('edit' == $mode) : ?>
                         <div class="col-12 col-md-6">
+                            <h3 class="mt-5 pt-5"><?= lang('Business.user-management.custom-attributes') ?></h3>
+                            <h4 class="mt-3"><?= lang('Business.user-management.language-proficiency-level') ?></h4>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-striped table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th><?= lang('BusinessUserLanguage.field.language_code') ?></th>
+                                        <th><?= lang('BusinessUserLanguage.field.proficiency_level') ?></th>
+                                        <th></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <?php if (empty($user_languages_skills)) : ?>
+                                        <tr>
+                                            <td colspan="3"><?= lang('System.generic-term.no-data') ?></td>
+                                        </tr>
+                                    <?php else: ?>
+                                        <?php foreach ($user_languages_skills as $lc => $pl) : ?>
+                                        <tr>
+                                            <td><?= $user_language_list[$lc] ?></td>
+                                            <td><?= $proficiencies[$pl['proficiency_level']] ?></td>
+                                            <td class="text-end"><button class="btn btn-outline-danger btn-sm btn-delete-user-language" id="btn-delete-user-language-<?= $lc ?>" data-bul-id="<?= $pl['id'] ?>" data-language-code="<?= $lc ?>"><?= lang('System.buttons.remove') ?></button></td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                    <?php endif; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <h4 class="mt-3"><?= lang('Business.user-management.new-language') ?></h4>
+                            <?php
+                            echo '<div class="row"><div class="col-6">';
+                            echo build_form_input('language_code', lang('BusinessUserLanguage.field.language_code'), [
+                                'type' => 'select',
+                            ], '', '', $user_language_list);
+                            echo '</div><div class="col-6">';
+                            echo build_form_input('proficiency_level', lang('BusinessUserLanguage.field.proficiency_level'), [
+                                'type' => 'select',
+                            ], '', '', $proficiencies);
+                            echo '</div></div>';
+                            ?>
+                            <div class="text-end">
+                                <button class="btn btn-primary btn-sm btn-new-user-language" id="btn-new-user-language"><?= lang('System.buttons.new') ?></button>
+                            </div>
+                            <?php if (!empty($all_attribute_fields)) : ?>
+                                <h4 class="mt-3"><?= lang('Business.user-management.other-attributes') ?></h4>
+                                <?php
+                                $true_false_options = [
+                                    'Y' => lang('System.generic-term.yes'),
+                                    'N' => lang('System.generic-term.no'),
+                                ];
+                                foreach ($all_attribute_fields as $custom_field) {
+                                    $field_name    = json_decode($custom_field['attribute_local_names'], true);
+                                    $field_name    = $field_name[$lang] ?? $custom_field['attribute_name'];
+                                    $field_id      = 'custom_field_' . $custom_field['id'];
+                                    $data_type     = $custom_field['data_type'];
+                                    $current_value = $all_attribute_values[$custom_field['id']]['value'] ?? '';
+                                    $current_id    = $all_attribute_values[$custom_field['id']]['id'] ?? 0;
+                                    echo '<div class="row mb-3"><div class="col-12">';
+                                    if ('num' == $data_type) {
+                                        $unit = json_decode($custom_field['data_unit'], true);
+                                        $unit = $unit[$lang] ?? '';
+                                        echo build_form_input($field_id, $field_name . ' (' . $unit . ')', [
+                                            'type'          => 'number',
+                                            'data-value-id' => $current_id,
+                                        ], $current_value, 'custom-attribute');
+                                    } else if ('translated_text' == $data_type) {
+                                        foreach ($all_languages as $lang_code => $language_name) {
+                                            echo build_form_input($field_id . '-' . $lang_code, $field_name . ' (' . $language_name . ')', [
+                                                'type'            => 'text',
+                                                'data-value-id'   => $current_id,
+                                                'data-value-lang' => $lang_code,
+                                            ], $current_value, 'custom-attribute');
+                                        }
+                                    } else if ('true-false' == $data_type) {
+                                        echo build_form_input($field_id, $field_name, [
+                                            'type'            => 'select',
+                                            'data-value-id'   => $current_id,
+                                        ], $current_value, 'custom-attribute', $true_false_options);
+                                    } else if ('list' == $data_type) {
+                                        $options_raw = json_decode($custom_field['data_list'], true);
+                                        $options     = [];
+                                        foreach ($options_raw as $key => $option) {
+                                            $options[$key] = $option[$lang] ?? $option['en'];
+                                        }
+                                        echo build_form_input($field_id, $field_name, [
+                                            'type'            => 'select',
+                                            'data-value-id'   => $current_id,
+                                        ], $current_value, 'custom-attribute', $options);
+                                    }
+                                    echo '</div><div class="col-12 text-end">';
+                                    echo '<button class="btn btn-primary btn-sm btn-save-custom-attribute" id="btn-save-custom-attribute-' . $field_id . '-' . $current_id . '" data-field-id="' . $field_id . '" data-value-id="' . $current_id . '">' . lang('System.buttons.new') . '</button>';
+                                    echo '</div></div>';
+                                }
+                                ?>
+                            <?php endif; ?>
                             <h3 class="mt-5 pt-5"><?= lang('Business.user-management.link-to-business') ?></h3>
                             <?php
                             echo build_form_input('user_role', lang('BusinessUser.field.user_role'), [
