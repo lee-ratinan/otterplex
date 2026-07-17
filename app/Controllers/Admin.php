@@ -1350,11 +1350,24 @@ class Admin extends BaseController
                     ]);
                 }
             } else if ('business_user_attribute_value' == $action) {
-                $id     = $this->request->getPost('business_user_attribute_value_id');
-                $fields = ['business_user_id', 'business_user_attribute_id', 'attribute_value'];
+                $id      = $this->request->getPost('business_user_attribute_value_id');
+                $is_json = $this->request->getPost('is_json');
+                $fields  = ['business_user_id', 'business_user_attribute_id', 'attribute_value'];
                 foreach ($fields as $field) {
                     $data[$field] = $this->request->getPost($field);
                 }
+                log_message('debug', 'BUSINESS USER ATTRIBUTE VALUE: ' . json_encode($data));
+                if (0 < $is_json) {
+                    log_message('debug', 'BUSINESS USER ATTRIBUTE VALUE: IS JSON');
+                    $split      = explode('//', $data['attribute_value']);
+                    $attributes = [];
+                    foreach ($split as $attribute) {
+                        $exploded = explode('::', $attribute);
+                        $attributes[$exploded[0]] = $exploded[1];
+                    }
+                    $data['attribute_value'] = json_encode($attributes);
+                }
+                log_message('debug', 'BUSINESS USER ATTRIBUTE VALUE: ' . json_encode($data));
                 $buavModel  = new BusinessUserAttributeValueModel();
                 if (0 < $id) {
                     if ($buavModel->update($id, $data)) {

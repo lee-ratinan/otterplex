@@ -123,12 +123,13 @@
                                             'data-value-id' => $current_id,
                                         ], $current_value, 'custom-attribute');
                                     } else if ('translated_text' == $data_type) {
+                                        $translated_values = json_decode($current_value, true);
                                         foreach ($all_languages as $lang_code => $language_name) {
                                             echo build_form_input($field_id . '-' . $lang_code, $field_name . ' (' . $language_name . ')', [
                                                 'type'            => 'text',
                                                 'data-value-id'   => $current_id,
                                                 'data-value-lang' => $lang_code,
-                                            ], $current_value, 'custom-attribute');
+                                            ], $translated_values[$lang_code], 'custom-attribute');
                                             $lc_array[] = $lang_code;
                                         }
                                     } else if ('true-false' == $data_type) {
@@ -456,24 +457,19 @@
                     language_codes = $(this).data('language-codes'),
                     attribute_value = '',
                     bua_id = $(this).data('bua-id'),
-                    field_type = $(this).data('field-type');
+                    field_type = $(this).data('field-type'),
+                    is_json = 0;
                 if ('translated_text' === field_type) {
                     let lc_array = language_codes.split(','),
                         attr = '';
                     lc_array.forEach(function(lc) {
                         attr += lc+'::'+$('#'+id+'-'+lc).val()+'//';
-                        console.log('>>> ' + attr);
                     });
                     attribute_value = attr.slice(0, -2);
+                    is_json = 1;
                 } else {
                     attribute_value = $('#'+id).val();
                 }
-                console.log('ID ' + id);
-                console.log('BUAV ID ' + attribute_value_id);
-                console.log('LC ' + language_codes);
-                console.log('VALUE ' + attribute_value);
-                console.log('BUA ID ' + bua_id);
-                console.log('field_type ' + field_type);
                 $.post(
                     "<?= base_url('admin/business/user-manage') ?>",
                     {
@@ -481,6 +477,7 @@
                         business_user_id: $('#business_user_id').val(),
                         business_user_attribute_id: bua_id,
                         attribute_value: attribute_value,
+                        is_json: is_json,
                         action: 'business_user_attribute_value'
                     },
                     function (response, status) {
