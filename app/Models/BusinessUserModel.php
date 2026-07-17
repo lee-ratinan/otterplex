@@ -90,7 +90,7 @@ class BusinessUserModel extends AppBaseModel
     {
         $session    = session();
         $businessId = $session->business['business_id'];
-        $allStaff   = $this->select('business_user.*, user_master.user_name_first, user_master.user_name_last, user_master.email_address, user_master.account_status, user_master.user_public_name')
+        $allStaff   = $this->select('business_user.*, user_master.user_name_first, user_master.user_name_last, user_master.email_address, user_master.account_status, user_master.user_public_local_names')
             ->join('user_master', 'user_master.id = business_user.user_id')
             ->where('business_id', $businessId)
             ->orderBy('user_name_last', 'ASC')
@@ -114,8 +114,11 @@ class BusinessUserModel extends AppBaseModel
             }
             $full_name  = $staff['user_name_first'] . ' ' . $staff['user_name_last'];
             $avatar     = retrieve_avatars($staff['email_address'], $full_name);
-            if ($staff['user_public_name'] != $staff['user_name_first']) {
-                $full_name .= ' (' . $staff['user_public_name'] . ')';
+            // public names - $session->lang
+            $public_names = json_decode($staff['user_public_local_names'], true);
+            $public_name  = $public_names[$session->lang] ?? null;
+            if (!empty($public_name) && $public_name != $staff['user_name_first']) {
+                $full_name .= ' (' . $public_name . ')';
             }
             $data[]     = [
                 $avatar . ' ' . $full_name,

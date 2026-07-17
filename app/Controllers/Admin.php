@@ -1341,9 +1341,9 @@ class Admin extends BaseController
                     ]);
                 }
             } else if ('business_user_language_delete' == $action) {
-                $business_user_id = $this->request->getPost('business_user_id');
-                $bulModel         = new BusinessUserLanguageModel();
-                if ($bulModel->delete($business_user_id)) {
+                $business_user_language_id = $this->request->getPost('business_user_language_id');
+                $bulModel                  = new BusinessUserLanguageModel();
+                if ($bulModel->delete($business_user_language_id)) {
                     return $this->response->setJSON([
                         'status'  => STATUS_RESPONSE_OK,
                         'message' => lang('System.response-msg.success.data-deleted'),

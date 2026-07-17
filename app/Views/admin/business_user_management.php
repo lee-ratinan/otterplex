@@ -107,10 +107,13 @@
                                 foreach ($all_attribute_fields as $custom_field) {
                                     $field_name    = json_decode($custom_field['attribute_local_names'], true);
                                     $field_name    = $field_name[$lang] ?? $custom_field['attribute_name'];
-                                    $field_id      = 'custom_field_' . $custom_field['id'];
+                                    $bua_id        = $custom_field['id'];
+                                    $field_id      = 'custom_field_' . $bua_id;
                                     $data_type     = $custom_field['data_type'];
-                                    $current_value = $all_attribute_values[$custom_field['id']]['value'] ?? '';
-                                    $current_id    = $all_attribute_values[$custom_field['id']]['id'] ?? 0;
+                                    $current_value = $all_attribute_values[$bua_id]['value'] ?? '';
+                                    $current_id    = $all_attribute_values[$bua_id]['id'] ?? 0;
+                                    $lc_array      = [];
+                                    unset($field_ids);
                                     echo '<div class="row mb-3"><div class="col-12">';
                                     if ('num' == $data_type) {
                                         $unit = json_decode($custom_field['data_unit'], true);
@@ -126,6 +129,7 @@
                                                 'data-value-id'   => $current_id,
                                                 'data-value-lang' => $lang_code,
                                             ], $current_value, 'custom-attribute');
+                                            $lc_array[] = $lang_code;
                                         }
                                     } else if ('true-false' == $data_type) {
                                         echo build_form_input($field_id, $field_name, [
@@ -143,8 +147,9 @@
                                             'data-value-id'   => $current_id,
                                         ], $current_value, 'custom-attribute', $options);
                                     }
+                                    $lc_str = implode(',', $lc_array);
                                     echo '</div><div class="col-12 text-end">';
-                                    echo '<button class="btn btn-primary btn-sm btn-save-custom-attribute" id="btn-save-custom-attribute-' . $field_id . '-' . $current_id . '" data-field-id="' . $field_id . '" data-value-id="' . $current_id . '">' . lang('System.buttons.new') . '</button>';
+                                    echo '<button class="btn btn-primary btn-sm btn-save-custom-attribute" data-field-id="' . $field_id . '" data-value-id="' . $current_id . '" data-language-codes="' . $lc_str . '" data-bua-id="' . $bua_id . '" data-field-type="' . $data_type . '">' . lang('System.buttons.new') . '</button>';
                                     echo '</div></div>';
                                 }
                                 ?>
@@ -239,6 +244,7 @@
     </div>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
+            // main
             $('#btn-save-master').click(function (e) {
                 e.preventDefault();
                 <?php
@@ -297,6 +303,7 @@
                     toastr.error(message);
                 });
             });
+            // branch
             $('#btn-save-branch-user').click(function (e) {
                 e.preventDefault();
                 <?php
@@ -384,6 +391,112 @@
                     toastr.error(message);
                 });
             });
+            // language
+            $('#btn-new-user-language').click(function (e) {
+                e.preventDefault();
+                let language_code = $('#language_code').val(),
+                    proficiency_level = $('#proficiency_level').val();
+                if ('' === language_code) {
+                    $('#language_code').focus();
+                    return false;
+                } else if ('' === proficiency_level) {
+                    $('#proficiency_level').focus();
+                    return false;
+                }
+                $.post(
+                    "<?= base_url('admin/business/user-manage') ?>",
+                    {
+                        business_user_id: $('#business_user_id').val(),
+                        language_code: language_code,
+                        proficiency_level: proficiency_level,
+                        action: 'business_user_language_new'
+                    },
+                    function (response, status) {
+                        if (response.status === "<?= STATUS_RESPONSE_OK ?>") {
+                            toastr.success(response.message);
+                            setTimeout(function() { location.reload(); }, 3000);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    "json"
+                ).fail(function (response) {
+                    let message = response.responseJSON.message ?? '<?= lang('System.response-msg.error.generic') ?>';
+                    toastr.error(message);
+                });
+            });
+            $('.btn-delete-user-language').click(function (e) {
+                e.preventDefault();
+                let business_user_language_id = $(this).data('bul-id');
+                $.post(
+                    "<?= base_url('admin/business/user-manage') ?>",
+                    {
+                        business_user_language_id: business_user_language_id,
+                        action: 'business_user_language_delete'
+                    },
+                    function (response, status) {
+                        if (response.status === "<?= STATUS_RESPONSE_OK ?>") {
+                            toastr.success(response.message);
+                            setTimeout(function() { location.reload(); }, 3000);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    "json"
+                ).fail(function (response) {
+                    let message = response.responseJSON.message ?? '<?= lang('System.response-msg.error.generic') ?>';
+                    toastr.error(message);
+                });
+            });
+            // attribute
+            $('.btn-save-custom-attribute').click(function (e) {
+                e.preventDefault();
+                let id = $(this).data('field-id'),
+                    attribute_value_id = $(this).data('value-id'),
+                    language_codes = $(this).data('language-codes'),
+                    attribute_value = '',
+                    bua_id = $(this).data('bua-id'),
+                    field_type = $(this).data('field-type');
+                if ('translated_text' === field_type) {
+                    let lc_array = language_codes.split(','),
+                        attr = '';
+                    lc_array.forEach(function(lc) {
+                        attr += lc+'::'+$('#'+id+'-'+lc).val()+'//';
+                        console.log('>>> ' + attr);
+                    });
+                    attribute_value = attr.slice(0, -2);
+                } else {
+                    attribute_value = $('#'+id).val();
+                }
+                console.log('ID ' + id);
+                console.log('BUAV ID ' + attribute_value_id);
+                console.log('LC ' + language_codes);
+                console.log('VALUE ' + attribute_value);
+                console.log('BUA ID ' + bua_id);
+                console.log('field_type ' + field_type);
+                $.post(
+                    "<?= base_url('admin/business/user-manage') ?>",
+                    {
+                        business_user_attribute_value_id: attribute_value_id,
+                        business_user_id: $('#business_user_id').val(),
+                        business_user_attribute_id: bua_id,
+                        attribute_value: attribute_value,
+                        action: 'business_user_attribute_value'
+                    },
+                    function (response, status) {
+                        if (response.status === "<?= STATUS_RESPONSE_OK ?>") {
+                            toastr.success(response.message);
+                            setTimeout(function() { location.reload(); }, 3000);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    "json"
+                ).fail(function (response) {
+                    let message = response.responseJSON.message ?? '<?= lang('System.response-msg.error.generic') ?>';
+                    toastr.error(message);
+                });
+            })
         });
     </script>
 <?php $this->endSection() ?>
