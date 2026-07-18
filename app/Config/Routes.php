@@ -57,6 +57,8 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->get('business/policy/(:any)/(:any)/new', 'Admin::business_policy_document_edit/0/$1/$2'); // new
     $routes->post('business/policy/manage', 'Admin::business_policy_document_edit_post'); // save
     $routes->get('business/about-us-page', 'Admin::business_about_us_page'); // only for premium plan
+    $routes->get('business/management', 'Admin::business_management');
+    $routes->post('business/management', 'Admin::business_management_post');
     // PAYMENT
     $routes->get('business/payment-method', 'Admin::business_payment_method');
     $routes->post('business/payment-method', 'Admin::business_payment_method_post');

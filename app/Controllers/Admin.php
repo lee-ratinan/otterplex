@@ -1855,6 +1855,38 @@ class Admin extends BaseController
     }
 
     /**
+     * Manage the business itself
+     * @return string
+     */
+    public function business_management(): string
+    {
+        $session = session();
+        if ('OWNER' != $session->user_role) {
+            return $this->forbiddenResponse('string');
+        }
+        $data = [
+            'slug'          => 'business-management',
+            'lang'          => $this->request->getLocale(),
+        ];
+        return view('admin/business_management', $data);
+    }
+
+    /**
+     * Handle requests for business management
+     * @return ResponseInterface
+     */
+    public function business_management_post(): ResponseInterface
+    {
+        $session = session();
+        if ($session->user_role != 'OWNER') {
+            return $this->forbiddenResponse('ResponseInterface');
+        }
+        return $this->response->setJSON([
+            'status'  => STATUS_RESPONSE_OK,
+        ]);
+    }
+
+    /**
      * Manage resource type
      * @return string
      */

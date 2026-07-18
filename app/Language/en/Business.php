@@ -95,5 +95,58 @@ return [
         'add-new'             => 'Add New Shipping Rate',
         'max-price-error'     => 'The upper limit of the range must be higher than the lower limit.',
         'shipping-rate-error' => 'Shipping rate must be a positive number.'
+    ],
+    'business-management'       => [
+        'export'         => [
+            'title'       => 'Export Business Data',
+            'paragraph-1' => 'Export your business data in <code>.csv</code> format (Excel compatible).',
+            'paragraph-2' => 'The data will be processed and will be emailed to your account’s email address, {0}, when it is ready.',
+            'paragraph-3' => 'Please contact us if you do not receive an email within 2 working days.',
+            'button'      => 'Submit Request'
+        ],
+        'delete'         => [
+            'title'       => 'Delete Business',
+            'paragraph-1' => 'After you make this request, your business will be <b>disabled</b> instantly, and you will be logged out of the system.',
+            'paragraph-2' => 'Your data will be retained for a minimum of <b>30 days</b>, and will be deleted at the <b>end of next month</b>.',
+            'paragraph-3' => 'If you wish to restore your business data and reactivate your account, please contact us before the <b>20th of next month</b> for guaranteed recovery.',
+            'paragraph-4' => 'You may choose to export your data before you request your business deletion.',
+            'button'      => 'Next',
+        ],
+        'delete-confirm' => [
+            'title'       => 'Before you go',
+            'paragraph-1' => 'We’re sorry to see you go, but we completely respect your decision.',
+            'paragraph-2' => 'Thank you for choosing our system to support your business. We wish you and your team all the best in your next chapter.',
+            'q-1'         => [
+                'question'    => 'Why are you closing your business account?',
+                'instruction' => '(Please select the reasons below)',
+                'opt-1'       => 'The platform is missing specific features my business needs.',
+                'opt-2'       => 'I found the system too complex or difficult to set up.',
+                'opt-3'       => 'I am closing this business or pausing operations.',
+                'opt-4'       => 'The pricing does not fit my current budget.',
+                'opt-5'       => 'I am switching to an alternative service/software.',
+                'opt-6'       => 'Technical issues or performance bugs.',
+                'other'       => 'Other (Please specify briefly):'
+            ],
+            'q-2'         => [
+                'question'    => 'Did you know cheaper options are available?',
+                'instruction' => 'If your business needs have scaled down, you don’t have to delete your data completely. You can downgrade to a lower tier or our <b>Free Plan</b>.',
+                'button'      => 'How to Downgrade',
+                'ack'         => 'I know about the cheaper alternatives.'
+            ],
+            'q-3'         => [
+                'question'    => 'Subscription & Refund Notice',
+                'instruction' => 'Per the Subscription Agreement accepted at checkout, all purchases are final. Upon submitting this request, your access will be disabled immediately, and any remaining days on your current billing cycle are non-refundable and will not be prorated.',
+                'ack'         => 'I understand that I am forfeiting the remaining time on my paid subscription and that no refunds will be issued.',
+            ],
+            'q-4'         => [
+                'question' => 'How likely are you to recommend our system to another business owner in the future?',
+                'at-0'     => 'Not at all likely',
+                'at-10'    => 'Extremely likely',
+            ],
+            'buttons'     => [
+                'cancel'  => 'Cancel & Keep Account',
+                'confirm' => 'Submit Request & Log Out'
+            ]
+        ]
     ]
 ];

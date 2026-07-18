@@ -95,5 +95,17 @@ return [
         'add-new'             => 'เพิ่มเรทค่าจัดส่ง',
         'max-price-error'     => 'มูลค่าสูงสุดของช่วงราคาต้องมีค่ามากกว่ามูลค่าต่ำสุด',
         'shipping-rate-error' => 'ค่าจัดส่งต้องเป็นตัวเลข และมีค่าเป็นบวกเท่านั้น'
+    ],
+    'business-management'       => [
+        'export' => [
+            'title'     => 'Export Business Data',
+            'paragraph' => 'Export your business data in <code>.csv</code> format. The data will be sent to the background system and will be emailed to your account’s email address when it is ready.',
+            'button'    => 'Submit Request'
+        ],
+        'delete' => [
+            'title'     => 'Delete Business',
+            'paragraph' => 'You may request to delete your business. This action cannot be undone. Please make sure you have exported all your data before proceeding.',
+            'button'    => 'Delete this Business'
+        ]
     ]
 ];

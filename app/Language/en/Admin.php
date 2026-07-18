@@ -49,6 +49,7 @@ return [
         'business-policy'                => 'Policy Documents',
         'business-policy-edit'           => 'Edit Policy Documents',
         'business-about-us-page'         => 'About Us Page',
+        'business-management'            => 'Business Management',
     ],
     'dashboard'     => [
         'no-business' => [

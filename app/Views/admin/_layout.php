@@ -188,6 +188,7 @@ if (!empty($session->business)) {
                     'business-shipping-fee'   => [base_url('/admin/shipping-fee'), lang('Admin.pages.business-shipping-fee')],
                     'business-policy'         => [base_url('/admin/business/policy'), lang('Admin.pages.business-policy')],
                     'business-about-us-page'  => [base_url('/admin/business/about-us-page'), lang('Admin.pages.business-about-us-page')],
+                    'business-management'     => [base_url('/admin/business/management'), lang('Admin.pages.business-management')],
                 ]
             ];
         } elseif ('MANAGER' == $session->user_role) {

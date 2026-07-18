@@ -49,6 +49,7 @@ return [
         'business-policy'                => 'หน้านโยบาย',
         'business-policy-edit'           => 'แก้ไขเอกสารนโยบาย',
         'business-about-us-page'         => 'หน้าเกี่ยวกับเรา',
+        'business-management'            => 'จัดการธุรกิจ',
     ],
     'dashboard'     => [
         'no-business' => [
