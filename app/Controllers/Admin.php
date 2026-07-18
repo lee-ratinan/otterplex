@@ -2145,7 +2145,7 @@ class Admin extends BaseController
                 if (empty($data['price_range_to'])) {
                     $data['price_range_to'] = -1;
                 } else if (0 == ($data['price_range_to']*100%100)) {
-                    $data['price_range_to'] += 0.99;
+                    $data['price_range_to'] = $data['price_range_to'] - 0.01;
                 }
                 if ($rateModel->insert($data)) {
                     return $this->response->setJSON([

@@ -8,6 +8,6 @@ return [
     ],
     'explanation' => [
         'price_range_from' => 'The total amount of physical products that required shipping.',
-        'price_range_to'   => 'Leave it empty if there is no ceiling for this range.'
+        'price_range_to'   => 'The amount <b>LESS</b> than this value will be charged in this range. Leave it empty if there is no ceiling for this range.'
     ]
 ];
