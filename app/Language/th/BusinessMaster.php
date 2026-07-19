@@ -18,6 +18,7 @@ return [
         'mart_store_intro_paragraph' => 'คำอธิบายธุรกิจ (บนหน้าเว็บ)',
         'social_media'               => 'สื่อสังคม',
         'contract_plan'              => 'แผน',
+        'contract_duration'          => 'ระยะสัญญา',
         'contract_expiry'            => 'วันหมดอายุ',
         'business_status'            => 'สถานะธุรกิจ', // Not a real field
         'allow_advance_booking'      => 'จำนวนวันที่อนุญาตให้จองล่วงหน้าได้ (สำหรับบริการจองล่วงหน้าเท่านั้น)',
@@ -59,6 +60,11 @@ return [
             'basic'    => 'เบสิก',
             'standard' => 'สแตนดาร์ด',
             'premium'  => 'พรีเมียม',
+        ],
+        'contract_duration'    => [
+            'free'     => '-',
+            'monthly'  => 'รายเดือน',
+            'annually' => 'รายปี',
         ]
     ],
     'explanation' => [

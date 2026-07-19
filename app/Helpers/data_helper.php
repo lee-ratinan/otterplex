@@ -3774,6 +3774,29 @@ if (!function_exists('get_tzdb_by_country')) {
         return $codes[$country] ?? [];
     }
 }
+if (!function_exists('get_country_tz_for_system_cutoff')) {
+    /**
+     * @param string $country
+     * @return array
+     */
+    function get_country_tz_for_system_cutoff(string $country): array
+    {
+        $codes = [
+            // SOUTHEAST ASIA - BN, KH, TL, MM
+            'ID' => ['+07:00', 'Asia/Jakarta'],
+            'LA' => ['+07:00', 'Asia/Vientiane'],
+            'MY' => ['+08:00', 'Asia/Kuala_Lumpur'],
+            'PH' => ['+08:00', 'Asia/Manila'],
+            'SG' => ['+08:00', 'Asia/Singapore'],
+            'TH' => ['+07:00', 'Asia/Bangkok'],
+            'VN' => ['+07:00', 'Asia/Ho_Chi_Minh'],
+            // EAST ASIA
+            'JP' => ['+09:00', 'Asia/Tokyo'],
+            'TW' => ['+08:00', 'Asia/Taipei']
+        ];
+        return $codes[$country] ?? ['+07:00', 'Asia/Bangkok'];
+    }
+}
 if (!function_exists('get_tzdb_by_code')) {
     /**
      * @param string $code

@@ -148,5 +148,44 @@ return [
                 'confirm' => 'Submit Request & Log Out'
             ]
         ]
+    ],
+    'business-plan'             => [
+        'estimated-expiry'      => 'Estimated Expiry Date',
+        'timezone'              => 'Timezone',
+        'expiry-note'           => 'The actual expiry date will be computed after the payment is confirmed.',
+        'amount-due'            => 'Amount Due',
+        'payment-methods'       => 'Available Payment Methods',
+        'promptpay'             => 'Thailand’s PromptPay',
+        'bank-transfer'         => 'Bank Transfer',
+        'proceed'               => 'Proceed',
+        'promptpay-qr'          => [
+            'title'         => 'PromptPay QR Code',
+            'instruction-1' => 'Scan the QR code below with your mobile device to complete the payment. Please send the proof of payment via the email or OtterNova LINE account to ensure that the payment is successful.',
+            'instruction-2' => 'If your payment is not confirmed within 24 hours, please contact us for assistance.'
+        ],
+        'bank-transfer-section' => [
+            'title'         => 'Bank Transfer',
+            'instruction-1' => 'Please send the proof of payment via the email or OtterNova LINE account to ensure that the payment is successful.',
+            'instruction-2' => 'If your payment is not confirmed within 24 hours, please contact us for assistance.',
+            'bank-name'     => [
+                'title' => 'Bank Name',
+                'value' => 'Bank of Ayudhya',
+            ],
+            'swift-code' => [
+                'title' => 'Swift Code',
+                'value' => 'AYUDTHBK',
+            ],
+            'account-name' => [
+                'title' => 'Account Name',
+                'value' => 'Ratinan Leela-Ngamwongsa for OtterNova',
+            ],
+            'account-number' => [
+                'title' => 'Account Number',
+                'value' => '##########'
+            ]
+        ],
+        'payment' => [
+            'instruction-for-pending-payment-confirmation' => 'The payment information is also sent to your email address. You can proceed to make the payment and close this page.'
+        ]
     ]
 ];

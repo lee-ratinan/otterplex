@@ -38,6 +38,7 @@ return [
         'business-contract-renewal'      => 'ต่ออายุสัญญาธุรกิจ',
         'business-tag'                   => 'แท็ก',
         'business-plan'                  => 'แผน',
+        'business-plan-init'             => 'ยืนยันการซับสไครบ์',
         'business-branch'                => 'สาขา',
         'business-branch-manage'         => 'การจัดการสาขา',
         'business-user'                  => 'พนักงาน',

@@ -38,6 +38,7 @@ return [
         'business-contract-renewal'      => 'Business Contract Renewal',
         'business-tag'                   => 'Tag',
         'business-plan'                  => 'Plan',
+        'business-plan-init'             => 'Confirm Subscription',
         'business-branch'                => 'Branch',
         'business-branch-manage'         => 'Branch Manager',
         'business-user'                  => 'Staff',

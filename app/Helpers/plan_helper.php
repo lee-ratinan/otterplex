@@ -11,20 +11,20 @@ if (!function_exists('retrieve_plans')) {
         $plans = [
             'TH' => [
                 'free'     => [
-                    'monthly' => [0, 0],
-                    'annual'  => [0, 0]
+                    'monthly'  => [0, 0],
+                    'annually' => [0, 0]
                 ],
                 'basic'    => [
-                    'monthly' => [299, 400],
-                    'annual'  => [2990, 4000]
+                    'monthly'  => [299, 400],
+                    'annually' => [2990, 4000]
                 ],
                 'standard' => [
-                    'monthly' => [599, 800],
-                    'annual'  => [5990, 8000]
+                    'monthly'  => [599, 800],
+                    'annually' => [5990, 8000]
                 ],
                 'premium'  => [
-                    'monthly' => [1290, 1800],
-                    'annual'  => [12900, 18000]
+                    'monthly'  => [1290, 1800],
+                    'annually' => [12900, 18000]
                 ],
             ]
         ];

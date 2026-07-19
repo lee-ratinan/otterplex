@@ -65,7 +65,7 @@ function print_options($options) {
                                         <td class="text-center">
                                             <b><?= format_price($plans[$pn]['monthly'][0], $business['currency_code']) ?></b><br/>
                                             <small><s><?= format_price($plans[$pn]['monthly'][1], $business['currency_code']) ?></s></small><br/>
-                                            <a href="#" class="btn btn-outline-primary"><?= lang('BusinessPlan.table.upgrade-to-' . $pn) ?></a>
+                                            <a href="<?= base_url('admin/business/plan/' . $pn . '/monthly') ?>" class="btn btn-outline-primary"><?= lang('BusinessPlan.table.upgrade-to-' . $pn) ?></a>
                                         </td>
                                     <?php endforeach; ?>
                                 </tr>
@@ -74,11 +74,11 @@ function print_options($options) {
                                     <td class="text-center"><?= lang('BusinessPlan.table.you-are-here') ?></td>
                                     <?php foreach ($paid_plans as $pn) : ?>
                                         <td class="text-center">
-                                            <b><?= format_price($plans[$pn]['annual'][0], $business['currency_code']) ?></b><br/>
-                                            <small><s><?= format_price($plans[$pn]['annual'][1], $business['currency_code']) ?></s></small><br/>
-                                            <a href="#" class="btn btn-outline-primary"><?= lang('BusinessPlan.table.upgrade-to-' . $pn) ?></a><br/>
+                                            <b><?= format_price($plans[$pn]['annually'][0], $business['currency_code']) ?></b><br/>
+                                            <small><s><?= format_price($plans[$pn]['annually'][1], $business['currency_code']) ?></s></small><br/>
+                                            <a href="<?= base_url('admin/business/plan/' . $pn . '/annually') ?>" class="btn btn-outline-primary"><?= lang('BusinessPlan.table.upgrade-to-' . $pn) ?></a><br/>
                                             <?php
-                                            $total_monthly = $plans[$pn]['monthly'][0] * 12; $savings_percentage = number_format((($total_monthly - $plans[$pn]['annual'][0]) / $total_monthly) * 100, 2);
+                                            $total_monthly = $plans[$pn]['monthly'][0] * 12; $savings_percentage = number_format((($total_monthly - $plans[$pn]['annually'][0]) / $total_monthly) * 100, 2);
                                             echo lang('BusinessPlan.table.you-save', [$savings_percentage]);
                                             ?>
                                         </td>

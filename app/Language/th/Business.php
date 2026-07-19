@@ -107,5 +107,15 @@ return [
             'paragraph' => 'You may request to delete your business. This action cannot be undone. Please make sure you have exported all your data before proceeding.',
             'button'    => 'Delete this Business'
         ]
+    ],
+    'business-plan'             => [
+        'estimated-expiry' => 'วันหมดอายุ (โดยประมาณ)',
+        'timezone'         => 'โซนเวลา',
+        'expiry-note'      => 'วันหมดอายุจริง จะถูกคำนวณเมื่อการชำระเงินได้รับการยืนยัน',
+        'amount-due'       => 'จำนวนเงิน',
+        'payment-methods'  => 'วิธีการชำระเงิน',
+        'promptpay'        => 'พร้อมเพย์',
+        'bank-transfer'    => 'โอนเงินผ่านธนาคาร',
+        'proceed'          => 'ต่อไป'
     ]
 ];

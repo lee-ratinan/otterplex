@@ -38,7 +38,8 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->get('business/tag', 'Admin::business_tag');
     $routes->post('business/tag', 'Admin::business_tag_post/retrieve'); // retrieve
     $routes->post('business/tag/(:any)', 'Admin::business_tag_post/$1'); // new or delete
-    $routes->get('business/plan', 'Admin::business_plan'); // to redesign everything
+    $routes->get('business/plan', 'Admin::business_plan');
+    $routes->get('business/plan/(:any)/(:any)', 'Admin::business_plan_init/$1/$2'); // new plan
     $routes->get('business/branch', 'Admin::business_branch');
     $routes->post('business/branch', 'Admin::business_branch_post');
     $routes->get('business/branch/new-branch', 'Admin::business_branch_manage/new-branch');

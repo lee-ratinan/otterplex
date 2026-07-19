@@ -836,6 +836,47 @@ class Admin extends BaseController
         return view('admin/business_plan', $data);
     }
 
+    public function business_plan_init(string $plan_name, string $plan_duration) : string
+    {
+        $session     = session();
+        if ('OWNER' != $session->user_role) {
+            return $this->forbiddenResponse('string');
+        }
+        if (!in_array($plan_name, ['basic', 'standard', 'premium'])) {
+            throw PageNotFoundException::forPageNotFound();
+        }
+        if ('monthly' == $plan_duration) {
+            $expiry_str_addition = '+1 month';
+        } else if ('annually' == $plan_duration) {
+            $expiry_str_addition = '+1 year';
+        } else {
+            throw PageNotFoundException::forPageNotFound();
+        }
+        $expiry    = date(DATE_FORMAT_DB, strtotime($expiry_str_addition));
+        $tz_data   = get_country_tz_for_system_cutoff($session->business['country_code']);
+        $tz_name   = get_tzdb_by_code($tz_data[1]);
+        $plans     = retrieve_plans($session->business['country_code']);
+        $act_price = $plans[$plan_name][$plan_duration][0];
+        $fr_price  = $plans[$plan_name][$plan_duration][1];
+        $data      = [
+            'slug'          => 'business-plan-init',
+            'lang'          => $this->request->getLocale(),
+            'plan_name'     => $plan_name,
+            'plan_duration' => $plan_duration,
+            'expiry_date'   => $expiry,
+            'tz_name'       => $tz_name,
+            'act_price'     => $act_price,
+            'fr_price'      => $fr_price,
+            'breadcrumb'    => [
+                [
+                    'url'        => base_url('admin/business/plan'),
+                    'page_title' => lang('Admin.pages.business-plan'),
+                ]
+            ]
+        ];
+        return view('admin/business_plan_init', $data);
+    }
+
     /**
      * Manage branch
      * @return string

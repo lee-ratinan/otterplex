@@ -18,6 +18,7 @@ return [
         'mart_store_intro_paragraph' => 'Business’s Description (on the website)',
         'social_media'               => 'Social Media',
         'contract_plan'              => 'Plan',
+        'contract_duration'          => 'Duration',
         'contract_expiry'            => 'Expiry Date',
         'business_status'            => 'Business Status', // Not a real field
         'allow_advance_booking'      => 'Days allowed for advance booking (for services with advance booking)',
@@ -59,6 +60,11 @@ return [
             'basic'    => 'Basic',
             'standard' => 'Standard',
             'premium'  => 'Premium',
+        ],
+        'contract_duration'    => [
+            'free'     => '-',
+            'monthly'  => 'Monthly',
+            'annually' => 'Annually',
         ]
     ],
     'explanation' => [
