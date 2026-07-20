@@ -46,6 +46,7 @@ use CodeIgniter\HTTP\ResponseInterface;
 use Config\Services;
 use DateMalformedStringException;
 use DateTime;
+use DateTimeZone;
 use RuntimeException;
 use function PHPUnit\Framework\throwException;
 
@@ -872,6 +873,14 @@ class Admin extends BaseController
         } else {
             throw PageNotFoundException::forPageNotFound();
         }
+        $bcModel   = new BusinessContractModel();
+        $pending   = $bcModel
+            ->where('financial_status', $bcModel::FINANCIAL_STATUS_PENDING)
+            ->where('business_id', $session->business['business_id'])
+            ->first();
+        if ($pending) {
+            throw PageNotFoundException::forPageNotFound();
+        }
         $expiry    = date(DATE_FORMAT_DB, strtotime($expiry_str_addition));
         $tz_data   = get_country_tz_for_system_cutoff($session->business['country_code']);
         $tz_name   = get_tzdb_by_code($tz_data[1]);
@@ -910,13 +919,14 @@ class Admin extends BaseController
         $db->transBegin(); // <<< START TRANSACTION
         try {
             $bcModel         = new BusinessContractModel();
+            $bizModel        = new BusinessMasterModel();
             $plan_name       = $this->request->getPost('plan_name');
             $plan_duration   = $this->request->getPost('plan_duration');
             $invoiced_amount = $this->request->getPost('act_price');
             $payment_method  = $this->request->getPost('payment_method');
             if (!in_array($plan_name, ['basic', 'standard', 'premium'])
                 || !in_array($plan_duration, ['monthly', 'annually'])
-                || !in_array($payment_method, ['promptpay', 'bank_transfer'])
+                || !in_array($payment_method, ['promptpay', 'bank-transfer'])
             ) {
                 throw new \Exception(lang('System.response-msg.error.invalid-data'));
             }
@@ -931,21 +941,36 @@ class Admin extends BaseController
             if ($unpaid_contract) {
                 throw new \Exception(lang('System.response-msg.error.unable-to-proceed-now'));
             }
-            $invoice_number  = '';
-            $total_amount    = $invoiced_amount;
-            $data            = [
-                'business_id'      => $business_id,
-                'invoice_number'   => $invoice_number,
-                'plan_name'        => $plan_name,
-                'plan_duration'    => $plan_duration,
-                'contract_start'   => date(DATE_FORMAT_DB),
-                'contract_expiry'  => date(DATE_FORMAT_DB, strtotime($expiry_str_addition)),
-                'invoiced_amount'  => $invoiced_amount,
-                'discount_amount'  => 0,
-                'tax_amount'       => 0,
-                'total_amount'     => $total_amount,
-                'paid_amount'      => 0,
-                'financial_status' => $bcModel::FINANCIAL_STATUS_PENDING,
+            $business_data    = $bizModel->find($business_id);
+            // Now
+            $country_code     = $session->business['country_code'];
+            $timezone_data    = get_country_tz_for_system_cutoff($country_code);
+            $timestamp        = new DateTime('now', new DateTimeZone($timezone_data[1]));
+            $issued_date      = $timestamp->format(DATE_FORMAT_DB);
+            $invoice_number   = '';
+            $total_amount     = $invoiced_amount;
+            $business_name    = $session->business['business_local_names'][$session->lang] ?? $session->business['business_name'];
+            $business_address = $business_data['contact_address'] . ' ' . $business_data['contact_postal_code'] . ' ' . get_country_name_single_language($session->business['country_code'], $session->lang);
+            $data             = [
+                'business_id'              => $business_id,
+                'issued_date'              => $issued_date,
+                'otternova_detail_version' => OTTERNOVA_LEGAL_ENTITY_DATA_VERSION,
+                'billed_to_name'           => $session->full_name,
+                'billed_to_business'       => $business_name,
+                'billed_to_address'        => $business_address,
+                'invoice_number'           => $invoice_number,
+                'plan_country'             => $country_code,
+                'plan_name'                => $plan_name,
+                'plan_duration'            => $plan_duration,
+                'contract_start'           => date(DATE_FORMAT_DB),
+                'contract_expiry'          => date(DATE_FORMAT_DB, strtotime($expiry_str_addition)),
+                'currency_code'            => $session->business['currency_code'],
+                'invoiced_amount'          => $invoiced_amount,
+                'discount_amount'          => 0,
+                'tax_amount'               => 0,
+                'total_amount'             => $total_amount,
+                'paid_amount'              => 0,
+                'financial_status'         => $bcModel::FINANCIAL_STATUS_PENDING,
             ];
             if (!$bcModel->insert($data)) {
                 throw new \Exception(lang('System.response-msg.error.db-issue'));

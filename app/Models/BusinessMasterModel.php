@@ -35,6 +35,8 @@ class BusinessMasterModel extends AppBaseModel
         'contact_email_address',
         'contact_phone_number',
         'contact_website',
+        'contact_address',
+        'contact_postal_code',
         'live_status',
         'created_by',
         'created_at',

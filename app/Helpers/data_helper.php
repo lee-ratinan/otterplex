@@ -5319,3 +5319,27 @@ if (!function_exists('generate_order_number')) {
         return $prefix . substr($suffix, -6);
     }
 }
+// OTTERNOVA_LEGAL_ENTITY_DATA_VERSION
+if (!function_exists('get_legal_entity_data_version')) {
+    /**
+     * Use OTTERNOVA_LEGAL_ENTITY_DATA_VERSION for current data,
+     * or any number less than that for historical data.
+     * @param string $country_code
+     * @param int $data_version
+     * @return array
+     */
+    function get_legal_entity_data_version(string $country_code, int $data_version): array
+    {
+        $data = [
+            'TH' => [
+                '1' => [
+                    'entity_name'    => 'OtterNova (by Ratinan Leela-Ngamwongsa)<br/><small>ออทเทอร์โนวา (ดำเนินการโดย รตินันท์ ลีลางามวงศา)</small>',
+                    'entity_address' => '102/84 Song Prapha 13, Thanon Song Prapha, Don Mueang, Bangkok 10210 Thailand<br/><small>102/84 ซอยสรงประภา 13 ถนนสรงประภา เขตดอนเมือง กรุงเทพ 10210</small>',
+                    'tax_label'      => 'Tax ID/เลขประจำตัวผู้เสียภาษี',
+                    'tax_id'         => '1-1014-01847-80-1',
+                ]
+            ]
+        ];
+        return $data[$country_code][$data_version] ?? [];
+    }
+}

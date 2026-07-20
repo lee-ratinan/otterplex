@@ -93,6 +93,8 @@ defined('EXIT__AUTO_MAX')      || define('EXIT__AUTO_MAX', 125);    // highest a
 defined('STATUS_RESPONSE_ERR') || define('STATUS_RESPONSE_ERR', 'ERR');
 defined('STATUS_RESPONSE_OK')  || define('STATUS_RESPONSE_OK', 'OK');
 
+defined('OTTERNOVA_LEGAL_ENTITY_DATA_VERSION') || define('OTTERNOVA_LEGAL_ENTITY_DATA_VERSION', 1);
+
 defined('DEFAULT_COUNTRY_CODE')       || define('DEFAULT_COUNTRY_CODE', 'TH');
 defined('URL_PRIME_NONCE')            || define('URL_PRIME_NONCE', 787);
 

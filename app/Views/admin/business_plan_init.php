@@ -113,8 +113,9 @@
                         act_price: '<?= number_format($act_price, 2, '.', '') ?>'
                     },
                     function(response, status) {
-                        $('#btn-proceed').prop('disabled', false);
                         if (response.status === "<?= STATUS_RESPONSE_OK ?>") {
+                            $('#btn-proceed').hide();
+                            $('#payment-method').hide();
                             if (response.payment_method === 'promptpay') {
                                 $('#promptpay-qr').attr('src', response.data.promptpay_qr);
                                 $('#payment-form-promptpay').slideDown();
@@ -127,6 +128,7 @@
                                 $('#payment-form-bank-transfer').slideDown();
                             }
                         } else {
+                            $('#btn-proceed').prop('disabled', false);
                             toastr.error(response.message);
                         }
                     },
