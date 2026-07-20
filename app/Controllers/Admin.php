@@ -32,6 +32,7 @@ use App\Models\ProductVariantInventoryModel;
 use App\Models\ProductVariantModel;
 use App\Models\ResourceMasterModel;
 use App\Models\ResourceTypeModel;
+use App\Models\RunningNumberModel;
 use App\Models\ServiceMasterModel;
 use App\Models\ServiceStaffModel;
 use App\Models\ServiceVariantModel;
@@ -925,6 +926,7 @@ class Admin extends BaseController
         try {
             $bcModel         = new BusinessContractModel();
             $bizModel        = new BusinessMasterModel();
+            $rnModel         = new RunningNumberModel();
             $plan_name       = $this->request->getPost('plan_name');
             $plan_duration   = $this->request->getPost('plan_duration');
             $invoiced_amount = $this->request->getPost('act_price');
@@ -952,10 +954,15 @@ class Admin extends BaseController
             $timezone_data    = get_country_tz_for_system_cutoff($country_code);
             $timestamp        = new DateTime('now', new DateTimeZone($timezone_data[1]));
             $issued_date      = $timestamp->format(DATE_FORMAT_DB);
-            $invoice_number   = '';
+            $invoice_number   = $rnModel->generateOtterInvoiceNumber($country_code, $timestamp->format('Y'), $timestamp->format('m'));
             $total_amount     = $invoiced_amount;
             $business_name    = $session->business['business_local_names'][$session->lang] ?? $session->business['business_name'];
-            $business_address = $business_data['contact_address'] . ' ' . $business_data['contact_postal_code'] . ' ' . get_country_name_single_language($session->business['country_code'], $session->lang);
+            $business_address = '';
+            if (!empty($business_data['contact_address'])) {
+                $business_addrs   = json_decode($business_data['contact_address'], true);
+                $business_address = $business_addrs[$session->lang] ?? $business_addrs[array_key_first($business_addrs)];
+            }
+            $business_address = trim($business_address) . '<br/>' . $business_data['contact_postal_code'] . ' ' . get_country_name_single_language($session->business['country_code'], $session->lang);
             $data             = [
                 'business_id'              => $business_id,
                 'issued_date'              => $issued_date,
