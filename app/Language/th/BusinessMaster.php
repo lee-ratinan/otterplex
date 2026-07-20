@@ -26,7 +26,7 @@ return [
         'contact_email_address'      => 'อีเมล',
         'contact_phone_number'       => 'หมายเลขโทรศัพท์',
         'contact_website'            => 'เว็บไซต์',
-        'contact_address'            => 'ที่อยู่ (ที่อยู่นี้จะถูกใช้ในใบเรียกเก็บเงิน/ใบเสร็จรับเงิน)',
+        'contact_address'            => 'ที่อยู่ของธุรกิจ',
         'contact_postal_code'        => 'รหัสไปรษณีย์',
         'live_status'                => 'สถานะของร้านออนไลน์',
         'shipping'                   => 'การจัดส่งสินค้า (ถ้ามี)',

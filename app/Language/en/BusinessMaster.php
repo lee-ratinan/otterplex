@@ -26,7 +26,7 @@ return [
         'contact_email_address'      => 'Email Address',
         'contact_phone_number'       => 'Phone Number',
         'contact_website'            => 'Website',
-        'contact_address'            => 'Address (this address will be used in the invoices and receipts)',
+        'contact_address'            => 'Business Address',
         'contact_postal_code'        => 'Postal Code',
         'live_status'                => 'Store’s Online Status',
         'shipping'                   => 'Shipping (for physical products, if any)',

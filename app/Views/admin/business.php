@@ -162,6 +162,15 @@
                                 'type'      => 'url',
                                 'maxlength' => 36
                             ], $business['contact_website']);
+                            foreach ($all_languages as $lang_code => $language_name) {
+                                echo build_form_input('contact_address_' . $lang_code, lang('BusinessMaster.field.contact_address') . ' (' . $language_name . ')', [
+                                    'type' => 'text'
+                                ], @$business['contact_address'][$lang_code]);
+                            }
+                            echo build_form_input('contact_postal_code', lang('BusinessMaster.field.contact_postal_code'), [
+                                'type'      => 'url',
+                                'maxlength' => 16
+                            ], $business['contact_postal_code']);
                             ?>
                             <div class="text-end">
                                 <button class="btn btn-primary" id="btn-save-3"><?= lang('System.buttons.save') ?></button>
@@ -347,11 +356,13 @@
                 $all_fields[] = 'contact_email_address';
                 $all_fields[] = 'contact_phone_number';
                 $all_fields[] = 'contact_website';
+                $all_fields[] = 'contact_postal_code';
                 foreach ($all_languages as $lang_code => $language_name) {
                     $all_fields[] = 'business_local_names_' . $lang_code;
                     $all_fields[] = 'mart_meta_description_' . $lang_code;
                     $all_fields[] = 'mart_meta_keywords_' . $lang_code;
                     $all_fields[] = 'mart_store_intro_paragraph_' . $lang_code;
+                    $all_fields[] = 'contact_address_' . $lang_code;
                 }
                 foreach ($social_medias as $code => $social_name) {
                     $all_fields[] = 'social_media_' . $code;

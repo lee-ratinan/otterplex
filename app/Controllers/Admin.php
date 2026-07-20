@@ -381,10 +381,11 @@ class Admin extends BaseController
             $logo_file = base_url('file/business_' . $business['business_logo']);
         }
         // DATA
-        $business['mart_meta_description']      = json_decode($business['mart_meta_description'], true);
-        $business['mart_meta_keywords']         = json_decode($business['mart_meta_keywords'], true);
-        $business['mart_store_intro_paragraph'] = json_decode($business['mart_store_intro_paragraph'], true);
-        $business['social_media']               = json_decode($business['social_media'], true);
+        $business['mart_meta_description']      = json_decode($business['mart_meta_description'] ?? '[]', true);
+        $business['mart_meta_keywords']         = json_decode($business['mart_meta_keywords'] ?? '[]', true);
+        $business['mart_store_intro_paragraph'] = json_decode($business['mart_store_intro_paragraph'] ?? '[]', true);
+        $business['social_media']               = json_decode($business['social_media'] ?? '[]', true);
+        $business['contact_address']            = json_decode($business['contact_address'] ?? '[]', true);
         // TRANSLATION
         $local_names_raw                        = $translationModel->where('business_id', $businessId)->findAll();
         $local_names_values                     = [];
@@ -433,13 +434,14 @@ class Admin extends BaseController
             $error_msg           = lang('System.response-msg.error.generic');
             $upload_service      = new ImageUploadService();
             if ('save_business' == $script_action) {
-                $fields      = ['business_type_id', 'business_name', 'business_slug', 'allow_advance_booking', 'tax_percentage', 'tax_inclusive', 'live_status', 'mart_primary_color', 'mart_text_color', 'mart_background_color', 'currency_code', 'contact_email_address', 'contact_phone_number', 'contact_website', 'shipping_options', 'shipping_fee_taxable'];
+                $fields      = ['business_type_id', 'business_name', 'business_slug', 'allow_advance_booking', 'tax_percentage', 'tax_inclusive', 'live_status', 'mart_primary_color', 'mart_text_color', 'mart_background_color', 'currency_code', 'contact_email_address', 'contact_phone_number', 'contact_website', 'contact_postal_code', 'shipping_options', 'shipping_fee_taxable'];
                 $data        = [];
                 foreach ($available_lang as $code => $language_name) {
                     $fields[] = 'business_local_names_' . $code;
                     $fields[] = 'mart_meta_description_' . $code;
                     $fields[] = 'mart_meta_keywords_' . $code;
                     $fields[] = 'mart_store_intro_paragraph_' . $code;
+                    $fields[] = 'contact_address_' . $code;
                 }
                 foreach ($social_media as $code => $social_name) {
                     $fields[] = 'social_media_' . $code;
@@ -455,12 +457,14 @@ class Admin extends BaseController
                 $mart_meta_description_values      = [];
                 $mart_meta_keywords_values         = [];
                 $mart_store_intro_paragraph_values = [];
+                $contact_address_values            = [];
                 $social_medias_values              = [];
                 foreach ($available_lang as $code => $language_name) {
                     $business_local_names_values[$code]       = $data['business_local_names_' . $code];
                     $mart_meta_description_values[$code]      = $data['mart_meta_description_' . $code];
                     $mart_meta_keywords_values[$code]         = $data['mart_meta_keywords_' . $code];
                     $mart_store_intro_paragraph_values[$code] = $data['mart_store_intro_paragraph_' . $code];
+                    $contact_address_values[$code]            = $data['contact_address_' . $code];
                     unset($data['business_local_names_' . $code]);
                     unset($data['mart_meta_description_' . $code]);
                     unset($data['mart_meta_keywords_' . $code]);
@@ -474,6 +478,7 @@ class Admin extends BaseController
                 $data['mart_meta_description']      = json_encode($mart_meta_description_values, JSON_UNESCAPED_UNICODE);
                 $data['mart_meta_keywords']         = json_encode($mart_meta_keywords_values, JSON_UNESCAPED_UNICODE);
                 $data['mart_store_intro_paragraph'] = json_encode($mart_store_intro_paragraph_values, JSON_UNESCAPED_UNICODE);
+                $data['contact_address']            = json_encode($contact_address_values, JSON_UNESCAPED_UNICODE);
                 $data['social_media']               = json_encode($social_medias_values, JSON_UNESCAPED_UNICODE);
                 // Save
                 if ($businessMasterModel->update($businessId, $data) && $businessTrxModel->updateName($businessId, $business_local_names_values)) {
