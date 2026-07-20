@@ -46,6 +46,7 @@ use CodeIgniter\HTTP\ResponseInterface;
 use Config\Services;
 use DateMalformedStringException;
 use DateTime;
+use RuntimeException;
 use function PHPUnit\Framework\throwException;
 
 class Admin extends BaseController
@@ -826,11 +827,30 @@ class Admin extends BaseController
         $business   = $session->business;
         $plans      = retrieve_plans($business['country_code']);
         unset($plans['free']);
+        $bcModel   = new BusinessContractModel();
+        $pending   = $bcModel
+            ->where('financial_status', $bcModel::FINANCIAL_STATUS_PENDING)
+            ->where('business_id', $session->business['business_id'])
+            ->first();
+        $allowed    = true;
+        $invoice    = '';
+        if ($pending) {
+            $allowed = false;
+            $invoice = $pending['invoice_number'];
+        }
+        $historical = $bcModel
+            ->where('business_id', $session->business['business_id'])
+            ->where('issued_date >=', date(DATE_FORMAT_DB, strtotime('-1 year')))
+            ->orderBy('issued_date', 'DESC')
+            ->findAll();
         $data       = [
             'slug'       => 'business-plan',
             'lang'       => $this->request->getLocale(),
             'business'   => $business,
             'plans'      => $plans,
+            'allowed'    => $allowed,
+            'invoice'    => $invoice,
+            'historical' => $historical,
             'options'    => retrieve_plan_options()
         ];
         return view('admin/business_plan', $data);
@@ -875,6 +895,122 @@ class Admin extends BaseController
             ]
         ];
         return view('admin/business_plan_init', $data);
+    }
+
+    /**
+     * @return ResponseInterface
+     */
+    public function business_plan_init_post() : ResponseInterface
+    {
+        $session     = session();
+        if ('OWNER' != $session->user_role) {
+            return $this->forbiddenResponse('ResponseInterface');
+        }
+        $db = \Config\Database::connect();
+        $db->transBegin(); // <<< START TRANSACTION
+        try {
+            $bcModel         = new BusinessContractModel();
+            $plan_name       = $this->request->getPost('plan_name');
+            $plan_duration   = $this->request->getPost('plan_duration');
+            $invoiced_amount = $this->request->getPost('act_price');
+            $payment_method  = $this->request->getPost('payment_method');
+            if (!in_array($plan_name, ['basic', 'standard', 'premium'])
+                || !in_array($plan_duration, ['monthly', 'annually'])
+                || !in_array($payment_method, ['promptpay', 'bank_transfer'])
+            ) {
+                throw new \Exception(lang('System.response-msg.error.invalid-data'));
+            }
+            $expiry_str_addition = '+1 year';
+            if ('monthly' == $plan_duration) {
+                $expiry_str_addition = '+1 month';
+            }
+            $business_id     = $session->business['business_id'];
+            $unpaid_contract = $bcModel
+                ->where('business_id', $business_id)
+                ->where('financial_status', $bcModel::FINANCIAL_STATUS_PENDING)->first();
+            if ($unpaid_contract) {
+                throw new \Exception(lang('System.response-msg.error.unable-to-proceed-now'));
+            }
+            $invoice_number  = '';
+            $total_amount    = $invoiced_amount;
+            $data            = [
+                'business_id'      => $business_id,
+                'invoice_number'   => $invoice_number,
+                'plan_name'        => $plan_name,
+                'plan_duration'    => $plan_duration,
+                'contract_start'   => date(DATE_FORMAT_DB),
+                'contract_expiry'  => date(DATE_FORMAT_DB, strtotime($expiry_str_addition)),
+                'invoiced_amount'  => $invoiced_amount,
+                'discount_amount'  => 0,
+                'tax_amount'       => 0,
+                'total_amount'     => $total_amount,
+                'paid_amount'      => 0,
+                'financial_status' => $bcModel::FINANCIAL_STATUS_PENDING,
+            ];
+            if (!$bcModel->insert($data)) {
+                throw new \Exception(lang('System.response-msg.error.db-issue'));
+            }
+            $response_data = [];
+            if ('promptpay' == $payment_method) {
+                // only for Thailand
+                $qr_url  = getenv('otter_qr_api') . 'generator';
+                $payload = [
+                    'countryCode'                => 'TH',
+                    'pointOfInitiation'          => 'DYNAMIC',
+                    'merchantAccountInformation' => 'PROMPTPAY_ID',
+                    'ref1'                       => $invoice_number,
+                    'phoneNumber'                => '+66897828331',
+                    'transactionAmount'          => $total_amount,
+                ];
+                $ch = curl_init();
+                curl_setopt_array($ch, [
+                    CURLOPT_URL            => $qr_url,
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_TIMEOUT        => 10,
+                    CURLOPT_CONNECTTIMEOUT => 5,
+                    CURLOPT_POST           => true,
+                    CURLOPT_POSTFIELDS     => http_build_query($payload),
+                    CURLOPT_HTTPHEADER     => [
+                        'Accept: application/json',
+                        'Content-Type: application/x-www-form-urlencoded'
+                    ]
+                ]);
+                $body = curl_exec($ch);
+                if (curl_error($ch)) {
+                    $error = curl_error($ch);
+                    curl_close($ch);
+                    throw new RuntimeException("cURL error: {$error}");
+                }
+                curl_close($ch);
+                log_message('debug', 'QR code generation response: ' . $body);
+                $response_data = [
+                    'promptpay_qr' => 'data:image/png;base64,' . base64_encode($body)
+                ];
+            } else {
+                // should make it the 'else-if', but it was originally checked, so it's ok
+                // actually, should check country code first before grabbing the bank information
+                $response_data = [
+                    'bank_name'      => 'ธนาคารกรุงศรีอยุธยา<br/>Bank of Ayudhya',
+                    'swift_code'     => 'AYUDTHBK',
+                    'account_name'   => 'รตินันท์ ลีลางามวงศา เพื่อ ออทเทอร์โนวา<br/>Ratinan Leela-Ngamwongsa for OtterNova',
+                    'account_number' => '##########'
+                ];
+            }
+            // todo: send email
+            $db->transCommit();
+            return $this->response->setJSON([
+                'status'         => STATUS_RESPONSE_OK,
+                'payment_method' => $payment_method,
+                'data'           => $response_data
+            ]);
+        } catch (\Exception $e) {
+            $db->transRollback();
+            log_message('error', $e->getMessage());
+            return $this->response->setJSON([
+                'status'  => STATUS_RESPONSE_ERR,
+                'message' => $e->getMessage(),
+            ]);
+        }
     }
 
     /**

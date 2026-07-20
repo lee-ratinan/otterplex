@@ -9,12 +9,14 @@ class BusinessContractModel extends AppBaseModel
     protected $allowedFields = [
         'id',
         'business_id',
-        'package_id',
         'invoice_number',
+        'plan_name',
+        'plan_duration',
         'contract_start',
         'contract_expiry',
         'invoiced_amount',
         'discount_amount',
+        'tax_amount',
         'total_amount',
         'paid_amount',
         'financial_status',
@@ -33,6 +35,7 @@ class BusinessContractModel extends AppBaseModel
     const string FINANCIAL_STATUS_CANCELED = 'CANCELED';
 
     /**
+     * @deprecated
      * Get contracts and their payment data
      * @param int $businessId
      * @return array

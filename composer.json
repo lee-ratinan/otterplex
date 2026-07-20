@@ -16,7 +16,8 @@
     "giggsey/libphonenumber-for-php": "^9.0",
     "laminas/laminas-escaper": "^2.17",
     "psr/log": "^3.0",
-    "ext-gd": "*"
+    "ext-gd": "*",
+    "ext-curl": "*"
   },
   "require-dev": {
     "codeigniter/coding-standard": "^1.7",
@@ -29,7 +30,6 @@
     "predis/predis": "^3.0"
   },
   "suggest": {
-    "ext-curl": "*",
     "ext-dom": "*",
     "ext-exif": "*",
     "ext-fileinfo": "*",

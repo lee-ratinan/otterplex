@@ -16,7 +16,7 @@ use Transliterator;
 class Home extends BaseController
 {
 
-    const string SESSION_EXPIRY_STRING = '+1 hour';
+    const string SESSION_EXPIRY_STRING = '+6 hour';
     const int THROTTLER_LOGIN_CAPACITY = 5;
     const int THROTTLER_LOGIN_SECOND = 60;
 

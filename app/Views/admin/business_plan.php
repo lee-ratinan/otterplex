@@ -42,63 +42,69 @@ function print_options($options) {
                             </div>
                         </div>
                     </div>
-                    <?php if ('free' == $business['contract_plan']) : ?>
-                        <p><?= lang('BusinessPlan.you-are-on-free-plan') ?></p>
-                        <h4><?= lang('BusinessPlan.upgrade-options') ?></h4>
-                        <?php $paid_plans = ['basic', 'standard', 'premium']; ?>
-                        <div class="table-responsive">
-                            <table class="table table-bordered table-hover table-striped">
-                                <thead>
-                                <tr>
-                                    <th class="text-center"><?= lang('BusinessPlan.table.features') ?></th>
-                                    <th class="text-center"><?= lang('BusinessMaster.enum.contract_plan.free') ?></th>
-                                    <?php foreach ($paid_plans as $pn) : ?>
-                                        <th class="text-center"><?= lang('BusinessMaster.enum.contract_plan.' . $pn) ?></th>
-                                    <?php endforeach; ?>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr>
-                                    <td><?= lang('BusinessPlan.table.monthly-plan') ?></td>
-                                    <td class="text-center"><?= lang('BusinessPlan.table.you-are-here') ?></td>
-                                    <?php foreach ($paid_plans as $pn) : ?>
-                                        <td class="text-center">
-                                            <b><?= format_price($plans[$pn]['monthly'][0], $business['currency_code']) ?></b><br/>
-                                            <small><s><?= format_price($plans[$pn]['monthly'][1], $business['currency_code']) ?></s></small><br/>
-                                            <a href="<?= base_url('admin/business/plan/' . $pn . '/monthly') ?>" class="btn btn-outline-primary"><?= lang('BusinessPlan.table.upgrade-to-' . $pn) ?></a>
-                                        </td>
-                                    <?php endforeach; ?>
-                                </tr>
-                                <tr>
-                                    <td><?= lang('BusinessPlan.table.annual-plan') ?></td>
-                                    <td class="text-center"><?= lang('BusinessPlan.table.you-are-here') ?></td>
-                                    <?php foreach ($paid_plans as $pn) : ?>
-                                        <td class="text-center">
-                                            <b><?= format_price($plans[$pn]['annually'][0], $business['currency_code']) ?></b><br/>
-                                            <small><s><?= format_price($plans[$pn]['annually'][1], $business['currency_code']) ?></s></small><br/>
-                                            <a href="<?= base_url('admin/business/plan/' . $pn . '/annually') ?>" class="btn btn-outline-primary"><?= lang('BusinessPlan.table.upgrade-to-' . $pn) ?></a><br/>
-                                            <?php
-                                            $total_monthly = $plans[$pn]['monthly'][0] * 12; $savings_percentage = number_format((($total_monthly - $plans[$pn]['annually'][0]) / $total_monthly) * 100, 2);
-                                            echo lang('BusinessPlan.table.you-save', [$savings_percentage]);
-                                            ?>
-                                        </td>
-                                    <?php endforeach; ?>
-                                </tr>
-                                <?php print_options($options); ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    <?php else: ?>
-                        <?php if ('basic' == $business['contract_plan']) : ?>
-                            // upgrade option to standard or premium
-                        <?php elseif ('standard' == $business['contract_plan']) : ?>
-                            // upgrade option to premium
+                    <?php if ($allowed) : ?>
+                        <?php if ('free' == $business['contract_plan']) : ?>
+                            <p><?= lang('BusinessPlan.you-are-on-free-plan') ?></p>
+                            <h4><?= lang('BusinessPlan.upgrade-options') ?></h4>
+                            <?php $paid_plans = ['basic', 'standard', 'premium']; ?>
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-hover table-striped">
+                                    <thead>
+                                    <tr>
+                                        <th class="text-center"><?= lang('BusinessPlan.table.features') ?></th>
+                                        <th class="text-center"><?= lang('BusinessMaster.enum.contract_plan.free') ?></th>
+                                        <?php foreach ($paid_plans as $pn) : ?>
+                                            <th class="text-center"><?= lang('BusinessMaster.enum.contract_plan.' . $pn) ?></th>
+                                        <?php endforeach; ?>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td><?= lang('BusinessPlan.table.monthly-plan') ?></td>
+                                        <td class="text-center"><?= lang('BusinessPlan.table.you-are-here') ?></td>
+                                        <?php foreach ($paid_plans as $pn) : ?>
+                                            <td class="text-center">
+                                                <b><?= format_price($plans[$pn]['monthly'][0], $business['currency_code']) ?></b><br/>
+                                                <small><s><?= format_price($plans[$pn]['monthly'][1], $business['currency_code']) ?></s></small><br/>
+                                                <a href="<?= base_url('admin/business/plan/' . $pn . '/monthly') ?>" class="btn btn-outline-primary"><?= lang('BusinessPlan.table.upgrade-to-' . $pn) ?></a>
+                                            </td>
+                                        <?php endforeach; ?>
+                                    </tr>
+                                    <tr>
+                                        <td><?= lang('BusinessPlan.table.annual-plan') ?></td>
+                                        <td class="text-center"><?= lang('BusinessPlan.table.you-are-here') ?></td>
+                                        <?php foreach ($paid_plans as $pn) : ?>
+                                            <td class="text-center">
+                                                <b><?= format_price($plans[$pn]['annually'][0], $business['currency_code']) ?></b><br/>
+                                                <small><s><?= format_price($plans[$pn]['annually'][1], $business['currency_code']) ?></s></small><br/>
+                                                <a href="<?= base_url('admin/business/plan/' . $pn . '/annually') ?>" class="btn btn-outline-primary"><?= lang('BusinessPlan.table.upgrade-to-' . $pn) ?></a><br/>
+                                                <?php
+                                                $total_monthly = $plans[$pn]['monthly'][0] * 12; $savings_percentage = number_format((($total_monthly - $plans[$pn]['annually'][0]) / $total_monthly) * 100, 2);
+                                                echo lang('BusinessPlan.table.you-save', [$savings_percentage]);
+                                                ?>
+                                            </td>
+                                        <?php endforeach; ?>
+                                    </tr>
+                                    <?php print_options($options); ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <?php else: ?>
+                            <?php if ('basic' == $business['contract_plan']) : ?>
+                                // upgrade option to standard or premium
+                            <?php elseif ('standard' == $business['contract_plan']) : ?>
+                                // upgrade option to premium
+                            <?php endif; ?>
+                            // renewal options - 14/30 days before expiry
                         <?php endif; ?>
-                        // renewal options - 14/30 days before expiry
+                    <?php else: ?>
+                        <div class="alert alert-warning mb-3"><?= lang('Business.business-plan.pending-contract', [$invoice]) ?></div>
                     <?php endif; ?>
                     <h4> contract history </h4>
                     <div class="table-responsive">
-                        // contracts...
+                        <pre>
+                            <?= print_r($historical, true) ?>
+                        </pre>
                     </div>
                 </div>
             </div>

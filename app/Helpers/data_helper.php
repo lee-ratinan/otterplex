@@ -5208,6 +5208,7 @@ if (!function_exists('calculate_bill_cycle')) {
 }
 if (!function_exists('calculate_invoice_number')) {
     /**
+     * @deprecated
      * Generate an almost random invoice number that means something
      * @return string
      */

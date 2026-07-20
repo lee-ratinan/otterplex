@@ -30,6 +30,7 @@ return [
             'account-created-issue'     => 'ขออภัย เกิดข้อผิดพลาดขณะสร้างบัญชีของคุณ',
             'time-conflict-staff'       => 'ขออภัย พนักงานไม่ว่างในเวลานี้',
             'time-conflict-resource'    => 'ขออภัย ทรัพยากรไม่ว่างในเวลานี้',
+            'unable-to-proceed-now'     => 'ขออภัย ไม่สามารถดำเนินการได้ในตอนนี้',
         ],
         'success' => [
             'business-switched'     => 'คุณได้ทำการเปลี่ยนธุรกิจเรียบร้อยแล้ว',
