@@ -834,22 +834,26 @@ class Admin extends BaseController
         $business   = $session->business;
         $plans      = retrieve_plans($business['country_code']);
         unset($plans['free']);
-        $bcModel   = new BusinessContractModel();
-        $pending   = $bcModel
+        $bcModel    = new BusinessContractModel();
+        $pending    = $bcModel
             ->where('financial_status', $bcModel::FINANCIAL_STATUS_PENDING)
             ->where('business_id', $session->business['business_id'])
             ->first();
         $allowed    = true;
         $invoice    = '';
+        // pending invoice?
         if ($pending) {
             $allowed = false;
             $invoice = $pending['invoice_number'];
         }
+        // history
         $historical = $bcModel
             ->where('business_id', $session->business['business_id'])
             ->where('issued_date >=', date(DATE_FORMAT_DB, strtotime('-1 year')))
             ->orderBy('created_at', 'DESC')
             ->findAll();
+        // renewal option
+        $expiry     = strtotime($business['contract_expiry']);
         $data       = [
             'slug'       => 'business-plan',
             'lang'       => $this->request->getLocale(),
@@ -887,17 +891,41 @@ class Admin extends BaseController
         if ($pending) {
             throw PageNotFoundException::forPageNotFound();
         }
-        $expiry    = date(DATE_FORMAT_DB, strtotime($expiry_str_addition));
         $tz_data   = get_country_tz_for_system_cutoff($session->business['country_code']);
         $tz_name   = get_tzdb_by_code($tz_data[1]);
         $plans     = retrieve_plans($session->business['country_code']);
-        $act_price = $plans[$plan_name][$plan_duration][0];
-        $fr_price  = $plans[$plan_name][$plan_duration][1];
+        // check if this is the new plan, or upgrade from existing
+        if ('free' == $session->business['contract_plan']) {
+            // free, upgrade to the first plan
+            $mode      = 'first';
+            $start     = date(DATE_FORMAT_DB);
+            $expiry    = date(DATE_FORMAT_DB, strtotime($expiry_str_addition));
+            $act_price = $plans[$plan_name][$plan_duration][0];
+            $fr_price  = $plans[$plan_name][$plan_duration][1];
+        } else if ($plan_name == $session->business['contract_plan']) {
+            // renew, same plan
+            $mode = 'renew';
+            // start plan from expiry date + 1
+            // expiry = expiry date + 1 + m/y
+            $start     = date(DATE_FORMAT_DB);
+            $expiry    = date(DATE_FORMAT_DB);
+            $act_price = $plans[$plan_name][$plan_duration][0];
+            $fr_price  = $plans[$plan_name][$plan_duration][1];
+        } else {
+            // upgrade, different plan but same expiry date
+            $mode      = 'upgrade';
+            $start     = date(DATE_FORMAT_DB);
+            $expiry    = date(DATE_FORMAT_DB);
+            $act_price = 1000.0;
+            $fr_price  = 1000.0;
+        }
         $data      = [
             'slug'          => 'business-plan-init',
             'lang'          => $this->request->getLocale(),
+            'mode'          => $mode,
             'plan_name'     => $plan_name,
             'plan_duration' => $plan_duration,
+            'start_date'    => $start, // new field
             'expiry_date'   => $expiry,
             'tz_name'       => $tz_name,
             'act_price'     => $act_price,

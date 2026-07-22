@@ -179,5 +179,6 @@ return [
         ],
         'invoice'               => 'Invoice',
         'receipt'               => 'Receipt',
+        'contract-history'      => 'History',
     ]
 ];
