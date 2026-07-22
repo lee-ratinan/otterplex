@@ -848,7 +848,7 @@ class Admin extends BaseController
         $historical = $bcModel
             ->where('business_id', $session->business['business_id'])
             ->where('issued_date >=', date(DATE_FORMAT_DB, strtotime('-1 year')))
-            ->orderBy('issued_date', 'DESC')
+            ->orderBy('created_at', 'DESC')
             ->findAll();
         $data       = [
             'slug'       => 'business-plan',

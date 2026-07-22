@@ -176,6 +176,8 @@ return [
         ],
         'payment'               => [
             'instruction-for-pending-payment-confirmation' => 'The payment information is also sent to your email address. You can proceed to make the payment and close this page.'
-        ]
+        ],
+        'invoice'               => 'Invoice',
+        'receipt'               => 'Receipt',
     ]
 ];

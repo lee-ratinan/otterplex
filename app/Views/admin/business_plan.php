@@ -102,9 +102,35 @@ function print_options($options) {
                     <?php endif; ?>
                     <h4> contract history </h4>
                     <div class="table-responsive">
-                        <pre>
-                            <?= print_r($historical, true) ?>
-                        </pre>
+                        <table class="table table-bordered table-hover table-striped">
+                            <thead>
+                            <tr>
+                                <th><?= lang('BusinessContract.field.plan_name') ?></th>
+                                <th><?= lang('BusinessContract.field.contract_expiry') ?></th>
+                                <th><?= lang('BusinessContract.field.invoice_number') ?></th>
+                                <th><?= lang('BusinessContract.field.total_amount') ?></th>
+                                <th><?= lang('BusinessContract.field.paid_amount') ?></th>
+                                <th><?= lang('BusinessContract.field.financial_status') ?></th>
+                                <th>
+                                    <?= lang('Business.business-plan.invoice') ?> /
+                                    <?= lang('Business.business-plan.receipt') ?>
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <?php foreach ($historical as $row) : ?>
+                            <tr>
+                                <td><?= lang('BusinessContract.enum.plan_name.' . $row['plan_name']) . ': ' . lang('BusinessContract.enum.plan_duration.' . $row['plan_duration']) ?></td>
+                                <td><?= date(DATE_FORMAT_UI, strtotime($row['contract_expiry'])) ?></td>
+                                <td><?= $row['invoice_number'] ?></td>
+                                <td class="text-end"><?= format_price($row['total_amount'], $row['currency_code']) ?></td>
+                                <td class="text-end"><?= format_price($row['paid_amount'], $row['currency_code']) ?></td>
+                                <td class="text-center"><?= $row['financial_status'] ?></td>
+                                <td></td>
+                            </tr>
+                            <?php endforeach; ?>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
