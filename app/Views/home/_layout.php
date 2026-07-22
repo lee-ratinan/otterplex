@@ -24,6 +24,10 @@
     <link href="<?= base_url('assets/vendor/toastrjs/toastr.min.css') ?>" rel="stylesheet">
     <!-- Template Main CSS File -->
     <link href="<?= base_url('assets/css/style.css') ?>" rel="stylesheet">
+    <style>
+        [data-bs-theme=dark] .hide-on-dark {display: none;}
+        [data-bs-theme=light] .hide-on-light {display: none;}
+    </style>
     <script>
         const setTheme = () => {
             const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -50,7 +54,8 @@
                         <div class="d-flex justify-content-center py-4">
                             <a href="<?= base_url() ?>" class="logo d-flex align-items-center w-auto">
                                 <img src="<?= base_url('assets/img/logo.png') ?>" alt="">
-                                <span><?= lang('System.site-name') ?></span>
+                                <img class="hide-on-dark" src="<?= base_url('assets/img/otternova-text-logo-black.png') ?>" alt="">
+                                <img class="hide-on-light" src="<?= base_url('assets/img/otternova-text-logo-white.png') ?>" alt="">
                             </a>
                         </div><!-- End Logo -->
                         <div class="card mb-3">
