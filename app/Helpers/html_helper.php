@@ -277,3 +277,91 @@ if (!function_exists('format_price')) {
         return $negative . '$' . number_format($price, $decimals_override);
     }
 }
+
+if (!function_exists('translate_plan')) {
+    function translate_plan(string $plan_name, string $plan_duration, string $country_code): array
+    {
+        $names = [
+            'TH' => [
+                'basic'    => 'Basic / เบสิก',
+                'standard' => 'Standard / สแตนดาร์ด',
+                'premium'  => 'Premium / พรีเมียม',
+            ]
+        ];
+        $durations = [
+            'TH' => [
+                'monthly'  => '1 month / 1 เดือน',
+                'annually' => '1 year / 1 ปี',
+            ]
+        ];
+        return [
+            'name'     => $names[$country_code][$plan_name] ?? $plan_name,
+            'duration' => $durations[$country_code][$plan_duration] ?? $plan_duration,
+        ];
+    }
+}
+
+if (!function_exists('generate_invoice_receipt_core_features')) {
+    function generate_invoice_receipt_core_features(string $country_code, string $invoice_no, string $invoice_date, string $billed_to, string $plan, string $duration, string $amount, string $total): string
+    {
+        $template_words = [
+            'invoice_no'   => 'Invoice No.',
+            'invoice_date' => 'Invoice Date',
+            'billed_to'    => 'Billed to',
+            'plan'         => 'Plan',
+            'duration'     => 'Duration',
+            'amount'       => 'Amount',
+            'total'        => 'Total',
+        ];
+        if ('TH' == $country_code) {
+            $template_words = [
+                'invoice_no'   => 'Invoice No. / ใบเรียกเก็บเงินเลขที่',
+                'invoice_date' => 'Invoice Date / วันที่เรียกเก็บ',
+                'billed_to'    => 'Billed to / ลูกค้า',
+                'plan'         => 'Plan / แผน',
+                'duration'     => 'Duration / ระยะเวลา',
+                'amount'       => 'Amount / จำนวนเงิน',
+                'total'        => 'Total / จำนวนเงินทั้งหมด',
+            ];
+        }
+        $invoice_date = date('j F Y', strtotime($invoice_date));
+        return "<p><b>{$template_words['invoice_no']}</b><br/>{$invoice_no}</p>" .
+            "<p><b>{$template_words['invoice_date']}</b><br/>{$invoice_date}</p>" .
+            "<p><b>{$template_words['billed_to']}</b><br/>{$billed_to}</p>" .
+            "<div style=\"height:1px;background:#e5e5ea;line-height:1px;font-size:1px;\">&nbsp;</div>" .
+            "<p><span style=\"float:right;\">{$plan}</span>{$template_words['plan']}</p>" .
+            "<p><span style=\"float:right;\">{$duration}</span>{$template_words['duration']}</p>" .
+            "<p><span style=\"float:right;\">{$amount}</span>{$template_words['amount']}</p>" .
+            "<div style=\"height:1px;background:#e5e5ea;line-height:1px;font-size:1px;\">&nbsp;</div>" .
+            "<p><b style=\"float:right;font-size:1.2em;\">{$total}</b>{$template_words['total']}</p>" .
+            "<div style=\"height:1px;background:#e5e5ea;line-height:1px;font-size:1px;\">&nbsp;</div>";
+    }
+}
+
+if (!function_exists('generate_invoice')) {
+    function generate_invoice(string $country_code, string $plan_name, string $plan_duration, string $invoice_no, string $invoice_date, string $billed_to, float $amount, float $total, string $payment_instruction): string
+    {
+        $template_words = [
+            'invoice'             => 'Invoice',
+            'payment_instruction' => 'Payment Instruction'
+        ];
+        if ('TH' == $country_code) {
+            $template_words = [
+                'invoice'             => 'Invoice / ใบเรียกเก็บเงิน',
+                'payment_instruction' => 'Payment Instruction / วิธีการชำระเงิน'
+            ];
+        }
+        $plans  = translate_plan($plan_name, $plan_duration, $country_code);
+        $amount = format_price($amount, $country_code);
+        $total  = format_price($total, $country_code);
+        return "<h2>{$template_words['invoice']}</h2>" . generate_invoice_receipt_core_features($country_code, $invoice_no, $invoice_date, $billed_to, $plans['name'], $plans['duration'], $amount, $total) .
+            "<h3>{$template_words['payment_instruction']}</h3>" . $payment_instruction;
+    }
+}
+
+if (!function_exists('generate_receipt')) {
+    function generate_receipt(string $prefix, string $country_code, string $reiwa_year, string $month, string $next_number): string
+    {
+        return '';
+    }
+}

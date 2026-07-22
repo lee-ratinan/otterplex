@@ -21,7 +21,8 @@ if (!function_exists('send_system_email')) {
         $email       = Services::email();
         $email->clear();
         $logo        = base_url('assets/img/logo.png');
-        $preheader   = substr($message, 0, 200);
+        $preheader   = strip_tags($message);
+        $preheader   = mb_substr($preheader, 0, 200);
         $html        = "<!doctype html>
 <html lang='en'>
   <head>
@@ -73,10 +74,6 @@ if (!function_exists('send_system_email')) {
             <!-- Content -->
             <tr>
               <td style='padding:22px 24px 6px 24px;'>
-                <!-- Optional title -->
-                <div class='txt' style='font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif; font-size:20px;line-height:26px;font-weight:600;color:#1d1d1f;margin:0 0 10px 0;'>
-                  {$subject}
-                </div>
                 <!-- Main content (HTML-safe block) -->
                 <div class='txt' style='font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif; font-size:15px;line-height:22px;color:#1d1d1f;margin:0 0 16px 0;'>
                   {$message}

@@ -988,7 +988,8 @@ class Admin extends BaseController
                 throw new \Exception(lang('System.response-msg.error.db-issue'));
             }
             $response_data = [];
-            if ('promptpay' == $payment_method) {
+            $payment_html  = '';
+            if ('promptpay' == $payment_method && 'TH' == $country_code) {
                 // only for Thailand
                 $qr_url  = getenv('otter_qr_api') . 'generator';
                 $payload = [
@@ -1019,21 +1020,41 @@ class Admin extends BaseController
                     throw new RuntimeException("cURL error: {$error}");
                 }
                 curl_close($ch);
-                log_message('debug', 'QR code generation response: ' . $body);
+                $payment_html  = '<h4>' . lang('Business.business-plan.promptpay-qr.title') . '</h4>
+                                <p>' . lang('Business.business-plan.promptpay-qr.instruction-1') . '</p>
+                                <p>' . lang('Business.business-plan.promptpay-qr.instruction-2') . '</p>
+                                <div style="text-align:center"><img id="promptpay-qr" src="data:image/png;base64,' . base64_encode($body) . '" alt="QR Code" style="width:200px;height:200px;"/></div>';
                 $response_data = [
                     'promptpay_qr' => 'data:image/png;base64,' . base64_encode($body)
                 ];
-            } else {
-                // should make it the 'else-if', but it was originally checked, so it's ok
-                // actually, should check country code first before grabbing the bank information
+            } else if ('bank-transfer' == $payment_method && 'TH' == $country_code) {
                 $response_data = [
                     'bank_name'      => 'ธนาคารกรุงศรีอยุธยา<br/>Bank of Ayudhya',
                     'swift_code'     => 'AYUDTHBK',
                     'account_name'   => 'รตินันท์ ลีลางามวงศา เพื่อ ออทเทอร์โนวา<br/>Ratinan Leela-Ngamwongsa for OtterNova',
                     'account_number' => '##########'
                 ];
+                $payment_html  = '<h4>' . lang('Business.business-plan.bank-transfer-section.title') . '</h4>
+                                <p>' . lang('Business.business-plan.bank-transfer-section.instruction-1') . '</p>
+                                <p>' . lang('Business.business-plan.bank-transfer-section.instruction-2') . '</p>
+                                <p>' . lang('Business.business-plan.bank-transfer-section.bank-name') . '<br/>' . $response_data['bank_name'] . '</p>
+                                <p>' . lang('Business.business-plan.bank-transfer-section.swift-code') . '<br/>' . $response_data['swift_code'] . '</p>
+                                <p>' . lang('Business.business-plan.bank-transfer-section.account-name') . '<br/>' . $response_data['account_name'] . '</p>
+                                <p>' . lang('Business.business-plan.bank-transfer-section.account-number') . '<br/>' . $response_data['account_number'] . '</p>';
+            } else {
+                throw new \Exception(lang('System.response-msg.error.business-plan-init-issue')); // wrong method selected
             }
-            // todo: send email
+            $reply_to      = getenv('REPLY_TO_EMAIL');
+            $email_subject = [
+                'TH' => "Invoice and payment instruction / ใบเรียกเก็บเงินและวิธีการชำระเงิน [#{$invoice_number}]"
+            ];
+            $billed_to     = $session->full_name . '<br/>' . $business_name . '<br/>' .$business_address;
+            $email_message = generate_invoice($country_code, $plan_name, $plan_duration, $invoice_number, $issued_date,  $billed_to, $invoiced_amount, $total_amount, $payment_html);
+            log_message('debug', 'Invoice Subject: ' . $email_subject[$country_code]);
+            log_message('debug', 'Invoice Message: ' . $email_message);
+            if (!send_system_email($session->user['email_address'], $email_subject[$country_code], $email_message, $reply_to)) {
+                throw new \Exception(lang('System.response-msg.error.business-plan-init-issue')); // can't send activation email
+            }
             $db->transCommit();
             return $this->response->setJSON([
                 'status'         => STATUS_RESPONSE_OK,
@@ -1474,7 +1495,7 @@ class Admin extends BaseController
                     $token     = "$exp-$userTkn-$hash";
                     $tknLnk    = base_url('account-activation?hl=' . $session->lang . '&token=' . $token);
                     $subject   = lang('System.email.new-user.subject');
-                    $message   = lang('System.email.new-user.message', [$tknLnk, $data['email_address'], $password]);
+                    $message   = '<h2>' . $subject . '</h2>' . lang('System.email.new-user.message', [$tknLnk, $data['email_address'], $password]);
                     $preheader = substr($message, 0, 50);
                     $reply_to  = getenv('SUPPORT_EMAIL');
                     log_message('debug', 'EMAIL: SUBJECT: ' . $subject);

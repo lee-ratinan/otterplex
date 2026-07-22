@@ -369,7 +369,7 @@ class Home extends BaseController
             $token     = "$exp-$userTkn-$hash";
             $tknLnk    = base_url('account-activation?hl=' . $user_master['lang_code'] . '&token=' . $token);
             $subject   = lang('System.email.account-activation.subject');
-            $message   = lang('System.email.account-activation.message', [$tknLnk, $tknLnk]);
+            $message   = '<h2>' . $subject . '</h2>' . lang('System.email.account-activation.message', [$tknLnk, $tknLnk]);
             $reply_to  = getenv('SUPPORT_EMAIL');
             log_message('debug', 'EMAIL: SUBJECT: ' . $subject);
             log_message('debug', 'EMAIL: MESSAGE: ' . $message);
